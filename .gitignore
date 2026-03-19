@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+coverage/
+
+# Rust build artifacts
+src/lib/engine/target/
+src/lib/engine/pkg/
+
+# OS & editors
+.DS_Store
+*.log
+.idea/
+.vscode/settings.json
+*.swp
+
+# Environment (keep example)
+.env*
+!.env.example
+
+# Reference / prompt files
+prom/
+
+# This script (runs once, then is gitignored)
+generate-history.sh
