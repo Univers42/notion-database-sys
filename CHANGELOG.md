@@ -105,3 +105,4 @@ All notable changes are documented here.
 - **10:46** `feat(engine)` add property access (prop["name"]) and identifier lookup
 - **11:07** `feat(engine)` emit constant pool, push/pop and binary-op instructions
 - **11:17** `feat(engine)` add call instruction with argument arity encoding
+- **11:38** `feat(engine)` add arithmetic ops: +, -, *, / with type coercion
