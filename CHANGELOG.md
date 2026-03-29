@@ -123,3 +123,4 @@ All notable changes are documented here.
 - **16:12** `feat(store)` implement resolveRollup with count/sum/avg/min/max/unique
 - **16:22** `feat(store)` add show_original and show_unique rollup display modes
 - **18:37** `fix(engine)` handle UTF-8 multi-byte emoji in string len/slice functions
+- **18:48** `fix(engine)` treat and/or/not as reserved keywords, not identifiers
