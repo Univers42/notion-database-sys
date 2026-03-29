@@ -107,3 +107,4 @@ All notable changes are documented here.
 - **11:17** `feat(engine)` add call instruction with argument arity encoding
 - **11:38** `feat(engine)` add arithmetic ops: +, -, *, / with type coercion
 - **11:48** `feat(engine)` add comparison ops: ==, !=, <, >, <=, >= on number and text
+- **11:59** `feat(engine)` add logical ops: and, or, not with short-circuit evaluation
