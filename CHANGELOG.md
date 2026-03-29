@@ -127,3 +127,4 @@ All notable changes are documented here.
 - **18:58** `fix(store)` invalidate formula cache on page updatedAt change
 - **19:09** `fix(table)` prevent #ERROR on page refresh from reserved-word param names
 - **19:19** `fix(table)` add missing useMemo import to TableView.tsx
+- **19:29** `fix(bridge)` remove TS formula fallback engine – WASM is the sole evaluator
