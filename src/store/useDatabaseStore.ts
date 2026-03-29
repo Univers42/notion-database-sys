@@ -70,6 +70,16 @@ interface DatabaseState {
   deletePage: (pageId: string) => void;
   duplicatePage: (pageId: string) => void;
   updatePageContent: (pageId: string, content: Block[]) => void;
+  changeBlockType: (pageId: string, blockId: string, newType: Block['type']) => void;
+  insertBlock: (pageId: string, afterBlockId: string | null, block: Block) => void;
+  deleteBlock: (pageId: string, blockId: string) => void;
+  moveBlock: (pageId: string, blockId: string, targetIndex: number) => void;
+  toggleBlockChecked: (pageId: string, blockId: string) => void;
+  toggleBlockCollapsed: (pageId: string, blockId: string) => void;
+  updateBlock: (pageId: string, blockId: string, updates: Partial<Block>) => void;
+
+  // ─── Inline Database Creation ───────────────────────────────
+  createInlineDatabase: (name?: string) => { databaseId: string; viewId: string };
 
   // ─── View CRUD ─────────────────────────────────────────────
   addView: (view: Omit<ViewConfig, 'id'>) => void;
@@ -543,6 +553,127 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
       }
     };
   }),
+
+  changeBlockType: (pageId, blockId, newType) => set((state) => {
+    const page = state.pages[pageId];
+    if (!page || !page.content) return state;
+    const content = page.content.map(b =>
+      b.id === blockId ? { ...b, type: newType } : b
+    );
+    return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: new Date().toISOString(), lastEditedBy: 'You' } } };
+  }),
+
+  insertBlock: (pageId, afterBlockId, block) => set((state) => {
+    const page = state.pages[pageId];
+    if (!page) return state;
+    const content = [...(page.content || [])];
+    if (afterBlockId === null) {
+      content.unshift(block);
+    } else {
+      const idx = content.findIndex(b => b.id === afterBlockId);
+      content.splice(idx + 1, 0, block);
+    }
+    return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: new Date().toISOString(), lastEditedBy: 'You' } } };
+  }),
+
+  deleteBlock: (pageId, blockId) => set((state) => {
+    const page = state.pages[pageId];
+    if (!page || !page.content) return state;
+    const content = page.content.filter(b => b.id !== blockId);
+    return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: new Date().toISOString(), lastEditedBy: 'You' } } };
+  }),
+
+  moveBlock: (pageId, blockId, targetIndex) => set((state) => {
+    const page = state.pages[pageId];
+    if (!page || !page.content) return state;
+    const content = [...page.content];
+    const fromIdx = content.findIndex(b => b.id === blockId);
+    if (fromIdx === -1) return state;
+    const [moved] = content.splice(fromIdx, 1);
+    content.splice(targetIndex, 0, moved);
+    return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: new Date().toISOString(), lastEditedBy: 'You' } } };
+  }),
+
+  toggleBlockChecked: (pageId, blockId) => set((state) => {
+    const page = state.pages[pageId];
+    if (!page || !page.content) return state;
+    const content = page.content.map(b =>
+      b.id === blockId ? { ...b, checked: !b.checked } : b
+    );
+    return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: new Date().toISOString(), lastEditedBy: 'You' } } };
+  }),
+
+  toggleBlockCollapsed: (pageId, blockId) => set((state) => {
+    const page = state.pages[pageId];
+    if (!page || !page.content) return state;
+    const content = page.content.map(b =>
+      b.id === blockId ? { ...b, collapsed: !b.collapsed } : b
+    );
+    return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: new Date().toISOString(), lastEditedBy: 'You' } } };
+  }),
+
+  updateBlock: (pageId, blockId, updates) => set((state) => {
+    const page = state.pages[pageId];
+    if (!page || !page.content) return state;
+    const content = page.content.map(b =>
+      b.id === blockId ? { ...b, ...updates } : b
+    );
+    return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: new Date().toISOString(), lastEditedBy: 'You' } } };
+  }),
+
+  // ─── INLINE DATABASE CREATION ──────────────────────────────
+
+  createInlineDatabase: (name = 'Untitled Database') => {
+    const dbId = `db-inline-${uuidv4().slice(0, 8)}`;
+    const viewId = `v-${uuidv4().slice(0, 8)}`;
+    const titlePropId = `prop-${uuidv4().slice(0, 6)}`;
+    const tagsPropId = `prop-${uuidv4().slice(0, 6)}`;
+    const statusPropId = `prop-${uuidv4().slice(0, 6)}`;
+
+    const newDb: DatabaseSchema = {
+      id: dbId,
+      name,
+      icon: '📊',
+      titlePropertyId: titlePropId,
+      properties: {
+        [titlePropId]: { id: titlePropId, name: 'Name', type: 'title' },
+        [tagsPropId]: {
+          id: tagsPropId, name: 'Tags', type: 'multi_select',
+          options: [
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Tag 1', color: 'bg-blue-100 text-blue-800' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Tag 2', color: 'bg-green-100 text-green-800' },
+          ],
+        },
+        [statusPropId]: {
+          id: statusPropId, name: 'Status', type: 'select',
+          options: [
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Not started', color: 'bg-gray-200 text-gray-800' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'In progress', color: 'bg-blue-200 text-blue-800' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Done', color: 'bg-green-200 text-green-800' },
+          ],
+        },
+      },
+    };
+
+    const newView: ViewConfig = {
+      id: viewId,
+      databaseId: dbId,
+      name: 'Table',
+      type: 'table',
+      filters: [],
+      filterConjunction: 'and',
+      sorts: [],
+      visibleProperties: [titlePropId, tagsPropId, statusPropId],
+      settings: { showVerticalLines: true },
+    };
+
+    set((state) => ({
+      databases: { ...state.databases, [dbId]: newDb },
+      views: { ...state.views, [viewId]: newView },
+    }));
+
+    return { databaseId: dbId, viewId };
+  },
 
   // ─── VIEW CRUD ─────────────────────────────────────────────
 
