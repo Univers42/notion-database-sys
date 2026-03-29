@@ -66,3 +66,4 @@ All notable changes are documented here.
 - **12:46** `feat(settings)` add load limit slider (25–500 rows) to ViewSettingsPanel
 - **13:51** `feat(table)` add column resize on drag with configurable min width
 - **14:02** `feat(table)` add property visibility toggle popover in header
+- **14:12** `feat(table)` add SelectEditor popup with create-option capability
