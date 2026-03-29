@@ -146,3 +146,4 @@ All notable changes are documented here.
 - **11:01** `perf(topbar)` use getState() for actions in FilterPanel and SortPanel
 - **11:11** `perf(app)` fix PageModal, PropertyRow and PageContentEditor store subscriptions
 - **11:22** `perf(store)` move useMemo calls before early return (hooks-rules lint fix)
+- **11:32** `refactor(table)` delete dead renderCell inline function (440 lines removed)
