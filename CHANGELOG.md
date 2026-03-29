@@ -115,3 +115,4 @@ All notable changes are documented here.
 - **14:48** `feat(bridge)` add evalFormula one-shot compile+evaluate for single row
 - **14:59** `feat(bridge)` add batchEvaluate for whole-table batch mode (most efficient)
 - **15:09** `feat(bridge)` add compileFormula returning reusable handle with cache
+- **15:19** `feat(bridge)` add validateFormula returning errors and dependency list
