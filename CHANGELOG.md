@@ -64,3 +64,4 @@ All notable changes are documented here.
 - **12:15** `feat(topbar)` add Notion-authentic SVG icon set for all view types
 - **12:36** `feat(settings)` add group-by property selector in ViewSettingsPanel
 - **12:46** `feat(settings)` add load limit slider (25–500 rows) to ViewSettingsPanel
+- **13:51** `feat(table)` add column resize on drag with configurable min width
