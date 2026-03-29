@@ -16,3 +16,4 @@ All notable changes are documented here.
 - **12:11** `feat(types)` add RelationConfig and ButtonConfig types
 - **12:22** `feat(types)` add Block interface for page content editor
 - **13:44** `feat(store)` add DatabaseState interface with databases, pages, views maps
+- **13:54** `feat(store)` implement addPage and deletePage with immutable updates
