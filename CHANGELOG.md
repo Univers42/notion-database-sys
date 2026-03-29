@@ -49,3 +49,4 @@ All notable changes are documented here.
 - **09:18** `feat(ui)` add PageModal (side_peek, center_peek, full_page modes)
 - **09:28** `feat(ui)` add PropertyRow component inside PageModal
 - **09:39** `feat(ui)` add PageContentEditor with block-level paragraph editing
+- **09:49** `feat(ui)` add EmptyState fallback for no-view-selected screen
