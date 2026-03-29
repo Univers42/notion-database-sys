@@ -149,3 +149,4 @@ All notable changes are documented here.
 - **11:32** `refactor(table)` delete dead renderCell inline function (440 lines removed)
 - **11:42** `refactor(store)` extract READ_ONLY_TYPES as top-level Set constant
 - **11:53** `docs(readme)` update README with architecture overview and component map
+- **12:03** `docs(readme)` add usage, keyboard shortcuts and formula syntax sections
