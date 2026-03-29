@@ -78,3 +78,4 @@ All notable changes are documented here.
 - **15:46** `feat(table)` add rollup cell: number/bar/ring display modes
 - **15:56** `feat(table)` add relation cell with page-link buttons
 - **16:07** `feat(table)` add assigned_to multi-avatar cell with stacking
+- **16:17** `feat(table)` add due_date cell with Overdue/Today/Nd-left badges
