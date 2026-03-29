@@ -134,3 +134,4 @@ All notable changes are documented here.
 
 - **09:05** `perf(store)` replace JSON.stringify cache key with reference-equality checks
 - **09:16** `perf(table)` extract MemoTableRow as React.memo – only re-render changed rows
+- **09:26** `perf(table)` wrap all row handler props in useCallback with empty deps
