@@ -99,3 +99,4 @@ All notable changes are documented here.
 
 - **09:12** `feat(engine)` add wasm-bindgen, serde and serde_json to Cargo dependencies
 - **09:33** `feat(engine)` add identifier, reserved-word and operator token types
+- **09:43** `feat(engine)` add string literal tokenisation with escape sequences
