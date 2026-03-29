@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useDatabaseStore } from './store/useDatabaseStore';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TopBar } from './components/TopBar';
@@ -22,7 +22,10 @@ import {
 } from './components/ui/Icons';
 import { X, FileText, Trash2, Copy, ChevronRight, Plus, Hash, Type, Calendar, CheckSquare, User, Link, Mail, Phone, List as ListIcon, CircleDot, MapPin, Fingerprint, MousePointerClick, Users, Tag, Clock } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import type { ViewType, SchemaProperty } from './types/database';
+import type { ViewType, SchemaProperty, Block, BlockType } from './types/database';
+import { BlockRenderer } from './components/blocks/BlockRenderer';
+import { SlashCommandMenu } from './components/blocks/SlashCommandMenu';
+import { detectBlockType } from './lib/markdownEngine';
 
 const VIEW_COMPONENTS: Record<ViewType, React.ComponentType> = {
   table: TableView,
@@ -478,44 +481,228 @@ function PropertyRow({ prop, page, pageId, database }: { prop: SchemaProperty; p
 /* --- PageContentEditor --- */
 function PageContentEditor({ pageId }: { pageId: string }) {
   const pages = useDatabaseStore(s => s.pages);
-  const { updatePageContent } = useDatabaseStore.getState();
+  const {
+    updatePageContent,
+    insertBlock,
+    deleteBlock,
+    changeBlockType,
+    updateBlock,
+    createInlineDatabase,
+  } = useDatabaseStore.getState();
   const page = pages[pageId];
-  if (!page) return null;
 
+  // Slash command state
+  const [slashMenu, setSlashMenu] = useState<{ blockId: string; position: { x: number; y: number }; filter: string } | null>(null);
+  const blockRefs = useRef<Map<string, HTMLElement>>(new Map());
+
+  if (!page) return null;
   const content = page.content || [];
 
-  // Simple block editor: each block is a paragraph for now
-  const handleBlockChange = (index: number, text: string) => {
-    const newContent = [...content];
-    newContent[index] = { ...newContent[index], content: text };
-    updatePageContent(pageId, newContent);
+  /* ── Helpers ────────────────────────────────────────────────────── */
+
+  const focusBlock = (blockId: string, cursorEnd = false) => {
+    setTimeout(() => {
+      const el = blockRefs.current.get(blockId) ?? document.querySelector(`[data-block-id="${blockId}"]`) as HTMLElement;
+      if (!el) return;
+      const editable = el.querySelector('[contenteditable]') as HTMLElement ?? el;
+      editable.focus();
+      if (cursorEnd && editable.childNodes.length) {
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(editable);
+        range.collapse(false);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    }, 30);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      const newContent = [...content];
-      newContent.splice(index + 1, 0, { id: crypto.randomUUID(), type: 'paragraph', content: '' });
-      updatePageContent(pageId, newContent);
-      // Focus new block after render
-      setTimeout(() => {
-        const blocks = document.querySelectorAll('[data-block-editor]');
-        (blocks[index + 1] as HTMLElement)?.focus();
-      }, 50);
+  const getCaretRect = (): { x: number; y: number } => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if (rect.x !== 0 || rect.y !== 0) return { x: rect.x, y: rect.bottom };
     }
-    if (e.key === 'Backspace' && content[index]?.content === '' && content.length > 1) {
-      e.preventDefault();
-      const newContent = content.filter((_, i) => i !== index);
-      updatePageContent(pageId, newContent);
+    return { x: 100, y: 300 };
+  };
+
+  /* ── Block content change — detects slash trigger & markdown shortcuts ── */
+
+  const handleBlockChange = (blockId: string, text: string) => {
+    // Check for slash trigger
+    if (text.endsWith('/')) {
+      const pos = getCaretRect();
+      setSlashMenu({ blockId, position: pos, filter: '' });
+      return;
+    }
+
+    // Update slash filter if menu is open
+    if (slashMenu && slashMenu.blockId === blockId) {
+      const slashIdx = text.lastIndexOf('/');
+      if (slashIdx >= 0) {
+        setSlashMenu(prev => prev ? { ...prev, filter: text.slice(slashIdx + 1) } : null);
+        return;
+      } else {
+        setSlashMenu(null);
+      }
+    }
+
+    // Detect markdown shortcuts (e.g. "## " at start → heading_2)
+    const detection = detectBlockType(text);
+    if (detection) {
+      changeBlockType(pageId, blockId, detection.type);
+      updateBlock(pageId, blockId, { content: detection.remainingContent });
+      // Reposition cursor
       setTimeout(() => {
-        const blocks = document.querySelectorAll('[data-block-editor]');
-        (blocks[Math.max(0, index - 1)] as HTMLElement)?.focus();
-      }, 50);
+        const el = document.querySelector(`[data-block-id="${blockId}"] [contenteditable]`) as HTMLElement;
+        if (el) {
+          el.textContent = detection.remainingContent;
+          el.focus();
+          const sel = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          range.collapse(false);
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        }
+      }, 30);
+      return;
+    }
+
+    // Normal update
+    updateBlock(pageId, blockId, { content: text });
+  };
+
+  /* ── Key down — Enter for new block, Backspace to delete empty ── */
+
+  const handleKeyDown = (e: React.KeyboardEvent, blockId: string) => {
+    const block = content.find(b => b.id === blockId);
+    if (!block) return;
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      // Don't handle Enter if slash menu is open (menu handles it)
+      if (slashMenu) return;
+      e.preventDefault();
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    }
+
+    if (e.key === 'Backspace' && block.content === '' && content.length > 1) {
+      e.preventDefault();
+      const idx = content.findIndex(b => b.id === blockId);
+      const prevBlockId = idx > 0 ? content[idx - 1].id : null;
+      deleteBlock(pageId, blockId);
+      if (prevBlockId) focusBlock(prevBlockId, true);
+    }
+
+    // Arrow Up at first block — focus previous
+    if (e.key === 'ArrowUp') {
+      const idx = content.findIndex(b => b.id === blockId);
+      if (idx > 0) {
+        const sel = window.getSelection();
+        const range = sel?.getRangeAt(0);
+        if (range && range.startOffset === 0 && range.collapsed) {
+          e.preventDefault();
+          focusBlock(content[idx - 1].id, true);
+        }
+      }
+    }
+
+    // Arrow Down at last block — focus next
+    if (e.key === 'ArrowDown') {
+      const idx = content.findIndex(b => b.id === blockId);
+      if (idx < content.length - 1) {
+        const el = e.target as HTMLElement;
+        const sel = window.getSelection();
+        const range = sel?.getRangeAt(0);
+        if (range && range.endOffset === (el.textContent?.length ?? 0) && range.collapsed) {
+          e.preventDefault();
+          focusBlock(content[idx + 1].id);
+        }
+      }
+    }
+
+    // Escape to close slash menu
+    if (e.key === 'Escape' && slashMenu) {
+      setSlashMenu(null);
     }
   };
+
+  /* ── Slash command selection ── */
+
+  const handleSlashSelect = (type: BlockType) => {
+    if (!slashMenu) return;
+    const { blockId } = slashMenu;
+    setSlashMenu(null);
+
+    // Remove the "/" and any filter text from the block content
+    const block = content.find(b => b.id === blockId);
+    if (block) {
+      const slashIdx = block.content.lastIndexOf('/');
+      const cleanContent = slashIdx >= 0 ? block.content.slice(0, slashIdx) : block.content;
+      updateBlock(pageId, blockId, { content: cleanContent });
+    }
+
+    // Special init for certain block types
+    if (type === 'database_inline') {
+      const { databaseId, viewId } = createInlineDatabase();
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { content: '', databaseId, viewId });
+      // Insert a new paragraph after the inline database
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    } else if (type === 'database_full_page') {
+      const { databaseId, viewId } = createInlineDatabase('Untitled');
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { content: '', databaseId, viewId });
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    } else if (type === 'table_block') {
+      updateBlock(pageId, blockId, { content: '' });
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, {
+        tableData: [['', '', ''], ['', '', '']],
+      });
+    } else if (type === 'divider') {
+      changeBlockType(pageId, blockId, type);
+      // Insert a new paragraph after the divider
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    } else {
+      changeBlockType(pageId, blockId, type);
+      focusBlock(blockId);
+    }
+  };
+
+  /* ── New block button ── */
+
+  const handleAddBlock = () => {
+    const lastId = content.length > 0 ? content[content.length - 1].id : null;
+    const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+    if (lastId) {
+      insertBlock(pageId, lastId, newBlock);
+    } else {
+      updatePageContent(pageId, [newBlock]);
+    }
+    focusBlock(newBlock.id);
+  };
+
+  /* ── Register block ref ── */
+
+  const registerBlockRef = useCallback((blockId: string, el: HTMLElement | null) => {
+    if (el) blockRefs.current.set(blockId, el);
+    else blockRefs.current.delete(blockId);
+  }, []);
+
+  /* ── Render ── */
 
   return (
-    <div className="flex flex-col gap-1 min-h-[200px]">
+    <div className="flex flex-col gap-0.5 min-h-[200px]">
       {content.length === 0 ? (
         <div
           contentEditable
@@ -523,29 +710,84 @@ function PageContentEditor({ pageId }: { pageId: string }) {
           className="text-sm text-gray-400 outline-none py-1 focus:text-gray-900"
           onFocus={() => {
             if (content.length === 0) {
-              updatePageContent(pageId, [{ id: crypto.randomUUID(), type: 'paragraph', content: '' }]);
+              const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+              updatePageContent(pageId, [newBlock]);
+              focusBlock(newBlock.id);
             }
           }}
           suppressContentEditableWarning>
           Type '/' for commands, or just start writing...
         </div>
       ) : (
-        content.map((block, i) => (
-          <div key={block.id}
-            contentEditable
-            data-block-editor
-            className={`text-sm outline-none py-0.5 leading-relaxed ${block.type === 'heading_1' ? 'text-2xl font-bold text-gray-900 mt-4 mb-1' :
-              block.type === 'heading_2' ? 'text-xl font-semibold text-gray-900 mt-3 mb-1' :
-                block.type === 'heading_3' ? 'text-lg font-medium text-gray-900 mt-2 mb-0.5' :
-                  'text-gray-700'
-              } empty:before:content-[attr(data-placeholder)] empty:before:text-gray-300`}
-            data-placeholder="Type '/' for commands..."
-            onInput={(e) => handleBlockChange(i, (e.target as HTMLElement).textContent || '')}
-            onKeyDown={(e) => handleKeyDown(e, i)}
-            suppressContentEditableWarning
-            dangerouslySetInnerHTML={{ __html: block.content }}
-          />
+        content.map((block) => (
+          <div
+            key={block.id}
+            ref={el => registerBlockRef(block.id, el)}
+            data-block-id={block.id}
+            className="group/block relative"
+          >
+            {/* Block handle on hover */}
+            <div className="absolute -left-8 top-1 opacity-0 group-hover/block:opacity-100 transition-opacity flex items-center gap-0.5">
+              <button
+                onClick={() => {
+                  const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+                  const idx = content.findIndex(b => b.id === block.id);
+                  const prevId = idx > 0 ? content[idx - 1].id : null;
+                  if (prevId) {
+                    insertBlock(pageId, prevId, newBlock);
+                  } else {
+                    const updated = [newBlock, ...content];
+                    updatePageContent(pageId, updated);
+                  }
+                  focusBlock(newBlock.id);
+                }}
+                className="p-0.5 text-gray-300 hover:text-gray-500 rounded hover:bg-gray-100 transition-colors"
+                title="Add block"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              <div className="p-0.5 text-gray-300 hover:text-gray-500 rounded hover:bg-gray-100 transition-colors cursor-grab">
+                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                  <circle cx="5.5" cy="3.5" r="1.5" />
+                  <circle cx="10.5" cy="3.5" r="1.5" />
+                  <circle cx="5.5" cy="8" r="1.5" />
+                  <circle cx="10.5" cy="8" r="1.5" />
+                  <circle cx="5.5" cy="12.5" r="1.5" />
+                  <circle cx="10.5" cy="12.5" r="1.5" />
+                </svg>
+              </div>
+            </div>
+
+            <BlockRenderer
+              block={block}
+              pageId={pageId}
+              index={content.indexOf(block)}
+              onChange={(text) => handleBlockChange(block.id, text)}
+              onKeyDown={(e) => handleKeyDown(e, block.id)}
+            />
+          </div>
         ))
+      )}
+
+      {/* Add block button */}
+      {content.length > 0 && (
+        <button
+          onClick={handleAddBlock}
+          className="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-500 py-2 transition-colors group"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity">Add a block</span>
+        </button>
+      )}
+
+      {/* Slash command menu */}
+      {slashMenu && (
+        <SlashCommandMenu
+          position={slashMenu.position}
+          filter={slashMenu.filter}
+          onSelect={handleSlashSelect}
+          onClose={() => setSlashMenu(null)}
+        />
       )}
     </div>
   );
