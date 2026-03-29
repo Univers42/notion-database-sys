@@ -68,3 +68,4 @@ All notable changes are documented here.
 - **14:02** `feat(table)` add property visibility toggle popover in header
 - **14:12** `feat(table)` add SelectEditor popup with create-option capability
 - **14:22** `feat(table)` add MultiSelectEditor with pill display and create
+- **14:33** `feat(table)` render title, text, number, date cell types
