@@ -32,3 +32,4 @@ All notable changes are documented here.
 - **16:11** `feat(store)` add getPageTitle helper from titlePropertyId
 - **16:22** `feat(store)` add addSelectOption to extend property option list
 - **16:32** `feat(store)` add renameDatabase and updateDatabaseIcon actions
+- **16:54** `feat(seed)` add 30 products per category (300 total pages)
