@@ -47,3 +47,4 @@ All notable changes are documented here.
 ## [2026-03-22]
 
 - **09:18** `feat(ui)` add PageModal (side_peek, center_peek, full_page modes)
+- **09:28** `feat(ui)` add PropertyRow component inside PageModal
