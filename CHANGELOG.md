@@ -39,3 +39,4 @@ All notable changes are documented here.
 - **17:37** `feat(seed)` add formula and rollup properties to product schema
 - **17:47** `feat(seed)` add assigned_to, due_date and status fields to products
 - **18:08** `feat(seed)` add reverse relation props and bidirectional link data
+- **18:19** `feat(seed)` add project views: table, board, calendar with grouping
