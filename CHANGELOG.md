@@ -11,3 +11,4 @@ All notable changes are documented here.
 - **11:16** `feat(types)` add Filter, FilterOperator union and evaluateFilter signature
 - **11:27** `feat(types)` add Sort and multi-sort direction types
 - **11:38** `feat(types)` add Grouping interface for board/gallery group-by
+- **11:49** `feat(types)` add ViewSettings with columnWidths, showRowNumbers, wrapContent
