@@ -110,3 +110,4 @@ All notable changes are documented here.
 - **11:59** `feat(engine)` add logical ops: and, or, not with short-circuit evaluation
 - **13:56** `feat(engine)` add formula handle cache keyed by compiled expression
 - **14:07** `feat(engine)` implement free_formula and get_dependencies WASM exports
+- **14:17** `feat(engine)` build WASM package with wasm-pack targeting web
