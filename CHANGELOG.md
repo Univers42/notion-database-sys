@@ -42,3 +42,4 @@ All notable changes are documented here.
 - **18:19** `feat(seed)` add project views: table, board, calendar with grouping
 - **18:29** `feat(seed)` integrate product and relation seeds into store initial state
 - **18:40** `feat(seed)` finalize seed data: status groups, select options, attachments
+- **18:51** `chore(seed)` add load limit defaults and column width presets to views
