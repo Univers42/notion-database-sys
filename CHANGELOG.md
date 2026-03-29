@@ -41,3 +41,4 @@ All notable changes are documented here.
 - **18:08** `feat(seed)` add reverse relation props and bidirectional link data
 - **18:19** `feat(seed)` add project views: table, board, calendar with grouping
 - **18:29** `feat(seed)` integrate product and relation seeds into store initial state
+- **18:40** `feat(seed)` finalize seed data: status groups, select options, attachments
