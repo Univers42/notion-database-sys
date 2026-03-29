@@ -143,3 +143,4 @@ All notable changes are documented here.
 - **10:30** `perf(table)` move stable action refs to useDatabaseStore.getState()
 - **10:40** `perf(sidebar)` replace full store subscription with individual selectors
 - **10:50** `perf(topbar)` use selective Zustand selectors – only re-render on relevant state
+- **11:01** `perf(topbar)` use getState() for actions in FilterPanel and SortPanel
