@@ -51,3 +51,4 @@ All notable changes are documented here.
 - **09:39** `feat(ui)` add PageContentEditor with block-level paragraph editing
 - **09:49** `feat(ui)` add EmptyState fallback for no-view-selected screen
 - **10:10** `feat(sidebar)` add collapsible database group in sidebar
+- **10:20** `feat(sidebar)` add view icon map for all 10 view types
