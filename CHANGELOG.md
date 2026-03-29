@@ -91,3 +91,4 @@ All notable changes are documented here.
 - **18:01** `feat(table)` add grouped row rendering with collapsible group headers
 - **18:12** `feat(table)` add row numbers, load-more pagination and + New row
 - **18:22** `feat(table)` add per-row context menu (open page, duplicate, delete)
+- **18:43** `feat(board)` add drag-and-drop cards between columns
