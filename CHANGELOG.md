@@ -69,3 +69,4 @@ All notable changes are documented here.
 - **14:12** `feat(table)` add SelectEditor popup with create-option capability
 - **14:22** `feat(table)` add MultiSelectEditor with pill display and create
 - **14:33** `feat(table)` render title, text, number, date cell types
+- **14:43** `feat(table)` add checkbox cell with immediate toggle on click
