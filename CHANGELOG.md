@@ -81,3 +81,4 @@ All notable changes are documented here.
 - **16:17** `feat(table)` add due_date cell with Overdue/Today/Nd-left badges
 - **16:27** `feat(table)` add custom type cell (boolean, json, timestamp, string)
 - **16:38** `feat(table)` add created_time, last_edited_time auto cells
+- **16:48** `feat(table)` add created_by and last_edited_by user cells
