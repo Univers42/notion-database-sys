@@ -72,3 +72,4 @@ All notable changes are documented here.
 - **14:43** `feat(table)` add checkbox cell with immediate toggle on click
 - **14:54** `feat(table)` add person and user cells with avatar initials
 - **15:04** `feat(table)` add email, url and phone cells with link styling
+- **15:15** `feat(table)` add place cell showing MapPin icon and address text
