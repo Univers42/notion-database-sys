@@ -38,3 +38,4 @@ All notable changes are documented here.
 - **17:26** `feat(seed)` implement generateProductPages factory with random data
 - **17:37** `feat(seed)` add formula and rollup properties to product schema
 - **17:47** `feat(seed)` add assigned_to, due_date and status fields to products
+- **18:08** `feat(seed)` add reverse relation props and bidirectional link data
