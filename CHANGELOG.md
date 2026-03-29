@@ -36,3 +36,4 @@ All notable changes are documented here.
 - **17:05** `feat(seed)` add select options with semantic color tokens for all fields
 - **17:16** `feat(seed)` add product views: table, board, gallery, timeline, calendar
 - **17:26** `feat(seed)` implement generateProductPages factory with random data
+- **17:37** `feat(seed)` add formula and rollup properties to product schema
