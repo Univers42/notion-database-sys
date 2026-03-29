@@ -31,3 +31,4 @@ All notable changes are documented here.
 - **16:01** `feat(store)` add getGroupedPages for board/gallery grouped rendering
 - **16:11** `feat(store)` add getPageTitle helper from titlePropertyId
 - **16:22** `feat(store)` add addSelectOption to extend property option list
+- **16:32** `feat(store)` add renameDatabase and updateDatabaseIcon actions
