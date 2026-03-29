@@ -53,3 +53,4 @@ All notable changes are documented here.
 - **10:10** `feat(sidebar)` add collapsible database group in sidebar
 - **10:20** `feat(sidebar)` add view icon map for all 10 view types
 - **10:41** `feat(topbar)` add search input with keyboard focus on open
+- **10:52** `feat(topbar)` add FilterPanel component with multi-condition builder
