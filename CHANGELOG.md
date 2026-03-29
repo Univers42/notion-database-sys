@@ -118,3 +118,4 @@ All notable changes are documented here.
 - **15:19** `feat(bridge)` add validateFormula returning errors and dependency list
 - **15:30** `feat(bridge)` add getDependencies, freeFormula and clearFormulaCache exports
 - **15:40** `feat(bridge)` add non-blocking auto-init on module import
+- **15:51** `feat(store)` integrate WASM bridge into resolveFormula store action
