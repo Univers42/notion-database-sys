@@ -71,3 +71,4 @@ All notable changes are documented here.
 - **14:33** `feat(table)` render title, text, number, date cell types
 - **14:43** `feat(table)` add checkbox cell with immediate toggle on click
 - **14:54** `feat(table)` add person and user cells with avatar initials
+- **15:04** `feat(table)` add email, url and phone cells with link styling
