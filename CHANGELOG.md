@@ -92,3 +92,4 @@ All notable changes are documented here.
 - **18:12** `feat(table)` add row numbers, load-more pagination and + New row
 - **18:22** `feat(table)` add per-row context menu (open page, duplicate, delete)
 - **18:43** `feat(board)` add drag-and-drop cards between columns
+- **18:53** `feat(board)` add add-card button per column with inline title input
