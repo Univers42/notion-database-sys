@@ -19,3 +19,4 @@ All notable changes are documented here.
 - **13:54** `feat(store)` implement addPage and deletePage with immutable updates
 - **14:05** `feat(store)` implement updatePageProperty with updatedAt timestamp
 - **14:15** `feat(store)` add getPagesForView filtering records by databaseId
+- **14:26** `feat(store)` add searchQuery global text filter to getPagesForView
