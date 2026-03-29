@@ -116,3 +116,4 @@ All notable changes are documented here.
 - **14:59** `feat(bridge)` add batchEvaluate for whole-table batch mode (most efficient)
 - **15:09** `feat(bridge)` add compileFormula returning reusable handle with cache
 - **15:19** `feat(bridge)` add validateFormula returning errors and dependency list
+- **15:30** `feat(bridge)` add getDependencies, freeFormula and clearFormulaCache exports
