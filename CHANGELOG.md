@@ -80,3 +80,4 @@ All notable changes are documented here.
 - **16:07** `feat(table)` add assigned_to multi-avatar cell with stacking
 - **16:17** `feat(table)` add due_date cell with Overdue/Today/Nd-left badges
 - **16:27** `feat(table)` add custom type cell (boolean, json, timestamp, string)
+- **16:38** `feat(table)` add created_time, last_edited_time auto cells
