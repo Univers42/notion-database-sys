@@ -27,3 +27,4 @@ All notable changes are documented here.
 - **15:19** `feat(store)` add addView, deleteView, duplicateView, setActiveView
 - **15:29** `feat(store)` add updateViewSettings and reorderProperties actions
 - **15:40** `feat(store)` implement duplicatePage preserving all properties
+- **15:50** `feat(store)` add updatePageContent for block-level editing
