@@ -101,3 +101,4 @@ All notable changes are documented here.
 - **09:33** `feat(engine)` add identifier, reserved-word and operator token types
 - **09:43** `feat(engine)` add string literal tokenisation with escape sequences
 - **10:04** `feat(engine)` add number, text, boolean, date, dateRange and array variants
+- **10:35** `feat(engine)` handle unary minus, parenthesised sub-expressions and calls
