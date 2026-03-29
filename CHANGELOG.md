@@ -59,3 +59,4 @@ All notable changes are documented here.
 - **11:23** `feat(topbar)` add view rename with inline input and enter/esc handling
 - **11:33** `feat(topbar)` add duplicate/delete view in view tab context menu
 - **11:44** `feat(topbar)` add fullscreen toggle and export/download placeholders
+- **11:54** `feat(topbar)` add database switcher dropdown in TopBar left section
