@@ -28,3 +28,4 @@ All notable changes are documented here.
 - **15:29** `feat(store)` add updateViewSettings and reorderProperties actions
 - **15:40** `feat(store)` implement duplicatePage preserving all properties
 - **15:50** `feat(store)` add updatePageContent for block-level editing
+- **16:01** `feat(store)` add getGroupedPages for board/gallery grouped rendering
