@@ -150,3 +150,4 @@ All notable changes are documented here.
 - **11:42** `refactor(store)` extract READ_ONLY_TYPES as top-level Set constant
 - **11:53** `docs(readme)` update README with architecture overview and component map
 - **12:03** `docs(readme)` add usage, keyboard shortcuts and formula syntax sections
+- **12:14** `chore(deps)` bump vite to 6.4.1 and react to 19 in package.json
