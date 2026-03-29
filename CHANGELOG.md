@@ -120,3 +120,4 @@ All notable changes are documented here.
 - **15:40** `feat(bridge)` add non-blocking auto-init on module import
 - **15:51** `feat(store)` integrate WASM bridge into resolveFormula store action
 - **16:01** `feat(store)` add formula result LRU cache (10 000 entries, 25% eviction)
+- **16:12** `feat(store)` implement resolveRollup with count/sum/avg/min/max/unique
