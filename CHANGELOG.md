@@ -125,3 +125,4 @@ All notable changes are documented here.
 - **18:37** `fix(engine)` handle UTF-8 multi-byte emoji in string len/slice functions
 - **18:48** `fix(engine)` treat and/or/not as reserved keywords, not identifiers
 - **18:58** `fix(store)` invalidate formula cache on page updatedAt change
+- **19:09** `fix(table)` prevent #ERROR on page refresh from reserved-word param names
