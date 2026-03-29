@@ -103,3 +103,4 @@ All notable changes are documented here.
 - **10:04** `feat(engine)` add number, text, boolean, date, dateRange and array variants
 - **10:35** `feat(engine)` handle unary minus, parenthesised sub-expressions and calls
 - **10:46** `feat(engine)` add property access (prop["name"]) and identifier lookup
+- **11:07** `feat(engine)` emit constant pool, push/pop and binary-op instructions
