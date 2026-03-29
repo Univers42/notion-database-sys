@@ -13,3 +13,4 @@ All notable changes are documented here.
 - **11:38** `feat(types)` add Grouping interface for board/gallery group-by
 - **11:49** `feat(types)` add ViewSettings with columnWidths, showRowNumbers, wrapContent
 - **12:00** `feat(types)` add FormulaConfig and RollupConfig with aggregation modes
+- **12:11** `feat(types)` add RelationConfig and ButtonConfig types
