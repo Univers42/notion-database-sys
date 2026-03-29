@@ -54,3 +54,4 @@ All notable changes are documented here.
 - **10:20** `feat(sidebar)` add view icon map for all 10 view types
 - **10:41** `feat(topbar)` add search input with keyboard focus on open
 - **10:52** `feat(topbar)` add FilterPanel component with multi-condition builder
+- **11:02** `feat(topbar)` add SortPanel with up to N sort levels
