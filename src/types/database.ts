@@ -45,6 +45,7 @@ export type BlockType =
   | 'heading_1'
   | 'heading_2'
   | 'heading_3'
+  | 'heading_4'
   | 'bulleted_list'
   | 'numbered_list'
   | 'to_do'
@@ -53,7 +54,20 @@ export type BlockType =
   | 'quote'
   | 'callout'
   | 'divider'
-  | 'image';
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'file'
+  | 'bookmark'
+  | 'page'
+  | 'link_to_page'
+  | 'table_block'
+  | 'table_view'
+  | 'board_view'
+  | 'gallery_view'
+  | 'list_view'
+  | 'database_inline'
+  | 'database_full_page';
 
 export interface Block {
   id: string;
@@ -63,6 +77,13 @@ export interface Block {
   checked?: boolean;
   language?: string;
   color?: string;
+  url?: string;
+  caption?: string;
+  collapsed?: boolean;
+  embedType?: string;
+  tableData?: string[][];
+  databaseId?: string;
+  viewId?: string;
 }
 
 // ─── SELECT OPTIONS ──────────────────────────────────────────────────────────
