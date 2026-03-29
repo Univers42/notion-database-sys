@@ -140,3 +140,4 @@ All notable changes are documented here.
 - **09:58** `perf(table)` replace 300 DropdownMenu.Portal instances with single shared menu
 - **10:09** `perf(table)` throttle column resize updates with requestAnimationFrame
 - **10:19** `perf(table)` fix fill handle to use O(1) pageIdToRowIdx Map lookup
+- **10:30** `perf(table)` move stable action refs to useDatabaseStore.getState()
