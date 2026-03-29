@@ -90,3 +90,4 @@ All notable changes are documented here.
 - **17:51** `feat(table)` add Excel-style fill handle drag-copy across rows
 - **18:01** `feat(table)` add grouped row rendering with collapsible group headers
 - **18:12** `feat(table)` add row numbers, load-more pagination and + New row
+- **18:22** `feat(table)` add per-row context menu (open page, duplicate, delete)
