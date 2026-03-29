@@ -129,3 +129,7 @@ All notable changes are documented here.
 - **19:19** `fix(table)` add missing useMemo import to TableView.tsx
 - **19:29** `fix(bridge)` remove TS formula fallback engine – WASM is the sole evaluator
 - **19:40** `fix(store)` remove ~200-line TS fallback ctx from useDatabaseStore
+
+## [2026-03-28]
+
+- **09:05** `perf(store)` replace JSON.stringify cache key with reference-equality checks
