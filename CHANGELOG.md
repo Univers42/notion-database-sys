@@ -128,3 +128,4 @@ All notable changes are documented here.
 - **19:09** `fix(table)` prevent #ERROR on page refresh from reserved-word param names
 - **19:19** `fix(table)` add missing useMemo import to TableView.tsx
 - **19:29** `fix(bridge)` remove TS formula fallback engine – WASM is the sole evaluator
+- **19:40** `fix(store)` remove ~200-line TS fallback ctx from useDatabaseStore
