@@ -85,3 +85,4 @@ All notable changes are documented here.
 - **16:59** `feat(table)` implement keyboard navigation (arrow keys, Tab, Enter, Esc)
 - **17:09** `feat(table)` add Shift+Enter to create new record below cursor
 - **17:19** `feat(table)` add Delete/Backspace to clear non-title cell value
+- **17:30** `feat(table)` add column drag-and-drop reorder via HTML5 drag events
