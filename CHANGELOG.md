@@ -24,3 +24,4 @@ All notable changes are documented here.
 - **14:47** `feat(store)` add multi-sort support with compareValues helper
 - **14:57** `feat(store)` add addProperty, deleteProperty and updateProperty actions
 - **15:08** `feat(store)` implement togglePropertyVisibility and hideAllProperties
+- **15:19** `feat(store)` add addView, deleteView, duplicateView, setActiveView
