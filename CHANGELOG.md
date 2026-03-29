@@ -76,3 +76,4 @@ All notable changes are documented here.
 - **15:25** `feat(table)` add id, files_media and button cell types
 - **15:35** `feat(table)` add formula cell display with Sigma icon click-to-edit
 - **15:46** `feat(table)` add rollup cell: number/bar/ring display modes
+- **15:56** `feat(table)` add relation cell with page-link buttons
