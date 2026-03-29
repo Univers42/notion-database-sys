@@ -17,3 +17,4 @@ All notable changes are documented here.
 - **12:22** `feat(types)` add Block interface for page content editor
 - **13:44** `feat(store)` add DatabaseState interface with databases, pages, views maps
 - **13:54** `feat(store)` implement addPage and deletePage with immutable updates
+- **14:05** `feat(store)` implement updatePageProperty with updatedAt timestamp
