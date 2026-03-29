@@ -141,3 +141,4 @@ All notable changes are documented here.
 - **10:09** `perf(table)` throttle column resize updates with requestAnimationFrame
 - **10:19** `perf(table)` fix fill handle to use O(1) pageIdToRowIdx Map lookup
 - **10:30** `perf(table)` move stable action refs to useDatabaseStore.getState()
+- **10:40** `perf(sidebar)` replace full store subscription with individual selectors
