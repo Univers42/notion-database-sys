@@ -61,3 +61,4 @@ All notable changes are documented here.
 - **11:44** `feat(topbar)` add fullscreen toggle and export/download placeholders
 - **11:54** `feat(topbar)` add database switcher dropdown in TopBar left section
 - **12:05** `feat(topbar)` add view dots overflow menu for extra actions
+- **12:15** `feat(topbar)` add Notion-authentic SVG icon set for all view types
