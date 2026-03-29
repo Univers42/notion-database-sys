@@ -83,3 +83,4 @@ All notable changes are documented here.
 - **16:38** `feat(table)` add created_time, last_edited_time auto cells
 - **16:48** `feat(table)` add created_by and last_edited_by user cells
 - **16:59** `feat(table)` implement keyboard navigation (arrow keys, Tab, Enter, Esc)
+- **17:09** `feat(table)` add Shift+Enter to create new record below cursor
