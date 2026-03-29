@@ -26,3 +26,4 @@ All notable changes are documented here.
 - **15:08** `feat(store)` implement togglePropertyVisibility and hideAllProperties
 - **15:19** `feat(store)` add addView, deleteView, duplicateView, setActiveView
 - **15:29** `feat(store)` add updateViewSettings and reorderProperties actions
+- **15:40** `feat(store)` implement duplicatePage preserving all properties
