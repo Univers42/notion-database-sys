@@ -138,3 +138,4 @@ All notable changes are documented here.
 - **09:37** `perf(table)` memoize visibleProps, allProps, hiddenProps with useMemo
 - **09:48** `perf(table)` remove transition-all from 6000+ td elements (compositor overhead)
 - **09:58** `perf(table)` replace 300 DropdownMenu.Portal instances with single shared menu
+- **10:09** `perf(table)` throttle column resize updates with requestAnimationFrame
