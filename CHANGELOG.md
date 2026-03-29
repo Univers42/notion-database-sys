@@ -74,3 +74,4 @@ All notable changes are documented here.
 - **15:04** `feat(table)` add email, url and phone cells with link styling
 - **15:15** `feat(table)` add place cell showing MapPin icon and address text
 - **15:25** `feat(table)` add id, files_media and button cell types
+- **15:35** `feat(table)` add formula cell display with Sigma icon click-to-edit
