@@ -94,3 +94,7 @@ All notable changes are documented here.
 - **18:43** `feat(board)` add drag-and-drop cards between columns
 - **18:53** `feat(board)` add add-card button per column with inline title input
 - **19:04** `feat(gallery)` add gallery card with cover image and property pills
+
+## [2026-03-27]
+
+- **09:12** `feat(engine)` add wasm-bindgen, serde and serde_json to Cargo dependencies
