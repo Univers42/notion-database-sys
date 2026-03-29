@@ -56,3 +56,4 @@ All notable changes are documented here.
 - **10:52** `feat(topbar)` add FilterPanel component with multi-condition builder
 - **11:02** `feat(topbar)` add SortPanel with up to N sort levels
 - **11:13** `feat(topbar)` add add-view panel with all 10 view type cards
+- **11:23** `feat(topbar)` add view rename with inline input and enter/esc handling
