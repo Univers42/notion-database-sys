@@ -6,3 +6,4 @@ All notable changes are documented here.
 
 - **10:31** `feat(types)` add Page interface with properties record and content blocks
 - **10:42** `feat(types)` add ViewConfig with visibleProperties and activeViewId
+- **10:53** `feat(types)` define PropertyType union (text, number, select, date, …)
