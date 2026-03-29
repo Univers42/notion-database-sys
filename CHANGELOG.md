@@ -88,3 +88,4 @@ All notable changes are documented here.
 - **17:30** `feat(table)` add column drag-and-drop reorder via HTML5 drag events
 - **17:40** `feat(table)` add property config panel on column header click
 - **17:51** `feat(table)` add Excel-style fill handle drag-copy across rows
+- **18:01** `feat(table)` add grouped row rendering with collapsible group headers
