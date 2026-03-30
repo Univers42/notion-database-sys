@@ -25,7 +25,7 @@ import { format, parseISO } from 'date-fns';
 import type { ViewType, SchemaProperty, Block, BlockType } from './types/database';
 import { BlockRenderer } from './components/blocks/BlockRenderer';
 import { SlashCommandMenu } from './components/blocks/SlashCommandMenu';
-import { detectBlockType } from './lib/markdownEngine';
+import { detectBlockType } from './lib/markdown';
 
 const VIEW_COMPONENTS: Record<ViewType, React.ComponentType> = {
   table: TableView,
@@ -152,6 +152,67 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
   const pages = useDatabaseStore(s => s.pages);
   const { updatePageProperty, deletePage, duplicatePage, getPageTitle } = useDatabaseStore.getState();
 
+  // ── Resizable panel state ──
+  const DEFAULT_WIDTHS = { side_peek: 672, center_peek: 768, full_page: 896 };
+  const MIN_WIDTH = 400;
+  const MAX_WIDTH_RATIO = 0.92;
+  const [panelWidth, setPanelWidth] = React.useState(DEFAULT_WIDTHS[mode]);
+  const [isResizing, setIsResizing] = React.useState(false);
+  const resizeRef = React.useRef<{ startX: number; startW: number } | null>(null);
+
+  // Full-page content width presets
+  const [contentWidth, setContentWidth] = React.useState<'narrow' | 'default' | 'wide' | 'full'>('default');
+  const CONTENT_WIDTHS = { narrow: 640, default: 896, wide: 1152, full: -1 };
+
+  React.useEffect(() => {
+    if (!isResizing) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!resizeRef.current) return;
+      const { startX, startW } = resizeRef.current;
+      const maxW = window.innerWidth * MAX_WIDTH_RATIO;
+      if (mode === 'side_peek') {
+        // Drag left edge → startX - e.clientX increases width
+        const newW = Math.min(Math.max(startW + (startX - e.clientX), MIN_WIDTH), maxW);
+        setPanelWidth(newW);
+      } else if (mode === 'center_peek') {
+        // Drag either edge → double the delta
+        const newW = Math.min(Math.max(startW + 2 * Math.abs(startX - e.clientX) * Math.sign(startX - e.clientX), MIN_WIDTH), maxW);
+        setPanelWidth(Math.abs(newW));
+      }
+    };
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      resizeRef.current = null;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, mode]);
+
+  const startResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizeRef.current = { startX: e.clientX, startW: panelWidth };
+    setIsResizing(true);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
+  /** Resize handle element (vertical bar on the panel edge) */
+  const ResizeHandle = ({ side = 'left' }: { side?: 'left' | 'right' }) => (
+    <div
+      onMouseDown={startResize}
+      className={`absolute top-0 ${side === 'left' ? '-left-1' : '-right-1'} w-2 h-full cursor-col-resize z-10 group`}
+    >
+      <div className={`w-0.5 h-full mx-auto transition-colors ${isResizing ? 'bg-blue-400' : 'bg-transparent group-hover:bg-blue-300'}`} />
+    </div>
+  );
+
   const thePage = pages[pageId];
   if (!thePage) {
     return (
@@ -248,9 +309,11 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
     return (
       <div className="fixed inset-0 z-50 flex justify-end bg-black/30" onClick={onClose}>
         <div
-          className="w-full max-w-2xl bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-200"
+          className="relative bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-200"
+          style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH }}
           onClick={e => e.stopPropagation()}
         >
+          <ResizeHandle side="left" />
           {headerBar}
           {pageContent('px-12')}
         </div>
@@ -263,10 +326,12 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
         <div
-          className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200"
-          style={{ maxHeight: 'calc(100vh - 80px)' }}
+          className="relative bg-white rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200"
+          style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH, maxHeight: 'calc(100vh - 80px)' }}
           onClick={e => e.stopPropagation()}
         >
+          <ResizeHandle side="left" />
+          <ResizeHandle side="right" />
           {headerBar}
           {pageContent('px-12')}
         </div>
@@ -275,6 +340,7 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
   }
 
   // ── FULL PAGE: full-screen overlay ───────────────────────────────
+  const fullPageMaxW = contentWidth === 'full' ? 'none' : `${CONTENT_WIDTHS[contentWidth]}px`;
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-150">
       {/* Full-page header — slightly different: back button + breadcrumb */}
@@ -290,6 +356,19 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
           <span className="text-gray-800 font-medium truncate max-w-[300px]">{title || 'Untitled'}</span>
         </div>
         <div className="flex items-center gap-1">
+          {/* Width toggle buttons */}
+          <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden mr-2">
+            {(['narrow', 'default', 'wide', 'full'] as const).map(w => (
+              <button
+                key={w}
+                onClick={() => setContentWidth(w)}
+                className={`px-2 py-1 text-xs transition-colors ${contentWidth === w ? 'bg-gray-100 text-gray-800 font-medium' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+                title={`${w.charAt(0).toUpperCase() + w.slice(1)} width`}
+              >
+                {w === 'narrow' ? '▕▏' : w === 'default' ? '▕ ▏' : w === 'wide' ? '▕  ▏' : '▕   ▏'}
+              </button>
+            ))}
+          </div>
           <button onClick={() => { duplicatePage(pageId); }}
             className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" title="Duplicate">
             <Copy className="w-4 h-4" />
@@ -305,9 +384,9 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
         </div>
       </div>
 
-      {/* Full-page body — wider content area */}
+      {/* Full-page body — resizable content area */}
       <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto transition-all duration-200" style={{ maxWidth: fullPageMaxW }}>
           {pageContent('px-16')}
         </div>
       </div>

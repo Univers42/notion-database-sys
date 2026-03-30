@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useRef, useEffect, useCallback } from 'react';
-import { parseInlineMarkdown } from '../../lib/markdownEngine';
+import { parseInlineMarkdown } from '../../lib/markdown';
 
 export interface EditableContentProps {
   content: string;
