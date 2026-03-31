@@ -312,9 +312,3 @@
   --color-placeholder:           var(--color-placeholder);
   --color-slate:                 var(--color-slate);
 }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Theme switch — instant via CSS custom-property cascade (no per-element
-   transitions). Changing data-theme on :root swaps all var(--color-*)
-   values in a single style recalc — zero layout thrashing.
-   ═══════════════════════════════════════════════════════════════════════════ */
