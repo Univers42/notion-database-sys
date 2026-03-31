@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { PropertyConfigPanel } from '../PropertyConfigPanel';
 import { FormulaEditorPanel } from '../FormulaEditorPanel';
+import { RelationCellEditor, StatusCellEditor } from '../CellEditors';
 import { SchemaProperty, Page } from '../../types/database';
 import { CURSORS } from '../ui/cursors';
 import {
@@ -218,7 +219,7 @@ function PropIcon({ type, className = 'w-3.5 h-3.5' }: { type: string; className
 // ═══════════════════════════════════════════════════════════════════════════════
 // READ-ONLY TYPES (no editing allowed)
 // ═══════════════════════════════════════════════════════════════════════════════
-const READ_ONLY_TYPES = new Set(['created_time', 'last_edited_time', 'created_by', 'last_edited_by', 'id', 'button']);
+const READ_ONLY_TYPES = new Set(['created_time', 'last_edited_time', 'created_by', 'last_edited_by', 'id', 'rollup', 'button']);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MEMOIZED TABLE ROW — only re-renders when its own data changes
