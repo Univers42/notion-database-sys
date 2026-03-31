@@ -24,9 +24,12 @@ function getStoredPreference(): ThemePreference {
   return 'system';
 }
 
-/** Apply the resolved theme to the DOM */
+/** Apply the resolved theme to the DOM — single attribute swap,
+ *  CSS custom properties cascade instantly with zero JS overhead. */
 function applyTheme(resolved: ResolvedTheme): void {
-  document.documentElement.setAttribute('data-theme', resolved);
+  const el = document.documentElement;
+  if (el.getAttribute('data-theme') === resolved) return; // no-op guard
+  el.setAttribute('data-theme', resolved);
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────

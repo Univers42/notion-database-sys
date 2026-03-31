@@ -9,6 +9,8 @@
 /* ─── LIGHT THEME (default) ──────────────────────────────────────────────── */
 :root,
 :root[data-theme="light"] {
+  color-scheme: light;
+
   /* ── Surfaces ── */
   --color-surface-primary:     #ffffff;
   --color-surface-secondary:   #f9fafb;   /* gray-50 */
@@ -341,6 +343,8 @@
 
 /* ─── DARK THEME ─────────────────────────────────────────────────────────── */
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
   /* ── Surfaces ── */
   --color-surface-primary:     #191919;
   --color-surface-secondary:   #202020;
