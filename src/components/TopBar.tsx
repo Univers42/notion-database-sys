@@ -75,6 +75,8 @@ export function TopBar() {
   const database = view ? databases[view.databaseId] : null;
 
   const [showSearch, setShowSearch] = useState(false);
+  const [localSearchValue, setLocalSearchValue] = useState(searchQuery);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [showFilterPropertyPicker, setShowFilterPropertyPicker] = useState(false);
