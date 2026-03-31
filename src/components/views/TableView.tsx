@@ -326,8 +326,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
             );
             break;
 
-          case 'select':
-          case 'status': {
+          case 'select': {
             const selOpt = prop.options?.find(o => o.id === value);
             content = isEditing ? (
               <SelectEditor property={prop} value={value} databaseId={databaseId}
@@ -336,8 +335,32 @@ const MemoTableRow = React.memo(function MemoTableRow({
             ) : (
               selOpt ? (
                 <div className="flex items-center gap-1.5">
-                  {prop.type === 'status' && <span className={`w-2 h-2 rounded-full ${selOpt.color.split(' ')[0]}`} />}
                   <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${selOpt.color}`}>{selOpt.value}</span>
+                </div>
+              ) : <span className="text-gray-400 text-sm">Empty</span>
+            );
+            break;
+          }
+
+          case 'status': {
+            const statusOpt = prop.options?.find(o => o.id === value);
+            content = isEditing ? (
+              <StatusCellEditor
+                property={prop}
+                value={value}
+                databaseId={databaseId}
+                onUpdate={v => onUpdateProperty(page.id, prop.id, v)}
+                onClose={() => { onStopEditing(); tableRef.current?.focus(); }}
+                onEditProperty={() => {
+                  onStopEditing();
+                  onPropertyConfig(prop, { top: 200, left: 200 });
+                }}
+              />
+            ) : (
+              statusOpt ? (
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${statusOpt.color.split(' ')[0]}`} />
+                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusOpt.color}`}>{statusOpt.value}</span>
                 </div>
               ) : <span className="text-gray-400 text-sm">Empty</span>
             );
