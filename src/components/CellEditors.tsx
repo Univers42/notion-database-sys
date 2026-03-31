@@ -486,3 +486,145 @@ export function RollupCellEditor({ property, databaseId, onClose }: RollupCellEd
 }
 
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// STATUS CELL EDITOR (Read-only status picker + Edit property button)
+// ═══════════════════════════════════════════════════════════════════════════════
+// Cell click: Shows a read-only list of status options grouped by category
+//   (To-do, In progress, Complete) — user picks one to set the value.
+//   An "Edit property" button opens the full PropertyConfigPanel.
+
+interface StatusCellEditorProps {
+  property: SchemaProperty;
+  value: any;
+  databaseId: string;
+  onUpdate: (v: any) => void;
+  onClose: () => void;
+  onEditProperty?: () => void;
+}
+
+export function StatusCellEditor({ property, value, databaseId, onUpdate, onClose, onEditProperty }: StatusCellEditorProps) {
+  const measureRef = useRef<HTMLDivElement>(null);
+  const rect = useCellRect(measureRef);
+
+  const options = property.options || [];
+  const statusGroups = property.statusGroups;
+
+  // If we have status groups, render grouped; otherwise fall back to flat list
+  const hasGroups = statusGroups && statusGroups.length > 0;
+
+  // Build groups: assign each option to its group
+  const groupedOptions = useMemo(() => {
+    if (!hasGroups || !statusGroups) {
+      // Default grouping by convention
+      const defaultGroups: { label: string; color: string; options: SelectOption[] }[] = [
+        { label: 'To-do', color: 'bg-gray-200', options: [] },
+        { label: 'In progress', color: 'bg-blue-200', options: [] },
+        { label: 'Complete', color: 'bg-green-200', options: [] },
+      ];
+      // Simple heuristic: first option = to-do, last = complete, rest = in progress
+      options.forEach((opt, i) => {
+        if (i === 0) defaultGroups[0].options.push(opt);
+        else if (i === options.length - 1 && options.length > 1) defaultGroups[2].options.push(opt);
+        else defaultGroups[1].options.push(opt);
+      });
+      return defaultGroups.filter(g => g.options.length > 0);
+    }
+
+    return statusGroups.map(sg => ({
+      label: sg.label,
+      color: sg.color,
+      options: sg.optionIds
+        .map(oid => options.find(o => o.id === oid))
+        .filter((o): o is SelectOption => !!o),
+    })).filter(g => g.options.length > 0);
+  }, [options, statusGroups, hasGroups]);
+
+  const handleSelect = (optId: string) => {
+    onUpdate(optId);
+    onClose();
+  };
+
+  // Map color tokens to dot colors
+  const getDotColor = (optColor: string): string => {
+    if (optColor.includes('green')) return 'bg-green-500';
+    if (optColor.includes('blue')) return 'bg-blue-500';
+    if (optColor.includes('red')) return 'bg-red-500';
+    if (optColor.includes('yellow') || optColor.includes('amber') || optColor.includes('orange')) return 'bg-yellow-500';
+    if (optColor.includes('purple') || optColor.includes('violet')) return 'bg-purple-500';
+    if (optColor.includes('pink')) return 'bg-pink-500';
+    if (optColor.includes('cyan') || optColor.includes('teal')) return 'bg-cyan-500';
+    return 'bg-gray-400';
+  };
+
+  return (
+    <>
+      <div ref={measureRef} className="w-full h-0" />
+      {rect && createPortal(
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={(e) => { e.stopPropagation(); onClose(); }} />
+          <div
+            className="fixed min-w-[220px] bg-white shadow-xl border border-gray-200 rounded-lg z-[9999] overflow-hidden"
+            style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
+            onClick={e => e.stopPropagation()}>
+
+            {/* ─── Grouped status options ─── */}
+            <div className="max-h-[60vh] overflow-y-auto py-1">
+              {groupedOptions.map((group, gi) => (
+                <div key={gi}>
+                  {gi > 0 && <div className="h-px bg-gray-100 mx-3 my-1" />}
+                  <div className="px-3 py-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide">
+                    {group.label}
+                  </div>
+                  {group.options.map(opt => {
+                    const isActive = opt.id === value;
+                    const dotColor = getDotColor(opt.color);
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleSelect(opt.id)}
+                        className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-gray-50 transition-colors ${isActive ? 'bg-gray-50' : ''}`}>
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${dotColor}`} />
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`}>
+                          {opt.value}
+                        </span>
+                        {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 ml-auto shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+
+              {/* Clear selection */}
+              {value && (
+                <>
+                  <div className="h-px bg-gray-100 mx-3 my-1" />
+                  <button
+                    onClick={() => { onUpdate(null); onClose(); }}
+                    className="w-full px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50 text-left">
+                    Clear status
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* ─── Edit property button ─── */}
+            {onEditProperty && (
+              <>
+                <div className="h-px bg-gray-100" />
+                <button
+                  onClick={() => { onEditProperty(); onClose(); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Edit property</span>
+                </button>
+              </>
+            )}
+          </div>
+        </>,
+        document.body
+      )}
+    </>
+  );
+}
+
+
