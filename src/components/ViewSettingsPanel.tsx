@@ -22,6 +22,7 @@ import {
   MenuDivider, ToggleSwitch, ToggleSettingRow, NavSettingRow,
 } from './ui/MenuPrimitives';
 import type { ViewType, PropertyType } from '../types/database';
+import { FilterSettingsSubpanel, FilterPropertyPicker, getOperatorsForType } from './FilterComponents';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // VIEW SETTINGS PANEL — Full Notion-like configuration
@@ -31,6 +32,8 @@ type PanelScreen =
   | 'main'
   | 'layout'
   | 'propertyVisibility'
+  | 'filter'
+  | 'addFilter'
   | 'loadLimit'
   | 'cardPreview'
   | 'cardSize'
@@ -411,6 +414,48 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
     onIconChange: (v: string) => updateSetting('viewIcon', v),
     viewType: view.type,
   };
+
+  // ─────────────────────────────────────────────────────────────────────
+  // FILTER SCREEN — Settings panel filter sub-screen
+  // ─────────────────────────────────────────────────────────────────────
+  if (screen === 'filter') {
+    const filters = view.filters || [];
+    return (
+      <div className="flex flex-col h-full" style={{ minWidth: 290, maxWidth: 290 }}>
+        <FilterSettingsSubpanel
+          viewId={view.id}
+          properties={database.properties}
+          filters={filters}
+          conjunction={view.filterConjunction || 'and'}
+          onBack={() => setScreen('main')}
+          onClose={onClose}
+        />
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // ADD FILTER SCREEN — Property picker for adding a new filter
+  // ─────────────────────────────────────────────────────────────────────
+  if (screen === 'addFilter') {
+    const allProps = Object.values(database.properties) as import('../types/database').SchemaProperty[];
+    return (
+      <div className="flex flex-col h-full" style={{ minWidth: 290, maxWidth: 290 }}>
+        <FilterPropertyPicker
+          properties={allProps}
+          onSelect={propId => {
+            const prop = database.properties[propId];
+            const ops = getOperatorsForType(prop?.type || 'text');
+            useDatabaseStore.getState().addFilter(view.id, { propertyId: propId, operator: ops[0].value, value: '' });
+            setScreen('filter');
+          }}
+          onClose={() => setScreen('filter')}
+          title="Add filter"
+          onAdvancedFilter={() => setScreen('filter')}
+        />
+      </div>
+    );
+  }
 
   // ─────────────────────────────────────────────────────────────────────
   // LAYOUT SCREEN — Grid + per-view-type settings
@@ -969,7 +1014,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
             <div className="absolute top-0 inset-x-4 h-px bg-gray-100" />
             <div className="flex flex-col gap-px pt-1">
               <SettingsRow icon={<PathRoundEndsIcon />} label="Source" value={database.name} onClick={() => {}} />
-              <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => {}} />
+              <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
             </div>
           </div>
 
@@ -1060,7 +1105,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col gap-px px-2 py-1">
             <SettingsRow icon={currentViewMeta.svgIcon} label="Layout" value={currentViewMeta.label} onClick={() => setScreen('layout')} />
             <SettingsRow icon={<EyeIcon />} label="Property visibility" value={String(visibleCount)} onClick={() => setScreen('propertyVisibility')} />
-            <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => {}} />
+            <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
             <SettingsRow icon={<SortIcon />} label="Sort" onClick={() => {}} />
             <SettingsRow icon={<ConditionalColorIcon />} label="Conditional color" onClick={() => {}} />
             <SettingsRow icon={<CopyLinkIcon className="w-5 h-5" />} label="Copy link to view" showChevron={false} onClick={() => {}} />

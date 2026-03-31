@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { PropertyConfigPanel } from '../PropertyConfigPanel';
 import { FormulaEditorPanel } from '../FormulaEditorPanel';
@@ -20,10 +21,19 @@ function SelectEditor({ property, value, onUpdate, onClose, databaseId }: {
   property: SchemaProperty; value: any; onUpdate: (v: any) => void; onClose: () => void; databaseId: string;
 }) {
   const [input, setInput] = useState('');
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
   const addSelectOption = useDatabaseStore(s => s.addSelectOption);
   const options = property.options || [];
   const filtered = options.filter(o => o.value.toLowerCase().includes(input.toLowerCase()));
   const exact = options.find(o => o.value.toLowerCase() === input.toLowerCase());
+
+  useEffect(() => {
+    if (measureRef.current) {
+      const td = measureRef.current.closest('td');
+      if (td) setRect(td.getBoundingClientRect());
+    }
+  }, []);
 
   const handleSelect = (optId: string) => { onUpdate(optId); onClose(); };
 
@@ -38,36 +48,48 @@ function SelectEditor({ property, value, onUpdate, onClose, databaseId }: {
   };
 
   return (
-    <div className="absolute top-0 left-0 w-full min-w-[220px] bg-white shadow-xl border border-gray-200 rounded-lg z-50 overflow-hidden" onClick={e => e.stopPropagation()}>
-      <div className="p-2 border-b border-gray-100">
-        <input autoFocus value={input} onChange={e => setInput(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') { exact ? handleSelect(exact.id) : input.trim() && handleCreate(); }
-            if (e.key === 'Escape') onClose();
-          }}
-          className="w-full text-sm px-2 py-1.5 bg-gray-50 rounded outline-none focus:ring-1 ring-blue-400" placeholder="Search or create..." />
-      </div>
-      <div className="max-h-52 overflow-y-auto p-1">
-        {value && (
-          <button onClick={() => { onUpdate(null); onClose(); }} className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-gray-500 text-left rounded">
-            Clear selection
-          </button>
-        )}
-        {filtered.map(opt => (
-          <button key={opt.id} onClick={() => handleSelect(opt.id)}
-            className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2">
-            <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
-            {opt.id === value && <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 ml-auto" />}
-          </button>
-        ))}
-        {input.trim() && !exact && (
-          <button onClick={handleCreate}
-            className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2 text-gray-600">
-            <Plus className="w-3.5 h-3.5" /> Create <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100">"{input}"</span>
-          </button>
-        )}
-      </div>
-    </div>
+    <>
+      <div ref={measureRef} className="w-full h-0" />
+      {rect && createPortal(
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={(e) => { e.stopPropagation(); onClose(); }} />
+          <div
+            className="fixed min-w-[220px] bg-white shadow-xl border border-gray-200 rounded-lg z-[9999] overflow-hidden"
+            style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
+            onClick={e => e.stopPropagation()}>
+            <div className="p-2 border-b border-gray-100">
+              <input autoFocus value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') { exact ? handleSelect(exact.id) : input.trim() && handleCreate(); }
+                  if (e.key === 'Escape') onClose();
+                }}
+                className="w-full text-sm px-2 py-1.5 bg-gray-50 rounded outline-none focus:ring-1 ring-blue-400" placeholder="Search or create..." />
+            </div>
+            <div className="max-h-52 overflow-y-auto p-1">
+              {value && (
+                <button onClick={() => { onUpdate(null); onClose(); }} className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-gray-500 text-left rounded">
+                  Clear selection
+                </button>
+              )}
+              {filtered.map(opt => (
+                <button key={opt.id} onClick={() => handleSelect(opt.id)}
+                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
+                  {opt.id === value && <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 ml-auto" />}
+                </button>
+              ))}
+              {input.trim() && !exact && (
+                <button onClick={handleCreate}
+                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2 text-gray-600">
+                  <Plus className="w-3.5 h-3.5" /> Create <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100">"{input}"</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+    </>
   );
 }
 
@@ -77,12 +99,21 @@ function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: {
   property: SchemaProperty; value: any; onUpdate: (v: any) => void; onClose: () => void; databaseId: string;
 }) {
   const [input, setInput] = useState('');
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
   const addSelectOption = useDatabaseStore(s => s.addSelectOption);
   const options = property.options || [];
   const selectedIds: string[] = Array.isArray(value) ? value : [];
   const unselected = options.filter(o => !selectedIds.includes(o.id));
   const filtered = unselected.filter(o => o.value.toLowerCase().includes(input.toLowerCase()));
   const exact = options.find(o => o.value.toLowerCase() === input.toLowerCase());
+
+  useEffect(() => {
+    if (measureRef.current) {
+      const td = measureRef.current.closest('td');
+      if (td) setRect(td.getBoundingClientRect());
+    }
+  }, []);
 
   const toggle = (optId: string) => {
     const next = selectedIds.includes(optId) ? selectedIds.filter(id => id !== optId) : [...selectedIds, optId];
@@ -101,43 +132,55 @@ function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: {
   };
 
   return (
-    <div className="absolute top-0 left-0 w-full min-w-[220px] bg-white shadow-xl border border-gray-200 rounded-lg z-50 overflow-hidden" onClick={e => e.stopPropagation()}>
-      <div className="p-2 border-b border-gray-100">
-        <div className="flex flex-wrap gap-1 mb-1">
-          {selectedIds.map(id => {
-            const opt = options.find(o => o.id === id);
-            if (!opt) return null;
-            return (
-              <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${opt.color}`}>
-                {opt.value}
-                <button onClick={() => toggle(id)} className="hover:opacity-60">&times;</button>
-              </span>
-            );
-          })}
-        </div>
-        <input autoFocus value={input} onChange={e => setInput(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') { exact ? toggle(exact.id) : input.trim() && handleCreate(); }
-            if (e.key === 'Escape') onClose();
-            if (e.key === 'Backspace' && !input && selectedIds.length) onUpdate(selectedIds.slice(0, -1));
-          }}
-          className="w-full text-sm px-1 py-1 outline-none bg-transparent" placeholder={selectedIds.length ? '' : 'Search or create...'} />
-      </div>
-      <div className="max-h-48 overflow-y-auto p-1">
-        {filtered.map(opt => (
-          <button key={opt.id} onClick={() => toggle(opt.id)}
-            className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center">
-            <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
-          </button>
-        ))}
-        {input.trim() && !exact && (
-          <button onClick={handleCreate}
-            className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2 text-gray-600">
-            <Plus className="w-3.5 h-3.5" /> Create "{input}"
-          </button>
-        )}
-      </div>
-    </div>
+    <>
+      <div ref={measureRef} className="w-full h-0" />
+      {rect && createPortal(
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={(e) => { e.stopPropagation(); onClose(); }} />
+          <div
+            className="fixed min-w-[220px] bg-white shadow-xl border border-gray-200 rounded-lg z-[9999] overflow-hidden"
+            style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
+            onClick={e => e.stopPropagation()}>
+            <div className="p-2 border-b border-gray-100">
+              <div className="flex flex-wrap gap-1 mb-1">
+                {selectedIds.map(id => {
+                  const opt = options.find(o => o.id === id);
+                  if (!opt) return null;
+                  return (
+                    <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${opt.color}`}>
+                      {opt.value}
+                      <button onClick={() => toggle(id)} className="hover:opacity-60">&times;</button>
+                    </span>
+                  );
+                })}
+              </div>
+              <input autoFocus value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') { exact ? toggle(exact.id) : input.trim() && handleCreate(); }
+                  if (e.key === 'Escape') onClose();
+                  if (e.key === 'Backspace' && !input && selectedIds.length) onUpdate(selectedIds.slice(0, -1));
+                }}
+                className="w-full text-sm px-1 py-1 outline-none bg-transparent" placeholder={selectedIds.length ? '' : 'Search or create...'} />
+            </div>
+            <div className="max-h-48 overflow-y-auto p-1">
+              {filtered.map(opt => (
+                <button key={opt.id} onClick={() => toggle(opt.id)}
+                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center">
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
+                </button>
+              ))}
+              {input.trim() && !exact && (
+                <button onClick={handleCreate}
+                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2 text-gray-600">
+                  <Plus className="w-3.5 h-3.5" /> Create "{input}"
+                </button>
+              )}
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+    </>
   );
 }
 
@@ -634,7 +677,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
 
         return (
           <td key={prop.id}
-            className={`px-3 py-1.5 ${cellBorder} border-b border-gray-200 overflow-hidden ${wrapContent ? 'align-top' : 'align-middle'} relative ${focusRing}`}
+            className={`px-3 py-1.5 ${cellBorder} border-b border-gray-200 ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${focusRing}`}
             style={{
               width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id),
               cursor: fillDrag ? CURSORS.crosshair : isEditing ? undefined : CURSORS.cell,

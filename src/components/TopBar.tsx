@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../store/useDatabaseStore';
 import { ViewSettingsPanel } from './ViewSettingsPanel';
 import { MenuRow, MenuDivider, ViewTypeCard, PanelSectionLabel } from './ui/MenuPrimitives';
@@ -17,7 +18,11 @@ import {
   Trash2, Copy, X, ArrowUp, ArrowDown, Maximize2, Zap,
   MoreHorizontal, Download, Upload, Link2, Printer
 } from 'lucide-react';
-import type { ViewType, FilterOperator, SchemaProperty } from '../types/database';
+import type { ViewType, SchemaProperty } from '../types/database';
+import {
+  getOperatorsForType,
+  FilterPropertyPicker, FilterBar, AdvancedFilterGrid,
+} from './FilterComponents';
 
 const VIEW_ICONS: Record<ViewType, React.ReactNode> = {
   table: <Table className="w-4 h-4" />,
@@ -57,91 +62,21 @@ const VIEW_LABELS: Record<ViewType, string> = {
   list: 'List', gallery: 'Gallery', chart: 'Chart', feed: 'Feed', map: 'Map', dashboard: 'Dashboard',
 };
 
-const FILTER_OPERATORS: Record<string, { label: string; value: FilterOperator }[]> = {
-  text: [
-    { label: 'equals', value: 'equals' }, { label: 'not equals', value: 'not_equals' },
-    { label: 'contains', value: 'contains' }, { label: 'does not contain', value: 'not_contains' },
-    { label: 'starts with', value: 'starts_with' }, { label: 'ends with', value: 'ends_with' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  title: [
-    { label: 'contains', value: 'contains' }, { label: 'does not contain', value: 'not_contains' },
-    { label: 'equals', value: 'equals' }, { label: 'is empty', value: 'is_empty' },
-    { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  number: [
-    { label: '=', value: 'equals' }, { label: '≠', value: 'not_equals' },
-    { label: '>', value: 'greater_than' }, { label: '<', value: 'less_than' },
-    { label: '≥', value: 'greater_than_or_equal' }, { label: '≤', value: 'less_than_or_equal' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  select: [
-    { label: 'is', value: 'equals' }, { label: 'is not', value: 'not_equals' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  status: [
-    { label: 'is', value: 'equals' }, { label: 'is not', value: 'not_equals' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  multi_select: [
-    { label: 'contains', value: 'contains' }, { label: 'does not contain', value: 'not_contains' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  date: [
-    { label: 'is', value: 'equals' }, { label: 'is before', value: 'is_before' },
-    { label: 'is after', value: 'is_after' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  checkbox: [
-    { label: 'is checked', value: 'is_checked' }, { label: 'is not checked', value: 'is_not_checked' },
-  ],
-  user: [
-    { label: 'is', value: 'equals' }, { label: 'is not', value: 'not_equals' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  person: [
-    { label: 'is', value: 'equals' }, { label: 'is not', value: 'not_equals' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  url: [
-    { label: 'equals', value: 'equals' }, { label: 'contains', value: 'contains' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  email: [
-    { label: 'equals', value: 'equals' }, { label: 'contains', value: 'contains' },
-    { label: 'is empty', value: 'is_empty' }, { label: 'is not empty', value: 'is_not_empty' },
-  ],
-  phone: [
-    { label: 'equals', value: 'equals' }, { label: 'is empty', value: 'is_empty' },
-  ],
-  created_time: [
-    { label: 'is before', value: 'is_before' }, { label: 'is after', value: 'is_after' },
-  ],
-  last_edited_time: [
-    { label: 'is before', value: 'is_before' }, { label: 'is after', value: 'is_after' },
-  ],
-};
-
-function getOperatorsForType(type: string) {
-  return FILTER_OPERATORS[type] || FILTER_OPERATORS.text;
-}
-
-function needsValue(op: FilterOperator) {
-  return !['is_empty', 'is_not_empty', 'is_checked', 'is_not_checked'].includes(op);
-}
-
 export function TopBar() {
   const activeViewId = useDatabaseStore(s => s.activeViewId);
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
   const { addView, setActiveView, deleteView, duplicateView,
     addPage, renameDatabase, updateView } = useDatabaseStore.getState();
+  const store = useDatabaseStore.getState();
 
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
   const [showSearch, setShowSearch] = useState(false);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  const [showFilterPropertyPicker, setShowFilterPropertyPicker] = useState(false);
   const [showSortPanel, setShowSortPanel] = useState(false);
   const [showViewSettings, setShowViewSettings] = useState(false);
   const [showAddView, setShowAddView] = useState(false);
@@ -160,7 +95,10 @@ export function TopBar() {
   const addViewRef = useRef<HTMLDivElement>(null);
   const viewDotsRef = useRef<HTMLDivElement>(null);
   const activeViewMenuRef = useRef<HTMLDivElement>(null);
+  const activeTabBtnRef = useRef<HTMLButtonElement>(null);
   const viewRenameRef = useRef<HTMLInputElement>(null);
+  const filterBtnRef = useRef<HTMLButtonElement>(null);
+  const advancedFilterRef = useRef<HTMLDivElement>(null);
 
   const dbViews = database
     ? Object.values(views).filter(v => v.databaseId === database.id)
@@ -210,6 +148,17 @@ export function TopBar() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [showActiveViewMenu]);
+
+  useEffect(() => {
+    if (!showAdvancedFilter) return;
+    const handler = (e: MouseEvent) => {
+      if (advancedFilterRef.current && !advancedFilterRef.current.contains(e.target as Node)) {
+        setShowAdvancedFilter(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showAdvancedFilter]);
 
   useEffect(() => {
     if (renamingViewId && viewRenameRef.current) {
@@ -294,7 +243,21 @@ export function TopBar() {
 
           {/* Right: Action buttons */}
           <div className="flex items-center gap-0.5 shrink-0">
-            <button onClick={() => { setShowFilterPanel(!showFilterPanel); setShowSortPanel(false); }}
+            <button
+              ref={filterBtnRef}
+              onClick={() => {
+                if (filters.length === 0) {
+                  // No filters → show property picker dropdown
+                  setShowFilterPropertyPicker(!showFilterPropertyPicker);
+                  setShowFilterPanel(false);
+                  setShowAdvancedFilter(false);
+                } else {
+                  // Filters exist → toggle the filter bar
+                  setShowFilterPanel(!showFilterPanel);
+                  setShowFilterPropertyPicker(false);
+                }
+                setShowSortPanel(false);
+              }}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${filters.length > 0
                 ? 'bg-blue-50 text-blue-600 font-medium'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -399,6 +362,7 @@ export function TopBar() {
                   </div>
                 ) : (
                   <button
+                    ref={v.id === activeViewId ? activeTabBtnRef : undefined}
                     onClick={() => {
                       if (v.id === activeViewId) {
                         setShowActiveViewMenu(!showActiveViewMenu);
@@ -419,72 +383,7 @@ export function TopBar() {
                   </button>
                 )}
 
-                {/* Active view context menu (click on active tab) */}
-                {v.id === activeViewId && showActiveViewMenu && (
-                  <div ref={activeViewMenuRef}
-                    className="absolute top-full left-0 mt-1 z-50 w-[220px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
-                    <div className="flex flex-col">
-                      {/* Section 1: Rename, Edit view, Source */}
-                      <div className="p-1 flex flex-col gap-px">
-                        <button onClick={() => {
-                          setViewRenameValue(v.name);
-                          setRenamingViewId(v.id);
-                          setShowActiveViewMenu(false);
-                        }}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <PencilIcon className="w-4 h-4" /> Rename
-                        </button>
-                        <button onClick={() => { setShowViewSettings(true); setShowActiveViewMenu(false); }}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <LayoutIcon className="w-4 h-4" /> Edit view
-                        </button>
-                        <button onClick={() => setShowActiveViewMenu(false)}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <ExternalLinkIcon className="w-4 h-4" />
-                          <span className="flex-1 text-left">Source</span>
-                          <ChevronDown className="w-3 h-3 text-gray-400 -rotate-90" />
-                        </button>
-                      </div>
-
-                      <div className="mx-3 h-px bg-gray-100" />
-
-                      {/* Section 2: Copy link, Open source, Hide titles */}
-                      <div className="p-1 flex flex-col gap-px">
-                        <button onClick={() => {
-                          navigator.clipboard?.writeText(window.location.href + '?view=' + v.id);
-                          setShowActiveViewMenu(false);
-                        }}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <CopyLinkIcon className="w-4 h-4" /> Copy link to view
-                        </button>
-                        <button onClick={() => setShowActiveViewMenu(false)}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <ExternalLinkIcon className="w-4 h-4" /> Open source database
-                        </button>
-                        <button onClick={() => setShowActiveViewMenu(false)}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <EyeSlashIcon className="w-4 h-4" /> Hide data source titles
-                        </button>
-                      </div>
-
-                      <div className="mx-3 h-px bg-gray-100" />
-
-                      {/* Section 3: Duplicate, Delete */}
-                      <div className="p-1 flex flex-col gap-px">
-                        <button onClick={() => { duplicateView(v.id); setShowActiveViewMenu(false); }}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                          <DuplicateIcon className="w-4 h-4" /> Duplicate view
-                        </button>
-                        {dbViews.length > 1 && (
-                          <button onClick={() => { deleteView(v.id); setShowActiveViewMenu(false); }}
-                            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors">
-                            <Trash2 className="w-3.5 h-3.5" /> Delete view
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Active view context menu rendered via portal to avoid overflow clipping */}
 
                 {/* Right-click context menu (for non-active tabs) */}
                 {showViewMenu === v.id && (
@@ -588,14 +487,86 @@ export function TopBar() {
           </div>
         </div>
 
-        {/* ─── Inline Filter/Sort panels ─── */}
-        {showFilterPanel && (
-          <div className="px-4 pb-2">
-            <div className="bg-white border border-gray-200 rounded-xl shadow-lg w-full max-w-[520px]">
-              <FilterPanel database={database} view={view} />
-            </div>
-          </div>
+        {/* ─── Inline Filter Bar (when filters exist) ─── */}
+        {(showFilterPanel || filters.length > 0) && filters.length > 0 && (
+          <FilterBar
+            filters={filters}
+            properties={database.properties}
+            conjunction={view.filterConjunction || 'and'}
+            viewId={view.id}
+            onOpenAdvanced={() => setShowAdvancedFilter(true)}
+          />
         )}
+
+        {/* ─── Property Picker dropdown (when filter button clicked with no filters) ─── */}
+        {showFilterPropertyPicker && filterBtnRef.current && createPortal(
+          <div
+            className="fixed z-[9999]"
+            style={{
+              top: filterBtnRef.current.getBoundingClientRect().bottom + 4,
+              left: filterBtnRef.current.getBoundingClientRect().left,
+            }}
+          >
+            <div className="bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+              ref={el => {
+                if (!el) return;
+                const handler = (e: MouseEvent) => {
+                  if (!el.contains(e.target as Node)) setShowFilterPropertyPicker(false);
+                };
+                // Use a one-time setup trick via data attribute
+                if (!el.dataset.listening) {
+                  el.dataset.listening = '1';
+                  setTimeout(() => document.addEventListener('mousedown', handler), 0);
+                  // Cleanup when unmounted via MutationObserver fallback not needed for portals
+                }
+              }}
+            >
+              <FilterPropertyPicker
+                properties={Object.values(database.properties) as SchemaProperty[]}
+                onSelect={propId => {
+                  const prop = database.properties[propId];
+                  const ops = getOperatorsForType(prop?.type || 'text');
+                  store.addFilter(view.id, { propertyId: propId, operator: ops[0].value, value: '' });
+                  setShowFilterPropertyPicker(false);
+                  setShowFilterPanel(true);
+                }}
+                onClose={() => setShowFilterPropertyPicker(false)}
+                onAdvancedFilter={() => {
+                  setShowFilterPropertyPicker(false);
+                  setShowAdvancedFilter(true);
+                }}
+              />
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* ─── Advanced Filter Grid (portal) ─── */}
+        {showAdvancedFilter && createPortal(
+          <div
+            ref={advancedFilterRef}
+            className="fixed z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+            style={{ top: 140, left: '50%', transform: 'translateX(-50%)', minWidth: 520 }}
+          >
+              <AdvancedFilterGrid
+                filters={filters}
+                properties={database.properties}
+                conjunction={view.filterConjunction || 'and'}
+                onAddFilter={propId => {
+                  const prop = database.properties[propId];
+                  const ops = getOperatorsForType(prop?.type || 'text');
+                  store.addFilter(view.id, { propertyId: propId, operator: ops[0].value, value: '' });
+                }}
+                onUpdateFilter={(filterId, updates) => store.updateFilter(view.id, filterId, updates)}
+                onRemoveFilter={filterId => store.removeFilter(view.id, filterId)}
+                onDeleteAll={() => { store.clearFilters(view.id); setShowAdvancedFilter(false); setShowFilterPanel(false); }}
+                onClose={() => setShowAdvancedFilter(false)}
+              />
+          </div>,
+          document.body
+        )}
+
+        {/* ─── Sort panel ─── */}
         {showSortPanel && (
           <div className="px-4 pb-2">
             <div className="bg-white border border-gray-200 rounded-xl shadow-lg w-full max-w-[420px]">
@@ -613,107 +584,83 @@ export function TopBar() {
           </div>
         </div>
       )}
-    </>
-  );
-}
 
-/* --- FilterPanel --- */
-function FilterPanel({ database, view }: { database: any; view: any }) {
-  const { addFilter, updateFilter, removeFilter, clearFilters } = useDatabaseStore.getState();
-  const allProps = Object.values(database.properties) as SchemaProperty[];
-  const filters = view.filters || [];
+      {/* Active view context menu — portal to avoid overflow clipping */}
+      {showActiveViewMenu && activeTabBtnRef.current && (() => {
+        const btnRect = activeTabBtnRef.current!.getBoundingClientRect();
+        return createPortal(
+          <>
+            <div className="fixed inset-0 z-[9998]" onClick={() => setShowActiveViewMenu(false)} />
+            <div
+              ref={activeViewMenuRef}
+              className="fixed z-[9999] w-[220px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+              style={{ top: btnRect.bottom + 4, left: btnRect.left }}>
+              <div className="flex flex-col">
+                {/* Section 1: Rename, Edit view, Source */}
+                <div className="p-1 flex flex-col gap-px">
+                  <button onClick={() => {
+                    setViewRenameValue(view.name);
+                    setRenamingViewId(view.id);
+                    setShowActiveViewMenu(false);
+                  }}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <PencilIcon className="w-4 h-4" /> Rename
+                  </button>
+                  <button onClick={() => { setShowViewSettings(true); setShowActiveViewMenu(false); }}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <LayoutIcon className="w-4 h-4" /> Edit view
+                  </button>
+                  <button onClick={() => setShowActiveViewMenu(false)}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <ExternalLinkIcon className="w-4 h-4" />
+                    <span className="flex-1 text-left">Source</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400 -rotate-90" />
+                  </button>
+                </div>
 
-  return (
-    <div className="p-3 flex flex-col gap-2">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-semibold text-gray-700">Filters</span>
-        {filters.length > 0 && (
-          <button onClick={() => clearFilters(view.id)} className="text-xs text-red-500 hover:text-red-600">Clear all</button>
-        )}
-      </div>
+                <div className="mx-3 h-px bg-gray-100" />
 
-      {filters.map((filter: any, idx: number) => {
-        const prop = database.properties[filter.propertyId];
-        const propType = prop?.type || 'text';
-        const operators = getOperatorsForType(propType);
+                {/* Section 2: Copy link, Open source, Hide titles */}
+                <div className="p-1 flex flex-col gap-px">
+                  <button onClick={() => {
+                    navigator.clipboard?.writeText(window.location.href + '?view=' + view.id);
+                    setShowActiveViewMenu(false);
+                  }}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <CopyLinkIcon className="w-4 h-4" /> Copy link to view
+                  </button>
+                  <button onClick={() => setShowActiveViewMenu(false)}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <ExternalLinkIcon className="w-4 h-4" /> Open source database
+                  </button>
+                  <button onClick={() => setShowActiveViewMenu(false)}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <EyeSlashIcon className="w-4 h-4" /> Hide data source titles
+                  </button>
+                </div>
 
-        return (
-          <div key={filter.id} className="flex items-center gap-2 text-sm">
-            {idx === 0 ? <span className="text-gray-400 text-xs w-10">Where</span>
-              : <span className="text-gray-400 text-xs w-10">{view.filterConjunction === 'or' ? 'or' : 'and'}</span>}
+                <div className="mx-3 h-px bg-gray-100" />
 
-            <select value={filter.propertyId}
-              onChange={(e) => {
-                const newProp = database.properties[e.target.value];
-                const ops = getOperatorsForType(newProp?.type || 'text');
-                updateFilter(view.id, filter.id, { propertyId: e.target.value, operator: ops[0].value, value: '' });
-              }}
-              className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm min-w-[100px]">
-              {allProps.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-
-            <select value={filter.operator}
-              onChange={(e) => updateFilter(view.id, filter.id, { operator: e.target.value as FilterOperator })}
-              className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm">
-              {operators.map(op => (
-                <option key={op.value} value={op.value}>{op.label}</option>
-              ))}
-            </select>
-
-            {needsValue(filter.operator) && (
-              <>
-                {(prop?.type === 'select' || prop?.type === 'status') ? (
-                  <select value={filter.value || ''}
-                    onChange={(e) => updateFilter(view.id, filter.id, { value: e.target.value })}
-                    className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm flex-1">
-                    <option value="">Select...</option>
-                    {prop.options?.map((opt: any) => (
-                      <option key={opt.id} value={opt.id}>{opt.value}</option>
-                    ))}
-                  </select>
-                ) : prop?.type === 'multi_select' ? (
-                  <select value={filter.value || ''}
-                    onChange={(e) => updateFilter(view.id, filter.id, { value: e.target.value })}
-                    className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm flex-1">
-                    <option value="">Select...</option>
-                    {prop.options?.map((opt: any) => (
-                      <option key={opt.id} value={opt.id}>{opt.value}</option>
-                    ))}
-                  </select>
-                ) : prop?.type === 'checkbox' ? null
-                  : prop?.type === 'date' ? (
-                    <input type="date" value={filter.value || ''}
-                      onChange={(e) => updateFilter(view.id, filter.id, { value: e.target.value })}
-                      className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm flex-1" />
-                  ) : prop?.type === 'number' ? (
-                    <input type="number" value={filter.value ?? ''}
-                      onChange={(e) => updateFilter(view.id, filter.id, { value: e.target.value ? Number(e.target.value) : '' })}
-                      className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm flex-1"
-                      placeholder="Value" />
-                  ) : (
-                    <input type="text" value={filter.value || ''}
-                      onChange={(e) => updateFilter(view.id, filter.id, { value: e.target.value })}
-                      className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm flex-1"
-                      placeholder="Value" />
+                {/* Section 3: Duplicate, Delete */}
+                <div className="p-1 flex flex-col gap-px">
+                  <button onClick={() => { duplicateView(view.id); setShowActiveViewMenu(false); }}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <DuplicateIcon className="w-4 h-4" /> Duplicate view
+                  </button>
+                  {dbViews.length > 1 && (
+                    <button onClick={() => { deleteView(view.id); setShowActiveViewMenu(false); }}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" /> Delete view
+                    </button>
                   )}
-              </>
-            )}
-
-            <button onClick={() => removeFilter(view.id, filter.id)}
-              className="p-1 text-gray-400 hover:text-red-500 rounded hover:bg-gray-50 transition-colors shrink-0">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
+                </div>
+              </div>
+            </div>
+          </>,
+          document.body
         );
-      })}
-
-      <button onClick={() => { const firstProp = allProps[0]; if (firstProp) addFilter(view.id, { propertyId: firstProp.id, operator: 'contains', value: '' }); }}
-        className="flex items-center gap-1.5 text-sm text-blue-500 hover:text-blue-600 py-1 transition-colors">
-        <Plus className="w-3.5 h-3.5" /> Add filter
-      </button>
-    </div>
+      })()}
+    </>
   );
 }
 

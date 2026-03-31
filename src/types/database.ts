@@ -248,6 +248,8 @@ export type FilterOperator =
   | 'is_after'
   | 'is_on_or_before'
   | 'is_on_or_after'
+  | 'is_between'
+  | 'is_relative_to_today'
   | 'is_checked'
   | 'is_not_checked';
 
