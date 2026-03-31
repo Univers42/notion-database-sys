@@ -1,1 +1,314 @@
 @import "tailwindcss";
+@import "./theme.css";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tailwind v4 @theme — register CSS variable tokens as utility colors
+   ═══════════════════════════════════════════════════════════════════════════ */
+@theme {
+  /* ── Surfaces ── */
+  --color-surface-primary:       var(--color-surface-primary);
+  --color-surface-secondary:     var(--color-surface-secondary);
+  --color-surface-tertiary:      var(--color-surface-tertiary);
+  --color-surface-muted:         var(--color-surface-muted);
+  --color-surface-strong:        var(--color-surface-strong);
+  --color-surface-inverse:       var(--color-surface-inverse);
+  --color-surface-inverse-soft:  var(--color-surface-inverse-soft);
+
+  /* ── Surface overlays ── */
+  --color-overlay:               var(--color-overlay);
+  --color-overlay-medium:        var(--color-overlay-medium);
+  --color-overlay-light:         var(--color-overlay-light);
+  --color-scrim:                 var(--color-scrim);
+  --color-scrim-medium:          var(--color-scrim-medium);
+  --color-scrim-light:           var(--color-scrim-light);
+
+  /* ── Surface soft (translucent) ── */
+  --color-surface-secondary-soft:  var(--color-surface-secondary-soft);
+  --color-surface-secondary-soft2: var(--color-surface-secondary-soft2);
+  --color-surface-secondary-soft3: var(--color-surface-secondary-soft3);
+  --color-surface-secondary-soft4: var(--color-surface-secondary-soft4);
+  --color-surface-secondary-soft5: var(--color-surface-secondary-soft5);
+  --color-surface-tertiary-soft:   var(--color-surface-tertiary-soft);
+  --color-surface-tertiary-soft2:  var(--color-surface-tertiary-soft2);
+  --color-surface-tertiary-soft3:  var(--color-surface-tertiary-soft3);
+  --color-surface-tertiary-soft4:  var(--color-surface-tertiary-soft4);
+  --color-surface-muted-soft:      var(--color-surface-muted-soft);
+  --color-surface-muted-soft2:     var(--color-surface-muted-soft2);
+  --color-surface-muted-soft3:     var(--color-surface-muted-soft3);
+
+  /* ── Text ── */
+  --color-ink:                   var(--color-ink);
+  --color-ink-strong:            var(--color-ink-strong);
+  --color-ink-body:              var(--color-ink-body);
+  --color-ink-body-light:        var(--color-ink-body-light);
+  --color-ink-secondary:         var(--color-ink-secondary);
+  --color-ink-muted:             var(--color-ink-muted);
+  --color-ink-disabled:          var(--color-ink-disabled);
+  --color-ink-faint:             var(--color-ink-faint);
+  --color-ink-inverse:           var(--color-ink-inverse);
+
+  /* ── Borders ── */
+  --color-line:                  var(--color-line);
+  --color-line-light:            var(--color-line-light);
+  --color-line-medium:           var(--color-line-medium);
+  --color-line-strong:           var(--color-line-strong);
+  --color-line-faint:            var(--color-line-faint);
+
+  /* ── Accent ── */
+  --color-accent:                var(--color-accent);
+  --color-accent-bold:           var(--color-accent-bold);
+  --color-accent-bolder:         var(--color-accent-bolder);
+  --color-accent-soft:           var(--color-accent-soft);
+  --color-accent-soft2:          var(--color-accent-soft2);
+  --color-accent-soft3:          var(--color-accent-soft3);
+  --color-accent-soft4:          var(--color-accent-soft4);
+  --color-accent-soft5:          var(--color-accent-soft5);
+  --color-accent-muted:          var(--color-accent-muted);
+  --color-accent-muted2:         var(--color-accent-muted2);
+  --color-accent-subtle:         var(--color-accent-subtle);
+  --color-accent-subtle2:        var(--color-accent-subtle2);
+  --color-accent-moderate:       var(--color-accent-moderate);
+  --color-accent-vivid:          var(--color-accent-vivid);
+  --color-accent-text:           var(--color-accent-text);
+  --color-accent-text-bold:      var(--color-accent-text-bold);
+  --color-accent-text-bolder:    var(--color-accent-text-bolder);
+  --color-accent-text-light:     var(--color-accent-text-light);
+  --color-accent-text-soft:      var(--color-accent-text-soft);
+  --color-accent-text-faint:     var(--color-accent-text-faint);
+  --color-accent-border:         var(--color-accent-border);
+  --color-accent-border-light:   var(--color-accent-border-light);
+  --color-accent-border-soft:    var(--color-accent-border-soft);
+  --color-accent-border-muted:   var(--color-accent-border-muted);
+
+  /* ── Interactive: hover ── */
+  --color-hover-surface:         var(--color-hover-surface);
+  --color-hover-surface2:        var(--color-hover-surface2);
+  --color-hover-surface3:        var(--color-hover-surface3);
+  --color-hover-surface-soft:    var(--color-hover-surface-soft);
+  --color-hover-surface-soft2:   var(--color-hover-surface-soft2);
+  --color-hover-surface-soft3:   var(--color-hover-surface-soft3);
+  --color-hover-surface-soft4:   var(--color-hover-surface-soft4);
+  --color-hover-surface-accent:  var(--color-hover-surface-accent);
+  --color-hover-surface-accent2: var(--color-hover-surface-accent2);
+  --color-hover-surface-accent3: var(--color-hover-surface-accent3);
+  --color-hover-surface-white:   var(--color-hover-surface-white);
+  --color-hover-surface-white-soft:  var(--color-hover-surface-white-soft);
+  --color-hover-surface-white-soft2: var(--color-hover-surface-white-soft2);
+  --color-hover-surface-white-soft3: var(--color-hover-surface-white-soft3);
+  --color-hover-surface-inverse: var(--color-hover-surface-inverse);
+  --color-hover-text:            var(--color-hover-text);
+  --color-hover-text-strong:     var(--color-hover-text-strong);
+  --color-hover-text-bolder:     var(--color-hover-text-bolder);
+  --color-hover-text-boldest:    var(--color-hover-text-boldest);
+  --color-hover-text-muted:      var(--color-hover-text-muted);
+  --color-hover-text-faint:      var(--color-hover-text-faint);
+  --color-hover-border:          var(--color-hover-border);
+  --color-hover-border-strong:   var(--color-hover-border-strong);
+  --color-hover-border-accent:   var(--color-hover-border-accent);
+  --color-hover-accent:          var(--color-hover-accent);
+  --color-hover-accent-bold:     var(--color-hover-accent-bold);
+  --color-hover-accent-muted:    var(--color-hover-accent-muted);
+  --color-hover-accent-moderate: var(--color-hover-accent-moderate);
+  --color-hover-accent-soft:     var(--color-hover-accent-soft);
+  --color-hover-accent-text:     var(--color-hover-accent-text);
+  --color-hover-accent-text-bold:var(--color-hover-accent-text-bold);
+  --color-hover-accent-text-bolder:var(--color-hover-accent-text-bolder);
+  --color-hover-accent-subtle:   var(--color-hover-accent-subtle);
+
+  /* ── Focus ── */
+  --color-focus-border:          var(--color-focus-border);
+  --color-focus-border-strong:   var(--color-focus-border-strong);
+  --color-focus-border-soft:     var(--color-focus-border-soft);
+  --color-focus-ring:            var(--color-focus-ring);
+  --color-focus-ring-solid:      var(--color-focus-ring-solid);
+  --color-focus-ring-muted:      var(--color-focus-ring-muted);
+  --color-focus-surface:         var(--color-focus-surface);
+  --color-focus-surface-accent:  var(--color-focus-surface-accent);
+  --color-focus-text:            var(--color-focus-text);
+
+  /* ── Ring ── */
+  --color-ring-accent:           var(--color-ring-accent);
+  --color-ring-accent-strong:    var(--color-ring-accent-strong);
+  --color-ring-accent-soft:      var(--color-ring-accent-soft);
+  --color-ring-accent-muted:     var(--color-ring-accent-muted);
+  --color-ring-accent-faint:     var(--color-ring-accent-faint);
+  --color-ring-neutral:          var(--color-ring-neutral);
+  --color-ring-success:          var(--color-ring-success);
+  --color-ring-success-soft:     var(--color-ring-success-soft);
+
+  /* ── Danger ── */
+  --color-danger-surface:        var(--color-danger-surface);
+  --color-danger-surface-soft:   var(--color-danger-surface-soft);
+  --color-danger-surface-muted:  var(--color-danger-surface-muted);
+  --color-danger-surface-medium: var(--color-danger-surface-medium);
+  --color-danger-surface-strong: var(--color-danger-surface-strong);
+  --color-danger:                var(--color-danger);
+  --color-danger-vivid:          var(--color-danger-vivid);
+  --color-danger-text:           var(--color-danger-text);
+  --color-danger-text-bold:      var(--color-danger-text-bold);
+  --color-danger-text-tag:       var(--color-danger-text-tag);
+  --color-danger-text-soft:      var(--color-danger-text-soft);
+  --color-danger-text-faint:     var(--color-danger-text-faint);
+  --color-danger-border:         var(--color-danger-border);
+  --color-hover-danger:          var(--color-hover-danger);
+  --color-hover-danger-text:     var(--color-hover-danger-text);
+  --color-hover-danger-text-bold:var(--color-hover-danger-text-bold);
+
+  /* ── Success ── */
+  --color-success-surface:       var(--color-success-surface);
+  --color-success-surface-muted: var(--color-success-surface-muted);
+  --color-success-surface-medium:var(--color-success-surface-medium);
+  --color-success:               var(--color-success);
+  --color-success-vivid:         var(--color-success-vivid);
+  --color-success-text:          var(--color-success-text);
+  --color-success-text-bold:     var(--color-success-text-bold);
+  --color-success-text-tag:      var(--color-success-text-tag);
+  --color-success-text-faint:    var(--color-success-text-faint);
+  --color-success-border:        var(--color-success-border);
+
+  /* ── Warning ── */
+  --color-warning-surface:       var(--color-warning-surface);
+  --color-warning-surface-muted: var(--color-warning-surface-muted);
+  --color-warning-surface-medium:var(--color-warning-surface-medium);
+  --color-warning:               var(--color-warning);
+  --color-warning-text:          var(--color-warning-text);
+  --color-warning-text-bold:     var(--color-warning-text-bold);
+  --color-warning-text-tag:      var(--color-warning-text-tag);
+  --color-warning-border:        var(--color-warning-border);
+
+  /* ── Amber ── */
+  --color-amber-surface:         var(--color-amber-surface);
+  --color-amber-surface-muted:   var(--color-amber-surface-muted);
+  --color-amber:                 var(--color-amber);
+  --color-amber-text:            var(--color-amber-text);
+  --color-amber-text-bold:       var(--color-amber-text-bold);
+  --color-amber-text-tag:        var(--color-amber-text-tag);
+  --color-amber-border:          var(--color-amber-border);
+
+  /* ── Orange ── */
+  --color-orange-surface:        var(--color-orange-surface);
+  --color-orange-surface-muted:  var(--color-orange-surface-muted);
+  --color-orange:                var(--color-orange);
+  --color-orange-text:           var(--color-orange-text);
+  --color-orange-text-bold:      var(--color-orange-text-bold);
+  --color-orange-text-tag:       var(--color-orange-text-tag);
+  --color-orange-border:         var(--color-orange-border);
+
+  /* ── Purple ── */
+  --color-purple-surface:        var(--color-purple-surface);
+  --color-purple-surface-muted:  var(--color-purple-surface-muted);
+  --color-purple:                var(--color-purple);
+  --color-purple-text:           var(--color-purple-text);
+  --color-purple-text-bold:      var(--color-purple-text-bold);
+  --color-purple-text-tag:       var(--color-purple-text-tag);
+  --color-purple-border:         var(--color-purple-border);
+
+  /* ── Violet ── */
+  --color-violet-surface-muted:  var(--color-violet-surface-muted);
+  --color-violet:                var(--color-violet);
+  --color-violet-vivid:          var(--color-violet-vivid);
+  --color-violet-bold:           var(--color-violet-bold);
+  --color-violet-text-tag:       var(--color-violet-text-tag);
+
+  /* ── Indigo ── */
+  --color-indigo-surface:        var(--color-indigo-surface);
+  --color-indigo-surface-muted:  var(--color-indigo-surface-muted);
+  --color-indigo:                var(--color-indigo);
+  --color-indigo-bold:           var(--color-indigo-bold);
+  --color-indigo-text:           var(--color-indigo-text);
+  --color-indigo-text-tag:       var(--color-indigo-text-tag);
+  --color-indigo-border:         var(--color-indigo-border);
+
+  /* ── Pink ── */
+  --color-pink-surface:          var(--color-pink-surface);
+  --color-pink-surface-muted:    var(--color-pink-surface-muted);
+  --color-pink:                  var(--color-pink);
+  --color-pink-text:             var(--color-pink-text);
+  --color-pink-text-tag:         var(--color-pink-text-tag);
+
+  /* ── Cyan ── */
+  --color-cyan-surface:          var(--color-cyan-surface);
+  --color-cyan-surface-muted:    var(--color-cyan-surface-muted);
+  --color-cyan:                  var(--color-cyan);
+  --color-cyan-text:             var(--color-cyan-text);
+  --color-cyan-text-bold:        var(--color-cyan-text-bold);
+  --color-cyan-text-tag:         var(--color-cyan-text-tag);
+
+  /* ── Rose ── */
+  --color-rose-surface-muted:    var(--color-rose-surface-muted);
+  --color-rose:                  var(--color-rose);
+  --color-rose-text-tag:         var(--color-rose-text-tag);
+
+  /* ── Emerald ── */
+  --color-emerald-surface:       var(--color-emerald-surface);
+  --color-emerald-surface2:      var(--color-emerald-surface2);
+  --color-emerald-surface-muted: var(--color-emerald-surface-muted);
+  --color-emerald:               var(--color-emerald);
+  --color-emerald-text:          var(--color-emerald-text);
+  --color-emerald-text-tag:      var(--color-emerald-text-tag);
+
+  /* ── Teal ── */
+  --color-teal-surface-muted:    var(--color-teal-surface-muted);
+  --color-teal:                  var(--color-teal);
+  --color-teal-text-tag:         var(--color-teal-text-tag);
+
+  /* ── Chart ── */
+  --color-chart-1:               var(--color-chart-1);
+  --color-chart-2:               var(--color-chart-2);
+  --color-chart-3:               var(--color-chart-3);
+  --color-chart-4:               var(--color-chart-4);
+  --color-chart-5:               var(--color-chart-5);
+  --color-chart-6:               var(--color-chart-6);
+  --color-chart-7:               var(--color-chart-7);
+  --color-chart-8:               var(--color-chart-8);
+  --color-chart-9:               var(--color-chart-9);
+  --color-chart-10:              var(--color-chart-10);
+  --color-chart-axis:            var(--color-chart-axis);
+  --color-chart-grid:            var(--color-chart-grid);
+  --color-chart-label:           var(--color-chart-label);
+  --color-chart-tick:            var(--color-chart-tick);
+  --color-chart-fill:            var(--color-chart-fill);
+
+  /* ── Progress ── */
+  --color-progress-high:         var(--color-progress-high);
+  --color-progress-mid:          var(--color-progress-mid);
+  --color-progress-low:          var(--color-progress-low);
+  --color-progress-critical:     var(--color-progress-critical);
+
+  /* ── Gradients ── */
+  --color-gradient-accent-from:     var(--color-gradient-accent-from);
+  --color-gradient-accent-to:       var(--color-gradient-accent-to);
+  --color-gradient-brand-from:      var(--color-gradient-brand-from);
+  --color-gradient-brand-to:        var(--color-gradient-brand-to);
+  --color-gradient-violet-from:     var(--color-gradient-violet-from);
+  --color-gradient-violet-to:       var(--color-gradient-violet-to);
+  --color-gradient-violet2-from:    var(--color-gradient-violet2-from);
+  --color-gradient-violet2-to:      var(--color-gradient-violet2-to);
+  --color-gradient-purple-from:     var(--color-gradient-purple-from);
+  --color-gradient-purple-to:       var(--color-gradient-purple-to);
+  --color-gradient-surface-from:    var(--color-gradient-surface-from);
+  --color-gradient-surface-to:      var(--color-gradient-surface-to);
+  --color-gradient-fade-from:       var(--color-gradient-fade-from);
+  --color-gradient-fade-to:         var(--color-gradient-fade-to);
+  --color-gradient-blue-from:       var(--color-gradient-blue-from);
+  --color-gradient-blue-to:         var(--color-gradient-blue-to);
+  --color-gradient-purple-card-from:var(--color-gradient-purple-card-from);
+  --color-gradient-purple-card-to:  var(--color-gradient-purple-card-to);
+  --color-gradient-green-from:      var(--color-gradient-green-from);
+  --color-gradient-green-to:        var(--color-gradient-green-to);
+  --color-gradient-orange-from:     var(--color-gradient-orange-from);
+  --color-gradient-orange-to:       var(--color-gradient-orange-to);
+  --color-gradient-pink-from:       var(--color-gradient-pink-from);
+  --color-gradient-pink-to:         var(--color-gradient-pink-to);
+  --color-gradient-cyan-from:       var(--color-gradient-cyan-from);
+  --color-gradient-cyan-to:         var(--color-gradient-cyan-to);
+
+  /* ── Fill (SVG) ── */
+  --color-fill-primary:          var(--color-fill-primary);
+  --color-fill-secondary:        var(--color-fill-secondary);
+  --color-fill-body:             var(--color-fill-body);
+
+  /* ── Misc ── */
+  --color-placeholder:           var(--color-placeholder);
+  --color-slate:                 var(--color-slate);
+}
