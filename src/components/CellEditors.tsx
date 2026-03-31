@@ -628,3 +628,141 @@ export function StatusCellEditor({ property, value, databaseId, onUpdate, onClos
 }
 
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ID CELL EDITOR
+// ═══════════════════════════════════════════════════════════════════════════════
+// When you click on an ID cell, you can configure:
+//   • ID format: Auto-increment, Prefixed auto-increment, UUID, Custom
+//   • Prefix string (for prefixed formats)
+//   • Current counter (read-only display)
+
+type IdFormat = 'auto_increment' | 'prefixed' | 'uuid' | 'custom';
+
+interface IdCellEditorProps {
+  property: SchemaProperty;
+  value: any;
+  databaseId: string;
+  onClose: () => void;
+}
+
+export function IdCellEditor({ property, databaseId, value, onClose }: IdCellEditorProps) {
+  const measureRef = useRef<HTMLDivElement>(null);
+  const rect = useCellRect(measureRef);
+
+  const updateProperty = useDatabaseStore(s => s.updateProperty);
+
+  // Determine current format from property config
+  const currentPrefix = property.prefix || '';
+  const currentCounter = property.autoIncrement || 1;
+
+  const inferFormat = (): IdFormat => {
+    if (currentPrefix && currentCounter) return 'prefixed';
+    if (currentCounter) return 'auto_increment';
+    return 'auto_increment';
+  };
+
+  const [format, setFormat] = useState<IdFormat>(inferFormat);
+  const [prefix, setPrefix] = useState(currentPrefix);
+
+  const formats: { value: IdFormat; label: string; desc: string; example: string }[] = [
+    { value: 'auto_increment', label: 'Auto-increment', desc: 'Sequential numbers', example: `e.g. 1, 2, 3…` },
+    { value: 'prefixed', label: 'Prefixed ID', desc: 'Prefix + sequential', example: `e.g. ${prefix || 'TASK-'}1, ${prefix || 'TASK-'}2…` },
+    { value: 'uuid', label: 'UUID', desc: 'Unique random ID', example: 'e.g. a1b2c3d4…' },
+    { value: 'custom', label: 'Custom', desc: 'Manual values', example: 'Enter manually' },
+  ];
+
+  const handleSave = (newFormat: IdFormat, newPrefix?: string) => {
+    const p = newPrefix ?? prefix;
+    switch (newFormat) {
+      case 'auto_increment':
+        updateProperty(databaseId, property.id, { prefix: '', autoIncrement: currentCounter });
+        break;
+      case 'prefixed':
+        updateProperty(databaseId, property.id, { prefix: p || 'ID-', autoIncrement: currentCounter });
+        break;
+      case 'uuid':
+        updateProperty(databaseId, property.id, { prefix: 'uuid', autoIncrement: undefined });
+        break;
+      case 'custom':
+        updateProperty(databaseId, property.id, { prefix: '', autoIncrement: undefined });
+        break;
+    }
+  };
+
+  return (
+    <>
+      <div ref={measureRef} className="w-full h-0" />
+      {rect && createPortal(
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={(e) => { e.stopPropagation(); onClose(); }} />
+          <div
+            className="fixed min-w-[260px] bg-white shadow-xl border border-gray-200 rounded-lg z-[9999] overflow-hidden"
+            style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 260) }}
+            onClick={e => e.stopPropagation()}>
+
+            {/* ─── Current value ─── */}
+            <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <Fingerprint className="w-4 h-4 text-gray-400" />
+                <span className="text-sm font-mono text-gray-600">{value || '—'}</span>
+              </div>
+            </div>
+
+            {/* ─── Format picker ─── */}
+            <div className="py-1">
+              <div className="px-3 py-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide">ID Format</div>
+              {formats.map(f => (
+                <button
+                  key={f.value}
+                  onClick={() => {
+                    setFormat(f.value);
+                    handleSave(f.value);
+                  }}
+                  className={`w-full flex items-start gap-3 px-3 py-2 text-left hover:bg-gray-50 transition-colors ${format === f.value ? 'bg-blue-50/50' : ''}`}>
+                  <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${format === f.value ? 'border-blue-500' : 'border-gray-300'}`}>
+                    {format === f.value && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-700">{f.label}</div>
+                    <div className="text-xs text-gray-400">{f.desc}</div>
+                    <div className="text-xs text-gray-300 mt-0.5 font-mono">{f.example}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* ─── Prefix input (when prefixed format selected) ─── */}
+            {format === 'prefixed' && (
+              <div className="px-3 py-2 border-t border-gray-100">
+                <label className="text-xs font-medium text-gray-500 mb-1 block">Prefix</label>
+                <input
+                  autoFocus
+                  type="text"
+                  value={prefix}
+                  onChange={e => setPrefix(e.target.value)}
+                  onBlur={() => handleSave('prefixed', prefix)}
+                  onKeyDown={e => { if (e.key === 'Enter') { handleSave('prefixed', prefix); onClose(); } }}
+                  className="w-full text-sm px-2.5 py-1.5 rounded-md border border-gray-200 bg-gray-50/50 outline-none focus:border-blue-400 focus:bg-white transition-colors font-mono"
+                  placeholder="TASK-"
+                />
+                <div className="text-xs text-gray-400 mt-1">
+                  Next ID: <span className="font-mono">{prefix || 'ID-'}{currentCounter}</span>
+                </div>
+              </div>
+            )}
+
+            {/* ─── Counter info ─── */}
+            {(format === 'auto_increment' || format === 'prefixed') && (
+              <div className="px-3 py-2 border-t border-gray-100 bg-gray-50/50">
+                <div className="text-xs text-gray-400">
+                  Next auto-increment: <span className="font-mono font-medium text-gray-600">{currentCounter}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </>,
+        document.body
+      )}
+    </>
+  );
+}
