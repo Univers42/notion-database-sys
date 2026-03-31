@@ -24,21 +24,26 @@ function getStoredPreference(): ThemePreference {
   return 'system';
 }
 
-/** Apply the resolved theme to the DOM — single attribute swap,
- *  CSS custom properties cascade instantly with zero JS overhead. */
+// BEFORE (slow)
+// Every call re-sets the attribute unconditionally, forcing a full style
+// recalculation even when the theme hasn't actually changed.
+//
+// function applyTheme(resolved: ResolvedTheme): void {
+//   document.documentElement.setAttribute('data-theme', resolved);
+// }
+
+// AFTER (fast)
 function applyTheme(resolved: ResolvedTheme): void {
   const el = document.documentElement;
-  if (el.getAttribute('data-theme') === resolved) return; // no-op guard
+  if (el.getAttribute('data-theme') === resolved) return;
   el.setAttribute('data-theme', resolved);
 }
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-
 interface ThemeState {
-  preference: ThemePreference;   // What the user chose
-  resolved: ResolvedTheme;       // Actual theme applied to DOM
+  preference: ThemePreference;
+  resolved: ResolvedTheme;
   setTheme: (pref: ThemePreference) => void;
-  cycleTheme: () => void;        // light → dark → system → light
+  cycleTheme: () => void;
 }
 
 export const useThemeStore = create<ThemeState>((set, get) => {
