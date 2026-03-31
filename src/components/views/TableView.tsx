@@ -986,6 +986,10 @@ export function TableView() {
     setRowMenu({ pageId, x, y });
   }, []);
 
+  const handlePropertyConfig = useCallback((prop: SchemaProperty, position: { top: number; left: number }) => {
+    setConfigPanel({ prop, position });
+  }, []);
+
   const getColWidth = useCallback((propId: string) => {
     const s = useDatabaseStore.getState();
     const v = s.views[s.activeViewId!];
@@ -1053,6 +1057,7 @@ export function TableView() {
           onFillDragStart={handleFillDragStart}
           onFormulaEdit={handleFormulaEdit}
           onRowMenu={handleRowMenu}
+          onPropertyConfig={handlePropertyConfig}
           tableRef={tableRef}
         />
       );
