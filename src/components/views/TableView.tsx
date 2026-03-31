@@ -244,6 +244,7 @@ interface MemoTableRowProps {
   onFillDragStart: (propId: string, rowIdx: number) => void;
   onFormulaEdit: (propId: string) => void;
   onRowMenu: (pageId: string, x: number, y: number) => void;
+  onPropertyConfig: (prop: SchemaProperty, position: { top: number; left: number }) => void;
   tableRef: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -251,7 +252,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
   page, rowIdx, visibleProps, focusedPropId, editingPropId,
   fillDrag, showRowNumbers, showVerticalLines, wrapContent,
   getColWidth, databaseId, onCellClick, onUpdateProperty, onStopEditing,
-  onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, tableRef,
+  onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
 }: MemoTableRowProps) {
 
   const cellBorder = showVerticalLines ? 'border-r border-gray-200' : '';
