@@ -9,6 +9,14 @@
 /* ─── LIGHT THEME (default) ──────────────────────────────────────────────── */
 :root,
 :root[data-theme="light"] {
+  /*
+   * AFTER: color-scheme tells the browser this scope is light-mode.
+   * Native UI elements (scrollbars, <input>, <select>, date pickers)
+   * automatically render in light style. Without this they can flash
+   * dark-styled controls even when the page is light.
+   *
+   * BEFORE: this line was absent — native controls ignored the theme.
+   */
   color-scheme: light;
 
   /* ── Surfaces ── */
@@ -343,6 +351,13 @@
 
 /* ─── DARK THEME ─────────────────────────────────────────────────────────── */
 :root[data-theme="dark"] {
+  /*
+   * AFTER: same as light — tells native controls to render dark.
+   * Without this, browser-native elements (scrollbars, inputs, etc.)
+   * stay light even when the page turns dark.
+   *
+   * BEFORE: this line was absent — native controls ignored the theme.
+   */
   color-scheme: dark;
 
   /* ── Surfaces ── */
