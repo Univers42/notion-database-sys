@@ -6,6 +6,7 @@ build/
 dist/
 coverage/
 
+scripts/
 # Rust build artifacts
 src/lib/engine/target/
 src/lib/engine/pkg/
