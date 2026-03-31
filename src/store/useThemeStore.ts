@@ -24,15 +24,6 @@ function getStoredPreference(): ThemePreference {
   return 'system';
 }
 
-// BEFORE (slow)
-// Every call re-sets the attribute unconditionally, forcing a full style
-// recalculation even when the theme hasn't actually changed.
-//
-// function applyTheme(resolved: ResolvedTheme): void {
-//   document.documentElement.setAttribute('data-theme', resolved);
-// }
-
-// AFTER (fast)
 function applyTheme(resolved: ResolvedTheme): void {
   const el = document.documentElement;
   if (el.getAttribute('data-theme') === resolved) return;
