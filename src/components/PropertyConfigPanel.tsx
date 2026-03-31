@@ -261,7 +261,78 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
         </>
       )}
 
-      {/* ─── Quick actions ─── */}
+      {/* ─── ID-specific: Edit ID format ─── */}
+      {property.type === 'id' && (
+        <>
+          <div className="py-1 px-1">
+            <ActionButton
+              icon={<Fingerprint className="w-3.5 h-3.5" />}
+              label={showIdConfig ? 'Close ID format' : 'Edit ID format'}
+              onClick={() => setShowIdConfig(!showIdConfig)}
+            />
+          </div>
+          {showIdConfig && (
+            <div className="px-3 pb-2 space-y-2">
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide">ID Format</div>
+              {([
+                { value: 'auto_increment' as const, label: 'Auto-increment', desc: '1, 2, 3…' },
+                { value: 'prefixed' as const, label: 'Prefixed', desc: `${idPrefix || 'PREFIX-'}1, ${idPrefix || 'PREFIX-'}2…` },
+                { value: 'uuid' as const, label: 'UUID', desc: 'Random unique IDs' },
+              ]).map(f => (
+                <button
+                  key={f.value}
+                  onClick={() => setIdFormat(f.value)}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left transition-colors ${idFormat === f.value ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${idFormat === f.value ? 'border-blue-500' : 'border-gray-300'}`}>
+                    {idFormat === f.value && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                  </div>
+                  <div>
+                    <span>{f.label}</span>
+                    <span className="text-xs text-gray-400 ml-1.5 font-mono">{f.desc}</span>
+                  </div>
+                </button>
+              ))}
+              {idFormat === 'prefixed' && (
+                <div className="pt-1">
+                  <label className="text-xs text-gray-500 mb-1 block">Prefix</label>
+                  <input
+                    autoFocus
+                    value={idPrefix}
+                    onChange={e => setIdPrefix(e.target.value)}
+                    className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200 bg-gray-50 outline-none focus:border-blue-400 transition-colors font-mono"
+                    placeholder="TASK-"
+                  />
+                </div>
+              )}
+              <button
+                onClick={() => {
+                  const dbPages = Object.values(pages).filter(p => p.databaseId === databaseId);
+                  if (idFormat === 'uuid') {
+                    updateProperty(databaseId, property.id, { prefix: 'uuid', autoIncrement: undefined });
+                    dbPages.forEach(p => {
+                      const uid = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+                      updatePageProperty(p.id, property.id, uid.slice(0, 8));
+                    });
+                  } else if (idFormat === 'prefixed') {
+                    const pfx = idPrefix || 'ID-';
+                    updateProperty(databaseId, property.id, { prefix: pfx, autoIncrement: dbPages.length + 1 });
+                    dbPages.forEach((p, i) => updatePageProperty(p.id, property.id, `${pfx}${i + 1}`));
+                  } else {
+                    updateProperty(databaseId, property.id, { prefix: '', autoIncrement: dbPages.length + 1 });
+                    dbPages.forEach((p, i) => updatePageProperty(p.id, property.id, String(i + 1)));
+                  }
+                  onClose();
+                }}
+                className="w-full py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
+                Apply to all records
+              </button>
+            </div>
+          )}
+          <div className="h-px bg-gray-100" />
+        </>
+      )}
+
+            {/* ─── Quick actions ─── */}
       <div className="py-1 px-1">
         <ActionButton
           icon={<Filter className="w-3.5 h-3.5" />}
