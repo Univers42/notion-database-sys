@@ -1,29 +1,13 @@
-// ═══════════════════════════════════════════════════════════════════════════════
 // HTML Renderer — AST → HTML string
-// ═══════════════════════════════════════════════════════════════════════════════
 //
-// Takes BlockNode[] (from parser.ts) and produces a self-contained HTML string.
-// Zero dependencies on React, DOM, or any framework.
 //
-// Suitable for:
-//   - Server-side rendering
-//   - Static site generation
-//   - Email content
-//   - Any context where a plain HTML string is needed
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import type { BlockNode, InlineNode, TableAlign } from '../ast';
 
-// ─── Options ─────────────────────────────────────────────────────────────────
-
 export interface HtmlRenderOptions {
-  /** Wrap output in an article element with this class */
   wrapperClass?: string;
-  /** Add target="_blank" and rel="noopener" to external links */
   externalLinks?: boolean;
-  /** Custom CSS class prefix (default: 'md') */
   classPrefix?: string;
-  /** Whether to sanitize HTML blocks (default: false — pass through) */
   sanitizeHtml?: boolean;
 }
 
@@ -34,9 +18,6 @@ const defaults: Required<HtmlRenderOptions> = {
   sanitizeHtml: false,
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PUBLIC API
-// ═══════════════════════════════════════════════════════════════════════════════
 
 export function renderHtml(blocks: BlockNode[], opts?: HtmlRenderOptions): string {
   const o = { ...defaults, ...opts };
@@ -47,9 +28,6 @@ export function renderHtml(blocks: BlockNode[], opts?: HtmlRenderOptions): strin
   return inner;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// BLOCK RENDERING
-// ═══════════════════════════════════════════════════════════════════════════════
 
 function renderBlock(node: BlockNode, o: Required<HtmlRenderOptions>): string {
   switch (node.type) {
@@ -141,8 +119,6 @@ function renderBlock(node: BlockNode, o: Required<HtmlRenderOptions>): string {
   }
 }
 
-// ─── Table ───────────────────────────────────────────────────────────────────
-
 function renderTable(node: Extract<BlockNode, { type: 'table' }>, o: Required<HtmlRenderOptions>): string {
   const alignStyle = (i: number): string => {
     const a = node.alignments[i];
@@ -162,9 +138,6 @@ function renderTable(node: Extract<BlockNode, { type: 'table' }>, o: Required<Ht
   return `<table>\n<thead><tr>${headCells}</tr></thead>\n<tbody>\n${bodyRows}\n</tbody>\n</table>`;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// INLINE RENDERING
-// ═══════════════════════════════════════════════════════════════════════════════
 
 function renderInlines(nodes: InlineNode[], o: Required<HtmlRenderOptions>): string {
   return nodes.map(n => renderInline(n, o)).join('');
@@ -213,9 +186,6 @@ function renderInline(node: InlineNode, o: Required<HtmlRenderOptions>): string 
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════════════════
 
 function esc(str: string): string {
   return str
