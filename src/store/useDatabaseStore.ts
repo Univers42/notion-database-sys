@@ -1040,6 +1040,18 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
                 return opt ? opt.value.toLowerCase().includes(q) : false;
               });
             }
+            case 'relation': {
+              if (!Array.isArray(val)) return false;
+              return val.some(rid => {
+                const relPage = state.pages[rid];
+                if (!relPage) return false;
+                const relDb = state.databases[relPage.databaseId];
+                const tpId = relDb?.titlePropertyId;
+                if (!tpId) return false;
+                const t = relPage.properties[tpId];
+                return typeof t === 'string' && t.toLowerCase().includes(q);
+              });
+            }
             default:
           }
           if (typeof val === 'string') return val.toLowerCase().includes(q);
