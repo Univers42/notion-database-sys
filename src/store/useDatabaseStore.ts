@@ -1016,11 +1016,17 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
     let result = Object.values(state.pages)
       .filter(p => p.databaseId === view.databaseId && !p.archived);
 
-    // Global search filter
+    // Global search filter — resolves option IDs, relation page titles, etc.
     if (state.searchQuery) {
       const q = state.searchQuery.toLowerCase();
       result = result.filter(page => {
-        return Object.values(page.properties).some(val => {
+        return Object.entries(page.properties).some(([propId, val]) => {
+          if (val == null || val === '') return false;
+          const prop = db.properties[propId];
+          if (!prop) {
+            // Unknown property — fall back to raw string match
+            return typeof val === 'string' && val.toLowerCase().includes(q);
+          }
           if (typeof val === 'string') return val.toLowerCase().includes(q);
           if (Array.isArray(val)) return val.some(v => String(v).toLowerCase().includes(q));
           return String(val).toLowerCase().includes(q);
