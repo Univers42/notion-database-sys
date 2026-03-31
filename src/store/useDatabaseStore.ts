@@ -1052,11 +1052,14 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
                 return typeof t === 'string' && t.toLowerCase().includes(q);
               });
             }
-            default:
+            case 'checkbox':
+              return (val ? 'true yes checked' : 'false no unchecked').includes(q);
+            default: {
+              if (typeof val === 'string') return val.toLowerCase().includes(q);
+              if (Array.isArray(val)) return val.some(v => String(v).toLowerCase().includes(q));
+              return String(val).toLowerCase().includes(q);
+            }
           }
-          if (typeof val === 'string') return val.toLowerCase().includes(q);
-          if (Array.isArray(val)) return val.some(v => String(v).toLowerCase().includes(q));
-          return String(val).toLowerCase().includes(q);
         });
       });
     }
