@@ -23,6 +23,7 @@ import {
   getOperatorsForType,
   FilterPropertyPicker, FilterBar, AdvancedFilterGrid,
 } from './FilterComponents';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 const VIEW_ICONS: Record<ViewType, React.ReactNode> = {
   table: <Table className="w-4 h-4" />,
@@ -341,6 +342,8 @@ export function TopBar() {
               onToggle={() => setShowExtraActions(!showExtraActions)}
               onClose={() => setShowExtraActions(false)}
             />
+
+            <ThemeToggle />
 
             <div className="w-px h-5 bg-surface-muted mx-1" />
 

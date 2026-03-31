@@ -133,10 +133,10 @@ export function MapView() {
 
       marker.bindPopup(`
         <div style="min-width:180px;font-family:system-ui,sans-serif;">
-          <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:#111827;">${page.icon ? page.icon + ' ' : ''}${title || 'Untitled'}</div>
-          <div style="font-size:11px;color:#6b7280;margin-bottom:6px;">${address}</div>
+          <div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--color-ink);">${page.icon ? page.icon + ' ' : ''}${title || 'Untitled'}</div>
+          <div style="font-size:11px;color:var(--color-ink-secondary);margin-bottom:6px;">${address}</div>
           <button onclick="window.__mapOpenPage && window.__mapOpenPage('${page.id}')"
-            style="font-size:11px;color:#3b82f6;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;">
+            style="font-size:11px;color:var(--color-accent);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;">
             Open page →
           </button>
         </div>
