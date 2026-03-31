@@ -1027,6 +1027,14 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
             // Unknown property — fall back to raw string match
             return typeof val === 'string' && val.toLowerCase().includes(q);
           }
+          switch (prop.type) {
+            case 'select':
+            case 'status': {
+              const opt = prop.options?.find(o => o.id === val);
+              return opt ? opt.value.toLowerCase().includes(q) : false;
+            }
+            default:
+          }
           if (typeof val === 'string') return val.toLowerCase().includes(q);
           if (Array.isArray(val)) return val.some(v => String(v).toLowerCase().includes(q));
           return String(val).toLowerCase().includes(q);
