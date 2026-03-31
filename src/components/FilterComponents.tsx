@@ -162,7 +162,7 @@ function PortalDropdown({ anchorRef, children, onClose, width, align = 'left' }:
 
   return createPortal(
     <div ref={ref}
-      className="fixed z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+      className="fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
       style={{ top: pos.top, left: pos.left, ...(width ? { width } : {}) }}>
       {children}
     </div>,
@@ -193,7 +193,7 @@ export function FilterPropertyPicker({ properties, onSelect, onClose, onAdvanced
         <div className="flex items-center px-3 pt-3.5 pb-1.5 h-[42px] shrink-0">
           <span className="flex-1 font-semibold text-sm truncate">{title}</span>
           <button onClick={onClose}
-            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-hover-surface2 text-ink-muted transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -201,13 +201,13 @@ export function FilterPropertyPicker({ properties, onSelect, onClose, onAdvanced
 
       {/* Search input */}
       <div className="px-2 pt-2 pb-1">
-        <div className="flex items-center rounded-md border border-gray-200 bg-gray-50 h-7 px-1.5">
+        <div className="flex items-center rounded-md border border-line bg-surface-secondary h-7 px-1.5">
           <input
             type="text"
             placeholder="Filter by…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-sm outline-none placeholder-gray-400"
+            className="flex-1 bg-transparent text-sm outline-none placeholder-placeholder"
             autoFocus
           />
         </div>
@@ -220,24 +220,24 @@ export function FilterPropertyPicker({ properties, onSelect, onClose, onAdvanced
             <button
               key={prop.id}
               onClick={() => onSelect(prop.id)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors"
             >
-              <PropertyTypeIcon type={prop.type} className="w-4 h-4 text-gray-500 shrink-0" />
+              <PropertyTypeIcon type={prop.type} className="w-4 h-4 text-ink-secondary shrink-0" />
               <span className="truncate">{prop.name}</span>
             </button>
           ))}
           {filtered.length === 0 && (
-            <div className="px-2 py-3 text-sm text-gray-400 text-center">No properties found</div>
+            <div className="px-2 py-3 text-sm text-ink-muted text-center">No properties found</div>
           )}
         </div>
       </div>
 
       {/* Footer: advanced filter */}
       {onAdvancedFilter && (
-        <div className="border-t border-gray-100 p-1 shrink-0">
+        <div className="border-t border-line-light p-1 shrink-0">
           <button
             onClick={onAdvancedFilter}
-            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-secondary hover:bg-hover-surface transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Add advanced filter</span>
@@ -270,8 +270,8 @@ function FilterOperatorPicker({ type, current, onSelect, onClose }: {
               onClick={() => { onSelect(op.value); onClose(); }}
               className={`w-full px-2 py-1.5 rounded-md text-sm text-left transition-colors ${
                 current === op.value
-                  ? 'bg-gray-100 font-medium text-gray-800'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-surface-tertiary font-medium text-ink-strong'
+                  : 'text-ink-body hover:bg-hover-surface'
               }`}
             >
               {op.label}
@@ -322,12 +322,12 @@ function SelectFilterValueEditor({ property, operator, value, onOperatorChange, 
   return (
     <div className="flex flex-col" style={{ width: 260, maxHeight: '50vh' }}>
       {/* Header: label + operator + ··· */}
-      <div className="flex items-center gap-1 px-2 pt-1 pb-0.5 text-xs text-gray-400 shrink-0">
+      <div className="flex items-center gap-1 px-2 pt-1 pb-0.5 text-xs text-ink-muted shrink-0">
         <span className="truncate flex-shrink">{property.name}</span>
         <button
           ref={operatorBtnRef}
           onClick={() => setShowOperatorMenu(true)}
-          className="flex items-center gap-0.5 px-1 py-0.5 rounded text-xs text-gray-500 font-medium hover:bg-gray-100 shrink-0"
+          className="flex items-center gap-0.5 px-1 py-0.5 rounded text-xs text-ink-secondary font-medium hover:bg-hover-surface2 shrink-0"
         >
           {opDisplay.toLowerCase()} <ChevronDown className="w-2.5 h-2.5" />
         </button>
@@ -335,7 +335,7 @@ function SelectFilterValueEditor({ property, operator, value, onOperatorChange, 
         <button
           ref={moreBtnRef}
           onClick={() => setShowMoreMenu(true)}
-          className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 shrink-0"
+          className="w-5 h-5 flex items-center justify-center rounded hover:bg-hover-surface2 text-ink-muted shrink-0"
         >
           <MoreHorizontal className="w-3.5 h-3.5" />
         </button>
@@ -344,13 +344,13 @@ function SelectFilterValueEditor({ property, operator, value, onOperatorChange, 
       {/* Search input */}
       {needsValue(operator) && (
         <div className="px-2 pb-1">
-          <div className="flex items-center rounded-md border border-gray-200 bg-gray-50 min-h-[28px] px-1.5">
+          <div className="flex items-center rounded-md border border-line bg-surface-secondary min-h-[28px] px-1.5">
             <input
               type="text"
               placeholder={property.type === 'multi_select' ? 'Select one or more options…' : 'Search for an option...'}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="flex-1 bg-transparent text-sm outline-none placeholder-gray-400 py-1"
+              className="flex-1 bg-transparent text-sm outline-none placeholder-placeholder py-1"
               autoFocus
             />
           </div>
@@ -368,21 +368,21 @@ function SelectFilterValueEditor({ property, operator, value, onOperatorChange, 
                   key={opt.id}
                   onClick={() => toggleOption(opt.id)}
                   className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors ${
-                    isSelected ? 'bg-gray-50' : 'hover:bg-gray-50'
+                    isSelected ? 'bg-surface-secondary' : 'hover:bg-hover-surface'
                   }`}
                 >
                   <div className={`w-3.5 h-3.5 rounded border shrink-0 flex items-center justify-center ${
-                    isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
+                    isSelected ? 'bg-accent border-accent-border' : 'border-line-medium'
                   }`}>
                     {isSelected && (
-                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 16 16" fill="none">
+                      <svg className="w-2.5 h-2.5 text-ink-inverse" viewBox="0 0 16 16" fill="none">
                         <path d="M11.834 3.309a.625.625 0 0 1 1.072.642l-5.244 8.74a.625.625 0 0 1-1.01.085L3.155 8.699a.626.626 0 0 1 .95-.813l2.93 3.419z" fill="currentColor" />
                       </svg>
                     )}
                   </div>
                   <span
                     className="inline-flex items-center h-5 px-1.5 rounded text-sm truncate"
-                    style={{ background: opt.color?.split(' ')[0] || '#f3f4f6', color: opt.color?.split(' ')[1] || '#374151' }}
+                    style={{ background: opt.color?.split(' ')[0] || 'var(--color-chart-fill)', color: opt.color?.split(' ')[1] || 'var(--color-chart-axis)' }}
                   >
                     {opt.value}
                   </span>
@@ -410,11 +410,11 @@ function SelectFilterValueEditor({ property, operator, value, onOperatorChange, 
         <PortalDropdown anchorRef={moreBtnRef} onClose={() => setShowMoreMenu(false)} width={220}>
           <div className="p-1 flex flex-col gap-px">
             <button onClick={() => { onDelete(); setShowMoreMenu(false); }}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-red-600 hover:bg-red-50 transition-colors">
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-danger-text hover:bg-hover-danger transition-colors">
               <Trash2 className="w-4 h-4" /> Delete filter
             </button>
             <button onClick={() => setShowMoreMenu(false)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors">
               <Filter className="w-4 h-4" /> Add to advanced filter
             </button>
           </div>
@@ -469,12 +469,12 @@ function DateFilterValueEditor({ property, operator, value, onOperatorChange, on
   return (
     <div className="flex flex-col" style={{ width: 260, maxHeight: '50vh' }}>
       {/* Header: property name + operator button + ··· */}
-      <div className="flex items-center gap-1 px-2 pt-1 pb-0.5 text-xs text-gray-400 shrink-0">
+      <div className="flex items-center gap-1 px-2 pt-1 pb-0.5 text-xs text-ink-muted shrink-0">
         <span className="truncate flex-shrink">{property.name}</span>
         <button
           ref={operatorBtnRef}
           onClick={() => setShowOperatorMenu(true)}
-          className="flex items-center gap-0.5 px-1 py-0.5 rounded text-xs text-gray-500 font-medium hover:bg-gray-100 shrink-0"
+          className="flex items-center gap-0.5 px-1 py-0.5 rounded text-xs text-ink-secondary font-medium hover:bg-hover-surface2 shrink-0"
         >
           {opDisplay.toLowerCase()} <ChevronDown className="w-2.5 h-2.5" />
         </button>
@@ -482,7 +482,7 @@ function DateFilterValueEditor({ property, operator, value, onOperatorChange, on
         <button
           ref={moreBtnRef}
           onClick={() => setShowMoreMenu(true)}
-          className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 shrink-0"
+          className="w-5 h-5 flex items-center justify-center rounded hover:bg-hover-surface2 text-ink-muted shrink-0"
         >
           <MoreHorizontal className="w-3.5 h-3.5" />
         </button>
@@ -495,10 +495,10 @@ function DateFilterValueEditor({ property, operator, value, onOperatorChange, on
           <button
             ref={presetBtnRef}
             onClick={() => setShowPresetMenu(true)}
-            className="flex items-center justify-between w-full h-8 px-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-gray-300 transition-colors"
+            className="flex items-center justify-between w-full h-8 px-2 border border-line rounded-lg text-sm text-ink-body hover:border-hover-border transition-colors"
           >
             <span className="truncate">{displayVal}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <ChevronDown className="w-3.5 h-3.5 text-ink-muted shrink-0" />
           </button>
 
           {/* Actual date input for custom dates */}
@@ -506,7 +506,7 @@ function DateFilterValueEditor({ property, operator, value, onOperatorChange, on
             type="date"
             value={isCustom ? value : ''}
             onChange={e => onValueChange(e.target.value)}
-            className="w-full h-8 px-2 border border-gray-200 rounded-lg text-sm bg-white"
+            className="w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary"
           />
 
           {/* Second date input for is_between */}
@@ -515,7 +515,7 @@ function DateFilterValueEditor({ property, operator, value, onOperatorChange, on
               type="date"
               value={typeof value === 'object' && value?.end ? value.end : ''}
               onChange={e => onValueChange({ start: isCustom ? value : '', end: e.target.value })}
-              className="w-full h-8 px-2 border border-gray-200 rounded-lg text-sm bg-white"
+              className="w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary"
             />
           )}
         </div>
@@ -542,7 +542,7 @@ function DateFilterValueEditor({ property, operator, value, onOperatorChange, on
                 key={preset}
                 onClick={() => applyPreset(preset)}
                 className={`w-full px-2 py-1.5 rounded-md text-sm text-left transition-colors ${
-                  displayVal === preset ? 'bg-gray-100 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                  displayVal === preset ? 'bg-surface-tertiary font-medium' : 'text-ink-body hover:bg-hover-surface'
                 }`}
               >
                 {preset}
@@ -557,11 +557,11 @@ function DateFilterValueEditor({ property, operator, value, onOperatorChange, on
         <PortalDropdown anchorRef={moreBtnRef} onClose={() => setShowMoreMenu(false)} width={220}>
           <div className="p-1 flex flex-col gap-px">
             <button onClick={() => { onDelete(); setShowMoreMenu(false); }}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-red-600 hover:bg-red-50 transition-colors">
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-danger-text hover:bg-hover-danger transition-colors">
               <Trash2 className="w-4 h-4" /> Delete filter
             </button>
             <button onClick={() => setShowMoreMenu(false)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors">
               <Filter className="w-4 h-4" /> Add to advanced filter
             </button>
           </div>
@@ -594,12 +594,12 @@ function TextFilterValueEditor({ property, operator, value, onOperatorChange, on
   return (
     <div className="flex flex-col" style={{ width: 260, maxHeight: '50vh' }}>
       {/* Header */}
-      <div className="flex items-center gap-1 px-2 pt-1 pb-0.5 text-xs text-gray-400 shrink-0">
+      <div className="flex items-center gap-1 px-2 pt-1 pb-0.5 text-xs text-ink-muted shrink-0">
         <span className="truncate flex-shrink">{property.name}</span>
         <button
           ref={operatorBtnRef}
           onClick={() => setShowOperatorMenu(true)}
-          className="flex items-center gap-0.5 px-1 py-0.5 rounded text-xs text-gray-500 font-medium hover:bg-gray-100 shrink-0"
+          className="flex items-center gap-0.5 px-1 py-0.5 rounded text-xs text-ink-secondary font-medium hover:bg-hover-surface2 shrink-0"
         >
           {opDisplay.toLowerCase()} <ChevronDown className="w-2.5 h-2.5" />
         </button>
@@ -607,7 +607,7 @@ function TextFilterValueEditor({ property, operator, value, onOperatorChange, on
         <button
           ref={moreBtnRef}
           onClick={() => setShowMoreMenu(true)}
-          className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 shrink-0"
+          className="w-5 h-5 flex items-center justify-center rounded hover:bg-hover-surface2 text-ink-muted shrink-0"
         >
           <MoreHorizontal className="w-3.5 h-3.5" />
         </button>
@@ -621,7 +621,7 @@ function TextFilterValueEditor({ property, operator, value, onOperatorChange, on
             placeholder="Value"
             value={value || ''}
             onChange={e => onValueChange(property.type === 'number' && e.target.value ? Number(e.target.value) : e.target.value)}
-            className="w-full h-8 px-2 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:border-blue-300 transition-colors"
+            className="w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary outline-none focus:border-focus-border-soft transition-colors"
             autoFocus
           />
         </div>
@@ -637,11 +637,11 @@ function TextFilterValueEditor({ property, operator, value, onOperatorChange, on
         <PortalDropdown anchorRef={moreBtnRef} onClose={() => setShowMoreMenu(false)} width={220}>
           <div className="p-1 flex flex-col gap-px">
             <button onClick={() => { onDelete(); setShowMoreMenu(false); }}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-red-600 hover:bg-red-50 transition-colors">
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-danger-text hover:bg-hover-danger transition-colors">
               <Trash2 className="w-4 h-4" /> Delete filter
             </button>
             <button onClick={() => setShowMoreMenu(false)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors">
               <Filter className="w-4 h-4" /> Add to advanced filter
             </button>
           </div>
@@ -717,7 +717,7 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
                 gridTemplateColumns: '60px minmax(min-content, 120px) 110px auto 32px',
               }}>
               {/* Where / And / Or */}
-              <div className="text-xs text-gray-400 text-right pr-1 leading-8 truncate">
+              <div className="text-xs text-ink-muted text-right pr-1 leading-8 truncate">
                 {(() => {
                   if (idx === 0) return 'Where';
                   return conjunction === 'or' ? 'Or' : 'And';
@@ -728,11 +728,11 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
               <button
                 ref={el => { propBtnRefs.current[filter.id] = el; }}
                 onClick={() => setOpenPropPicker(openPropPicker === filter.id ? null : filter.id)}
-                className="flex items-center gap-1.5 h-8 px-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-gray-300 transition-colors w-full truncate"
+                className="flex items-center gap-1.5 h-8 px-2 border border-line rounded-lg text-sm text-ink-body hover:border-hover-border transition-colors w-full truncate"
               >
-                <PropertyTypeIcon type={prop.type} className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <PropertyTypeIcon type={prop.type} className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                 <span className="truncate flex-1 text-left">{prop.name}</span>
-                <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
+                <ChevronDown className="w-3 h-3 text-ink-muted shrink-0" />
               </button>
 
               {/* Operator + Value — spans 2 columns */}
@@ -740,16 +740,16 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
                 <button
                   ref={el => { opBtnRefs.current[filter.id] = el; }}
                   onClick={() => setOpenOperatorPicker(openOperatorPicker === filter.id ? null : filter.id)}
-                  className="flex items-center gap-1 h-8 px-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-gray-300 transition-colors shrink-0"
+                  className="flex items-center gap-1 h-8 px-2 border border-line rounded-lg text-sm text-ink-body hover:border-hover-border transition-colors shrink-0"
                 >
                   <span className="truncate">{opLabel}</span>
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
+                  <ChevronDown className="w-3 h-3 text-ink-muted" />
                 </button>
 
                 {needsValue(filter.operator) && (() => {
                   if (prop.type === 'select' || prop.type === 'multi_select' || prop.type === 'status') {
                     return (
-                      <div className="h-8 px-2 flex items-center border border-gray-200 rounded-lg text-sm text-gray-500 truncate">
+                      <div className="h-8 px-2 flex items-center border border-line rounded-lg text-sm text-ink-secondary truncate">
                         {filter.value
                           ? (prop.options?.find(o => o.id === filter.value)?.value || filter.value)
                           : 'Select...'}
@@ -760,7 +760,7 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
                     return (
                       <input type="date" value={filter.value || ''}
                         onChange={e => onUpdateFilter(filter.id, { value: e.target.value })}
-                        className="h-8 px-2 border border-gray-200 rounded-lg text-sm w-full bg-white" />
+                        className="h-8 px-2 border border-line rounded-lg text-sm w-full bg-surface-primary" />
                     );
                   }
                   return (
@@ -769,7 +769,7 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
                       placeholder="Value"
                       value={filter.value || ''}
                       onChange={e => onUpdateFilter(filter.id, { value: prop.type === 'number' && e.target.value ? Number(e.target.value) : e.target.value })}
-                      className="h-8 px-2 border border-gray-200 rounded-lg text-sm w-full bg-white outline-none focus:border-blue-300 transition-colors"
+                      className="h-8 px-2 border border-line rounded-lg text-sm w-full bg-surface-primary outline-none focus:border-focus-border-soft transition-colors"
                     />
                   );
                 })()}
@@ -777,7 +777,7 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
 
               {/* ··· menu */}
               <button onClick={() => onRemoveFilter(filter.id)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-hover-surface2 text-ink-muted transition-colors">
                 <MoreHorizontal className="w-4 h-4" />
               </button>
 
@@ -796,8 +796,8 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
                           onUpdateFilter(filter.id, { propertyId: p.id, operator: ops[0].value, value: '' });
                           setOpenPropPicker(null);
                         }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                        <PropertyTypeIcon type={p.type} className="w-4 h-4 text-gray-500" />
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors">
+                        <PropertyTypeIcon type={p.type} className="w-4 h-4 text-ink-secondary" />
                         <span className="truncate">{p.name}</span>
                       </button>
                     ))}
@@ -829,19 +829,19 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
           <button
             ref={addBtnRef}
             onClick={() => setShowAddPicker(true)}
-            className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-gray-500 hover:bg-gray-50 rounded-md transition-colors"
+            className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-ink-secondary hover:bg-hover-surface rounded-md transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Add filter rule</span>
-            <ChevronDown className="w-3 h-3 text-gray-400" />
+            <ChevronDown className="w-3 h-3 text-ink-muted" />
           </button>
         </div>
       </div>
 
       {/* Footer: Delete filter */}
-      <div className="border-t border-gray-100 p-1 shrink-0">
+      <div className="border-t border-line-light p-1 shrink-0">
         <button onClick={onDeleteAll}
-          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors">
           <Trash2 className="w-4 h-4" /> Delete filter
         </button>
       </div>
@@ -853,8 +853,8 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
             {allProps.map(p => (
               <button key={p.id}
                 onClick={() => { onAddFilter(p.id); setShowAddPicker(false); }}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                <PropertyTypeIcon type={p.type} className="w-4 h-4 text-gray-500" />
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors">
+                <PropertyTypeIcon type={p.type} className="w-4 h-4 text-ink-secondary" />
                 <span className="truncate">{p.name}</span>
               </button>
             ))}
@@ -893,7 +893,7 @@ export function FilterBar({ filters, properties, conjunction, viewId, onOpenAdva
           <button
             ref={rulesBtnRef}
             onClick={onOpenAdvanced}
-            className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full bg-blue-50 text-blue-600 whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full bg-accent-soft text-accent-text-light whitespace-nowrap shrink-0"
           >
             <Filter className="w-3 h-3" />
             <span>{filters.length} rule{filters.length === 1 ? '' : 's'}</span>
@@ -909,11 +909,11 @@ export function FilterBar({ filters, properties, conjunction, viewId, onOpenAdva
                 key={filter.id}
                 ref={el => { pillRefs.current[filter.id] = el; }}
                 onClick={() => setActiveFilterId(activeFilterId === filter.id ? null : filter.id)}
-                className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full text-gray-600 whitespace-nowrap shrink-0 hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full text-ink-body-light whitespace-nowrap shrink-0 hover:bg-hover-surface2 transition-colors"
               >
-                <PropertyTypeIcon type={prop.type} className="w-3.5 h-3.5 text-gray-400" />
+                <PropertyTypeIcon type={prop.type} className="w-3.5 h-3.5 text-ink-muted" />
                 <span className="max-w-[180px] truncate">{prop.name}</span>
-                <ChevronDown className="w-3 h-3 text-gray-400" />
+                <ChevronDown className="w-3 h-3 text-ink-muted" />
               </button>
             );
           })}
@@ -922,7 +922,7 @@ export function FilterBar({ filters, properties, conjunction, viewId, onOpenAdva
           <button
             ref={addBtnRef}
             onClick={() => setShowAddPicker(true)}
-            className="inline-flex items-center gap-1 h-6 px-2 text-sm rounded-xl text-gray-400 hover:bg-gray-100 whitespace-nowrap shrink-0 transition-colors"
+            className="inline-flex items-center gap-1 h-6 px-2 text-sm rounded-xl text-ink-muted hover:bg-hover-surface2 whitespace-nowrap shrink-0 transition-colors"
           >
             <Plus className="w-3 h-3" /> Filter
           </button>
@@ -996,14 +996,14 @@ export function FilterSettingsSubpanel({ viewId, properties, filters, conjunctio
       {/* Header: back + title + close */}
       <div className="flex items-center px-3 pt-3.5 pb-1.5 h-[42px] shrink-0">
         <button onClick={onBack}
-          className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-100 mr-2 text-gray-500 transition-colors">
+          className="w-5 h-5 flex items-center justify-center rounded hover:bg-hover-surface2 mr-2 text-ink-secondary transition-colors">
           <svg viewBox="0 0 16 16" width="16" height="16" fill="none">
             <path d="M2.16 8.206q.046.13.148.236l4.32 4.32a.625.625 0 0 0 .884-.884L4.259 8.625h8.991a.625.625 0 1 0 0-1.25H4.259l3.253-3.253a.625.625 0 1 0-.884-.884l-4.32 4.32a.62.62 0 0 0-.148.648" fill="currentColor" />
           </svg>
         </button>
         <span className="flex-1 font-semibold text-sm truncate">Filters</span>
         <button onClick={onClose}
-          className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 transition-colors">
+          className="w-6 h-6 flex items-center justify-center rounded-full bg-surface-tertiary hover:bg-hover-surface3 text-ink-muted transition-colors">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -1016,12 +1016,12 @@ export function FilterSettingsSubpanel({ viewId, properties, filters, conjunctio
           return (
             <div key={filter.id} className="flex items-center py-1 px-2 gap-1">
               {/* Drag handle */}
-              <GripVertical className="w-4 h-4 text-gray-300 shrink-0 cursor-grab" />
+              <GripVertical className="w-4 h-4 text-ink-disabled shrink-0 cursor-grab" />
               {/* Property pill */}
-              <button className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full text-gray-600 hover:bg-gray-100 transition-colors truncate">
-                <PropertyTypeIcon type={prop.type} className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+              <button className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full text-ink-body-light hover:bg-hover-surface2 transition-colors truncate">
+                <PropertyTypeIcon type={prop.type} className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                 <span className="truncate max-w-[180px]">{prop.name}</span>
-                <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" />
+                <ChevronDown className="w-3 h-3 text-ink-muted shrink-0" />
               </button>
             </div>
           );
@@ -1030,7 +1030,7 @@ export function FilterSettingsSubpanel({ viewId, properties, filters, conjunctio
         {/* + Add filter */}
         <button
           onClick={() => setShowAddPicker(true)}
-          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-secondary hover:bg-hover-surface transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>Add filter</span>
@@ -1039,7 +1039,7 @@ export function FilterSettingsSubpanel({ viewId, properties, filters, conjunctio
 
       {/* Add filter property picker inline below */}
       {showAddPicker && (
-        <div className="border-t border-gray-100">
+        <div className="border-t border-line-light">
           <FilterPropertyPicker
             properties={allProps}
             onSelect={propId => {

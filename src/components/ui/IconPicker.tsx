@@ -50,21 +50,21 @@ function IconPickerPanel({
   }, [onSelect]);
 
   return (
-    <div className="flex flex-col bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden w-full h-full">
+    <div className="flex flex-col bg-surface-primary rounded-xl shadow-lg border border-line overflow-hidden w-full h-full">
       {/* ─── Header ─── */}
       <div className="shrink-0">
         <div className="flex items-center px-2 pt-2">
           <div className="flex items-center">
             <div className="relative">
-              <button className="px-2.5 py-1.5 text-sm font-medium text-gray-900 rounded-md">Icon</button>
-              <div className="absolute bottom-0 left-2.5 right-2.5 h-[2px] bg-gray-900 rounded-full" />
+              <button className="px-2.5 py-1.5 text-sm font-medium text-ink rounded-md">Icon</button>
+              <div className="absolute bottom-0 left-2.5 right-2.5 h-[2px] bg-surface-inverse rounded-full" />
             </div>
           </div>
           <div className="ml-auto flex items-center gap-1">
             {onRemove && (
               <button
                 onClick={onRemove}
-                className="px-2.5 py-1.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                className="px-2.5 py-1.5 text-sm text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface2 rounded-md transition-colors"
               >
                 Remove
               </button>
@@ -75,8 +75,8 @@ function IconPickerPanel({
         {/* ─── Filter + Random ─── */}
         <div className="px-3 pt-1.5 pb-2.5">
           <div className="flex items-center gap-1.5">
-            <div className="flex-1 flex items-center gap-1.5 px-2 py-1 bg-gray-50 border border-gray-200 rounded-md h-7">
-              <svg viewBox="0 0 16 16" className="w-4 h-4 shrink-0 fill-gray-400" aria-hidden="true">
+            <div className="flex-1 flex items-center gap-1.5 px-2 py-1 bg-surface-secondary border border-line rounded-md h-7">
+              <svg viewBox="0 0 16 16" className="w-4 h-4 shrink-0 fill-fill-secondary" aria-hidden="true">
                 <path d="M7.1 1.975a5.125 5.125 0 1 0 3.155 9.164l3.107 3.107a.625.625 0 1 0 .884-.884l-3.107-3.107A5.125 5.125 0 0 0 7.1 1.975M3.225 7.1a3.875 3.875 0 1 1 7.75 0 3.875 3.875 0 0 1-7.75 0" />
               </svg>
               <input
@@ -85,12 +85,12 @@ function IconPickerPanel({
                 placeholder="Filter…"
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400 min-w-0"
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-placeholder min-w-0"
               />
             </div>
             <button
               onClick={handleRandom}
-              className="flex items-center justify-center w-7 h-7 rounded-md border border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors shrink-0"
+              className="flex items-center justify-center w-7 h-7 rounded-md border border-line text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface2 transition-colors shrink-0"
               title="Random"
             >
               <svg viewBox="0 0 16 16" className="w-4 h-4 fill-current" aria-hidden="true">
@@ -106,13 +106,13 @@ function IconPickerPanel({
         className="flex-1 overflow-y-auto min-h-0 px-3 pb-3"
         style={{ maskImage: 'linear-gradient(black 0%, black calc(100% - 24px), transparent 100%)' }}
       >
-        <div className="flex items-center px-1 mt-1 mb-1.5 text-xs font-medium text-gray-500 select-none">
+        <div className="flex items-center px-1 mt-1 mb-1.5 text-xs font-medium text-ink-secondary select-none">
           <span>Icons</span>
-          <span className="ml-auto text-gray-400 tabular-nums">{filtered.length}</span>
+          <span className="ml-auto text-ink-muted tabular-nums">{filtered.length}</span>
         </div>
 
         {filtered.length === 0 ? (
-          <div className="text-center text-sm text-gray-400 py-8">No icons match "{filter}"</div>
+          <div className="text-center text-sm text-ink-muted py-8">No icons match "{filter}"</div>
         ) : (
           <div className="grid gap-px" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(32px, 1fr))' }}>
             {filtered.map(name => {
@@ -122,7 +122,7 @@ function IconPickerPanel({
                   key={name}
                   onClick={() => onSelect(name)}
                   className={`flex items-center justify-center rounded aspect-square transition-colors ${
-                    isSelected ? 'bg-blue-100 ring-2 ring-blue-500' : 'hover:bg-gray-100'
+                    isSelected ? 'bg-accent-muted ring-2 ring-ring-accent-strong' : 'hover:bg-hover-surface2'
                   }`}
                   title={toLabel(name)}
                 >

@@ -104,8 +104,8 @@ export function BlockHandle({
         className={`
           flex items-center justify-center
           w-[18px] h-6 rounded-[3px]
-          text-gray-400 hover:text-gray-600
-          hover:bg-gray-100/80
+          text-ink-muted hover:text-hover-text
+          hover:bg-hover-surface-soft4
           cursor-grab active:cursor-grabbing
           transition-colors
           ${handleClassName}

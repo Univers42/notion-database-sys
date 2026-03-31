@@ -15,9 +15,9 @@ export function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange
       className="relative shrink-0"
       role="switch" aria-checked={checked}>
       <div className={`flex shrink-0 h-[14px] w-[26px] rounded-full p-[2px] transition-colors duration-200 ${
-        checked ? 'bg-blue-500' : 'bg-gray-300'
+        checked ? 'bg-accent' : 'bg-surface-strong'
       }`} style={{ boxSizing: 'content-box' }}>
-        <div className={`w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-transform duration-200 ${
+        <div className={`w-[14px] h-[14px] rounded-full bg-surface-primary shadow-sm transition-transform duration-200 ${
           checked ? 'translate-x-[12px]' : 'translate-x-0'
         }`} />
       </div>
@@ -35,9 +35,9 @@ export function ToggleSettingRow({ label, checked, onChange }: { label: string; 
       onClick={() => onChange(!checked)}
       role="menuitemcheckbox"
       aria-checked={checked}
-      className="w-full flex items-center rounded-md hover:bg-gray-100/60 transition-colors px-2 py-[7px]"
+      className="w-full flex items-center rounded-md hover:bg-hover-surface-soft3 transition-colors px-2 py-[7px]"
     >
-      <span className="flex-1 text-sm text-gray-800 truncate text-left">{label}</span>
+      <span className="flex-1 text-sm text-ink-strong truncate text-left">{label}</span>
       <div className="shrink-0 ml-2">
         <ToggleSwitch checked={checked} onChange={onChange} />
       </div>
@@ -54,11 +54,11 @@ export function NavSettingRow({ label, value, onClick }: { label: string; value?
     <button
       onClick={onClick}
       role="menuitem"
-      className="w-full flex items-center rounded-md hover:bg-gray-100/60 transition-colors px-2 py-[7px]"
+      className="w-full flex items-center rounded-md hover:bg-hover-surface-soft3 transition-colors px-2 py-[7px]"
     >
-      <span className="flex-1 text-sm text-gray-800 truncate text-left">{label}</span>
-      <span className="flex items-center text-gray-400 shrink-0 ml-2">
-        {value && <span className="text-sm text-gray-400 truncate max-w-[120px]">{value}</span>}
+      <span className="flex-1 text-sm text-ink-strong truncate text-left">{label}</span>
+      <span className="flex items-center text-ink-muted shrink-0 ml-2">
+        {value && <span className="text-sm text-ink-muted truncate max-w-[120px]">{value}</span>}
         <ChevronRightIcon className="w-[14px] h-[14px] ml-1.5" />
       </span>
     </button>
@@ -90,11 +90,11 @@ export function MenuRow({ icon, label, onClick, className = '', danger = false }
       onClick={onClick}
       className={`w-full flex items-center gap-2.5 px-3 py-[6px] text-sm rounded-md transition-colors
         ${danger
-          ? 'text-red-600 hover:bg-red-50'
-          : 'text-gray-700 hover:bg-gray-100/70'
+          ? 'text-danger-text hover:bg-hover-danger'
+          : 'text-ink-body hover:bg-hover-surface-soft2'
         } ${className}`}
     >
-      <span className={`flex items-center justify-center shrink-0 ${danger ? 'text-red-500' : 'text-gray-400'}`}>
+      <span className={`flex items-center justify-center shrink-0 ${danger ? 'text-danger-text-soft' : 'text-ink-muted'}`}>
         {icon}
       </span>
       <span className="truncate">{label}</span>
@@ -124,19 +124,19 @@ export function SettingsRow({ icon, label, value, showChevron, onClick }: Settin
     <button
       onClick={onClick}
       role="menuitem"
-      className="w-full flex rounded-md transition-colors text-gray-800 hover:bg-gray-100/60"
+      className="w-full flex rounded-md transition-colors text-ink-strong hover:bg-hover-surface-soft3"
       style={{ fill: 'currentColor' }}
     >
       <div className="flex items-center gap-0 w-full px-2 py-[6px]">
         {/* Left icon */}
-        <span className="flex items-center justify-center shrink-0 w-5 h-5 text-gray-500">
+        <span className="flex items-center justify-center shrink-0 w-5 h-5 text-ink-secondary">
           {icon}
         </span>
         {/* Label */}
         <span className="flex-1 text-sm leading-5 text-left ml-2 truncate">{label}</span>
         {/* Right side: value + chevron */}
         {(value || hasChevron) && (
-          <span className="flex items-center text-gray-400 shrink-0 ml-2">
+          <span className="flex items-center text-ink-muted shrink-0 ml-2">
             {value && (
               <span className="text-sm leading-5 truncate max-w-[120px]">{value}</span>
             )}
@@ -167,18 +167,18 @@ export function SettingsHeader({ title, onClose, onBack }: SettingsHeaderProps) 
       {onBack && (
         <button
           onClick={onBack}
-          className="p-1 -ml-1 mr-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          className="p-1 -ml-1 mr-1 rounded-full text-ink-muted hover:text-hover-text hover:bg-hover-surface2 transition-colors"
         >
           <svg viewBox="0 0 16 16" className="w-4 h-4" fill="currentColor" aria-hidden="true">
             <path d="M9.278 12.762a.625.625 0 1 0 .884-.884L6.284 8l3.878-3.878a.625.625 0 0 0-.884-.884l-4.32 4.32a.625.625 0 0 0 0 .884z" />
           </svg>
         </button>
       )}
-      <span className="text-xs font-medium leading-4 text-gray-500 flex-1">{title}</span>
+      <span className="text-xs font-medium leading-4 text-ink-secondary flex-1">{title}</span>
       {onClose && (
         <button
           onClick={onClose}
-          className="p-1 rounded-full text-gray-400 hover:text-gray-600 bg-gray-100/60 hover:bg-gray-200/60 transition-colors"
+          className="p-1 rounded-full text-ink-muted hover:text-hover-text bg-surface-tertiary-soft3 hover:bg-hover-surface3 transition-colors"
         >
           <CloseIcon className="w-3.5 h-3.5" />
         </button>
@@ -195,8 +195,8 @@ export function SettingsHeader({ title, onClose, onBack }: SettingsHeaderProps) 
 export function SettingsSectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative pt-[6px] mt-1">
-      <div className="absolute top-0 left-4 right-4 h-px bg-gray-200/70" />
-      <div className="flex px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-gray-500 select-none pt-1">
+      <div className="absolute top-0 left-4 right-4 h-px bg-surface-muted-soft2" />
+      <div className="flex px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-ink-secondary select-none pt-1">
         <span className="truncate">{children}</span>
       </div>
     </div>
@@ -210,7 +210,7 @@ export function SettingsSectionLabel({ children }: { children: React.ReactNode }
 export function MenuDivider() {
   return (
     <div className="relative my-[3px] mx-3">
-      <div className="h-px bg-gray-200/80" />
+      <div className="h-px bg-surface-muted-soft" />
     </div>
   );
 }
@@ -234,11 +234,11 @@ export function ViewTypeCard({ icon, label, active = false, onClick }: ViewTypeC
       className={`flex flex-col items-center justify-center gap-1 rounded-lg overflow-hidden transition-all
         w-[92px] h-[62px]
         ${active
-          ? 'bg-blue-50 border-2 border-blue-500 text-blue-600'
-          : 'bg-transparent border border-transparent hover:bg-gray-100/60 text-gray-600'
+          ? 'bg-accent-soft border-2 border-accent-border text-accent-text-light'
+          : 'bg-transparent border border-transparent hover:bg-hover-surface-soft3 text-ink-body-light'
         }`}
     >
-      <span className={active ? 'text-blue-500' : 'text-current'}>{icon}</span>
+      <span className={active ? 'text-accent-text-soft' : 'text-current'}>{icon}</span>
       <span className="text-sm leading-5 font-normal text-center px-1 truncate w-full">{label}</span>
     </button>
   );
@@ -250,7 +250,7 @@ export function ViewTypeCard({ icon, label, active = false, onClick }: ViewTypeC
 
 export function PanelSectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-gray-400 select-none">
+    <div className="flex items-center px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-ink-muted select-none">
       <span className="truncate">{children}</span>
     </div>
   );

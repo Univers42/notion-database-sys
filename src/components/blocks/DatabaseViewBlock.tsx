@@ -14,15 +14,15 @@ export function DatabaseViewBlock({ block }: BlockRendererProps) {
   const Icon = config.icon;
 
   return (
-    <div className="my-2 border border-gray-200 rounded-lg overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200">
-        <Icon className="w-4 h-4 text-gray-500" />
-        <span className="text-sm font-medium text-gray-700">
+    <div className="my-2 border border-line rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 bg-surface-secondary border-b border-line">
+        <Icon className="w-4 h-4 text-ink-secondary" />
+        <span className="text-sm font-medium text-ink-body">
           {block.content || config.label}
         </span>
       </div>
       <div className="px-4 py-8 text-center">
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-ink-muted">
           Linked {config.label.toLowerCase()} — click to configure
         </p>
       </div>

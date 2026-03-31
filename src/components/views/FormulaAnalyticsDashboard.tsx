@@ -3,16 +3,16 @@ import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { Sigma, TrendingUp, AlertTriangle, CheckCircle, Package, Flame, DollarSign, Scale, Clock, ShieldCheck, Zap, BarChart3, PieChart } from 'lucide-react';
 
 // ─── COLORS & PALETTE ──────────────────────────────────────────────────────
-const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#ef4444', '#6366f1', '#14b8a6', '#f97316'];
+const COLORS = ['var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)', 'var(--color-chart-4)', 'var(--color-chart-5)', 'var(--color-chart-6)', 'var(--color-chart-7)', 'var(--color-chart-8)', 'var(--color-chart-9)', 'var(--color-chart-10)'];
 const STAT_BG: Record<string, string> = {
-  blue: 'bg-blue-50 text-blue-600',
-  purple: 'bg-purple-50 text-purple-600',
-  green: 'bg-green-50 text-green-600',
-  amber: 'bg-amber-50 text-amber-600',
-  pink: 'bg-pink-50 text-pink-600',
-  cyan: 'bg-cyan-50 text-cyan-600',
-  red: 'bg-red-50 text-red-600',
-  indigo: 'bg-indigo-50 text-indigo-600',
+  blue: 'bg-accent-soft text-accent-text-light',
+  purple: 'bg-purple-surface text-purple-text',
+  green: 'bg-success-surface text-success-text',
+  amber: 'bg-amber-surface text-amber-text',
+  pink: 'bg-pink-surface text-pink-text',
+  cyan: 'bg-cyan-surface text-cyan-text',
+  red: 'bg-danger-surface text-danger-text',
+  indigo: 'bg-indigo-surface text-indigo-text',
 };
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
@@ -130,16 +130,16 @@ export function FormulaAnalyticsDashboard() {
   const pricePerKg = analytics['pp-price-per-kg'];
 
   return (
-    <div className="flex-1 overflow-auto p-6 bg-gray-50">
+    <div className="flex-1 overflow-auto p-6 bg-surface-secondary">
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
         {/* ─── Header ─── */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-gradient-violet-from to-gradient-violet-to text-ink-inverse">
             <Sigma className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Formula Analytics</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-xl font-bold text-ink">Formula Analytics</h1>
+            <p className="text-sm text-ink-secondary">
               {totalFormulas} formula columns evaluated across {pages.length} products ({totalComputations.toLocaleString()} computations)
             </p>
           </div>
@@ -156,25 +156,25 @@ export function FormulaAnalyticsDashboard() {
         {/* ─── Formula Type Breakdown ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Result Type Distribution */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <PieChart className="w-4 h-4 text-gray-400" /> Result Type Distribution
+          <div className="bg-surface-primary rounded-xl border border-line p-5">
+            <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+              <PieChart className="w-4 h-4 text-ink-muted" /> Result Type Distribution
             </h3>
             <FormulaTypePie analytics={analytics} />
           </div>
 
           {/* Error Heatmap */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-gray-400" /> Error Rate by Formula
+          <div className="bg-surface-primary rounded-xl border border-line p-5">
+            <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-ink-muted" /> Error Rate by Formula
             </h3>
             <ErrorBarChart analytics={analytics} />
           </div>
 
           {/* Complexity Indicator */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-gray-400" /> Expression Complexity
+          <div className="bg-surface-primary rounded-xl border border-line p-5">
+            <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-ink-muted" /> Expression Complexity
             </h3>
             <ComplexityChart analytics={analytics} />
           </div>
@@ -234,9 +234,9 @@ export function FormulaAnalyticsDashboard() {
 
         {/* ─── Boolean Formula Summary ─── */}
         {Object.values(analytics).some((a) => a.resultType === 'boolean') && (
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-gray-400" /> Boolean Formula Results
+          <div className="bg-surface-primary rounded-xl border border-line p-5">
+            <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-ink-muted" /> Boolean Formula Results
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(analytics)
@@ -244,26 +244,26 @@ export function FormulaAnalyticsDashboard() {
                 .map(([propId, a]) => {
                   const trueRate = a.boolTrue + a.boolFalse > 0 ? Math.round((a.boolTrue / (a.boolTrue + a.boolFalse)) * 100) : 0;
                   return (
-                    <div key={propId} className="border border-gray-100 rounded-lg p-4">
-                      <div className="text-sm font-semibold text-gray-900 mb-1">{a.propName}</div>
-                      <div className="text-[10px] text-gray-400 font-mono mb-3 truncate" title={a.expression}>
+                    <div key={propId} className="border border-line-light rounded-lg p-4">
+                      <div className="text-sm font-semibold text-ink mb-1">{a.propName}</div>
+                      <div className="text-[10px] text-ink-muted font-mono mb-3 truncate" title={a.expression}>
                         {a.expression}
                       </div>
                       <div className="flex items-center gap-3 mb-2">
                         <div className="flex-1">
-                          <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden flex">
-                            <div className="h-3 bg-green-500 transition-all" style={{ width: `${trueRate}%` }} />
-                            <div className="h-3 bg-red-300 transition-all" style={{ width: `${100 - trueRate}%` }} />
+                          <div className="w-full bg-surface-tertiary rounded-full h-3 overflow-hidden flex">
+                            <div className="h-3 bg-success transition-all" style={{ width: `${trueRate}%` }} />
+                            <div className="h-3 bg-danger-surface-strong transition-all" style={{ width: `${100 - trueRate}%` }} />
                           </div>
                         </div>
-                        <span className="text-sm font-bold text-gray-900 tabular-nums">{trueRate}%</span>
+                        <span className="text-sm font-bold text-ink tabular-nums">{trueRate}%</span>
                       </div>
-                      <div className="flex justify-between text-xs text-gray-500">
+                      <div className="flex justify-between text-xs text-ink-secondary">
                         <span className="flex items-center gap-1">
-                          <span className="w-2 h-2 bg-green-500 rounded-full inline-block" /> True: {a.boolTrue}
+                          <span className="w-2 h-2 bg-success rounded-full inline-block" /> True: {a.boolTrue}
                         </span>
                         <span className="flex items-center gap-1">
-                          <span className="w-2 h-2 bg-red-300 rounded-full inline-block" /> False: {a.boolFalse}
+                          <span className="w-2 h-2 bg-danger-surface-strong rounded-full inline-block" /> False: {a.boolFalse}
                         </span>
                       </div>
                     </div>
@@ -274,52 +274,52 @@ export function FormulaAnalyticsDashboard() {
         )}
 
         {/* ─── All Formulas Grid ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Sigma className="w-4 h-4 text-gray-400" /> All Formula Columns Overview
+        <div className="bg-surface-primary rounded-xl border border-line p-5">
+          <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+            <Sigma className="w-4 h-4 text-ink-muted" /> All Formula Columns Overview
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 px-2 text-xs text-gray-500 font-medium">Name</th>
-                  <th className="text-left py-2 px-2 text-xs text-gray-500 font-medium">Expression</th>
-                  <th className="text-center py-2 px-2 text-xs text-gray-500 font-medium">Type</th>
-                  <th className="text-center py-2 px-2 text-xs text-gray-500 font-medium">Evals</th>
-                  <th className="text-center py-2 px-2 text-xs text-gray-500 font-medium">Errors</th>
-                  <th className="text-center py-2 px-2 text-xs text-gray-500 font-medium">Success</th>
+                <tr className="border-b border-line">
+                  <th className="text-left py-2 px-2 text-xs text-ink-secondary font-medium">Name</th>
+                  <th className="text-left py-2 px-2 text-xs text-ink-secondary font-medium">Expression</th>
+                  <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Type</th>
+                  <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Evals</th>
+                  <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Errors</th>
+                  <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Success</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(analytics).map(([propId, a]) => {
                   const rate = a.total > 0 ? Math.round(((a.total - a.errors) / a.total) * 100) : 100;
                   return (
-                    <tr key={propId} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="py-2 px-2 font-medium text-gray-900">{a.propName}</td>
-                      <td className="py-2 px-2 text-gray-500 font-mono text-xs truncate max-w-[300px]" title={a.expression}>
+                    <tr key={propId} className="border-b border-line-faint hover:bg-hover-surface">
+                      <td className="py-2 px-2 font-medium text-ink">{a.propName}</td>
+                      <td className="py-2 px-2 text-ink-secondary font-mono text-xs truncate max-w-[300px]" title={a.expression}>
                         {a.expression}
                       </td>
                       <td className="py-2 px-2 text-center">
                         <span
                           className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                             a.resultType === 'number'
-                              ? 'bg-blue-100 text-blue-700'
+                              ? 'bg-accent-muted text-accent-text'
                               : a.resultType === 'boolean'
-                                ? 'bg-green-100 text-green-700'
+                                ? 'bg-success-surface-muted text-success-text-bold'
                                 : a.resultType === 'text'
-                                  ? 'bg-purple-100 text-purple-700'
-                                  : 'bg-gray-100 text-gray-600'
+                                  ? 'bg-purple-surface-muted text-purple-text-bold'
+                                  : 'bg-surface-tertiary text-ink-body-light'
                           }`}
                         >
                           {a.resultType}
                         </span>
                       </td>
-                      <td className="py-2 px-2 text-center text-gray-600 tabular-nums">{a.total}</td>
+                      <td className="py-2 px-2 text-center text-ink-body-light tabular-nums">{a.total}</td>
                       <td className="py-2 px-2 text-center tabular-nums">
-                        <span className={a.errors > 0 ? 'text-red-600 font-bold' : 'text-gray-400'}>{a.errors}</span>
+                        <span className={a.errors > 0 ? 'text-danger-text font-bold' : 'text-ink-muted'}>{a.errors}</span>
                       </td>
                       <td className="py-2 px-2 text-center">
-                        <span className={`font-bold tabular-nums ${rate === 100 ? 'text-green-600' : rate > 90 ? 'text-amber-600' : 'text-red-600'}`}>
+                        <span className={`font-bold tabular-nums ${rate === 100 ? 'text-success-text' : rate > 90 ? 'text-amber-text' : 'text-danger-text'}`}>
                           {rate}%
                         </span>
                       </td>
@@ -332,9 +332,9 @@ export function FormulaAnalyticsDashboard() {
         </div>
 
         {/* ─── Sample Results Table ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-gray-400" /> Sample Computed Values (First 15 Products)
+        <div className="bg-surface-primary rounded-xl border border-line p-5">
+          <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-ink-muted" /> Sample Computed Values (First 15 Products)
           </h3>
           <SampleResultsTable formulaResults={formulaResults} openPage={openPage} />
         </div>
@@ -361,14 +361,14 @@ function KpiCard({
   subtext?: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
+    <div className="bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3">
       <div className={`p-2.5 rounded-lg ${STAT_BG[color] || STAT_BG.blue}`}>{icon}</div>
       <div>
-        <div className="text-2xl font-bold text-gray-900 tabular-nums leading-none mb-1">
+        <div className="text-2xl font-bold text-ink tabular-nums leading-none mb-1">
           {typeof value === 'number' ? value.toLocaleString() : value}
         </div>
-        <div className="text-xs text-gray-500">{label}</div>
-        {subtext && <div className="text-[10px] text-gray-400 mt-0.5">{subtext}</div>}
+        <div className="text-xs text-ink-secondary">{label}</div>
+        {subtext && <div className="text-[10px] text-ink-muted mt-0.5">{subtext}</div>}
       </div>
     </div>
   );
@@ -418,12 +418,12 @@ function NumericFormulaCard({
   const maxBucket = Math.max(...buckets);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
+    <div className="bg-surface-primary rounded-xl border border-line p-5">
       <div className="flex items-center gap-2 mb-4">
         <div className={`p-2 rounded-lg ${STAT_BG[color] || STAT_BG.blue}`}>{icon}</div>
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-          <p className="text-[10px] text-gray-400 font-mono truncate max-w-[300px]" title={expression}>
+          <h3 className="text-sm font-semibold text-ink">{title}</h3>
+          <p className="text-[10px] text-ink-muted font-mono truncate max-w-[300px]" title={expression}>
             {expression}
           </p>
         </div>
@@ -439,9 +439,9 @@ function NumericFormulaCard({
           { label: 'Max', val: fmt(max) },
           { label: 'Sum', val: fmt(sum) },
         ].map((s) => (
-          <div key={s.label} className="bg-gray-50 rounded-lg p-2.5 text-center">
-            <div className="text-sm font-bold text-gray-900 tabular-nums">{s.val}</div>
-            <div className="text-[9px] text-gray-400 mt-0.5">{s.label}</div>
+          <div key={s.label} className="bg-surface-secondary rounded-lg p-2.5 text-center">
+            <div className="text-sm font-bold text-ink tabular-nums">{s.val}</div>
+            <div className="text-[9px] text-ink-muted mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
@@ -452,7 +452,7 @@ function NumericFormulaCard({
           const pct = maxBucket > 0 ? (count / maxBucket) * 100 : 0;
           return (
             <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-              <span className="text-[8px] text-gray-400 tabular-nums">{count > 0 ? count : ''}</span>
+              <span className="text-[8px] text-ink-muted tabular-nums">{count > 0 ? count : ''}</span>
               <div
                 className="w-full rounded-t transition-all hover:opacity-80"
                 style={{ height: `${Math.max(pct, 3)}%`, backgroundColor: COLORS[i % COLORS.length] }}
@@ -462,7 +462,7 @@ function NumericFormulaCard({
           );
         })}
       </div>
-      <div className="flex justify-between text-[8px] text-gray-400 mt-1">
+      <div className="flex justify-between text-[8px] text-ink-muted mt-1">
         <span>{fmt(min)}</span>
         <span>Distribution</span>
         <span>{fmt(max)}</span>
@@ -486,12 +486,12 @@ function TextDistributionCard({
   const displayTotal = sorted.reduce((s, [, c]) => s + c, 0);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
+    <div className="bg-surface-primary rounded-xl border border-line p-5">
       <div className="flex items-center gap-2 mb-1">
-        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-        <span className="text-[10px] text-gray-400 ml-auto">{sorted.length} distinct values</span>
+        <h3 className="text-sm font-semibold text-ink">{title}</h3>
+        <span className="text-[10px] text-ink-muted ml-auto">{sorted.length} distinct values</span>
       </div>
-      <p className="text-[10px] text-gray-400 font-mono truncate mb-4" title={expression}>
+      <p className="text-[10px] text-ink-muted font-mono truncate mb-4" title={expression}>
         {expression}
       </p>
 
@@ -504,12 +504,12 @@ function TextDistributionCard({
             return (
               <div key={label}>
                 <div className="flex justify-between text-xs mb-0.5">
-                  <span className="text-gray-700 font-medium truncate max-w-[180px]">{label}</span>
-                  <span className="text-gray-400 tabular-nums ml-2">
+                  <span className="text-ink-body font-medium truncate max-w-[180px]">{label}</span>
+                  <span className="text-ink-muted tabular-nums ml-2">
                     {count} ({pct}%)
                   </span>
                 </div>
-                <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div className="w-full bg-surface-tertiary rounded-full h-1.5">
                   <div
                     className="h-1.5 rounded-full transition-all"
                     style={{ width: `${pct}%`, backgroundColor: COLORS[i % COLORS.length] }}
@@ -552,7 +552,7 @@ function MiniDonut({ data, size = 100 }: { data: [string, number][]; size?: numb
           />
         );
       })}
-      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle" className="text-sm font-bold fill-gray-900">
+      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle" className="text-sm font-bold fill-fill-primary">
         {total}
       </text>
     </svg>
@@ -566,10 +566,10 @@ function FormulaTypePie({ analytics }: { analytics: Record<string, { resultType:
   });
   const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((s, [, c]) => s + c, 0);
-  const typeColors: Record<string, string> = { number: '#3b82f6', boolean: '#10b981', text: '#8b5cf6', mixed: '#94a3b8' };
+  const typeColors: Record<string, string> = { number: 'var(--color-chart-1)', boolean: 'var(--color-chart-5)', text: 'var(--color-chart-2)', mixed: 'var(--color-slate)' };
 
   if (total === 0)
-    return <p className="text-sm text-gray-400 text-center py-4">No formulas</p>;
+    return <p className="text-sm text-ink-muted text-center py-4">No formulas</p>;
 
   const radius = 44;
   const circumference = 2 * Math.PI * radius;
@@ -591,23 +591,23 @@ function FormulaTypePie({ analytics }: { analytics: Record<string, { resultType:
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke={typeColors[type] || '#94a3b8'}
+              stroke={typeColors[type] || 'var(--color-slate)'}
               strokeWidth={18}
               strokeDasharray={dasharray}
               transform={`rotate(${rotation} ${size / 2} ${size / 2})`}
             />
           );
         })}
-        <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle" className="text-lg font-bold fill-gray-900">
+        <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle" className="text-lg font-bold fill-fill-primary">
           {total}
         </text>
       </svg>
       <div className="flex flex-col gap-2">
         {entries.map(([type, count]) => (
           <div key={type} className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: typeColors[type] || '#94a3b8' }} />
-            <span className="text-gray-700 capitalize font-medium">{type}</span>
-            <span className="text-gray-400 tabular-nums">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: typeColors[type] || 'var(--color-slate)' }} />
+            <span className="text-ink-body capitalize font-medium">{type}</span>
+            <span className="text-ink-muted tabular-nums">
               {count} ({Math.round((count / total) * 100)}%)
             </span>
           </div>
@@ -629,14 +629,14 @@ function ErrorBarChart({ analytics }: { analytics: Record<string, { propName: st
         return (
           <div key={a.propName}>
             <div className="flex justify-between text-xs mb-0.5">
-              <span className="text-gray-700 font-medium truncate">{a.propName}</span>
-              <span className={`tabular-nums ${a.errors > 0 ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
+              <span className="text-ink-body font-medium truncate">{a.propName}</span>
+              <span className={`tabular-nums ${a.errors > 0 ? 'text-danger-text-soft font-bold' : 'text-ink-muted'}`}>
                 {a.errors > 0 ? `${a.errors} err (${Math.round(errorRate)}%)` : '0 errors'}
               </span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden flex">
-              <div className="h-2 bg-green-400" style={{ width: `${successRate}%` }} />
-              {a.errors > 0 && <div className="h-2 bg-red-400" style={{ width: `${errorRate}%` }} />}
+            <div className="w-full bg-surface-tertiary rounded-full h-2 overflow-hidden flex">
+              <div className="h-2 bg-success-vivid" style={{ width: `${successRate}%` }} />
+              {a.errors > 0 && <div className="h-2 bg-danger-vivid" style={{ width: `${errorRate}%` }} />}
             </div>
           </div>
         );
@@ -670,17 +670,17 @@ function ComplexityChart({ analytics }: { analytics: Record<string, { propName: 
         return (
           <div key={e.name}>
             <div className="flex justify-between text-xs mb-0.5">
-              <span className="text-gray-700 font-medium truncate">{e.name}</span>
-              <span className="text-gray-400 tabular-nums">
+              <span className="text-ink-body font-medium truncate">{e.name}</span>
+              <span className="text-ink-muted tabular-nums">
                 {e.fnCalls} fn · depth {e.depth}
               </span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
+            <div className="w-full bg-surface-tertiary rounded-full h-2">
               <div
                 className="h-2 rounded-full transition-all"
                 style={{
                   width: `${pct}%`,
-                  backgroundColor: pct > 70 ? '#ef4444' : pct > 40 ? '#f59e0b' : '#10b981',
+                  backgroundColor: pct > 70 ? 'var(--color-chart-7)' : pct > 40 ? 'var(--color-chart-4)' : 'var(--color-chart-5)',
                 }}
               />
             </div>
@@ -706,10 +706,10 @@ function SampleResultsTable({
     <div className="overflow-x-auto">
       <table className="w-full text-xs">
         <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-2 px-2 text-gray-500 font-medium sticky left-0 bg-white">Product</th>
+          <tr className="border-b border-line">
+            <th className="text-left py-2 px-2 text-ink-secondary font-medium sticky left-0 bg-surface-primary">Product</th>
             {formulaResults.map((fr) => (
-              <th key={fr.propId} className="text-right py-2 px-2 text-gray-500 font-medium whitespace-nowrap">
+              <th key={fr.propId} className="text-right py-2 px-2 text-ink-secondary font-medium whitespace-nowrap">
                 {fr.propName}
               </th>
             ))}
@@ -719,10 +719,10 @@ function SampleResultsTable({
           {samplePages.map((sp, rowIdx) => (
             <tr
               key={sp.pageId}
-              className="border-b border-gray-50 hover:bg-gray-50 cursor-pointer"
+              className="border-b border-line-faint hover:bg-hover-surface cursor-pointer"
               onClick={() => openPage(sp.pageId)}
             >
-              <td className="py-1.5 px-2 text-gray-900 truncate max-w-[180px] sticky left-0 bg-white font-medium">
+              <td className="py-1.5 px-2 text-ink truncate max-w-[180px] sticky left-0 bg-surface-primary font-medium">
                 {sp.pageName || 'Untitled'}
               </td>
               {formulaResults.map((fr) => {
@@ -732,13 +732,13 @@ function SampleResultsTable({
                 return (
                   <td key={fr.propId} className="py-1.5 px-2 text-right tabular-nums whitespace-nowrap">
                     {isError ? (
-                      <span className="text-red-400">#ERR</span>
+                      <span className="text-danger-text-faint">#ERR</span>
                     ) : typeof val === 'boolean' ? (
-                      <span className={val ? 'text-green-600' : 'text-gray-400'}>{val ? '✓' : '✗'}</span>
+                      <span className={val ? 'text-success-text' : 'text-ink-muted'}>{val ? '✓' : '✗'}</span>
                     ) : typeof val === 'number' ? (
-                      <span className="text-gray-700">{val.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                      <span className="text-ink-body">{val.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                     ) : (
-                      <span className="text-gray-600 truncate max-w-[120px] inline-block">{String(val ?? '—')}</span>
+                      <span className="text-ink-body-light truncate max-w-[120px] inline-block">{String(val ?? '—')}</span>
                     )}
                   </td>
                 );

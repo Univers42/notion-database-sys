@@ -153,7 +153,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
 
   return (
     <div ref={panelRef} style={style}
-      className="w-[280px] bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+      className="w-[280px] bg-surface-primary rounded-xl shadow-2xl border border-line overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
 
       {/* ─── Property name + clickable icon ─── */}
       <div className="px-3 pt-3 pb-2">
@@ -168,7 +168,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
             onChange={e => setPropName(e.target.value)}
             onBlur={commitName}
             onKeyDown={e => { if (e.key === 'Enter') { commitName(); nameRef.current?.blur(); } }}
-            className="flex-1 text-sm font-medium text-gray-900 outline-none bg-transparent border-b border-transparent focus:border-blue-500 px-1 py-0.5 transition-colors"
+            className="flex-1 text-sm font-medium text-ink outline-none bg-transparent border-b border-transparent focus:border-focus-border-strong px-1 py-0.5 transition-colors"
             placeholder="Property name"
             disabled={property.type === 'title'}
           />
@@ -180,21 +180,21 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
         <div className="px-3 pb-2">
           <button
             onClick={() => setShowTypeList(!showTypeList)}
-            className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50 text-sm text-gray-700 transition-colors">
+            className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-hover-surface text-sm text-ink-body transition-colors">
             <div className="flex items-center gap-2">
-              {getPropIcon(property.type, 'w-3.5 h-3.5 text-gray-400')}
+              {getPropIcon(property.type, 'w-3.5 h-3.5 text-ink-muted')}
               <span>Type: <span className="font-medium">{TYPE_OPTIONS.find(t => t.type === property.type)?.label || property.type}</span></span>
             </div>
-            <ChevronRight className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showTypeList ? 'rotate-90' : ''}`} />
+            <ChevronRight className={`w-3.5 h-3.5 text-ink-muted transition-transform ${showTypeList ? 'rotate-90' : ''}`} />
           </button>
 
           {showTypeList && (
-            <div className="mt-1 border border-gray-100 rounded-lg bg-gray-50 overflow-hidden">
+            <div className="mt-1 border border-line-light rounded-lg bg-surface-secondary overflow-hidden">
               <div className="p-1.5">
                 <input
                   value={typeSearch}
                   onChange={e => setTypeSearch(e.target.value)}
-                  className="w-full text-xs px-2 py-1.5 rounded-md bg-white border border-gray-200 outline-none focus:border-blue-400 placeholder:text-gray-400"
+                  className="w-full text-xs px-2 py-1.5 rounded-md bg-surface-primary border border-line outline-none focus:border-focus-border placeholder:text-placeholder"
                   placeholder="Search type..."
                   autoFocus
                 />
@@ -203,10 +203,10 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
                 {filteredTypes.map(opt => (
                   <button key={opt.type} onClick={() => changeType(opt.type)}
                     className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors ${opt.type === property.type
-                      ? 'bg-blue-50 text-blue-700 font-medium'
-                      : 'text-gray-700 hover:bg-white'
+                      ? 'bg-accent-soft text-accent-text font-medium'
+                      : 'text-ink-body hover:bg-hover-surface-white'
                       }`}>
-                    <span className="text-gray-400">{opt.icon}</span>
+                    <span className="text-ink-muted">{opt.icon}</span>
                     {opt.label}
                   </button>
                 ))}
@@ -217,7 +217,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
       )}
 
       {/* ─── Divider ─── */}
-      <div className="h-px bg-gray-100" />
+      <div className="h-px bg-surface-tertiary" />
 
       {/* ─── Formula-specific: Edit formula button ─── */}
       {property.type === 'formula' && (
@@ -229,7 +229,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
               onClick={() => setShowFormulaEditor(true)}
             />
           </div>
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-surface-tertiary" />
         </>
       )}
 
@@ -243,7 +243,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
               onClick={() => setShowRelationEditor(true)}
             />
           </div>
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-surface-tertiary" />
         </>
       )}
 
@@ -257,7 +257,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
               onClick={() => setShowRollupEditor(true)}
             />
           </div>
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-surface-tertiary" />
         </>
       )}
 
@@ -273,7 +273,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
           </div>
           {showIdConfig && (
             <div className="px-3 pb-2 space-y-2">
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wide">ID Format</div>
+              <div className="text-xs font-medium text-ink-muted uppercase tracking-wide">ID Format</div>
               {([
                 { value: 'auto_increment' as const, label: 'Auto-increment', desc: '1, 2, 3…' },
                 { value: 'prefixed' as const, label: 'Prefixed', desc: `${idPrefix || 'PREFIX-'}1, ${idPrefix || 'PREFIX-'}2…` },
@@ -282,24 +282,24 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
                 <button
                   key={f.value}
                   onClick={() => setIdFormat(f.value)}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left transition-colors ${idFormat === f.value ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
-                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${idFormat === f.value ? 'border-blue-500' : 'border-gray-300'}`}>
-                    {idFormat === f.value && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left transition-colors ${idFormat === f.value ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'}`}>
+                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${idFormat === f.value ? 'border-accent-border' : 'border-line-medium'}`}>
+                    {idFormat === f.value && <div className="w-1.5 h-1.5 rounded-full bg-accent" />}
                   </div>
                   <div>
                     <span>{f.label}</span>
-                    <span className="text-xs text-gray-400 ml-1.5 font-mono">{f.desc}</span>
+                    <span className="text-xs text-ink-muted ml-1.5 font-mono">{f.desc}</span>
                   </div>
                 </button>
               ))}
               {idFormat === 'prefixed' && (
                 <div className="pt-1">
-                  <label className="text-xs text-gray-500 mb-1 block">Prefix</label>
+                  <label className="text-xs text-ink-secondary mb-1 block">Prefix</label>
                   <input
                     autoFocus
                     value={idPrefix}
                     onChange={e => setIdPrefix(e.target.value)}
-                    className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200 bg-gray-50 outline-none focus:border-blue-400 transition-colors font-mono"
+                    className="w-full text-sm px-2 py-1.5 rounded-md border border-line bg-surface-secondary outline-none focus:border-focus-border transition-colors font-mono"
                     placeholder="TASK-"
                   />
                 </div>
@@ -323,12 +323,12 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
                   }
                   onClose();
                 }}
-                className="w-full py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
+                className="w-full py-1.5 text-sm font-medium text-ink-inverse bg-accent-bold hover:bg-hover-accent-bold rounded-md transition-colors">
                 Apply to all records
               </button>
             </div>
           )}
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-surface-tertiary" />
         </>
       )}
 
@@ -358,7 +358,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
         )}
       </div>
 
-      <div className="h-px bg-gray-100" />
+      <div className="h-px bg-surface-tertiary" />
 
       {/* ─── View actions ─── */}
       <div className="py-1 px-1">
@@ -392,7 +392,7 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
       {/* ─── Delete ─── */}
       {property.type !== 'title' && !isReadOnly && (
         <>
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-surface-tertiary" />
           <div className="py-1 px-1">
             <ActionButton
               icon={<Trash2 className="w-3.5 h-3.5" />}
@@ -444,12 +444,12 @@ function ActionButton({ icon, label, onClick, disabled, danger }: {
       onClick={onClick}
       disabled={disabled}
       className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${disabled
-        ? 'text-gray-300 cursor-not-allowed'
+        ? 'text-ink-disabled cursor-not-allowed'
         : danger
-          ? 'text-red-600 hover:bg-red-50'
-          : 'text-gray-700 hover:bg-gray-50'
+          ? 'text-danger-text hover:bg-hover-danger'
+          : 'text-ink-body hover:bg-hover-surface'
         }`}>
-      <span className={disabled ? 'text-gray-300' : danger ? 'text-red-500' : 'text-gray-400'}>{icon}</span>
+      <span className={disabled ? 'text-ink-disabled' : danger ? 'text-danger-text-soft' : 'text-ink-muted'}>{icon}</span>
       {label}
     </button>
   );
@@ -467,10 +467,10 @@ function PropertyIconButton({ property, databaseId }: { property: SchemaProperty
       <button
         ref={btnRef}
         onClick={(e) => { e.stopPropagation(); setShowPicker(!showPicker); }}
-        className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 transition-colors"
+        className="p-1.5 rounded-md hover:bg-hover-surface2 text-ink-muted transition-colors"
         title="Change icon"
       >
-        <Icon name={currentIconName} className="w-4 h-4 text-gray-400" />
+        <Icon name={currentIconName} className="w-4 h-4 text-ink-muted" />
       </button>
       {showPicker && (
         <IconPickerPopover

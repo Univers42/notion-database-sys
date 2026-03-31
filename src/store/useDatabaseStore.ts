@@ -151,35 +151,35 @@ const initialDatabases: Record<string, DatabaseSchema> = {
       'prop-status': {
         id: 'prop-status', name: 'Status', type: 'status',
         options: [
-          { id: 'opt-todo', value: 'To Do', color: 'bg-gray-200 text-gray-800' },
-          { id: 'opt-in-progress', value: 'In Progress', color: 'bg-blue-200 text-blue-800' },
-          { id: 'opt-review', value: 'In Review', color: 'bg-yellow-200 text-yellow-800' },
-          { id: 'opt-done', value: 'Done', color: 'bg-green-200 text-green-800' },
-          { id: 'opt-blocked', value: 'Blocked', color: 'bg-red-200 text-red-800' }
+          { id: 'opt-todo', value: 'To Do', color: 'bg-surface-muted text-ink-strong' },
+          { id: 'opt-in-progress', value: 'In Progress', color: 'bg-accent-subtle text-accent-text-bold' },
+          { id: 'opt-review', value: 'In Review', color: 'bg-warning-surface-medium text-warning-text-tag' },
+          { id: 'opt-done', value: 'Done', color: 'bg-success-surface-medium text-success-text-tag' },
+          { id: 'opt-blocked', value: 'Blocked', color: 'bg-danger-surface-medium text-danger-text-tag' }
         ],
         statusGroups: [
-          { id: 'sg-todo', label: 'To Do', color: 'bg-gray-200 text-gray-800', optionIds: ['opt-todo'] },
-          { id: 'sg-progress', label: 'In Progress', color: 'bg-blue-200 text-blue-800', optionIds: ['opt-in-progress', 'opt-review', 'opt-blocked'] },
-          { id: 'sg-done', label: 'Done', color: 'bg-green-200 text-green-800', optionIds: ['opt-done'] }
+          { id: 'sg-todo', label: 'To Do', color: 'bg-surface-muted text-ink-strong', optionIds: ['opt-todo'] },
+          { id: 'sg-progress', label: 'In Progress', color: 'bg-accent-subtle text-accent-text-bold', optionIds: ['opt-in-progress', 'opt-review', 'opt-blocked'] },
+          { id: 'sg-done', label: 'Done', color: 'bg-success-surface-medium text-success-text-tag', optionIds: ['opt-done'] }
         ]
       },
       'prop-priority': {
         id: 'prop-priority', name: 'Priority', type: 'select',
         options: [
-          { id: 'pri-low', value: 'Low', color: 'bg-gray-100 text-gray-700' },
-          { id: 'pri-med', value: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
-          { id: 'pri-high', value: 'High', color: 'bg-orange-100 text-orange-800' },
-          { id: 'pri-urgent', value: 'Urgent', color: 'bg-red-100 text-red-800' }
+          { id: 'pri-low', value: 'Low', color: 'bg-surface-tertiary text-ink-body' },
+          { id: 'pri-med', value: 'Medium', color: 'bg-warning-surface-muted text-warning-text-tag' },
+          { id: 'pri-high', value: 'High', color: 'bg-orange-surface-muted text-orange-text-tag' },
+          { id: 'pri-urgent', value: 'Urgent', color: 'bg-danger-surface-muted text-danger-text-tag' }
         ]
       },
       'prop-tags': {
         id: 'prop-tags', name: 'Tags', type: 'multi_select',
         options: [
-          { id: 'tag-bug', value: 'Bug', color: 'bg-red-100 text-red-800' },
-          { id: 'tag-feature', value: 'Feature', color: 'bg-purple-100 text-purple-800' },
-          { id: 'tag-design', value: 'Design', color: 'bg-pink-100 text-pink-800' },
-          { id: 'tag-infra', value: 'Infrastructure', color: 'bg-cyan-100 text-cyan-800' },
-          { id: 'tag-docs', value: 'Documentation', color: 'bg-indigo-100 text-indigo-800' }
+          { id: 'tag-bug', value: 'Bug', color: 'bg-danger-surface-muted text-danger-text-tag' },
+          { id: 'tag-feature', value: 'Feature', color: 'bg-purple-surface-muted text-purple-text-tag' },
+          { id: 'tag-design', value: 'Design', color: 'bg-pink-surface-muted text-pink-text-tag' },
+          { id: 'tag-infra', value: 'Infrastructure', color: 'bg-cyan-surface-muted text-cyan-text-tag' },
+          { id: 'tag-docs', value: 'Documentation', color: 'bg-indigo-surface-muted text-indigo-text-tag' }
         ]
       },
       'prop-assignee': { id: 'prop-assignee', name: 'Assignee', type: 'person' },
@@ -201,12 +201,12 @@ const initialDatabases: Record<string, DatabaseSchema> = {
       'prop-stage': {
         id: 'prop-stage', name: 'Stage', type: 'select',
         options: [
-          { id: 'crm-lead', value: 'Lead', color: 'bg-yellow-100 text-yellow-800' },
-          { id: 'crm-qualified', value: 'Qualified', color: 'bg-blue-100 text-blue-800' },
-          { id: 'crm-proposal', value: 'Proposal', color: 'bg-purple-100 text-purple-800' },
-          { id: 'crm-negotiation', value: 'Negotiation', color: 'bg-orange-100 text-orange-800' },
-          { id: 'crm-customer', value: 'Customer', color: 'bg-green-100 text-green-800' },
-          { id: 'crm-lost', value: 'Lost', color: 'bg-red-100 text-red-800' }
+          { id: 'crm-lead', value: 'Lead', color: 'bg-warning-surface-muted text-warning-text-tag' },
+          { id: 'crm-qualified', value: 'Qualified', color: 'bg-accent-muted text-accent-text-bold' },
+          { id: 'crm-proposal', value: 'Proposal', color: 'bg-purple-surface-muted text-purple-text-tag' },
+          { id: 'crm-negotiation', value: 'Negotiation', color: 'bg-orange-surface-muted text-orange-text-tag' },
+          { id: 'crm-customer', value: 'Customer', color: 'bg-success-surface-muted text-success-text-tag' },
+          { id: 'crm-lost', value: 'Lost', color: 'bg-danger-surface-muted text-danger-text-tag' }
         ]
       },
       'prop-value': { id: 'prop-value', name: 'Deal Value ($)', type: 'number' },
@@ -217,9 +217,9 @@ const initialDatabases: Record<string, DatabaseSchema> = {
       'prop-source': {
         id: 'prop-source', name: 'Source', type: 'select',
         options: [
-          { id: 'src-web', value: 'Website', color: 'bg-blue-100 text-blue-800' },
-          { id: 'src-ref', value: 'Referral', color: 'bg-green-100 text-green-800' },
-          { id: 'src-cold', value: 'Cold Outreach', color: 'bg-gray-100 text-gray-800' }
+          { id: 'src-web', value: 'Website', color: 'bg-accent-muted text-accent-text-bold' },
+          { id: 'src-ref', value: 'Referral', color: 'bg-success-surface-muted text-success-text-tag' },
+          { id: 'src-cold', value: 'Cold Outreach', color: 'bg-surface-tertiary text-ink-strong' }
         ]
       },
     }
@@ -234,21 +234,21 @@ const initialDatabases: Record<string, DatabaseSchema> = {
       'prop-platform': {
         id: 'prop-platform', name: 'Platform', type: 'multi_select',
         options: [
-          { id: 'plat-tw', value: 'Twitter', color: 'bg-blue-100 text-blue-800' },
-          { id: 'plat-li', value: 'LinkedIn', color: 'bg-blue-200 text-blue-900' },
-          { id: 'plat-yt', value: 'YouTube', color: 'bg-red-100 text-red-800' },
-          { id: 'plat-blog', value: 'Blog', color: 'bg-green-100 text-green-800' },
-          { id: 'plat-news', value: 'Newsletter', color: 'bg-violet-100 text-violet-800' }
+          { id: 'plat-tw', value: 'Twitter', color: 'bg-accent-muted text-accent-text-bold' },
+          { id: 'plat-li', value: 'LinkedIn', color: 'bg-accent-subtle text-accent-text-bolder' },
+          { id: 'plat-yt', value: 'YouTube', color: 'bg-danger-surface-muted text-danger-text-tag' },
+          { id: 'plat-blog', value: 'Blog', color: 'bg-success-surface-muted text-success-text-tag' },
+          { id: 'plat-news', value: 'Newsletter', color: 'bg-violet-surface-muted text-violet-text-tag' }
         ]
       },
       'prop-status': {
         id: 'prop-status', name: 'Status', type: 'select',
         options: [
-          { id: 'con-idea', value: 'Idea', color: 'bg-gray-200 text-gray-800' },
-          { id: 'con-draft', value: 'Drafting', color: 'bg-yellow-100 text-yellow-800' },
-          { id: 'con-review', value: 'In Review', color: 'bg-orange-100 text-orange-800' },
-          { id: 'con-scheduled', value: 'Scheduled', color: 'bg-blue-100 text-blue-800' },
-          { id: 'con-pub', value: 'Published', color: 'bg-green-200 text-green-800' }
+          { id: 'con-idea', value: 'Idea', color: 'bg-surface-muted text-ink-strong' },
+          { id: 'con-draft', value: 'Drafting', color: 'bg-warning-surface-muted text-warning-text-tag' },
+          { id: 'con-review', value: 'In Review', color: 'bg-orange-surface-muted text-orange-text-tag' },
+          { id: 'con-scheduled', value: 'Scheduled', color: 'bg-accent-muted text-accent-text-bold' },
+          { id: 'con-pub', value: 'Published', color: 'bg-success-surface-medium text-success-text-tag' }
         ]
       },
       'prop-date': { id: 'prop-date', name: 'Publish Date', type: 'date' },
@@ -267,10 +267,10 @@ const initialDatabases: Record<string, DatabaseSchema> = {
       'prop-category': {
         id: 'prop-category', name: 'Category', type: 'select',
         options: [
-          { id: 'cat-hw', value: 'Hardware', color: 'bg-gray-200 text-gray-800' },
-          { id: 'cat-sw', value: 'Software', color: 'bg-blue-100 text-blue-800' },
-          { id: 'cat-furn', value: 'Furniture', color: 'bg-yellow-100 text-yellow-800' },
-          { id: 'cat-vehicle', value: 'Vehicle', color: 'bg-green-100 text-green-800' }
+          { id: 'cat-hw', value: 'Hardware', color: 'bg-surface-muted text-ink-strong' },
+          { id: 'cat-sw', value: 'Software', color: 'bg-accent-muted text-accent-text-bold' },
+          { id: 'cat-furn', value: 'Furniture', color: 'bg-warning-surface-muted text-warning-text-tag' },
+          { id: 'cat-vehicle', value: 'Vehicle', color: 'bg-success-surface-muted text-success-text-tag' }
         ]
       },
       'prop-serial': { id: 'prop-serial', name: 'Serial Number', type: 'text' },
@@ -640,16 +640,16 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
         [tagsPropId]: {
           id: tagsPropId, name: 'Tags', type: 'multi_select',
           options: [
-            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Tag 1', color: 'bg-blue-100 text-blue-800' },
-            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Tag 2', color: 'bg-green-100 text-green-800' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Tag 1', color: 'bg-accent-muted text-accent-text-bold' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Tag 2', color: 'bg-success-surface-muted text-success-text-tag' },
           ],
         },
         [statusPropId]: {
           id: statusPropId, name: 'Status', type: 'select',
           options: [
-            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Not started', color: 'bg-gray-200 text-gray-800' },
-            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'In progress', color: 'bg-blue-200 text-blue-800' },
-            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Done', color: 'bg-green-200 text-green-800' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Not started', color: 'bg-surface-muted text-ink-strong' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'In progress', color: 'bg-accent-subtle text-accent-text-bold' },
+            { id: `opt-${uuidv4().slice(0, 6)}`, value: 'Done', color: 'bg-success-surface-medium text-success-text-tag' },
           ],
         },
       },
@@ -1109,7 +1109,7 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
 
     if ((groupProp.type === 'select' || groupProp.type === 'status') && groupProp.options) {
       const groups = [
-        { groupId: '__unassigned__', groupLabel: 'No ' + groupProp.name, groupColor: 'bg-gray-200 text-gray-700', pages: [] as Page[] },
+        { groupId: '__unassigned__', groupLabel: 'No ' + groupProp.name, groupColor: 'bg-surface-muted text-ink-body', pages: [] as Page[] },
         ...groupProp.options.map(opt => ({
           groupId: opt.id,
           groupLabel: opt.value,
@@ -1142,8 +1142,8 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
         }
       }
       return [
-        { groupId: 'unchecked', groupLabel: 'Unchecked', groupColor: 'bg-gray-200 text-gray-700', pages: unchecked },
-        { groupId: 'checked', groupLabel: 'Checked', groupColor: 'bg-green-200 text-green-800', pages: checked },
+        { groupId: 'unchecked', groupLabel: 'Unchecked', groupColor: 'bg-surface-muted text-ink-body', pages: unchecked },
+        { groupId: 'checked', groupLabel: 'Checked', groupColor: 'bg-success-surface-medium text-success-text-tag', pages: checked },
       ];
     }
 
@@ -1157,7 +1157,7 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
     return Array.from(groupMap.entries()).map(([key, pages]) => ({
       groupId: key,
       groupLabel: key,
-      groupColor: 'bg-gray-200 text-gray-700',
+      groupColor: 'bg-surface-muted text-ink-body',
       pages
     }));
   },

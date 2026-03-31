@@ -29,26 +29,26 @@ export function CodeBlock({ block, pageId }: BlockRendererProps) {
   );
 
   return (
-    <div className="my-1 rounded-lg bg-gray-50 border border-gray-200 overflow-hidden">
+    <div className="my-1 rounded-lg bg-surface-secondary border border-line overflow-hidden">
       {/* Language selector header */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-gray-100/80 border-b border-gray-200">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-surface-tertiary-soft2 border-b border-line">
         <div className="relative">
           <button
             type="button"
             onClick={() => setShowLangPicker(!showLangPicker)}
-            className="text-xs text-gray-500 hover:text-gray-700 font-mono px-1.5 py-0.5 rounded hover:bg-gray-200 transition-colors"
+            className="text-xs text-ink-secondary hover:text-hover-text-strong font-mono px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors"
           >
             {block.language || 'plaintext'}
           </button>
           {showLangPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto w-40">
+            <div className="absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto w-40">
               {LANGUAGES.map(lang => (
                 <button
                   key={lang}
                   type="button"
                   onClick={() => handleLangSelect(lang)}
-                  className={`w-full text-left px-3 py-1.5 text-xs font-mono hover:bg-blue-50 ${
-                    lang === (block.language || 'plaintext') ? 'bg-blue-50 text-blue-600' : 'text-gray-600'
+                  className={`w-full text-left px-3 py-1.5 text-xs font-mono hover:bg-hover-accent-soft ${
+                    lang === (block.language || 'plaintext') ? 'bg-accent-soft text-accent-text-light' : 'text-ink-body-light'
                   }`}
                 >
                   {lang}
@@ -62,7 +62,7 @@ export function CodeBlock({ block, pageId }: BlockRendererProps) {
           onClick={() => {
             navigator.clipboard.writeText(block.content);
           }}
-          className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded hover:bg-gray-200 transition-colors"
+          className="text-xs text-ink-muted hover:text-hover-text px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors"
         >
           Copy
         </button>
@@ -73,7 +73,7 @@ export function CodeBlock({ block, pageId }: BlockRendererProps) {
         contentEditable
         suppressContentEditableWarning
         data-block-editor
-        className="px-4 py-3 text-sm font-mono text-gray-800 leading-relaxed outline-none overflow-x-auto whitespace-pre-wrap break-words"
+        className="px-4 py-3 text-sm font-mono text-ink-strong leading-relaxed outline-none overflow-x-auto whitespace-pre-wrap break-words"
         onInput={handleContentChange}
         spellCheck={false}
       >

@@ -13,10 +13,10 @@ export function BoardView() {
 
   if (!view || !database || !view.grouping) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-500 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary">
         <div className="text-center">
           <p className="text-lg font-medium mb-2">Board view requires grouping</p>
-          <p className="text-sm text-gray-400">Configure a grouping property in view settings</p>
+          <p className="text-sm text-ink-muted">Configure a grouping property in view settings</p>
         </div>
       </div>
     );
@@ -24,7 +24,7 @@ export function BoardView() {
 
   const groupProperty = database.properties[view.grouping.propertyId];
   if (!groupProperty || (groupProperty.type !== 'select' && groupProperty.type !== 'status')) {
-    return <div className="flex-1 flex items-center justify-center text-gray-500 bg-gray-50">Board view requires a select or status property for grouping.</div>;
+    return <div className="flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary">Board view requires a select or status property for grouping.</div>;
   }
 
   const groups = getGroupedPages(view.id);
@@ -38,12 +38,12 @@ export function BoardView() {
   const nonTitleGroupProps = visibleProps.filter(p => p.id !== groupProperty.id && p.id !== database.titlePropertyId);
 
   const coverColors = [
-    'bg-gradient-to-br from-blue-100 to-blue-50',
-    'bg-gradient-to-br from-purple-100 to-purple-50',
-    'bg-gradient-to-br from-green-100 to-green-50',
-    'bg-gradient-to-br from-orange-100 to-orange-50',
-    'bg-gradient-to-br from-pink-100 to-pink-50',
-    'bg-gradient-to-br from-cyan-100 to-cyan-50',
+    'bg-gradient-to-br from-gradient-blue-from to-gradient-blue-to',
+    'bg-gradient-to-br from-gradient-purple-card-from to-gradient-purple-card-to',
+    'bg-gradient-to-br from-gradient-green-from to-gradient-green-to',
+    'bg-gradient-to-br from-gradient-orange-from to-gradient-orange-to',
+    'bg-gradient-to-br from-gradient-pink-from to-gradient-pink-to',
+    'bg-gradient-to-br from-gradient-cyan-from to-gradient-cyan-to',
   ];
 
   const renderBoardPropertyValue = (prop: any, val: any) => {
@@ -63,23 +63,23 @@ export function BoardView() {
         </div>
       );
     }
-    if (prop.type === 'date') return <div className="text-xs text-gray-500">{format(new Date(val), 'MMM d')}</div>;
+    if (prop.type === 'date') return <div className="text-xs text-ink-secondary">{format(new Date(val), 'MMM d')}</div>;
     if (prop.type === 'user' || prop.type === 'person') {
       return (
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-[8px] font-bold">{String(val).charAt(0).toUpperCase()}</div>
-          <span className="text-xs text-gray-600">{val}</span>
+          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[8px] font-bold">{String(val).charAt(0).toUpperCase()}</div>
+          <span className="text-xs text-ink-body-light">{val}</span>
         </div>
       );
     }
-    if (prop.type === 'number') return <div className="text-xs text-gray-500 tabular-nums">{prop.name}: {Number(val).toLocaleString()}</div>;
+    if (prop.type === 'number') return <div className="text-xs text-ink-secondary tabular-nums">{prop.name}: {Number(val).toLocaleString()}</div>;
     if (prop.type === 'checkbox') {
       return (
         <div className="flex items-center gap-1">
-          <div className={`w-3.5 h-3.5 rounded border ${val ? 'bg-blue-500 border-blue-500' : 'border-gray-300'} flex items-center justify-center`}>
-            {val && <span className="text-white text-[8px]">✓</span>}
+          <div className={`w-3.5 h-3.5 rounded border ${val ? 'bg-accent border-accent-border' : 'border-line-medium'} flex items-center justify-center`}>
+            {val && <span className="text-ink-inverse text-[8px]">✓</span>}
           </div>
-          <span className="text-xs text-gray-500">{prop.name}</span>
+          <span className="text-xs text-ink-secondary">{prop.name}</span>
         </div>
       );
     }
@@ -127,7 +127,7 @@ export function BoardView() {
   };
 
   return (
-    <div className="flex-1 overflow-x-auto p-4 bg-gray-50 flex gap-4 h-full">
+    <div className="flex-1 overflow-x-auto p-4 bg-surface-secondary flex gap-4 h-full">
       {groups.map(group => {
         const isDragOver = dragOverCol === group.groupId;
         const displayPages = group.pages.slice(0, loadLimit);
@@ -135,7 +135,7 @@ export function BoardView() {
         return (
           <div key={group.groupId}
             className={`flex flex-col shrink-0 ${getColumnWidth()} rounded-xl transition-colors ${
-              isDragOver ? 'bg-blue-50 ring-2 ring-blue-300 ring-inset' : ''
+              isDragOver ? 'bg-accent-soft ring-2 ring-ring-accent-muted ring-inset' : ''
             }`}
             onDrop={e => handleDrop(e, group.groupId)}
             onDragOver={e => handleDragOver(e, group.groupId)}
@@ -147,11 +147,11 @@ export function BoardView() {
                 <span className={`px-2.5 py-1 rounded-md text-xs font-semibold ${group.groupColor}`}>
                   {group.groupLabel}
                 </span>
-                <span className="text-xs text-gray-400 font-medium tabular-nums">{displayPages.length}</span>
+                <span className="text-xs text-ink-muted font-medium tabular-nums">{displayPages.length}</span>
               </div>
               <button
                 onClick={() => addPage(database.id, { [groupProperty.id]: group.groupId === '__unassigned__' ? null : group.groupId })}
-                className="p-1 hover:bg-white/80 rounded text-gray-400 hover:text-gray-600 transition-colors">
+                className="p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors">
                 <Plus className="w-4 h-4" />
               </button>
             </div>
@@ -173,7 +173,7 @@ export function BoardView() {
                         ) : page.icon ? (
                           <span className="text-3xl">{page.icon}</span>
                         ) : (
-                          <Image className="w-6 h-6 text-gray-300" />
+                          <Image className="w-6 h-6 text-ink-disabled" />
                         )}
                       </div>
                     );
@@ -183,22 +183,22 @@ export function BoardView() {
                     const textContent = page.content?.map((b: any) => b.content).filter(Boolean).join(' ') || '';
                     return (
                       <div className={`h-16 ${coverColor} rounded -mx-3 -mt-3 mb-2 p-2 overflow-hidden relative`}>
-                        <p className="text-[10px] text-gray-500 leading-relaxed line-clamp-3">{textContent || 'No content'}</p>
-                        <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-white/80 to-transparent" />
+                        <p className="text-[10px] text-ink-secondary leading-relaxed line-clamp-3">{textContent || 'No content'}</p>
+                        <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-gradient-fade-from to-transparent" />
                       </div>
                     );
                   }
 
                   if (cardPreview === 'page_properties') {
                     return (
-                      <div className="bg-gray-50 rounded -mx-3 -mt-3 mb-2 p-2 overflow-hidden">
+                      <div className="bg-surface-secondary rounded -mx-3 -mt-3 mb-2 p-2 overflow-hidden">
                         {nonTitleGroupProps.slice(0, 3).map(prop => {
                           const val = page.properties[prop.id];
                           const rendered = renderBoardPropertyValue(prop, val);
                           if (!rendered) return null;
                           return (
                             <div key={prop.id} className="flex items-center gap-1.5 mb-1">
-                              <span className="text-[9px] uppercase text-gray-400 tracking-wide shrink-0 w-12 truncate">{prop.name}</span>
+                              <span className="text-[9px] uppercase text-ink-muted tracking-wide shrink-0 w-12 truncate">{prop.name}</span>
                               {rendered}
                             </div>
                           );
@@ -215,19 +215,19 @@ export function BoardView() {
                     onDragStart={e => handleDragStart(e, page.id)}
                     onClick={() => openPage(page.id)}
                     style={{ cursor: CURSORS.grab }}
-                    className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 active:cursor-grabbing hover:shadow-md hover:border-gray-300 transition-all group/card">
+                    className="bg-surface-primary p-3 rounded-lg shadow-sm border border-line active:cursor-grabbing hover:shadow-md hover:border-hover-border transition-all group/card">
 
                     {/* Card Preview */}
                     {renderCardPreview()}
 
                     {/* Title */}
                     <div className="flex items-center gap-1 mb-1">
-                      <div className={`font-medium text-sm text-gray-900 flex-1 min-w-0 ${wrapContent ? 'break-words' : 'truncate'}`}>
+                      <div className={`font-medium text-sm text-ink flex-1 min-w-0 ${wrapContent ? 'break-words' : 'truncate'}`}>
                         {page.icon && <span className="mr-1">{page.icon}</span>}
-                        {title || <span className="text-gray-400">Untitled</span>}
+                        {title || <span className="text-ink-muted">Untitled</span>}
                       </div>
                       <button
-                        className="shrink-0 flex items-center gap-0.5 text-[9px] font-medium text-blue-500 bg-blue-50 hover:bg-blue-100 px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity"
+                        className="shrink-0 flex items-center gap-0.5 text-[9px] font-medium text-accent-text-soft bg-accent-soft hover:bg-hover-accent-muted px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity"
                         onClick={(e) => { e.stopPropagation(); openPage(page.id); }}>
                         <ArrowUpRight className="w-2.5 h-2.5" /> Open
                       </button>
@@ -251,7 +251,7 @@ export function BoardView() {
               {/* Add card button */}
               <button
                 onClick={() => addPage(database.id, { [groupProperty.id]: group.groupId === '__unassigned__' ? null : group.groupId })}
-                className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 hover:bg-white/60 p-2 rounded-lg transition-colors w-full">
+                className="flex items-center gap-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-white-soft2 p-2 rounded-lg transition-colors w-full">
                 <Plus className="w-4 h-4" /> New
               </button>
             </div>

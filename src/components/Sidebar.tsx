@@ -29,18 +29,18 @@ export function Sidebar() {
   const dbList = Object.values(databases);
 
   return (
-    <div className="w-60 bg-gray-50 border-r border-gray-200 flex flex-col h-full select-none">
+    <div className="w-60 bg-surface-secondary border-r border-line flex flex-col h-full select-none">
       {/* Workspace header */}
-      <div className="px-4 py-3 border-b border-gray-200">
+      <div className="px-4 py-3 border-b border-line">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">N</div>
-          <span className="text-sm font-semibold text-gray-900">Workspace</span>
+          <div className="w-6 h-6 rounded bg-gradient-to-br from-gradient-brand-from to-gradient-brand-to flex items-center justify-center text-ink-inverse text-xs font-bold">N</div>
+          <span className="text-sm font-semibold text-ink">Workspace</span>
         </div>
       </div>
 
       {/* Database tree */}
       <div className="flex-1 overflow-auto py-2">
-        <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Databases</div>
+        <div className="px-3 py-1.5 text-[10px] font-semibold text-ink-muted uppercase tracking-wider">Databases</div>
         {dbList.map(db => {
           const isCollapsed = collapsed[db.id];
           const dbViews = Object.values(views).filter(v => v.databaseId === db.id);
@@ -49,14 +49,14 @@ export function Sidebar() {
           return (
             <div key={db.id} className="mb-0.5">
               <button onClick={() => setCollapsed(c => ({ ...c, [db.id]: !c[db.id] }))}
-                className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors group ${isActiveDb ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}>
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors group ${isActiveDb ? 'text-ink' : 'text-ink-body-light hover:text-hover-text-boldest hover:bg-hover-surface2'}`}>
                 {isCollapsed
-                  ? <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                  : <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  ? <ChevronRight className="w-3.5 h-3.5 text-ink-muted shrink-0" />
+                  : <ChevronDown className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                 }
-                {db.icon ? <span className="text-base">{db.icon}</span> : <Database className="w-4 h-4 text-gray-400" />}
+                {db.icon ? <span className="text-base">{db.icon}</span> : <Database className="w-4 h-4 text-ink-muted" />}
                 <span className="font-medium truncate">{db.name}</span>
-                <span className="text-xs text-gray-400 ml-auto tabular-nums opacity-0 group-hover:opacity-100 transition-opacity">{dbViews.length}</span>
+                <span className="text-xs text-ink-muted ml-auto tabular-nums opacity-0 group-hover:opacity-100 transition-opacity">{dbViews.length}</span>
               </button>
 
               {!isCollapsed && (
@@ -64,15 +64,15 @@ export function Sidebar() {
                   {dbViews.map(v => (
                     <button key={v.id} onClick={() => setActiveView(v.id)}
                       className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${v.id === activeViewId
-                        ? 'bg-white text-gray-900 font-medium shadow-sm border border-gray-200'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                        ? 'bg-surface-primary text-ink font-medium shadow-sm border border-line'
+                        : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface2'
                         }`}>
-                      <span className="text-gray-400">{VIEW_ICONS[v.type]}</span>
+                      <span className="text-ink-muted">{VIEW_ICONS[v.type]}</span>
                       <span className="truncate">{v.name}</span>
                     </button>
                   ))}
                   <button onClick={() => addView(db.id, 'table', 'New View')}
-                    className="flex items-center gap-2 px-3 py-1 text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    className="flex items-center gap-2 px-3 py-1 text-xs text-ink-muted hover:text-hover-text hover:bg-hover-surface2 rounded-lg transition-colors">
                     <Plus className="w-3 h-3" /> Add view
                   </button>
                 </div>
@@ -83,8 +83,8 @@ export function Sidebar() {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 px-4 py-3">
-        <div className="text-xs text-gray-400">
+      <div className="border-t border-line px-4 py-3">
+        <div className="text-xs text-ink-muted">
           {dbList.length} databases &middot; {Object.keys(views).length} views
         </div>
       </div>

@@ -36,10 +36,10 @@ export function MediaBlock({ block, pageId }: BlockRendererProps) {
           <img
             src={block.url}
             alt={block.caption || ''}
-            className="max-w-full rounded-lg border border-gray-200"
+            className="max-w-full rounded-lg border border-line"
           />
           {block.caption && (
-            <p className="text-xs text-gray-400 mt-1 text-center">{block.caption}</p>
+            <p className="text-xs text-ink-muted mt-1 text-center">{block.caption}</p>
           )}
         </div>
       );
@@ -50,7 +50,7 @@ export function MediaBlock({ block, pageId }: BlockRendererProps) {
           <video
             src={block.url}
             controls
-            className="max-w-full rounded-lg border border-gray-200"
+            className="max-w-full rounded-lg border border-line"
           />
         </div>
       );
@@ -68,11 +68,11 @@ export function MediaBlock({ block, pageId }: BlockRendererProps) {
           href={block.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block my-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          className="block my-2 p-3 border border-line rounded-lg hover:bg-hover-surface transition-colors"
         >
           <div className="flex items-center gap-2">
-            <Bookmark className="w-4 h-4 text-gray-400 shrink-0" />
-            <span className="text-sm text-blue-600 truncate">{block.url}</span>
+            <Bookmark className="w-4 h-4 text-ink-muted shrink-0" />
+            <span className="text-sm text-accent-text-light truncate">{block.url}</span>
           </div>
         </a>
       );
@@ -82,11 +82,11 @@ export function MediaBlock({ block, pageId }: BlockRendererProps) {
         href={block.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block my-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+        className="block my-2 p-3 border border-line rounded-lg hover:bg-hover-surface transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Paperclip className="w-4 h-4 text-gray-400 shrink-0" />
-          <span className="text-sm text-gray-700 truncate">{block.content || block.url}</span>
+          <Paperclip className="w-4 h-4 text-ink-muted shrink-0" />
+          <span className="text-sm text-ink-body truncate">{block.content || block.url}</span>
         </div>
       </a>
     );
@@ -94,22 +94,22 @@ export function MediaBlock({ block, pageId }: BlockRendererProps) {
 
   // Empty state: upload placeholder
   return (
-    <div className="my-2 border border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center gap-3 bg-gray-50/50">
-      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-        <Icon className="w-5 h-5 text-gray-400" />
+    <div className="my-2 border border-dashed border-line-medium rounded-lg p-6 flex flex-col items-center gap-3 bg-surface-secondary-soft">
+      <div className="w-10 h-10 rounded-lg bg-surface-tertiary flex items-center justify-center">
+        <Icon className="w-5 h-5 text-ink-muted" />
       </div>
       <div className="text-center">
-        <p className="text-sm text-gray-500">Add an {config.label}</p>
-        <p className="text-xs text-gray-400 mt-0.5">Paste a URL or upload a file</p>
+        <p className="text-sm text-ink-secondary">Add an {config.label}</p>
+        <p className="text-xs text-ink-muted mt-0.5">Paste a URL or upload a file</p>
       </div>
       <div className="flex items-center gap-2 w-full max-w-xs">
         <input
           type="text"
           placeholder={`Paste ${config.label} URL...`}
-          className="flex-1 text-xs px-3 py-1.5 border border-gray-200 rounded-md outline-none focus:ring-1 focus:ring-blue-400 bg-white"
+          className="flex-1 text-xs px-3 py-1.5 border border-line rounded-md outline-none focus:ring-1 focus:ring-focus-ring-solid bg-surface-primary"
           onKeyDown={handleUrlInput}
         />
-        <label className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 px-2 py-1.5 rounded-md border border-gray-200 bg-white cursor-pointer hover:bg-gray-50">
+        <label className="flex items-center gap-1 text-xs text-ink-secondary hover:text-hover-text-strong px-2 py-1.5 rounded-md border border-line bg-surface-primary cursor-pointer hover:bg-hover-surface">
           <Upload className="w-3 h-3" />
           Upload
           <input type="file" accept={config.accept} className="hidden" />

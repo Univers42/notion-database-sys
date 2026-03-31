@@ -143,13 +143,13 @@ const FUNCTION_CATEGORIES = ['Built-ins', 'General', 'Text', 'Number', 'Date', '
 
 function getReturnTypeBadge(returnType: string) {
   const map: Record<string, { bg: string; text: string }> = {
-    'Number': { bg: 'bg-blue-100', text: 'text-blue-700' },
-    'Text': { bg: 'bg-green-100', text: 'text-green-700' },
-    'Boolean': { bg: 'bg-amber-100', text: 'text-amber-700' },
-    'Date': { bg: 'bg-purple-100', text: 'text-purple-700' },
-    'DateRange': { bg: 'bg-purple-100', text: 'text-purple-700' },
-    'List': { bg: 'bg-cyan-100', text: 'text-cyan-700' },
-    'Any': { bg: 'bg-gray-100', text: 'text-gray-600' },
+    'Number': { bg: 'bg-accent-muted', text: 'text-accent-text' },
+    'Text': { bg: 'bg-success-surface-muted', text: 'text-success-text-bold' },
+    'Boolean': { bg: 'bg-amber-surface-muted', text: 'text-amber-text-bold' },
+    'Date': { bg: 'bg-purple-surface-muted', text: 'text-purple-text-bold' },
+    'DateRange': { bg: 'bg-purple-surface-muted', text: 'text-purple-text-bold' },
+    'List': { bg: 'bg-cyan-surface-muted', text: 'text-cyan-text-bold' },
+    'Any': { bg: 'bg-surface-tertiary', text: 'text-ink-body-light' },
   };
   const colors = map[returnType] || map['Any'];
   return (
@@ -366,28 +366,28 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
   // ═══ RENDER ════════════════════════════════════════════════
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-scrim-light backdrop-blur-[2px]">
       <div
         ref={panelRef}
-        className="w-[920px] max-w-[95vw] h-[600px] max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="w-[920px] max-w-[95vw] h-[600px] max-h-[85vh] bg-surface-primary rounded-2xl shadow-2xl border border-line flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
       >
         {/* ═══ HEADER ═══ */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50/50">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-line-light bg-surface-secondary-soft">
           <div className="flex items-center gap-2.5">
-            <Sigma className="w-4.5 h-4.5 text-gray-500" />
-            <h2 className="text-sm font-semibold text-gray-800">Edit formula</h2>
-            <span className="text-xs text-gray-400">— {property.name}</span>
+            <Sigma className="w-4.5 h-4.5 text-ink-secondary" />
+            <h2 className="text-sm font-semibold text-ink-strong">Edit formula</h2>
+            <span className="text-xs text-ink-muted">— {property.name}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <button
-              className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="p-1.5 rounded-md text-ink-muted hover:text-hover-text hover:bg-hover-surface2 transition-colors"
               title="Formula help"
             >
               <HelpCircle className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              className="p-1.5 rounded-md text-ink-muted hover:text-hover-text hover:bg-hover-surface2 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -397,13 +397,13 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
         {/* ═══ BODY ═══ */}
         <div className="flex flex-1 min-h-0">
           {/* ─── SIDEBAR: insertable items ─── */}
-          <div className="w-[240px] shrink-0 border-r border-gray-100 flex flex-col bg-gray-50/30">
+          <div className="w-[240px] shrink-0 border-r border-line-light flex flex-col bg-surface-secondary-soft5">
             {/* Search */}
-            <div className="p-2 border-b border-gray-100">
+            <div className="p-2 border-b border-line-light">
               <input
                 value={sidebarSearch}
                 onChange={e => setSidebarSearch(e.target.value)}
-                className="w-full text-xs px-2.5 py-1.5 bg-white rounded-md border border-gray-200 outline-none focus:border-blue-400 placeholder:text-gray-400 transition-colors"
+                className="w-full text-xs px-2.5 py-1.5 bg-surface-primary rounded-md border border-line outline-none focus:border-focus-border placeholder:text-placeholder transition-colors"
                 placeholder="Search properties & functions…"
               />
             </div>
@@ -415,7 +415,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                 <div className="py-1">
                   <button
                     onClick={() => toggleCategory('Properties')}
-                    className="w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
+                    className="w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-ink-muted uppercase tracking-wider hover:text-hover-text transition-colors"
                   >
                     <ChevronRight className={`w-3 h-3 transition-transform duration-150 ${expandedCategories.has('Properties') ? 'rotate-90' : ''}`} />
                     Properties
@@ -428,11 +428,11 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                           key={prop.id}
                           onClick={() => insertProperty(prop)}
                           onMouseEnter={() => setSelectedItem({ type: 'property', prop })}
-                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-white hover:shadow-sm text-gray-700 group transition-all"
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-hover-surface-white hover:shadow-sm text-ink-body group transition-all"
                         >
-                          <PropTypeIcon type={prop.type} className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <PropTypeIcon type={prop.type} className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                           <span className="truncate text-left flex-1">{prop.name}</span>
-                          <ArrowUpRight className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
+                          <ArrowUpRight className="w-3 h-3 text-ink-disabled opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
                         </button>
                       ))}
                     </div>
@@ -448,7 +448,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                   <div key={cat} className="py-1">
                     <button
                       onClick={() => toggleCategory(cat)}
-                      className="w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
+                      className="w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-ink-muted uppercase tracking-wider hover:text-hover-text transition-colors"
                     >
                       <ChevronRight className={`w-3 h-3 transition-transform duration-150 ${expandedCategories.has(cat) ? 'rotate-90' : ''}`} />
                       {cat}
@@ -461,13 +461,13 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                             key={fn.name}
                             onClick={() => insertFunction(fn)}
                             onMouseEnter={() => setSelectedItem({ type: 'function', fn })}
-                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-white hover:shadow-sm text-gray-700 group transition-all"
+                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-hover-surface-white hover:shadow-sm text-ink-body group transition-all"
                           >
-                            <span className="w-3.5 h-3.5 flex items-center justify-center text-[10px] font-bold text-gray-400 shrink-0 font-mono">ƒ</span>
+                            <span className="w-3.5 h-3.5 flex items-center justify-center text-[10px] font-bold text-ink-muted shrink-0 font-mono">ƒ</span>
                             <span className="truncate text-left flex-1 font-mono text-[12px]">
                               {fn.signature.includes('(') ? `${fn.name}()` : fn.name}
                             </span>
-                            <ArrowUpRight className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
+                            <ArrowUpRight className="w-3 h-3 text-ink-disabled opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" />
                           </button>
                         ))}
                       </div>
@@ -482,12 +482,12 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
           <div className="flex-1 flex flex-col min-w-0">
             {/* AI prompt bar */}
             <div className="px-4 pt-3 pb-2">
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400/30 transition-all">
-                <Sigma className="w-4 h-4 text-gray-400 shrink-0" />
+              <div className="flex items-center gap-2 px-3 py-2 bg-surface-secondary rounded-lg border border-line focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring transition-all">
+                <Sigma className="w-4 h-4 text-ink-muted shrink-0" />
                 <input
                   value={aiPrompt}
                   onChange={e => setAiPrompt(e.target.value)}
-                  className="flex-1 text-sm bg-transparent outline-none placeholder:text-gray-400"
+                  className="flex-1 text-sm bg-transparent outline-none placeholder:text-placeholder"
                   placeholder="Write, fix, or explain a formula…"
                   onKeyDown={e => {
                     if (e.key === 'Enter' && aiPrompt.trim()) {
@@ -504,7 +504,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                       setAiPrompt('');
                     }
                   }}
-                  className={`p-1 rounded-md transition-colors ${aiPrompt.trim() ? 'text-blue-500 hover:bg-blue-50' : 'text-gray-300 cursor-default'}`}
+                  className={`p-1 rounded-md transition-colors ${aiPrompt.trim() ? 'text-accent-text-soft hover:bg-hover-accent-soft' : 'text-ink-disabled cursor-default'}`}
                   disabled={!aiPrompt.trim()}
                 >
                   <Send className="w-4 h-4" />
@@ -514,12 +514,12 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
 
             {/* Formula editor */}
             <div className="flex-1 px-4 pb-2 min-h-0 flex flex-col">
-              <div className="flex-1 relative rounded-lg border border-gray-200 bg-white overflow-hidden focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400/30 transition-all">
+              <div className="flex-1 relative rounded-lg border border-line bg-surface-primary overflow-hidden focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring transition-all">
                 <textarea
                   ref={editorRef}
                   value={expression}
                   onChange={e => setExpression(e.target.value)}
-                  className="w-full h-full resize-none p-3 text-sm font-mono text-gray-900 leading-relaxed outline-none placeholder:text-gray-400"
+                  className="w-full h-full resize-none p-3 text-sm font-mono text-ink leading-relaxed outline-none placeholder:text-placeholder"
                   placeholder="Your formula"
                   spellCheck={false}
                   onKeyDown={e => {
@@ -543,11 +543,11 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
               {/* Preview toolbar */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Preview with</span>
+                  <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">Preview with</span>
                   <select
                     value={previewPageId || ''}
                     onChange={e => setPreviewPageId(e.target.value)}
-                    className="text-xs px-2 py-1 bg-gray-50 border border-gray-200 rounded-md outline-none focus:border-blue-400 max-w-[200px] truncate text-gray-700"
+                    className="text-xs px-2 py-1 bg-surface-secondary border border-line rounded-md outline-none focus:border-focus-border max-w-[200px] truncate text-ink-body"
                   >
                     {previewPages.map(page => (
                       <option key={page.id} value={page.id}>{getPageTitle(page)}</option>
@@ -556,7 +556,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                 </div>
                 <button
                   onClick={() => setDebugMode(!debugMode)}
-                  className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${debugMode ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${debugMode ? 'bg-amber-surface text-amber-text-bold border border-amber-border' : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface'}`}
                 >
                   <Bug className="w-3 h-3" />
                   Debug
@@ -564,26 +564,26 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
               </div>
 
               {/* Preview output */}
-              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border ${previewResult.error ? 'bg-red-50/50 border-red-200' : expression.trim() ? 'bg-gray-50 border-gray-200' : 'bg-gray-50/50 border-gray-100'}`}>
+              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border ${previewResult.error ? 'bg-danger-surface-soft border-danger-border' : expression.trim() ? 'bg-surface-secondary border-line' : 'bg-surface-secondary-soft border-line-light'}`}>
                 <div className="flex-1 min-w-0">
                   {expression.trim() ? (
                     <div className="flex items-center gap-2">
-                      <span className={`text-sm font-mono truncate ${previewResult.error ? 'text-red-500' : 'text-gray-900'}`}>
-                        {previewResult.value != null ? String(previewResult.value) : <span className="text-gray-400 italic">Empty</span>}
+                      <span className={`text-sm font-mono truncate ${previewResult.error ? 'text-danger-text-soft' : 'text-ink'}`}>
+                        {previewResult.value != null ? String(previewResult.value) : <span className="text-ink-muted italic">Empty</span>}
                       </span>
                       {previewResult.type && getReturnTypeBadge(previewResult.type)}
                     </div>
                   ) : (
-                    <span className="text-xs text-gray-400 italic">Enter a formula to see preview</span>
+                    <span className="text-xs text-ink-muted italic">Enter a formula to see preview</span>
                   )}
                 </div>
               </div>
 
               {/* Debug info */}
               {debugMode && expression.trim() && (
-                <div className="p-2.5 rounded-lg bg-gray-900 text-[11px] font-mono text-gray-300 space-y-1 max-h-[100px] overflow-y-auto">
-                  <div><span className="text-gray-500">expression:</span> {expression}</div>
-                  <div><span className="text-gray-500">resolved:</span> {(() => {
+                <div className="p-2.5 rounded-lg bg-surface-inverse text-[11px] font-mono text-ink-disabled space-y-1 max-h-[100px] overflow-y-auto">
+                  <div><span className="text-ink-secondary">expression:</span> {expression}</div>
+                  <div><span className="text-ink-secondary">resolved:</span> {(() => {
                     try {
                       if (!previewPageId || !storePages[previewPageId]) return '(no page)';
                       // Show how prop() references resolve
@@ -596,27 +596,27 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                       });
                     } catch { return '(resolve error)'; }
                   })()}</div>
-                  <div><span className="text-gray-500">result:</span> <span className={previewResult.error ? 'text-red-400' : 'text-green-400'}>{JSON.stringify(previewResult.value)}</span></div>
-                  <div><span className="text-gray-500">type:</span> {previewResult.type || '—'}</div>
+                  <div><span className="text-ink-secondary">result:</span> <span className={previewResult.error ? 'text-danger-text-faint' : 'text-success-text-faint'}>{JSON.stringify(previewResult.value)}</span></div>
+                  <div><span className="text-ink-secondary">type:</span> {previewResult.type || '—'}</div>
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-100 bg-gray-50/50">
-              <span className="text-[11px] text-gray-400">
-                <kbd className="px-1 py-0.5 bg-gray-200/70 rounded text-[10px] font-mono">⌘ Enter</kbd> to save
+            <div className="flex items-center justify-between px-4 py-2.5 border-t border-line-light bg-surface-secondary-soft">
+              <span className="text-[11px] text-ink-muted">
+                <kbd className="px-1 py-0.5 bg-surface-muted-soft2 rounded text-[10px] font-mono">⌘ Enter</kbd> to save
               </span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={onClose}
-                  className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+                  className="px-3 py-1.5 text-xs text-ink-body-light hover:text-hover-text-bolder hover:bg-hover-surface2 rounded-md transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveFormula}
-                  className="px-4 py-1.5 text-xs font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-md transition-colors shadow-sm"
+                  className="px-4 py-1.5 text-xs font-medium text-ink-inverse bg-accent hover:bg-hover-accent rounded-md transition-colors shadow-sm"
                 >
                   Done
                 </button>
@@ -625,34 +625,34 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
           </div>
 
           {/* ─── RIGHT PANEL: Documentation ─── */}
-          <div className="w-[240px] shrink-0 border-l border-gray-100 bg-gray-50/30 flex flex-col overflow-hidden">
+          <div className="w-[240px] shrink-0 border-l border-line-light bg-surface-secondary-soft5 flex flex-col overflow-hidden">
             {selectedItem ? (
               <div className="flex-1 overflow-y-auto p-3 space-y-3">
                 {selectedItem.type === 'property' ? (
                   <>
                     {/* Property documentation */}
                     <div className="flex items-center gap-2">
-                      <PropTypeIcon type={selectedItem.prop.type} className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm font-semibold text-gray-800 truncate">{selectedItem.prop.name}</span>
+                      <PropTypeIcon type={selectedItem.prop.type} className="w-4 h-4 text-ink-secondary" />
+                      <span className="text-sm font-semibold text-ink-strong truncate">{selectedItem.prop.name}</span>
                     </div>
                     <div className="space-y-2">
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Type</span>
-                        <p className="text-xs text-gray-600 mt-0.5">{selectedItem.prop.type.replace(/_/g, ' ')}</p>
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Type</span>
+                        <p className="text-xs text-ink-body-light mt-0.5">{selectedItem.prop.type.replace(/_/g, ' ')}</p>
                       </div>
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Returns</span>
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Returns</span>
                         <div className="mt-0.5">{getReturnTypeBadge(propReturnType(selectedItem.prop.type))}</div>
                       </div>
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Usage</span>
-                        <div className="mt-1 p-2 rounded-md bg-white border border-gray-200 font-mono text-xs text-gray-700">
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Usage</span>
+                        <div className="mt-1 p-2 rounded-md bg-surface-primary border border-line font-mono text-xs text-ink-body">
                           prop("{selectedItem.prop.name}")
                         </div>
                       </div>
                       {/* Example formulas */}
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Examples</span>
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Examples</span>
                         <div className="mt-1 space-y-1.5">
                           {selectedItem.prop.type === 'number' && (
                             <>
@@ -688,26 +688,26 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                   <>
                     {/* Function documentation */}
                     <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 flex items-center justify-center text-[11px] font-bold text-blue-600 bg-blue-100 rounded shrink-0 font-mono">ƒ</span>
-                      <span className="text-sm font-semibold text-gray-800 truncate">{selectedItem.fn.name}</span>
+                      <span className="w-5 h-5 flex items-center justify-center text-[11px] font-bold text-accent-text-light bg-accent-muted rounded shrink-0 font-mono">ƒ</span>
+                      <span className="text-sm font-semibold text-ink-strong truncate">{selectedItem.fn.name}</span>
                     </div>
                     <div className="space-y-2">
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Description</span>
-                        <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">{selectedItem.fn.description}</p>
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Description</span>
+                        <p className="text-xs text-ink-body-light mt-0.5 leading-relaxed">{selectedItem.fn.description}</p>
                       </div>
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Signature</span>
-                        <div className="mt-1 p-2 rounded-md bg-white border border-gray-200 font-mono text-xs text-gray-700">
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Signature</span>
+                        <div className="mt-1 p-2 rounded-md bg-surface-primary border border-line font-mono text-xs text-ink-body">
                           {selectedItem.fn.signature}
                         </div>
                       </div>
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Returns</span>
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Returns</span>
                         <div className="mt-0.5">{getReturnTypeBadge(selectedItem.fn.returnType)}</div>
                       </div>
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Examples</span>
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Examples</span>
                         <div className="mt-1 space-y-1.5">
                           {selectedItem.fn.examples.map((ex, i) => (
                             <ExampleBlock key={i} code={ex} onInsert={insertAtCursor} />
@@ -715,8 +715,8 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                         </div>
                       </div>
                       <div>
-                        <span className="text-[11px] font-semibold text-gray-400 uppercase">Category</span>
-                        <p className="text-xs text-gray-500 mt-0.5">{selectedItem.fn.category}</p>
+                        <span className="text-[11px] font-semibold text-ink-muted uppercase">Category</span>
+                        <p className="text-xs text-ink-secondary mt-0.5">{selectedItem.fn.category}</p>
                       </div>
                     </div>
                   </>
@@ -724,8 +724,8 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
-                <HelpCircle className="w-8 h-8 text-gray-200 mb-2" />
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <HelpCircle className="w-8 h-8 text-ink-faint mb-2" />
+                <p className="text-xs text-ink-muted leading-relaxed">
                   Hover over a property or function to see its documentation and usage examples.
                 </p>
               </div>
@@ -751,13 +751,13 @@ function ExampleBlock({ code, onInsert }: ExampleBlockProps) {
 
   return (
     <div className="flex items-start gap-1 group">
-      <div className="flex-1 p-1.5 rounded bg-white border border-gray-200 font-mono text-[11px] text-gray-700 break-all leading-snug">
+      <div className="flex-1 p-1.5 rounded bg-surface-primary border border-line font-mono text-[11px] text-ink-body break-all leading-snug">
         {code}
       </div>
       <div className="flex flex-col gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={() => onInsert(code)}
-          className="p-1 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"
+          className="p-1 rounded hover:bg-hover-accent-soft text-ink-muted hover:text-hover-accent-text transition-colors"
           title="Insert into formula"
         >
           <ArrowUpRight className="w-3 h-3" />
@@ -768,11 +768,11 @@ function ExampleBlock({ code, onInsert }: ExampleBlockProps) {
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
           }}
-          className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+          className="p-1 rounded hover:bg-hover-surface2 text-ink-muted hover:text-hover-text transition-colors"
           title="Copy"
         >
           {copied ? (
-            <CheckSquare className="w-3 h-3 text-green-500" />
+            <CheckSquare className="w-3 h-3 text-success-text" />
           ) : (
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <rect x="9" y="9" width="13" height="13" rx="2" />

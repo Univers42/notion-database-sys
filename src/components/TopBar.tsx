@@ -189,28 +189,28 @@ export function TopBar() {
 
   return (
     <>
-      <div className="bg-white border-b border-gray-200 flex flex-col group/header">
+      <div className="bg-surface-primary border-b border-line flex flex-col group/header">
         {/* ─── Top row: Editable title + action buttons ─── */}
         <div className="flex items-center justify-between px-4 py-2">
           {/* Left: Icon + editable database title */}
           <div className="flex items-center gap-1.5 min-w-0">
             <div className="relative">
               <button onClick={() => setShowDbSwitcher(!showDbSwitcher)}
-                className="flex items-center gap-1.5 px-1.5 py-1 rounded-lg hover:bg-gray-100 transition-colors">
+                className="flex items-center gap-1.5 px-1.5 py-1 rounded-lg hover:bg-hover-surface2 transition-colors">
                 {database.icon && <span className="text-lg">{database.icon}</span>}
-                <ChevronDown className="w-3 h-3 text-gray-400" />
+                <ChevronDown className="w-3 h-3 text-ink-muted" />
               </button>
               {showDbSwitcher && (
                 <Dropdown onClose={() => setShowDbSwitcher(false)}>
                   <div className="py-1">
-                    <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Databases</div>
+                    <div className="px-3 py-1.5 text-[10px] font-semibold text-ink-muted uppercase tracking-wider">Databases</div>
                     {Object.values(databases).map(db => (
                       <button key={db.id} onClick={() => {
                         const firstView = Object.values(views).find(v => v.databaseId === db.id);
                         if (firstView) setActiveView(firstView.id);
                         setShowDbSwitcher(false);
                       }}
-                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${db.id === database.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}>
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-hover-surface transition-colors ${db.id === database.id ? 'bg-accent-soft text-accent-text' : 'text-ink-body'}`}>
                         {db.icon && <span>{db.icon}</span>}
                         <span className="font-medium">{db.name}</span>
                       </button>
@@ -230,12 +230,12 @@ export function TopBar() {
                   if (e.key === 'Enter') commitTitle();
                   if (e.key === 'Escape') setIsEditingTitle(false);
                 }}
-                className="text-lg font-bold text-gray-900 outline-none bg-transparent border-b-2 border-blue-500 px-0.5 min-w-[120px]"
+                className="text-lg font-bold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]"
               />
             ) : (
               <h1
                 style={{ cursor: CURSORS.text }}
-                className="text-lg font-bold text-gray-900 truncate hover:bg-gray-100 px-1 py-0.5 rounded transition-colors"
+                className="text-lg font-bold text-ink truncate hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors"
                 onDoubleClick={handleTitleDoubleClick}
                 title="Double-click to rename"
               >
@@ -262,32 +262,32 @@ export function TopBar() {
                 setShowSortPanel(false);
               }}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${filters.length > 0
-                ? 'bg-blue-50 text-blue-600 font-medium'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'bg-accent-soft text-accent-text-light font-medium'
+                : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'
                 }`}>
               <Filter className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Filter</span>
-              {filters.length > 0 && <span className="text-xs bg-blue-100 text-blue-700 px-1.5 rounded-full tabular-nums">{filters.length}</span>}
+              {filters.length > 0 && <span className="text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums">{filters.length}</span>}
             </button>
 
             <button onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${sorts.length > 0
-                ? 'bg-purple-50 text-purple-600 font-medium'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'bg-purple-surface text-purple-text font-medium'
+                : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'
                 }`}>
               <ArrowUpDown className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Sort</span>
-              {sorts.length > 0 && <span className="text-xs bg-purple-100 text-purple-700 px-1.5 rounded-full tabular-nums">{sorts.length}</span>}
+              {sorts.length > 0 && <span className="text-xs bg-purple-surface-muted text-purple-text-bold px-1.5 rounded-full tabular-nums">{sorts.length}</span>}
             </button>
 
-            <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+            <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface transition-colors">
               <Zap className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Automations</span>
             </button>
 
             {showSearch ? (
-              <div className="flex items-center gap-1 bg-gray-100 rounded-lg px-2 py-1">
-                <Search className="w-3.5 h-3.5 text-gray-400" />
+              <div className="flex items-center gap-1 bg-surface-tertiary rounded-lg px-2 py-1">
+                <Search className="w-3.5 h-3.5 text-ink-muted" />
                 <input ref={searchRef}
                   type="text" placeholder="Search..."
                   value={localSearchValue}
@@ -305,33 +305,33 @@ export function TopBar() {
                       setShowSearch(false);
                     }
                   }}
-                  className="bg-transparent text-sm w-40 outline-none placeholder:text-gray-400" />
+                  className="bg-transparent text-sm w-40 outline-none placeholder:text-placeholder" />
                 <button onClick={() => {
                   clearTimeout(searchDebounceRef.current);
                   setLocalSearchValue('');
                   store.setSearchQuery('');
                   setShowSearch(false);
                 }}
-                  className="p-0.5 hover:bg-gray-200 rounded">
-                  <X className="w-3 h-3 text-gray-400" />
+                  className="p-0.5 hover:bg-hover-surface3 rounded">
+                  <X className="w-3 h-3 text-ink-muted" />
                 </button>
               </div>
             ) : (
               <button onClick={() => setShowSearch(true)}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors" title="Search">
+                className="p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors" title="Search">
                 <Search className="w-4 h-4" />
               </button>
             )}
 
             <button
               onClick={() => setIsFullSize(!isFullSize)}
-              className={`p-2 rounded-lg transition-colors ${isFullSize ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+              className={`p-2 rounded-lg transition-colors ${isFullSize ? 'bg-surface-tertiary text-ink-body' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`}
               title="Full-size">
               <Maximize2 className="w-4 h-4" />
             </button>
 
             <button onClick={() => setShowViewSettings(!showViewSettings)}
-              className={`p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors ${showViewSettings ? 'bg-gray-100' : ''}`}>
+              className={`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${showViewSettings ? 'bg-surface-tertiary' : ''}`}>
               <Settings2 className="w-4 h-4" />
             </button>
 
@@ -342,17 +342,17 @@ export function TopBar() {
               onClose={() => setShowExtraActions(false)}
             />
 
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="w-px h-5 bg-surface-muted mx-1" />
 
             <button onClick={() => { const id = addPage(database.id); store.openPage(id); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm">
               <Plus className="w-3.5 h-3.5" /> New
             </button>
           </div>
         </div>
 
         {/* ─── View tabs row ─── */}
-        <div className="flex items-center px-4 py-1 border-t border-gray-100">
+        <div className="flex items-center px-4 py-1 border-t border-line-light">
           {/* Scrollable tab list — no flex-1 so +/··· buttons sit right after the last tab */}
           <div className="flex items-center gap-0.5 overflow-x-auto min-w-0 mr-1">
             {dbViews.map(v => (
@@ -377,7 +377,7 @@ export function TopBar() {
                         }
                         if (e.key === 'Escape') setRenamingViewId(null);
                       }}
-                      className="text-sm font-medium text-gray-900 bg-white border border-blue-400 rounded px-1 py-0 outline-none w-28"
+                      className="text-sm font-medium text-ink bg-surface-primary border border-accent-border-light rounded px-1 py-0 outline-none w-28"
                     />
                   </div>
                 ) : (
@@ -393,8 +393,8 @@ export function TopBar() {
                     }}
                     onContextMenu={(e) => { e.preventDefault(); setShowViewMenu(v.id); }}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg whitespace-nowrap transition-colors ${v.id === activeViewId
-                      ? 'bg-gray-100 text-gray-900 font-medium'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      ? 'bg-surface-tertiary text-ink font-medium'
+                      : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'
                       }`}>
                     {v.settings?.viewIcon
                       ? <Icon name={v.settings.viewIcon} className="w-4 h-4" />
@@ -414,16 +414,16 @@ export function TopBar() {
                         setRenamingViewId(v.id);
                         setShowViewMenu(null);
                       }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-body hover:bg-hover-surface rounded-lg">
                         <PencilIcon className="w-3.5 h-3.5" /> Rename
                       </button>
                       <button onClick={() => { duplicateView(v.id); setShowViewMenu(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-body hover:bg-hover-surface rounded-lg">
                         <DuplicateIcon className="w-3.5 h-3.5" /> Duplicate
                       </button>
                       {dbViews.length > 1 && (
                         <button onClick={() => { deleteView(v.id); setShowViewMenu(null); }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-danger-text hover:bg-hover-danger rounded-lg">
                           <Trash2 className="w-3.5 h-3.5" /> Delete
                         </button>
                       )}
@@ -441,13 +441,13 @@ export function TopBar() {
               <button onClick={() => { setShowAddView(!showAddView); setShowViewDots(false); }}
                 className={`flex items-center gap-1 px-2 py-1.5 text-sm rounded-lg transition-all
                   ${showAddView
-                    ? 'text-gray-600 bg-gray-100 opacity-100'
-                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 opacity-0 group-hover/header:opacity-100'
+                    ? 'text-ink-body-light bg-surface-tertiary opacity-100'
+                    : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface opacity-0 group-hover/header:opacity-100'
                   }`}>
                 <Plus className="w-3.5 h-3.5" />
               </button>
               {showAddView && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden min-w-[200px] max-w-[240px]">
+                <div className="absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden min-w-[200px] max-w-[240px]">
                   <div className="flex flex-col" style={{ maxHeight: '70vh' }}>
                     <div className="p-2 flex flex-col gap-px">
                       <PanelSectionLabel>Add a new view</PanelSectionLabel>
@@ -527,7 +527,7 @@ export function TopBar() {
               left: filterBtnRef.current.getBoundingClientRect().left,
             }}
           >
-            <div className="bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+            <div className="bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
               ref={el => {
                 if (!el) return;
                 const handler = (e: MouseEvent) => {
@@ -565,7 +565,7 @@ export function TopBar() {
         {showAdvancedFilter && createPortal(
           <div
             ref={advancedFilterRef}
-            className="fixed z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+            className="fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
             style={{ top: 140, left: '50%', transform: 'translateX(-50%)', minWidth: 520 }}
           >
               <AdvancedFilterGrid
@@ -589,7 +589,7 @@ export function TopBar() {
         {/* ─── Sort panel ─── */}
         {showSortPanel && (
           <div className="px-4 pb-2">
-            <div className="bg-white border border-gray-200 rounded-xl shadow-lg w-full max-w-[420px]">
+            <div className="bg-surface-primary border border-line rounded-xl shadow-lg w-full max-w-[420px]">
               <SortPanel database={database} view={view} />
             </div>
           </div>
@@ -599,7 +599,7 @@ export function TopBar() {
       {/* Settings panel (slides in from right) */}
       {showViewSettings && (
         <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setShowViewSettings(false)}>
-          <div className="w-80 bg-white border-l border-gray-200 shadow-xl h-full overflow-auto" onClick={e => e.stopPropagation()}>
+          <div className="w-80 bg-surface-primary border-l border-line shadow-xl h-full overflow-auto" onClick={e => e.stopPropagation()}>
             <ViewSettingsPanel onClose={() => setShowViewSettings(false)} />
           </div>
         </div>
@@ -613,7 +613,7 @@ export function TopBar() {
             <div className="fixed inset-0 z-[9998]" onClick={() => setShowActiveViewMenu(false)} />
             <div
               ref={activeViewMenuRef}
-              className="fixed z-[9999] w-[220px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+              className="fixed z-[9999] w-[220px] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
               style={{ top: btnRect.bottom + 4, left: btnRect.left }}>
               <div className="flex flex-col">
                 {/* Section 1: Rename, Edit view, Source */}
@@ -623,22 +623,22 @@ export function TopBar() {
                     setRenamingViewId(view.id);
                     setShowActiveViewMenu(false);
                   }}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
                     <PencilIcon className="w-4 h-4" /> Rename
                   </button>
                   <button onClick={() => { setShowViewSettings(true); setShowActiveViewMenu(false); }}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
                     <LayoutIcon className="w-4 h-4" /> Edit view
                   </button>
                   <button onClick={() => setShowActiveViewMenu(false)}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
                     <ExternalLinkIcon className="w-4 h-4" />
                     <span className="flex-1 text-left">Source</span>
-                    <ChevronDown className="w-3 h-3 text-gray-400 -rotate-90" />
+                    <ChevronDown className="w-3 h-3 text-ink-muted -rotate-90" />
                   </button>
                 </div>
 
-                <div className="mx-3 h-px bg-gray-100" />
+                <div className="mx-3 h-px bg-surface-tertiary" />
 
                 {/* Section 2: Copy link, Open source, Hide titles */}
                 <div className="p-1 flex flex-col gap-px">
@@ -646,30 +646,30 @@ export function TopBar() {
                     navigator.clipboard?.writeText(window.location.href + '?view=' + view.id);
                     setShowActiveViewMenu(false);
                   }}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
                     <CopyLinkIcon className="w-4 h-4" /> Copy link to view
                   </button>
                   <button onClick={() => setShowActiveViewMenu(false)}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
                     <ExternalLinkIcon className="w-4 h-4" /> Open source database
                   </button>
                   <button onClick={() => setShowActiveViewMenu(false)}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
                     <EyeSlashIcon className="w-4 h-4" /> Hide data source titles
                   </button>
                 </div>
 
-                <div className="mx-3 h-px bg-gray-100" />
+                <div className="mx-3 h-px bg-surface-tertiary" />
 
                 {/* Section 3: Duplicate, Delete */}
                 <div className="p-1 flex flex-col gap-px">
                   <button onClick={() => { duplicateView(view.id); setShowActiveViewMenu(false); }}
-                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
                     <DuplicateIcon className="w-4 h-4" /> Duplicate view
                   </button>
                   {dbViews.length > 1 && (
                     <button onClick={() => { deleteView(view.id); setShowActiveViewMenu(false); }}
-                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors">
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-danger-text hover:bg-hover-danger transition-colors">
                       <Trash2 className="w-3.5 h-3.5" /> Delete view
                     </button>
                   )}
@@ -693,9 +693,9 @@ function SortPanel({ database, view }: { database: any; view: any }) {
   return (
     <div className="p-3 flex flex-col gap-2">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-semibold text-gray-700">Sorts</span>
+        <span className="text-sm font-semibold text-ink-body">Sorts</span>
         {sorts.length > 0 && (
-          <button onClick={() => clearSorts(view.id)} className="text-xs text-red-500 hover:text-red-600">Clear all</button>
+          <button onClick={() => clearSorts(view.id)} className="text-xs text-danger-text-soft hover:text-hover-danger-text-bold">Clear all</button>
         )}
       </div>
 
@@ -703,27 +703,27 @@ function SortPanel({ database, view }: { database: any; view: any }) {
         <div key={sort.id} className="flex items-center gap-2 text-sm">
           <select value={sort.propertyId}
             onChange={(e) => updateSort(view.id, sort.id, { propertyId: e.target.value })}
-            className="px-2 py-1.5 border border-gray-200 rounded-lg bg-white text-sm flex-1">
+            className="px-2 py-1.5 border border-line rounded-lg bg-surface-primary text-sm flex-1">
             {allProps.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
 
           <button onClick={() => updateSort(view.id, sort.id, { direction: sort.direction === 'asc' ? 'desc' : 'asc' })}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm transition-colors hover:bg-gray-50 ${sort.direction === 'asc' ? 'text-blue-600' : 'text-purple-600'}`}>
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 border border-line rounded-lg text-sm transition-colors hover:bg-hover-surface ${sort.direction === 'asc' ? 'text-accent-text-light' : 'text-purple-text'}`}>
             {sort.direction === 'asc' ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />}
             {sort.direction === 'asc' ? 'Ascending' : 'Descending'}
           </button>
 
           <button onClick={() => removeSort(view.id, sort.id)}
-            className="p-1 text-gray-400 hover:text-red-500 rounded hover:bg-gray-50 transition-colors shrink-0">
+            className="p-1 text-ink-muted hover:text-hover-danger-text rounded hover:bg-hover-surface transition-colors shrink-0">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       ))}
 
       <button onClick={() => { const firstProp = allProps[0]; if (firstProp) addSort(view.id, { propertyId: firstProp.id, direction: 'asc' }); }}
-        className="flex items-center gap-1.5 text-sm text-blue-500 hover:text-blue-600 py-1 transition-colors">
+        className="flex items-center gap-1.5 text-sm text-accent-text-soft hover:text-hover-accent-text py-1 transition-colors">
         <Plus className="w-3.5 h-3.5" /> Add sort
       </button>
     </div>
@@ -763,7 +763,7 @@ function ExtraActionsMenu({ show, onToggle, onClose }: { show: boolean; onToggle
   return (
     <div className="relative" ref={ref}>
       <button onClick={onToggle}
-        className={`p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors ${show ? 'bg-gray-100' : ''}`}
+        className={`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${show ? 'bg-surface-tertiary' : ''}`}
         title="More actions">
         <MoreHorizontal className="w-4 h-4" />
       </button>
@@ -813,8 +813,8 @@ function ViewDotsMenu({
       <button onClick={onToggle}
         className={`flex items-center px-1.5 py-1.5 text-sm rounded-lg transition-all
           ${show
-            ? 'bg-gray-100 text-gray-600 opacity-100'
-            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 opacity-0 group-hover/header:opacity-100'
+            ? 'bg-surface-tertiary text-ink-body-light opacity-100'
+            : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface opacity-0 group-hover/header:opacity-100'
           }`}>
         <MoreHorizontal className="w-4 h-4" />
       </button>
@@ -841,7 +841,7 @@ function Dropdown({ children, onClose, className = '' }: { children: React.React
 
   return (
     <div ref={ref}
-      className={`absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden ${className}`}>
+      className={`absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden ${className}`}>
       {children}
     </div>
   );

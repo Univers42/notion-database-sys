@@ -3,10 +3,10 @@ import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 
 const HEADING_STYLES: Record<string, string> = {
-  heading_1: 'text-2xl font-bold text-gray-900 mt-6 mb-1 leading-tight',
-  heading_2: 'text-xl font-semibold text-gray-900 mt-5 mb-1 leading-tight',
-  heading_3: 'text-lg font-semibold text-gray-800 mt-4 mb-0.5 leading-snug',
-  heading_4: 'text-base font-semibold text-gray-800 mt-3 mb-0.5 leading-snug',
+  heading_1: 'text-2xl font-bold text-ink mt-6 mb-1 leading-tight',
+  heading_2: 'text-xl font-semibold text-ink mt-5 mb-1 leading-tight',
+  heading_3: 'text-lg font-semibold text-ink-strong mt-4 mb-0.5 leading-snug',
+  heading_4: 'text-base font-semibold text-ink-strong mt-3 mb-0.5 leading-snug',
 };
 
 const HEADING_PLACEHOLDERS: Record<string, string> = {

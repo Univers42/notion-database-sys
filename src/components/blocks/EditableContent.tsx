@@ -57,7 +57,7 @@ export function EditableContent({
       contentEditable
       suppressContentEditableWarning
       data-block-editor
-      className={`outline-none ${className} empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400`}
+      className={`outline-none ${className} empty:before:content-[attr(data-placeholder)] empty:before:text-ink-muted`}
       data-placeholder={placeholder}
       onInput={handleInput}
       onKeyDown={onKeyDown}

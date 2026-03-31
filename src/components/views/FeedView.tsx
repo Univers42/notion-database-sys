@@ -27,7 +27,7 @@ export function FeedView() {
   const textProp = Object.values(database.properties).find(p => p.type === 'text' && p.id !== database.titlePropertyId);
 
   return (
-    <div className="flex-1 overflow-auto bg-gray-50">
+    <div className="flex-1 overflow-auto bg-surface-secondary">
       <div className="max-w-2xl mx-auto py-6 px-4 flex flex-col gap-4">
         {pages.map(page => {
           const title = getPageTitle(page);
@@ -37,29 +37,29 @@ export function FeedView() {
 
           return (
             <article key={page.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+              className="bg-surface-primary rounded-xl border border-line overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
               onClick={() => openPage(page.id)}>
 
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-4 pb-2">
                 <div className="flex items-center gap-3">
                   {showAuthorByline && author ? (
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gradient-purple-from to-gradient-purple-to flex items-center justify-center text-ink-inverse text-sm font-bold">
                       {String(author).charAt(0).toUpperCase()}
                     </div>
                   ) : showPageIcon && page.icon ? (
                     <span className="text-2xl">{page.icon}</span>
                   ) : (
-                    <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-gray-400" />
+                    <div className="w-9 h-9 rounded-full bg-surface-muted flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-ink-muted" />
                     </div>
                   )}
                   <div>
                     {showAuthorByline && author && (
-                      <div className="text-sm font-semibold text-gray-900">{author}</div>
+                      <div className="text-sm font-semibold text-ink">{author}</div>
                     )}
                     {date && (
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-ink-muted">
                         {(() => {
                           try { return formatDistanceToNow(parseISO(date), { addSuffix: true }); }
                           catch { return ''; }
@@ -69,19 +69,19 @@ export function FeedView() {
                   </div>
                 </div>
                 <button onClick={e => e.stopPropagation()}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                  className="p-1.5 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors">
                   <MoreHorizontal className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Body */}
               <div className="px-5 pb-3">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1 leading-snug">
+                <h3 className="text-lg font-semibold text-ink mb-1 leading-snug">
                   {showPageIcon && page.icon && !author && <span className="mr-1">{page.icon}</span>}
-                  {title || <span className="text-gray-400">Untitled</span>}
+                  {title || <span className="text-ink-muted">Untitled</span>}
                 </h3>
                 {body && (
-                  <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">{body}</p>
+                  <p className="text-sm text-ink-body-light leading-relaxed line-clamp-3">{body}</p>
                 )}
               </div>
 
@@ -104,7 +104,7 @@ export function FeedView() {
                       });
                     }
                     if (prop.type === 'checkbox') {
-                      return val ? <span key={prop.id} className="text-green-500 text-xs font-medium">✓ {prop.name}</span> : null;
+                      return val ? <span key={prop.id} className="text-success-text text-xs font-medium">✓ {prop.name}</span> : null;
                     }
                     return null;
                   })}
@@ -113,23 +113,23 @@ export function FeedView() {
 
               {/* Cover image if exists */}
               {page.cover && (
-                <div className="mx-5 mb-3 rounded-lg overflow-hidden bg-gray-100">
+                <div className="mx-5 mb-3 rounded-lg overflow-hidden bg-surface-tertiary">
                   <img src={page.cover} alt="" className="w-full h-48 object-cover" />
                 </div>
               )}
 
               {/* Action bar */}
-              <div className="flex items-center gap-1 px-3 py-2 border-t border-gray-100">
+              <div className="flex items-center gap-1 px-3 py-2 border-t border-line-light">
                 <button onClick={e => e.stopPropagation()}
-                  className="flex items-center gap-1.5 py-1.5 px-3 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors text-sm">
+                  className="flex items-center gap-1.5 py-1.5 px-3 text-ink-secondary hover:bg-hover-surface2 rounded-lg transition-colors text-sm">
                   <Heart className="w-4 h-4" /> Like
                 </button>
                 <button onClick={e => e.stopPropagation()}
-                  className="flex items-center gap-1.5 py-1.5 px-3 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors text-sm">
+                  className="flex items-center gap-1.5 py-1.5 px-3 text-ink-secondary hover:bg-hover-surface2 rounded-lg transition-colors text-sm">
                   <MessageCircle className="w-4 h-4" /> Comment
                 </button>
                 <button onClick={e => e.stopPropagation()}
-                  className="flex items-center gap-1.5 py-1.5 px-3 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors text-sm">
+                  className="flex items-center gap-1.5 py-1.5 px-3 text-ink-secondary hover:bg-hover-surface2 rounded-lg transition-colors text-sm">
                   <Share2 className="w-4 h-4" /> Share
                 </button>
               </div>
@@ -138,11 +138,11 @@ export function FeedView() {
         })}
 
         {pages.length === 0 && (
-          <div className="text-center py-20 text-gray-400">
-            <FileText className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-20 text-ink-muted">
+            <FileText className="w-10 h-10 mx-auto mb-3 text-ink-disabled" />
             <p className="text-sm mb-3">No pages to display</p>
             <button onClick={() => addPage(database.id)}
-              className="text-sm text-blue-500 hover:text-blue-600 font-medium">
+              className="text-sm text-accent-text-soft hover:text-hover-accent-text font-medium">
               Create a page
             </button>
           </div>

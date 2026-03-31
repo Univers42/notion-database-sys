@@ -40,7 +40,7 @@ function SelectEditor({ property, value, onUpdate, onClose, databaseId }: {
 
   const handleCreate = () => {
     if (!input.trim() || exact) return;
-    const colors = ['bg-red-100 text-red-800', 'bg-blue-100 text-blue-800', 'bg-green-100 text-green-800', 'bg-yellow-100 text-yellow-800', 'bg-purple-100 text-purple-800', 'bg-pink-100 text-pink-800', 'bg-cyan-100 text-cyan-800', 'bg-orange-100 text-orange-800'];
+    const colors = ['bg-danger-surface-muted text-danger-text-tag', 'bg-accent-muted text-accent-text-bold', 'bg-success-surface-muted text-success-text-tag', 'bg-warning-surface-muted text-warning-text-tag', 'bg-purple-surface-muted text-purple-text-tag', 'bg-pink-surface-muted text-pink-text-tag', 'bg-cyan-surface-muted text-cyan-text-tag', 'bg-orange-surface-muted text-orange-text-tag'];
     const color = colors[Math.floor(Math.random() * colors.length)];
     const id = `opt-${Date.now()}`;
     addSelectOption(databaseId, property.id, { id, value: input.trim(), color });
@@ -55,34 +55,34 @@ function SelectEditor({ property, value, onUpdate, onClose, databaseId }: {
         <>
           <div className="fixed inset-0 z-[9998]" onClick={(e) => { e.stopPropagation(); onClose(); }} />
           <div
-            className="fixed min-w-[220px] bg-white shadow-xl border border-gray-200 rounded-lg z-[9999] overflow-hidden"
+            className="fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden"
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
             onClick={e => e.stopPropagation()}>
-            <div className="p-2 border-b border-gray-100">
+            <div className="p-2 border-b border-line-light">
               <input autoFocus value={input} onChange={e => setInput(e.target.value)}
                 onKeyDown={e => {
                   if (e.key === 'Enter') { exact ? handleSelect(exact.id) : input.trim() && handleCreate(); }
                   if (e.key === 'Escape') onClose();
                 }}
-                className="w-full text-sm px-2 py-1.5 bg-gray-50 rounded outline-none focus:ring-1 ring-blue-400" placeholder="Search or create..." />
+                className="w-full text-sm px-2 py-1.5 bg-surface-secondary rounded outline-none focus:ring-1 ring-ring-accent" placeholder="Search or create..." />
             </div>
             <div className="max-h-52 overflow-y-auto p-1">
               {value && (
-                <button onClick={() => { onUpdate(null); onClose(); }} className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-gray-500 text-left rounded">
+                <button onClick={() => { onUpdate(null); onClose(); }} className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-ink-secondary text-left rounded">
                   Clear selection
                 </button>
               )}
               {filtered.map(opt => (
                 <button key={opt.id} onClick={() => handleSelect(opt.id)}
-                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2">
+                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
-                  {opt.id === value && <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 ml-auto" />}
+                  {opt.id === value && <CheckCircle2 className="w-3.5 h-3.5 text-accent-text-soft ml-auto" />}
                 </button>
               ))}
               {input.trim() && !exact && (
                 <button onClick={handleCreate}
-                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2 text-gray-600">
-                  <Plus className="w-3.5 h-3.5" /> Create <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100">"{input}"</span>
+                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2 text-ink-body-light">
+                  <Plus className="w-3.5 h-3.5" /> Create <span className="px-2 py-0.5 rounded text-xs font-medium bg-surface-tertiary">"{input}"</span>
                 </button>
               )}
             </div>
@@ -124,7 +124,7 @@ function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: {
 
   const handleCreate = () => {
     if (!input.trim() || exact) return;
-    const colors = ['bg-red-100 text-red-800', 'bg-blue-100 text-blue-800', 'bg-green-100 text-green-800', 'bg-yellow-100 text-yellow-800', 'bg-purple-100 text-purple-800'];
+    const colors = ['bg-danger-surface-muted text-danger-text-tag', 'bg-accent-muted text-accent-text-bold', 'bg-success-surface-muted text-success-text-tag', 'bg-warning-surface-muted text-warning-text-tag', 'bg-purple-surface-muted text-purple-text-tag'];
     const color = colors[Math.floor(Math.random() * colors.length)];
     const id = `opt-${Date.now()}`;
     addSelectOption(databaseId, property.id, { id, value: input.trim(), color });
@@ -139,10 +139,10 @@ function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: {
         <>
           <div className="fixed inset-0 z-[9998]" onClick={(e) => { e.stopPropagation(); onClose(); }} />
           <div
-            className="fixed min-w-[220px] bg-white shadow-xl border border-gray-200 rounded-lg z-[9999] overflow-hidden"
+            className="fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden"
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
             onClick={e => e.stopPropagation()}>
-            <div className="p-2 border-b border-gray-100">
+            <div className="p-2 border-b border-line-light">
               <div className="flex flex-wrap gap-1 mb-1">
                 {selectedIds.map(id => {
                   const opt = options.find(o => o.id === id);
@@ -166,13 +166,13 @@ function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: {
             <div className="max-h-48 overflow-y-auto p-1">
               {filtered.map(opt => (
                 <button key={opt.id} onClick={() => toggle(opt.id)}
-                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center">
+                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
                 </button>
               ))}
               {input.trim() && !exact && (
                 <button onClick={handleCreate}
-                  className="w-full px-2 py-1.5 hover:bg-gray-50 text-sm text-left rounded flex items-center gap-2 text-gray-600">
+                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2 text-ink-body-light">
                   <Plus className="w-3.5 h-3.5" /> Create "{input}"
                 </button>
               )}
@@ -255,14 +255,14 @@ const MemoTableRow = React.memo(function MemoTableRow({
   onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
 }: MemoTableRowProps) {
 
-  const cellBorder = showVerticalLines ? 'border-r border-gray-200' : '';
+  const cellBorder = showVerticalLines ? 'border-r border-line' : '';
   const resolveFormula = useDatabaseStore.getState().resolveFormula;
   const resolveRollup = useDatabaseStore.getState().resolveRollup;
 
   return (
-    <tr data-row-idx={rowIdx} className="group hover:bg-gray-50/50">
+    <tr data-row-idx={rowIdx} className="group hover:bg-hover-surface-soft">
       {showRowNumbers && (
-        <td className="w-10 px-2 py-1.5 border-r border-b border-gray-200 text-xs text-gray-400 text-center tabular-nums">
+        <td className="w-10 px-2 py-1.5 border-r border-b border-line text-xs text-ink-muted text-center tabular-nums">
           {rowIdx + 1}
         </td>
       )}
@@ -279,9 +279,9 @@ const MemoTableRow = React.memo(function MemoTableRow({
         })();
 
         const focusRing = isFocused
-          ? 'ring-2 ring-emerald-500/80 ring-inset bg-emerald-50/30 z-10 shadow-[inset_0_0_0_1px_rgba(16,185,129,0.5)]'
+          ? 'ring-2 ring-ring-success ring-inset bg-emerald-surface z-10 shadow-[inset_0_0_0_1px_var(--color-inset-success)]'
           : inFillRange
-            ? 'ring-1 ring-emerald-400/50 ring-inset bg-emerald-50/40 z-[5]'
+            ? 'ring-1 ring-ring-success-soft ring-inset bg-emerald-surface2 z-[5]'
             : '';
 
         const handleClick = () => onCellClick(page.id, prop.id, prop.type, value);
@@ -296,15 +296,15 @@ const MemoTableRow = React.memo(function MemoTableRow({
               <input autoFocus type="text" value={value || ''} onChange={e => onUpdateProperty(page.id, prop.id, e.target.value)}
                 onBlur={() => onStopEditing()}
                 onKeyDown={e => { if (e.key === 'Enter') { onStopEditing(); tableRef.current?.focus(); } }}
-                className="w-full bg-transparent outline-none text-sm text-gray-900" placeholder="Empty" />
+                className="w-full bg-transparent outline-none text-sm text-ink" placeholder="Empty" />
             ) : (
               <div className="flex items-center gap-1">
-                <div className={`text-sm text-gray-900 min-h-[20px] flex-1 min-w-0 ${prop.type === 'title' ? 'font-medium' : ''} ${wrapContent ? 'whitespace-pre-wrap break-words' : 'truncate max-w-full'}`}>
-                  {value || <span className="text-gray-400">Empty</span>}
+                <div className={`text-sm text-ink min-h-[20px] flex-1 min-w-0 ${prop.type === 'title' ? 'font-medium' : ''} ${wrapContent ? 'whitespace-pre-wrap break-words' : 'truncate max-w-full'}`}>
+                  {value || <span className="text-ink-muted">Empty</span>}
                 </div>
                 {prop.type === 'title' && (
                   <button
-                    className="shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-blue-500 bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap"
+                    className="shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft hover:bg-hover-accent-muted px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap"
                     onClick={(e) => { e.stopPropagation(); onOpenPage(page.id); }}>
                     <ArrowUpRight className="w-3 h-3" /> OPEN
                   </button>
@@ -318,10 +318,10 @@ const MemoTableRow = React.memo(function MemoTableRow({
               <input autoFocus type="number" value={value ?? ''} onChange={e => onUpdateProperty(page.id, prop.id, e.target.value ? Number(e.target.value) : null)}
                 onBlur={() => onStopEditing()}
                 onKeyDown={e => { if (e.key === 'Enter') { onStopEditing(); tableRef.current?.focus(); } }}
-                className="w-full bg-transparent outline-none text-sm text-gray-900 tabular-nums" placeholder="Empty" />
+                className="w-full bg-transparent outline-none text-sm text-ink tabular-nums" placeholder="Empty" />
             ) : (
-              <div className="text-sm text-gray-900 tabular-nums truncate">
-                {value != null && value !== '' ? Number(value).toLocaleString() : <span className="text-gray-400">Empty</span>}
+              <div className="text-sm text-ink tabular-nums truncate">
+                {value != null && value !== '' ? Number(value).toLocaleString() : <span className="text-ink-muted">Empty</span>}
               </div>
             );
             break;
@@ -337,7 +337,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
                 <div className="flex items-center gap-1.5">
                   <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${selOpt.color}`}>{selOpt.value}</span>
                 </div>
-              ) : <span className="text-gray-400 text-sm">Empty</span>
+              ) : <span className="text-ink-muted text-sm">Empty</span>
             );
             break;
           }
@@ -362,7 +362,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
                   <span className={`w-2 h-2 rounded-full ${statusOpt.color.split(' ')[0]}`} />
                   <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusOpt.color}`}>{statusOpt.value}</span>
                 </div>
-              ) : <span className="text-gray-400 text-sm">Empty</span>
+              ) : <span className="text-ink-muted text-sm">Empty</span>
             );
             break;
           }
@@ -378,7 +378,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
                 {msIds.length > 0 ? msIds.map(id => {
                   const opt = prop.options?.find(o => o.id === id);
                   return opt ? <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium shrink-0 ${opt.color}`}>{opt.value}</span> : null;
-                }) : <span className="text-gray-400 text-sm">Empty</span>}
+                }) : <span className="text-ink-muted text-sm">Empty</span>}
               </div>
             );
             break;
@@ -390,17 +390,17 @@ const MemoTableRow = React.memo(function MemoTableRow({
                 onChange={e => onUpdateProperty(page.id, prop.id, e.target.value ? new Date(e.target.value).toISOString() : null)}
                 onBlur={() => onStopEditing()}
                 onKeyDown={e => { if (e.key === 'Enter') { onStopEditing(); tableRef.current?.focus(); } }}
-                className="w-full bg-transparent outline-none text-sm text-gray-700" />
+                className="w-full bg-transparent outline-none text-sm text-ink-body" />
             ) : (
-              <div className="text-sm text-gray-700 truncate whitespace-nowrap">{value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : <span className="text-gray-400">Empty</span>}</div>
+              <div className="text-sm text-ink-body truncate whitespace-nowrap">{value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : <span className="text-ink-muted">Empty</span>}</div>
             );
             break;
 
           case 'checkbox':
             content = (
               <div className="flex items-center justify-center">
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer ${value ? 'bg-blue-500 border-blue-500' : 'border-gray-300 hover:border-gray-400'}`}>
-                  {value && <CheckCircle2 className="w-3 h-3 text-white" />}
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer ${value ? 'bg-accent border-accent-border' : 'border-line-medium hover:border-hover-border-strong'}`}>
+                  {value && <CheckCircle2 className="w-3 h-3 text-ink-inverse" />}
                 </div>
               </div>
             );
@@ -416,12 +416,12 @@ const MemoTableRow = React.memo(function MemoTableRow({
             ) : (
               value ? (
                 <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[10px] font-bold shrink-0">
                     {String(value).charAt(0).toUpperCase()}
                   </div>
-                  <span className={`text-sm text-gray-900 ${wrapContent ? 'break-words' : 'truncate'}`}>{value}</span>
+                  <span className={`text-sm text-ink ${wrapContent ? 'break-words' : 'truncate'}`}>{value}</span>
                 </div>
-              ) : <span className="text-gray-400 text-sm">Empty</span>
+              ) : <span className="text-ink-muted text-sm">Empty</span>
             );
             break;
 
@@ -432,8 +432,8 @@ const MemoTableRow = React.memo(function MemoTableRow({
                 onKeyDown={e => { if (e.key === 'Enter') { onStopEditing(); tableRef.current?.focus(); } }}
                 className="w-full bg-transparent outline-none text-sm" />
             ) : (
-              value ? <span className={`text-sm text-blue-600 underline block ${wrapContent ? 'break-all' : 'truncate'}`}>{value}</span>
-                    : <span className="text-gray-400 text-sm">Empty</span>
+              value ? <span className={`text-sm text-accent-text-light underline block ${wrapContent ? 'break-all' : 'truncate'}`}>{value}</span>
+                    : <span className="text-ink-muted text-sm">Empty</span>
             );
             break;
 
@@ -448,26 +448,26 @@ const MemoTableRow = React.memo(function MemoTableRow({
                 className="w-full bg-transparent outline-none text-sm" placeholder="Address..." />
             ) : (
               placeVal?.address ? (
-                <div className={`flex items-center gap-1.5 text-sm text-gray-700 ${wrapContent ? '' : 'overflow-hidden'}`}>
-                  <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
+                <div className={`flex items-center gap-1.5 text-sm text-ink-body ${wrapContent ? '' : 'overflow-hidden'}`}>
+                  <MapPin className="w-3 h-3 text-ink-muted shrink-0" />
                   <span className={wrapContent ? 'break-words' : 'truncate'}>{placeVal.address}</span>
                 </div>
-              ) : <span className="text-gray-400 text-sm">Empty</span>
+              ) : <span className="text-ink-muted text-sm">Empty</span>
             );
             break;
           }
 
           case 'id':
             content = (
-              <div className="text-sm text-gray-500 font-mono tabular-nums truncate">
-                {value || <span className="text-gray-300">—</span>}
+              <div className="text-sm text-ink-secondary font-mono tabular-nums truncate">
+                {value || <span className="text-ink-disabled">—</span>}
               </div>
             );
             break;
 
           case 'files_media':
             content = (
-              <div className="text-sm text-gray-400 italic truncate">
+              <div className="text-sm text-ink-muted italic truncate">
                 {Array.isArray(value) && value.length > 0 ? `${value.length} file(s)` : 'No files'}
               </div>
             );
@@ -475,7 +475,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
 
           case 'button':
             content = (
-              <button className="px-2.5 py-0.5 bg-gray-100 hover:bg-gray-200 text-xs font-medium text-gray-700 rounded-md" onClick={e => {
+              <button className="px-2.5 py-0.5 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md" onClick={e => {
                 e.stopPropagation();
                 if (prop.buttonConfig?.action === 'open_url' && prop.buttonConfig?.url) {
                   window.open(prop.buttonConfig.url, '_blank');
@@ -494,7 +494,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
               : '#N/A';
             content = (
               <div
-                className="text-sm text-gray-700 tabular-nums truncate font-mono cursor-pointer group/formula"
+                className="text-sm text-ink-body tabular-nums truncate font-mono cursor-pointer group/formula"
                 onClick={e => { e.stopPropagation(); onFormulaEdit(prop.id); }}
                 title="Click to edit formula"
               >
@@ -502,9 +502,9 @@ const MemoTableRow = React.memo(function MemoTableRow({
                   <span className="truncate">
                     {formulaResult != null && formulaResult !== '' && formulaResult !== '#ERROR'
                       ? (typeof formulaResult === 'number' ? formulaResult.toLocaleString() : String(formulaResult))
-                      : <span className="text-red-400">{formulaResult === '#ERROR' ? '#ERROR' : 'Empty'}</span>}
+                      : <span className="text-danger-text-faint">{formulaResult === '#ERROR' ? '#ERROR' : 'Empty'}</span>}
                   </span>
-                  <Sigma className="w-3 h-3 text-gray-300 opacity-0 group-hover/formula:opacity-100 shrink-0" />
+                  <Sigma className="w-3 h-3 text-ink-disabled opacity-0 group-hover/formula:opacity-100 shrink-0" />
                 </div>
               </div>
             );
@@ -515,26 +515,26 @@ const MemoTableRow = React.memo(function MemoTableRow({
             const rollupResult = resolveRollup(databaseId, page, prop.id);
             const displayAs = prop.rollupConfig?.displayAs || 'number';
             if (rollupResult == null) {
-              content = <span className="text-gray-400 text-sm">—</span>;
+              content = <span className="text-ink-muted text-sm">—</span>;
             } else if (Array.isArray(rollupResult)) {
               content = (
                 <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
                   {rollupResult.map((v, i) => (
-                    <span key={i} className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 text-xs text-gray-600 font-medium shrink-0 max-w-[120px] truncate">
+                    <span key={i} className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-tertiary text-xs text-ink-body-light font-medium shrink-0 max-w-[120px] truncate">
                       {v === true ? '✓' : v === false ? '✗' : String(v ?? '—')}
                     </span>
                   ))}
-                  {rollupResult.length === 0 && <span className="text-gray-400 text-sm">Empty</span>}
+                  {rollupResult.length === 0 && <span className="text-ink-muted text-sm">Empty</span>}
                 </div>
               );
             } else if (displayAs === 'bar' && typeof rollupResult === 'number') {
               const pct = Math.min(100, Math.max(0, (rollupResult / 15) * 100));
               content = (
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden min-w-[40px]">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+                  <div className="flex-1 h-2 bg-surface-tertiary rounded-full overflow-hidden min-w-[40px]">
+                    <div className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
                   </div>
-                  <span className="text-xs text-gray-500 tabular-nums shrink-0">{rollupResult}</span>
+                  <span className="text-xs text-ink-secondary tabular-nums shrink-0">{rollupResult}</span>
                 </div>
               );
             } else if (displayAs === 'ring' && typeof rollupResult === 'number') {
@@ -544,18 +544,18 @@ const MemoTableRow = React.memo(function MemoTableRow({
               content = (
                 <div className="flex items-center gap-2">
                   <svg width="22" height="22" className="shrink-0 -rotate-90">
-                    <circle cx="11" cy="11" r={r} fill="none" stroke="#e5e7eb" strokeWidth="3" />
+                    <circle cx="11" cy="11" r={r} fill="none" stroke="var(--color-chart-grid)" strokeWidth="3" />
                     <circle cx="11" cy="11" r={r} fill="none"
-                      stroke={pct >= 80 ? '#22c55e' : pct >= 50 ? '#3b82f6' : pct >= 25 ? '#f59e0b' : '#ef4444'}
+                      stroke={pct >= 80 ? 'var(--color-progress-high)' : pct >= 50 ? 'var(--color-chart-1)' : pct >= 25 ? 'var(--color-chart-4)' : 'var(--color-chart-7)'}
                       strokeWidth="3" strokeLinecap="round"
                       strokeDasharray={circ} strokeDashoffset={offset} />
                   </svg>
-                  <span className="text-xs text-gray-600 tabular-nums">{pct}%</span>
+                  <span className="text-xs text-ink-body-light tabular-nums">{pct}%</span>
                 </div>
               );
             } else {
               content = (
-                <div className="text-sm text-gray-700 tabular-nums truncate font-mono">
+                <div className="text-sm text-ink-body tabular-nums truncate font-mono">
                   {typeof rollupResult === 'number' ? rollupResult.toLocaleString() : String(rollupResult)}
                 </div>
               );
@@ -585,14 +585,14 @@ const MemoTableRow = React.memo(function MemoTableRow({
                   const title = titlePropId ? relPage.properties[titlePropId] : relPage.id;
                   return (
                     <button key={rid} onClick={e => { e.stopPropagation(); onOpenPage(rid); }}
-                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-gray-100 hover:bg-gray-200 text-xs text-gray-700 font-medium shrink-0 max-w-[140px]">
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-tertiary hover:bg-hover-surface3 text-xs text-ink-body font-medium shrink-0 max-w-[140px]">
                       <ArrowUpRight className="w-2.5 h-2.5 shrink-0" />
                       <span className="truncate">{title || 'Untitled'}</span>
                     </button>
                   );
                 })}
               </div>
-            ) : <span className="text-gray-400 text-sm">Empty</span>;
+            ) : <span className="text-ink-muted text-sm">Empty</span>;
             break;
           }
 
@@ -601,15 +601,15 @@ const MemoTableRow = React.memo(function MemoTableRow({
             content = assignees.length > 0 ? (
               <div className={`flex items-center ${wrapContent ? 'flex-wrap gap-1' : '-space-x-1.5'}`}>
                 {assignees.map((name, i) => (
-                  <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 text-white flex items-center justify-center text-[10px] font-bold border-2 border-white shrink-0" title={name}>
+                  <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-br from-gradient-violet2-from to-gradient-violet2-to text-ink-inverse flex items-center justify-center text-[10px] font-bold border-2 border-surface-primary shrink-0" title={name}>
                     {String(name).charAt(0).toUpperCase()}
                   </div>
                 ))}
                 {!wrapContent && assignees.length > 1 && (
-                  <span className="text-xs text-gray-500 ml-2">{assignees.length} assigned</span>
+                  <span className="text-xs text-ink-secondary ml-2">{assignees.length} assigned</span>
                 )}
               </div>
-            ) : <span className="text-gray-400 text-sm">Unassigned</span>;
+            ) : <span className="text-ink-muted text-sm">Unassigned</span>;
             break;
           }
 
@@ -617,30 +617,30 @@ const MemoTableRow = React.memo(function MemoTableRow({
             const dateVal = value ? new Date(value) : null;
             const now = new Date();
             let dueBadge = '';
-            let dueColor = 'text-gray-700';
+            let dueColor = 'text-ink-body';
             if (dateVal) {
               const diffDays = Math.ceil((dateVal.getTime() - now.getTime()) / (1000*60*60*24));
-              if (diffDays < 0) { dueBadge = 'Overdue'; dueColor = 'text-red-600'; }
-              else if (diffDays === 0) { dueBadge = 'Today'; dueColor = 'text-orange-600'; }
-              else if (diffDays <= 3) { dueBadge = `${diffDays}d left`; dueColor = 'text-yellow-600'; }
+              if (diffDays < 0) { dueBadge = 'Overdue'; dueColor = 'text-danger-text'; }
+              else if (diffDays === 0) { dueBadge = 'Today'; dueColor = 'text-orange-text'; }
+              else if (diffDays <= 3) { dueBadge = `${diffDays}d left`; dueColor = 'text-warning-text'; }
             }
             content = isEditing ? (
               <input autoFocus type="date" value={dateVal ? dateVal.toISOString().split('T')[0] : ''}
                 onChange={e => onUpdateProperty(page.id, prop.id, e.target.value ? new Date(e.target.value).toISOString() : null)}
                 onBlur={() => onStopEditing()}
                 onKeyDown={e => { if (e.key === 'Enter') { onStopEditing(); tableRef.current?.focus(); } }}
-                className="w-full bg-transparent outline-none text-sm text-gray-700" />
+                className="w-full bg-transparent outline-none text-sm text-ink-body" />
             ) : dateVal ? (
               <div className="flex items-center gap-1.5 text-sm truncate">
                 {dueBadge && (
                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                    dueBadge === 'Overdue' ? 'bg-red-100 text-red-700' :
-                    dueBadge === 'Today' ? 'bg-orange-100 text-orange-700' :
-                    'bg-yellow-100 text-yellow-700'}`}>{dueBadge}</span>
+                    dueBadge === 'Overdue' ? 'bg-danger-surface-muted text-danger-text-bold' :
+                    dueBadge === 'Today' ? 'bg-orange-surface-muted text-orange-text-bold' :
+                    'bg-warning-surface-muted text-warning-text-bold'}`}>{dueBadge}</span>
                 )}
                 <span className={dueColor}>{dateVal.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </div>
-            ) : <span className="text-gray-400">Empty</span>;
+            ) : <span className="text-ink-muted">Empty</span>;
             break;
           }
 
@@ -666,29 +666,29 @@ const MemoTableRow = React.memo(function MemoTableRow({
             } else if (dt === 'boolean') {
               content = (
                 <div className="flex items-center justify-center">
-                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer ${value ? 'bg-blue-500 border-blue-500' : 'border-gray-300 hover:border-gray-400'}`}>
-                    {value && <CheckCircle2 className="w-3 h-3 text-white" />}
+                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer ${value ? 'bg-accent border-accent-border' : 'border-line-medium hover:border-hover-border-strong'}`}>
+                    {value && <CheckCircle2 className="w-3 h-3 text-ink-inverse" />}
                   </div>
                 </div>
               );
             } else if (dt === 'timestamp') {
-              content = <div className="text-sm text-gray-500 font-mono truncate">{value ? new Date(value).toLocaleString() : <span className="text-gray-400">—</span>}</div>;
+              content = <div className="text-sm text-ink-secondary font-mono truncate">{value ? new Date(value).toLocaleString() : <span className="text-ink-muted">—</span>}</div>;
             } else if (dt === 'json') {
-              content = <div className="text-sm text-gray-600 font-mono truncate">{value ? JSON.stringify(value) : <span className="text-gray-400">{'{}'}</span>}</div>;
+              content = <div className="text-sm text-ink-body-light font-mono truncate">{value ? JSON.stringify(value) : <span className="text-ink-muted">{'{}'}</span>}</div>;
             } else {
               const display = value != null && value !== '' ? String(value) : null;
               content = display ? (
-                <div className={`text-sm text-gray-900 font-mono ${dt === 'integer' || dt === 'float' ? 'tabular-nums' : ''} truncate`}>
+                <div className={`text-sm text-ink font-mono ${dt === 'integer' || dt === 'float' ? 'tabular-nums' : ''} truncate`}>
                   {dt === 'integer' || dt === 'float' ? Number(display).toLocaleString() : display}
                 </div>
-              ) : <span className="text-gray-400 text-sm">Empty</span>;
+              ) : <span className="text-ink-muted text-sm">Empty</span>;
             }
             break;
           }
 
           case 'created_time': case 'last_edited_time': {
             const timeVal = prop.type === 'created_time' ? page.createdAt : page.updatedAt;
-            content = <div className="text-sm text-gray-500 truncate whitespace-nowrap">{timeVal ? new Date(timeVal).toLocaleString() : '—'}</div>;
+            content = <div className="text-sm text-ink-secondary truncate whitespace-nowrap">{timeVal ? new Date(timeVal).toLocaleString() : '—'}</div>;
             break;
           }
 
@@ -696,22 +696,22 @@ const MemoTableRow = React.memo(function MemoTableRow({
             const userVal = prop.type === 'created_by' ? page.createdBy : page.lastEditedBy;
             content = userVal ? (
               <div className="flex items-center gap-1.5 overflow-hidden">
-                <div className="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-[10px] font-bold shrink-0">
+                <div className="w-5 h-5 rounded-full bg-surface-muted text-ink-body-light flex items-center justify-center text-[10px] font-bold shrink-0">
                   {String(userVal).charAt(0).toUpperCase()}
                 </div>
-                <span className="text-sm text-gray-600 truncate">{userVal}</span>
+                <span className="text-sm text-ink-body-light truncate">{userVal}</span>
               </div>
-            ) : <span className="text-gray-400 text-sm">—</span>;
+            ) : <span className="text-ink-muted text-sm">—</span>;
             break;
           }
 
           default:
-            content = <span className="text-sm text-gray-500 truncate block">{String(value || '')}</span>;
+            content = <span className="text-sm text-ink-secondary truncate block">{String(value || '')}</span>;
         }
 
         return (
           <td key={prop.id}
-            className={`px-3 py-1.5 ${cellBorder} border-b border-gray-200 ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${focusRing}`}
+            className={`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${focusRing}`}
             style={{
               width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id),
               cursor: fillDrag ? CURSORS.crosshair : isEditing ? undefined : CURSORS.cell,
@@ -720,7 +720,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
             {content}
             {isFocused && !isEditing && (
               <div
-                className="absolute w-[7px] h-[7px] bg-emerald-500 border border-white rounded-[1px] z-20"
+                className="absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20"
                 style={{ bottom: -3, right: -3, cursor: CURSORS.crosshair }}
                 onMouseDown={(e) => {
                   e.stopPropagation();
@@ -732,9 +732,9 @@ const MemoTableRow = React.memo(function MemoTableRow({
           </td>
         );
       })}
-      <td className="border-b border-gray-200 px-1">
+      <td className="border-b border-line px-1">
         <button
-          className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 rounded hover:bg-gray-100"
+          className="p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2"
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             onRowMenu(page.id, rect.left, rect.bottom);
@@ -742,7 +742,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
           <MoreHorizontal className="w-3.5 h-3.5" />
         </button>
       </td>
-      <td className="border-b border-gray-200" />
+      <td className="border-b border-line" />
     </tr>
   );
 });
@@ -1064,17 +1064,17 @@ export function TableView() {
     });
 
   return (
-    <div className="flex-1 overflow-auto bg-white outline-none" tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
+    <div className="flex-1 overflow-auto bg-surface-primary outline-none" tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
       <div className="inline-block min-w-full">
         <table className="min-w-full text-left border-collapse">
           <thead className="sticky top-0 z-20">
-            <tr className="bg-gray-50 border-b border-gray-200">
+            <tr className="bg-surface-secondary border-b border-line">
               {showRowNumbers && (
-                <th className="w-10 px-2 py-2 text-xs font-medium text-gray-400 border-r border-gray-200 bg-gray-50 text-center">#</th>
+                <th className="w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center">#</th>
               )}
               {visibleProps.map(prop => (
                 <th key={prop.id}
-                  className={`px-3 py-2 text-xs font-medium text-gray-500 ${showVerticalLines ? 'border-r' : ''} border-gray-200 bg-gray-50 group relative select-none`}
+                  className={`px-3 py-2 text-xs font-medium text-ink-secondary ${showVerticalLines ? 'border-r' : ''} border-line bg-surface-secondary group relative select-none`}
                   style={{ width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id), cursor: CURSORS.grab }}
                   draggable
                   onDragStart={() => setDragColId(prop.id)}
@@ -1092,64 +1092,64 @@ export function TableView() {
                   }}>
                   <button
                     onClick={(e) => handleHeaderClick(e, prop)}
-                    className="flex items-center justify-between w-full hover:bg-gray-100 px-1 py-0.5 rounded transition-colors outline-none">
+                    className="flex items-center justify-between w-full hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors outline-none">
                     <div className="flex items-center gap-1.5">
-                      <PropIcon type={prop.type} className="w-3.5 h-3.5 text-gray-400" />
+                      <PropIcon type={prop.type} className="w-3.5 h-3.5 text-ink-muted" />
                       <span className="truncate">{prop.name}</span>
                     </div>
-                    <ChevronDown className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 shrink-0" />
+                    <ChevronDown className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-ink-muted shrink-0" />
                   </button>
-                  <div className={`absolute top-0 right-0 w-1 h-full hover:bg-blue-500 transition-colors ${resizingCol === prop.id ? 'bg-blue-500' : ''}`}
+                  <div className={`absolute top-0 right-0 w-1 h-full hover:bg-hover-accent-subtle transition-colors ${resizingCol === prop.id ? 'bg-accent' : ''}`}
                     style={{ cursor: CURSORS.colResize }}
                     onMouseDown={e => handleResizeStart(e, prop.id)} />
                 </th>
               ))}
-              <th className="w-10 px-2 py-2 border-gray-200 text-center bg-gray-50">
+              <th className="w-10 px-2 py-2 border-line text-center bg-surface-secondary">
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
-                    <button className="p-1 hover:bg-gray-200 rounded text-gray-400 transition-colors"><Plus className="w-4 h-4" /></button>
+                    <button className="p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors"><Plus className="w-4 h-4" /></button>
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Portal>
-                    <DropdownMenu.Content className="w-48 bg-white rounded-lg p-1 shadow-xl border border-gray-200 text-sm z-50">
-                      <div className="px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase">Property Type</div>
+                    <DropdownMenu.Content className="w-48 bg-surface-primary rounded-lg p-1 shadow-xl border border-line text-sm z-50">
+                      <div className="px-2 py-1.5 text-xs font-semibold text-ink-muted uppercase">Property Type</div>
                       {addPropertyTypes.map(([label, type]) => (
                         <DropdownMenu.Item key={type} onSelect={() => addProperty(database.id, `New ${label}`, type as any)}
-                          className="flex items-center gap-2 px-2 py-1.5 outline-none hover:bg-gray-50 rounded cursor-pointer">
-                          <PropIcon type={type} className="w-4 h-4 text-gray-400" /> {label}
+                          className="flex items-center gap-2 px-2 py-1.5 outline-none hover:bg-hover-surface rounded cursor-pointer">
+                          <PropIcon type={type} className="w-4 h-4 text-ink-muted" /> {label}
                         </DropdownMenu.Item>
                       ))}
                     </DropdownMenu.Content>
                   </DropdownMenu.Portal>
                 </DropdownMenu.Root>
               </th>
-              <th className="w-10 px-2 py-2 text-center bg-gray-50">
+              <th className="w-10 px-2 py-2 text-center bg-surface-secondary">
                 <Popover.Root>
                   <Popover.Trigger asChild>
-                    <button className="p-1 hover:bg-gray-200 rounded text-gray-400 transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
+                    <button className="p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                   </Popover.Trigger>
                   <Popover.Portal>
-                    <Popover.Content align="end" className="w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-2 text-sm z-50">
+                    <Popover.Content align="end" className="w-64 bg-surface-primary rounded-lg shadow-xl border border-line p-2 text-sm z-50">
                       <div className="relative mb-2">
-                        <Search className="w-4 h-4 absolute left-2 top-2 text-gray-400" />
+                        <Search className="w-4 h-4 absolute left-2 top-2 text-ink-muted" />
                         <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                          className="w-full bg-gray-50 rounded-md pl-8 pr-2 py-1.5 outline-none focus:ring-1 ring-blue-400 text-sm" placeholder="Search properties..." />
+                          className="w-full bg-surface-secondary rounded-md pl-8 pr-2 py-1.5 outline-none focus:ring-1 ring-ring-accent text-sm" placeholder="Search properties..." />
                       </div>
                       <div className="max-h-64 overflow-y-auto">
                         {filteredVisible.length > 0 && (
                           <div className="mb-2">
-                            <div className="flex justify-between items-center px-2 py-1 text-xs text-gray-400 font-medium">
+                            <div className="flex justify-between items-center px-2 py-1 text-xs text-ink-muted font-medium">
                               <span>Shown in table</span>
-                              <button onClick={() => hideAllProperties(view.id)} className="hover:text-gray-700">Hide all</button>
+                              <button onClick={() => hideAllProperties(view.id)} className="hover:text-hover-text-strong">Hide all</button>
                             </div>
                             {filteredVisible.map(p => (
-                              <div key={p.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-50 rounded group">
+                              <div key={p.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-hover-surface rounded group">
                                 <div className="flex items-center gap-2 overflow-hidden">
-                                  <GripVertical className="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 cursor-grab shrink-0" />
-                                  <PropIcon type={p.type} className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                  <span className="truncate text-gray-700">{p.name}</span>
+                                  <GripVertical className="w-3.5 h-3.5 text-ink-disabled opacity-0 group-hover:opacity-100 cursor-grab shrink-0" />
+                                  <PropIcon type={p.type} className="w-3.5 h-3.5 text-ink-muted shrink-0" />
+                                  <span className="truncate text-ink-body">{p.name}</span>
                                 </div>
                                 <button onClick={() => togglePropertyVisibility(view.id, p.id)} className="shrink-0 ml-2">
-                                  <Eye className="w-4 h-4 text-blue-500 hover:text-blue-700" />
+                                  <Eye className="w-4 h-4 text-accent-text-soft hover:text-hover-accent-text-bold" />
                                 </button>
                               </div>
                             ))}
@@ -1157,16 +1157,16 @@ export function TableView() {
                         )}
                         {filteredHidden.length > 0 && (
                           <div>
-                            <div className="px-2 py-1 text-xs text-gray-400 font-medium">Hidden in table</div>
+                            <div className="px-2 py-1 text-xs text-ink-muted font-medium">Hidden in table</div>
                             {filteredHidden.map(p => (
-                              <div key={p.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-gray-50 rounded group">
+                              <div key={p.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-hover-surface rounded group">
                                 <div className="flex items-center gap-2 overflow-hidden">
-                                  <GripVertical className="w-3.5 h-3.5 text-gray-300 opacity-0 group-hover:opacity-100 cursor-grab shrink-0" />
-                                  <PropIcon type={p.type} className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                  <span className="truncate text-gray-700">{p.name}</span>
+                                  <GripVertical className="w-3.5 h-3.5 text-ink-disabled opacity-0 group-hover:opacity-100 cursor-grab shrink-0" />
+                                  <PropIcon type={p.type} className="w-3.5 h-3.5 text-ink-muted shrink-0" />
+                                  <span className="truncate text-ink-body">{p.name}</span>
                                 </div>
                                 <button onClick={() => togglePropertyVisibility(view.id, p.id)} className="shrink-0 ml-2">
-                                  <EyeOff className="w-4 h-4 text-gray-400 hover:text-gray-700" />
+                                  <EyeOff className="w-4 h-4 text-ink-muted hover:text-hover-text-strong" />
                                 </button>
                               </div>
                             ))}
@@ -1186,21 +1186,21 @@ export function TableView() {
                 {groupedData.map((group) => {
                   const isCollapsed = collapsedGroups.has(group.groupId);
                   const colorParts = group.groupColor.split(' ');
-                  const bgColor = colorParts[0] || 'bg-gray-200';
-                  const textColor = colorParts[1] || 'text-gray-700';
+                  const bgColor = colorParts[0] || 'bg-surface-muted';
+                  const textColor = colorParts[1] || 'text-ink-body';
 
                   return (
                     <React.Fragment key={group.groupId}>
                       {/* ── Group header row ── */}
                       <tr className="group/hdr">
-                        <td colSpan={colCount} className="p-0 border-b border-gray-200 bg-gray-50/80">
+                        <td colSpan={colCount} className="p-0 border-b border-line bg-surface-secondary-soft2">
                           <div className="flex items-center gap-2 px-3 py-2 select-none">
                             {/* Toggle arrow */}
                             <button
                               onClick={() => toggleGroup(group.groupId)}
-                              className="p-0.5 hover:bg-gray-200 rounded transition-colors shrink-0"
+                              className="p-0.5 hover:bg-hover-surface3 rounded transition-colors shrink-0"
                             >
-                              <ChevronRight className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-150 ${isCollapsed ? '' : 'rotate-90'}`} />
+                              <ChevronRight className={`w-3.5 h-3.5 text-ink-secondary transition-transform duration-150 ${isCollapsed ? '' : 'rotate-90'}`} />
                             </button>
 
                             {/* Group label badge */}
@@ -1209,19 +1209,19 @@ export function TableView() {
                             </span>
 
                             {/* Count */}
-                            <span className="text-xs text-gray-400 tabular-nums">{group.pages.length}</span>
+                            <span className="text-xs text-ink-muted tabular-nums">{group.pages.length}</span>
 
                             {/* Hover actions */}
                             <div className="ml-auto flex items-center gap-1 opacity-0 group-hover/hdr:opacity-100 transition-opacity">
                               <button
                                 onClick={() => addPage(database.id)}
-                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"
+                                className="p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors"
                                 title="Add page to group"
                               >
                                 <Plus className="w-3.5 h-3.5" />
                               </button>
                               <button
-                                className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-gray-600 transition-colors"
+                                className="p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors"
                                 title="Group options"
                               >
                                 <MoreHorizontal className="w-3.5 h-3.5" />
@@ -1237,7 +1237,7 @@ export function TableView() {
                       {/* Empty group placeholder */}
                       {!isCollapsed && group.pages.length === 0 && (
                         <tr>
-                          <td colSpan={colCount} className="px-8 py-3 text-sm text-gray-400 border-b border-gray-200 bg-gray-50/30">
+                          <td colSpan={colCount} className="px-8 py-3 text-sm text-ink-muted border-b border-line bg-surface-secondary-soft5">
                             No pages
                           </td>
                         </tr>
@@ -1246,9 +1246,9 @@ export function TableView() {
                       {/* + New in group */}
                       {!isCollapsed && (
                         <tr>
-                          <td colSpan={colCount} className="p-0 border-b border-gray-100">
+                          <td colSpan={colCount} className="p-0 border-b border-line-light">
                             <button onClick={() => addPage(database.id)}
-                              className="w-full text-left px-8 py-1.5 text-xs text-gray-400 hover:text-gray-600 hover:bg-blue-50/40 transition-colors flex items-center gap-1.5">
+                              className="w-full text-left px-8 py-1.5 text-xs text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent3 transition-colors flex items-center gap-1.5">
                               <Plus className="w-3 h-3" /> New
                             </button>
                           </td>
@@ -1262,7 +1262,7 @@ export function TableView() {
                 <tr>
                   <td colSpan={colCount} className="p-0">
                     <button onClick={() => addPage(database.id)}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-400 hover:text-gray-600 hover:bg-blue-50/50 transition-colors flex items-center gap-2 border-b border-transparent hover:border-blue-200">
+                      className="w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent">
                       <Plus className="w-4 h-4" /> New
                     </button>
                   </td>
@@ -1275,16 +1275,16 @@ export function TableView() {
 
                 {hasMore && (
                   <tr>
-                    <td colSpan={colCount} className="p-0 border-b border-gray-200">
+                    <td colSpan={colCount} className="p-0 border-b border-line">
                       <button
                         onClick={() => setVisibleCount(Math.min(currentLimit + loadLimit, pages.length))}
-                        className="w-full text-left px-4 py-2 text-sm text-blue-500 hover:text-blue-700 hover:bg-blue-50/60 transition-colors flex items-center justify-between"
+                        className="w-full text-left px-4 py-2 text-sm text-accent-text-soft hover:text-hover-accent-text-bold hover:bg-hover-surface-accent2 transition-colors flex items-center justify-between"
                       >
                         <span className="flex items-center gap-2">
                           <ChevronDown className="w-4 h-4" />
                           Load more
                         </span>
-                        <span className="text-xs text-gray-400 tabular-nums">
+                        <span className="text-xs text-ink-muted tabular-nums">
                           {currentLimit} of {pages.length}
                         </span>
                       </button>
@@ -1295,7 +1295,7 @@ export function TableView() {
                 <tr>
                   <td colSpan={colCount} className="p-0">
                     <button onClick={() => addPage(database.id)}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-400 hover:text-gray-600 hover:bg-blue-50/50 transition-colors flex items-center gap-2 border-b border-transparent hover:border-blue-200">
+                      className="w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent">
                       <Plus className="w-4 h-4" /> New
                     </button>
                   </td>
@@ -1329,20 +1329,20 @@ export function TableView() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setRowMenu(null)} />
           <div
-            className="fixed z-50 min-w-[160px] bg-white rounded-lg p-1 shadow-xl border border-gray-200 text-sm"
+            className="fixed z-50 min-w-[160px] bg-surface-primary rounded-lg p-1 shadow-xl border border-line text-sm"
             style={{ left: rowMenu.x, top: rowMenu.y }}
           >
             <button onClick={() => { openPage(rowMenu.pageId); setRowMenu(null); }}
-              className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer w-full text-left">
-              <ExternalLink className="w-4 h-4 text-gray-400" /> Open page
+              className="flex items-center gap-2 px-2 py-1.5 hover:bg-hover-surface rounded cursor-pointer w-full text-left">
+              <ExternalLink className="w-4 h-4 text-ink-muted" /> Open page
             </button>
             <button onClick={() => { duplicatePage(rowMenu.pageId); setRowMenu(null); }}
-              className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer w-full text-left">
-              <Copy className="w-4 h-4 text-gray-400" /> Duplicate
+              className="flex items-center gap-2 px-2 py-1.5 hover:bg-hover-surface rounded cursor-pointer w-full text-left">
+              <Copy className="w-4 h-4 text-ink-muted" /> Duplicate
             </button>
-            <div className="h-px bg-gray-100 my-1" />
+            <div className="h-px bg-surface-tertiary my-1" />
             <button onClick={() => { deletePage(rowMenu.pageId); setRowMenu(null); }}
-              className="flex items-center gap-2 px-2 py-1.5 hover:bg-red-50 rounded cursor-pointer w-full text-left text-red-600">
+              className="flex items-center gap-2 px-2 py-1.5 hover:bg-hover-danger rounded cursor-pointer w-full text-left text-danger-text">
               <Trash2 className="w-4 h-4" /> Delete
             </button>
           </div>

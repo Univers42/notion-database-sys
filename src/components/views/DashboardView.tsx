@@ -6,7 +6,7 @@ import { format, isThisWeek, parseISO } from 'date-fns';
 import { FormulaAnalyticsDashboard } from './FormulaAnalyticsDashboard';
 import { RelationRollupDashboard } from './RelationRollupDashboard';
 
-const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#ef4444', '#6366f1', '#14b8a6', '#f97316'];
+const COLORS = ['var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)', 'var(--color-chart-4)', 'var(--color-chart-5)', 'var(--color-chart-6)', 'var(--color-chart-7)', 'var(--color-chart-8)', 'var(--color-chart-9)', 'var(--color-chart-10)'];
 const STAT_COLORS: ('blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan')[] = ['blue', 'purple', 'green', 'amber', 'pink', 'cyan'];
 
 export function DashboardView() {
@@ -72,13 +72,13 @@ export function DashboardView() {
   // ─── WIDGET-DRIVEN MODE ─── If widgets are configured, render from config
   if (widgets.length > 0) {
     return (
-      <div className="flex-1 overflow-auto p-6 bg-gray-50">
+      <div className="flex-1 overflow-auto p-6 bg-surface-secondary">
         <div className="max-w-7xl mx-auto">
           {/* Render widgets in a CSS grid with 4 columns */}
           <div className="grid grid-cols-4 gap-4 auto-rows-min">
             {widgets.map((widget, idx) => (
               <div key={widget.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+                className="bg-surface-primary rounded-xl border border-line overflow-hidden"
                 style={{
                   gridColumn: `span ${Math.min(widget.width, 4)}`,
                   minHeight: widget.height === 2 ? '320px' : '140px',
@@ -104,7 +104,7 @@ export function DashboardView() {
   const recentPages = [...pages].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 8);
 
   return (
-    <div className="flex-1 overflow-auto p-6 bg-gray-50">
+    <div className="flex-1 overflow-auto p-6 bg-surface-secondary">
       <div className="max-w-6xl mx-auto flex flex-col gap-6">
         {/* Auto KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -128,19 +128,19 @@ export function DashboardView() {
         {/* Auto Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {mainSelectProp && mainSelectData.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">By {mainSelectProp.name}</h3>
+            <div className="bg-surface-primary rounded-xl border border-line p-5">
+              <h3 className="text-sm font-semibold text-ink mb-4">By {mainSelectProp.name}</h3>
               <BarChartWidget data={mainSelectData} total={pages.length} />
             </div>
           )}
           {numberProps.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Number Summary</h3>
+            <div className="bg-surface-primary rounded-xl border border-line p-5">
+              <h3 className="text-sm font-semibold text-ink mb-4">Number Summary</h3>
               <NumberSummaryWidget numberProps={numberProps} numberAggs={computedData.numberAggs} />
             </div>
           )}
-          <div className={`bg-white rounded-xl border border-gray-200 p-5 ${!mainSelectData.length && !numberProps.length ? 'lg:col-span-3' : ''}`}>
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Recent Activity</h3>
+          <div className={`bg-surface-primary rounded-xl border border-line p-5 ${!mainSelectData.length && !numberProps.length ? 'lg:col-span-3' : ''}`}>
+            <h3 className="text-sm font-semibold text-ink mb-4">Recent Activity</h3>
             <RecentList pages={recentPages} openPage={openPage} getPageTitle={getPageTitle} />
           </div>
         </div>
@@ -197,9 +197,9 @@ function renderWidget(
       <div className="p-4 h-full flex items-start gap-3">
         <StatIconBadge color={color}>{statIcons[idx % statIcons.length]}</StatIconBadge>
         <div className="flex-1 min-w-0">
-          <div className="text-2xl font-bold text-gray-900 tabular-nums leading-none mb-1">{formatNumber(value)}</div>
-          <div className="text-xs text-gray-500 truncate">{widget.title}</div>
-          {subtext && <div className="text-[10px] text-gray-400 mt-0.5">{subtext}</div>}
+          <div className="text-2xl font-bold text-ink tabular-nums leading-none mb-1">{formatNumber(value)}</div>
+          <div className="text-xs text-ink-secondary truncate">{widget.title}</div>
+          {subtext && <div className="text-[10px] text-ink-muted mt-0.5">{subtext}</div>}
         </div>
       </div>
     );
@@ -219,15 +219,15 @@ function renderWidget(
       if (style === 'donut') {
         return (
           <div className="p-5 h-full flex flex-col">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">{widget.title}</h3>
+            <h3 className="text-sm font-semibold text-ink mb-4">{widget.title}</h3>
             <div className="flex-1 flex items-center justify-center gap-6">
               <DonutChart data={chartData} size={widget.height === 2 ? 140 : 100} />
               <div className="flex flex-col gap-1.5">
                 {chartData.slice(0, 6).map((item, i) => (
                   <div key={item.label} className="flex items-center gap-2 text-xs">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    <span className="text-gray-600 truncate max-w-[100px]">{item.label}</span>
-                    <span className="text-gray-400 tabular-nums ml-auto">{item.count}</span>
+                    <span className="text-ink-body-light truncate max-w-[100px]">{item.label}</span>
+                    <span className="text-ink-muted tabular-nums ml-auto">{item.count}</span>
                   </div>
                 ))}
               </div>
@@ -240,17 +240,17 @@ function renderWidget(
       if (style === 'horizontal_bar') {
         return (
           <div className="p-5 h-full flex flex-col">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">{widget.title}</h3>
+            <h3 className="text-sm font-semibold text-ink mb-4">{widget.title}</h3>
             <div className="flex-1 flex flex-col gap-2.5 overflow-auto">
               {chartData.map((item, i) => {
                 const pct = total > 0 ? (item.count / total) * 100 : 0;
                 return (
                   <div key={item.label}>
                     <div className="flex justify-between text-xs mb-0.5">
-                      <span className="text-gray-700 font-medium truncate">{item.label}</span>
-                      <span className="text-gray-400 tabular-nums ml-2">{item.count} ({Math.round(pct)}%)</span>
+                      <span className="text-ink-body font-medium truncate">{item.label}</span>
+                      <span className="text-ink-muted tabular-nums ml-2">{item.count} ({Math.round(pct)}%)</span>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="w-full bg-surface-tertiary rounded-full h-2.5">
                       <div className="h-2.5 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: COLORS[i % COLORS.length] }} />
                     </div>
                   </div>
@@ -265,7 +265,7 @@ function renderWidget(
       if (style === 'stacked_bar') {
         return (
           <div className="p-5 h-full flex flex-col">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">{widget.title}</h3>
+            <h3 className="text-sm font-semibold text-ink mb-4">{widget.title}</h3>
             <div className="flex-1 flex flex-col justify-center gap-4">
               {/* Stacked bar */}
               <div className="w-full h-8 rounded-lg overflow-hidden flex">
@@ -283,8 +283,8 @@ function renderWidget(
                 {chartData.map((item, i) => (
                   <div key={item.label} className="flex items-center gap-1.5 text-xs">
                     <div className="w-2.5 h-2.5 rounded shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    <span className="text-gray-600">{item.label}</span>
-                    <span className="text-gray-400 tabular-nums">{Math.round((item.count / total) * 100)}%</span>
+                    <span className="text-ink-body-light">{item.label}</span>
+                    <span className="text-ink-muted tabular-nums">{Math.round((item.count / total) * 100)}%</span>
                   </div>
                 ))}
               </div>
@@ -297,7 +297,7 @@ function renderWidget(
       if (style === 'area') {
         return (
           <div className="p-5 h-full flex flex-col">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">{widget.title}</h3>
+            <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
             <div className="flex-1 flex items-end">
               <AreaChartSVG data={chartData} />
             </div>
@@ -309,7 +309,7 @@ function renderWidget(
       if (style === 'multi_line') {
         return (
           <div className="p-5 h-full flex flex-col">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">{widget.title}</h3>
+            <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
             <div className="flex-1 flex items-end">
               <MultiLineChart data={chartData} pages={pages} propsMap={propsMap} />
             </div>
@@ -321,7 +321,7 @@ function renderWidget(
       if (style === 'progress') {
         return (
           <div className="p-5 h-full flex flex-col">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">{widget.title}</h3>
+            <h3 className="text-sm font-semibold text-ink mb-4">{widget.title}</h3>
             <div className="flex-1 flex items-center justify-center">
               <div className={`grid gap-4 ${chartData.length <= 3 ? 'grid-cols-3' : 'grid-cols-4'}`}>
                 {chartData.slice(0, 8).map((item, i) => {
@@ -329,7 +329,7 @@ function renderWidget(
                   return (
                     <div key={item.label} className="flex flex-col items-center gap-1">
                       <ProgressRing pct={pct} color={COLORS[i % COLORS.length]} size={48} />
-                      <span className="text-[10px] text-gray-500 truncate max-w-[60px] text-center">{item.label}</span>
+                      <span className="text-[10px] text-ink-secondary truncate max-w-[60px] text-center">{item.label}</span>
                     </div>
                   );
                 })}
@@ -343,7 +343,7 @@ function renderWidget(
       if (widget.height === 2) {
         return (
           <div className="p-5 h-full flex flex-col">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">{widget.title}</h3>
+            <h3 className="text-sm font-semibold text-ink mb-4">{widget.title}</h3>
             <div className="flex-1 flex gap-6">
               <div className="flex-shrink-0 flex items-center justify-center">
                 <DonutChart data={chartData} size={120} />
@@ -355,9 +355,9 @@ function renderWidget(
                     <div key={item.label}>
                       <div className="flex justify-between text-xs mb-0.5">
                         <span className={`px-1.5 py-0.5 rounded font-medium ${item.color}`}>{item.label}</span>
-                        <span className="text-gray-500 tabular-nums">{item.count} ({Math.round(pct)}%)</span>
+                        <span className="text-ink-secondary tabular-nums">{item.count} ({Math.round(pct)}%)</span>
                       </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="w-full bg-surface-tertiary rounded-full h-2">
                         <div className="h-2 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: COLORS[i % COLORS.length] }} />
                       </div>
                     </div>
@@ -372,16 +372,16 @@ function renderWidget(
       // Small bar chart (1-height)
       return (
         <div className="p-4 h-full flex flex-col">
-          <h3 className="text-xs font-semibold text-gray-900 mb-3">{widget.title}</h3>
+          <h3 className="text-xs font-semibold text-ink mb-3">{widget.title}</h3>
           <div className="flex items-end gap-2 flex-1">
             {chartData.slice(0, 8).map((item, i) => {
               const maxCount = Math.max(...chartData.map(d => d.count));
               const pct = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
               return (
                 <div key={item.label} className="flex flex-col items-center gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] font-semibold text-gray-700 tabular-nums">{item.count}</span>
+                  <span className="text-[10px] font-semibold text-ink-body tabular-nums">{item.count}</span>
                   <div className="w-full rounded-t transition-all hover:opacity-80" style={{ height: `${Math.max(pct, 8)}%`, backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-[8px] text-gray-500 truncate max-w-full">{item.label}</span>
+                  <span className="text-[8px] text-ink-secondary truncate max-w-full">{item.label}</span>
                 </div>
               );
             })}
@@ -395,7 +395,7 @@ function renderWidget(
       const agg = data.numberAggs[prop.id];
       return (
         <div className="p-5 h-full flex flex-col">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">{widget.title}</h3>
+          <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
           <div className="grid grid-cols-4 gap-3 text-center flex-1 items-center">
             {[
               { label: 'Sum', val: agg.sum },
@@ -403,13 +403,13 @@ function renderWidget(
               { label: 'Min', val: agg.min === Infinity ? 0 : agg.min },
               { label: 'Max', val: agg.max === -Infinity ? 0 : agg.max },
             ].map(s => (
-              <div key={s.label} className="bg-gray-50 rounded-lg p-3">
-                <div className="text-xl font-bold text-gray-900 tabular-nums">{formatNumber(s.val)}</div>
-                <div className="text-[10px] text-gray-400 mt-1">{s.label}</div>
+              <div key={s.label} className="bg-surface-secondary rounded-lg p-3">
+                <div className="text-xl font-bold text-ink tabular-nums">{formatNumber(s.val)}</div>
+                <div className="text-[10px] text-ink-muted mt-1">{s.label}</div>
               </div>
             ))}
           </div>
-          <div className="text-[10px] text-gray-400 mt-2 text-center">{agg.count} records with values</div>
+          <div className="text-[10px] text-ink-muted mt-2 text-center">{agg.count} records with values</div>
         </div>
       );
     }
@@ -422,7 +422,7 @@ function renderWidget(
     const recentPages = [...pages].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 10);
     return (
       <div className="p-5 h-full flex flex-col">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">{widget.title}</h3>
+        <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
         <div className="flex-1 overflow-auto">
           <RecentList pages={recentPages} openPage={openPage} getPageTitle={getPageTitle} />
         </div>
@@ -436,24 +436,24 @@ function renderWidget(
     const tableProp = prop;
     return (
       <div className="p-5 h-full flex flex-col">
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">{widget.title}</h3>
+        <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
         <div className="flex-1 overflow-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-1.5 text-xs text-gray-500 font-medium">Name</th>
-                {tableProp && <th className="text-right py-1.5 text-xs text-gray-500 font-medium">{tableProp.name}</th>}
+              <tr className="border-b border-line">
+                <th className="text-left py-1.5 text-xs text-ink-secondary font-medium">Name</th>
+                {tableProp && <th className="text-right py-1.5 text-xs text-ink-secondary font-medium">{tableProp.name}</th>}
               </tr>
             </thead>
             <tbody>
               {tablePages.map(page => (
-                <tr key={page.id} className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer" onClick={() => openPage(page.id)}>
-                  <td className="py-1.5 text-gray-900 truncate max-w-[200px]">
+                <tr key={page.id} className="border-b border-line-light hover:bg-hover-surface cursor-pointer" onClick={() => openPage(page.id)}>
+                  <td className="py-1.5 text-ink truncate max-w-[200px]">
                     {page.icon && <span className="mr-1">{page.icon}</span>}
                     {getPageTitle(page) || 'Untitled'}
                   </td>
                   {tableProp && (
-                    <td className="py-1.5 text-right text-gray-600 tabular-nums">
+                    <td className="py-1.5 text-right text-ink-body-light tabular-nums">
                       {formatCellValue(page.properties[tableProp.id], tableProp)}
                     </td>
                   )}
@@ -495,7 +495,7 @@ function DonutChart({ data, size = 120 }: { data: { count: number; color: string
         );
       })}
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle"
-        className="text-lg font-bold fill-gray-900">{total}</text>
+        className="text-lg font-bold fill-fill-primary">{total}</text>
     </svg>
   );
 }
@@ -509,9 +509,9 @@ function BarChartWidget({ data, total }: { data: { count: number; color: string;
           <div key={item.label}>
             <div className="flex justify-between text-sm mb-1">
               <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${item.color}`}>{item.label}</span>
-              <span className="text-gray-500 tabular-nums">{item.count} ({Math.round(pct)}%)</span>
+              <span className="text-ink-secondary tabular-nums">{item.count} ({Math.round(pct)}%)</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
+            <div className="w-full bg-surface-tertiary rounded-full h-2">
               <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: COLORS[i % COLORS.length] }} />
             </div>
           </div>
@@ -528,8 +528,8 @@ function NumberSummaryWidget({ numberProps, numberAggs }: { numberProps: SchemaP
         const d = numberAggs[prop.id];
         if (!d || d.count === 0) return null;
         return (
-          <div key={prop.id} className="border-b border-gray-100 last:border-0 pb-3 last:pb-0">
-            <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">{prop.name}</div>
+          <div key={prop.id} className="border-b border-line-light last:border-0 pb-3 last:pb-0">
+            <div className="text-xs text-ink-secondary uppercase tracking-wide mb-2">{prop.name}</div>
             <div className="grid grid-cols-4 gap-2 text-center">
               {[
                 { label: 'Sum', val: d.sum },
@@ -538,8 +538,8 @@ function NumberSummaryWidget({ numberProps, numberAggs }: { numberProps: SchemaP
                 { label: 'Max', val: d.max === -Infinity ? '-' : d.max },
               ].map(s => (
                 <div key={s.label}>
-                  <div className="text-lg font-bold text-gray-900 tabular-nums">{typeof s.val === 'number' ? s.val.toLocaleString() : s.val}</div>
-                  <div className="text-[10px] text-gray-400">{s.label}</div>
+                  <div className="text-lg font-bold text-ink tabular-nums">{typeof s.val === 'number' ? s.val.toLocaleString() : s.val}</div>
+                  <div className="text-[10px] text-ink-muted">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -557,19 +557,19 @@ function RecentList({ pages, openPage, getPageTitle }: { pages: any[]; openPage:
         const title = getPageTitle(page);
         return (
           <div key={page.id} onClick={() => openPage(page.id)}
-            className="flex items-center justify-between py-2 px-2 hover:bg-gray-50 rounded-lg cursor-pointer group transition-colors">
+            className="flex items-center justify-between py-2 px-2 hover:bg-hover-surface rounded-lg cursor-pointer group transition-colors">
             <div className="flex items-center gap-2 overflow-hidden">
-              {page.icon ? <span className="text-sm">{page.icon}</span> : <div className="w-4 h-4 rounded bg-gray-200" />}
-              <span className="text-sm text-gray-900 truncate">{title || 'Untitled'}</span>
+              {page.icon ? <span className="text-sm">{page.icon}</span> : <div className="w-4 h-4 rounded bg-surface-muted" />}
+              <span className="text-sm text-ink truncate">{title || 'Untitled'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 shrink-0">{format(parseISO(page.updatedAt), 'MMM d')}</span>
-              <ArrowUpRight className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span className="text-xs text-ink-muted shrink-0">{format(parseISO(page.updatedAt), 'MMM d')}</span>
+              <ArrowUpRight className="w-3 h-3 text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
         );
       })}
-      {pages.length === 0 && <p className="text-sm text-gray-400 py-4 text-center">No recent activity</p>}
+      {pages.length === 0 && <p className="text-sm text-ink-muted py-4 text-center">No recent activity</p>}
     </div>
   );
 }
@@ -619,8 +619,8 @@ function AreaChartSVG({ data }: { data: { count: number; label: string }[] }) {
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
       <defs>
         <linearGradient id="areaGradSmooth" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
+          <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="var(--color-chart-1)" stopOpacity="0.02" />
         </linearGradient>
         <filter id="glow">
           <feGaussianBlur stdDeviation="2" result="coloredBlur" />
@@ -629,18 +629,18 @@ function AreaChartSVG({ data }: { data: { count: number; label: string }[] }) {
       </defs>
       {/* Grid lines */}
       {gridLines.map((y, i) => (
-        <line key={i} x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="#e5e7eb" strokeWidth="0.5" strokeDasharray="3 3" />
+        <line key={i} x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="var(--color-chart-grid)" strokeWidth="0.5" strokeDasharray="3 3" />
       ))}
       {/* Area fill */}
       <path d={areaPath} fill="url(#areaGradSmooth)" />
       {/* Smooth curve line */}
-      <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#glow)" />
-      <path d={linePath} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={linePath} fill="none" stroke="var(--color-chart-1)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#glow)" />
+      <path d={linePath} fill="none" stroke="var(--color-chart-1)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       {/* Data points */}
       {points.map((p, i) => (
         <g key={i}>
-          <circle cx={p.x} cy={p.y} r="4" fill="white" stroke="#3b82f6" strokeWidth="2" />
-          <text x={p.x} y={padding.top + innerH + 16} textAnchor="middle" className="text-[7px] fill-gray-400 font-medium">{p.label.slice(0, 7)}</text>
+          <circle cx={p.x} cy={p.y} r="4" fill="white" stroke="var(--color-chart-1)" strokeWidth="2" />
+          <text x={p.x} y={padding.top + innerH + 16} textAnchor="middle" className="text-[7px] fill-fill-secondary font-medium">{p.label.slice(0, 7)}</text>
         </g>
       ))}
     </svg>
@@ -654,21 +654,21 @@ function ProgressRing({ pct, color, size = 48 }: { pct: number; color: string; s
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#f3f4f6" strokeWidth="4" />
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--color-chart-fill)" strokeWidth="4" />
       <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth="4"
         strokeDasharray={dasharray} strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         className="transition-all duration-500" />
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle"
-        className="text-[9px] font-bold fill-gray-700">{Math.round(pct)}%</text>
+        className="text-[9px] font-bold fill-fill-body">{Math.round(pct)}%</text>
     </svg>
   );
 }
 
 function EmptyWidget({ title, message }: { title: string; message: string }) {
   return (
-    <div className="p-5 h-full flex flex-col items-center justify-center text-gray-400">
-      <BarChart3 className="w-8 h-8 mb-2 text-gray-300" />
+    <div className="p-5 h-full flex flex-col items-center justify-center text-ink-muted">
+      <BarChart3 className="w-8 h-8 mb-2 text-ink-disabled" />
       <div className="text-xs font-medium">{title}</div>
       <div className="text-[10px] mt-1">{message}</div>
     </div>
@@ -784,7 +784,7 @@ function MultiLineChart({ data, pages, propsMap }: {
         </defs>
         {/* Grid */}
         {gridLines.map((y, i) => (
-          <line key={i} x1={pad.left} y1={y} x2={width - pad.right} y2={y} stroke="#e5e7eb" strokeWidth="0.5" strokeDasharray="3 3" />
+          <line key={i} x1={pad.left} y1={y} x2={width - pad.right} y2={y} stroke="var(--color-chart-grid)" strokeWidth="0.5" strokeDasharray="3 3" />
         ))}
         {/* Series */}
         {categories.map((cat, si) => {
@@ -810,7 +810,7 @@ function MultiLineChart({ data, pages, propsMap }: {
           const x = pad.left + (i / Math.max(buckets.length - 1, 1)) * innerW;
           return (
             <text key={i} x={x} y={pad.top + innerH + 16} textAnchor="middle"
-              className="text-[7px] fill-gray-400 font-medium">{b.label}</text>
+              className="text-[7px] fill-fill-secondary font-medium">{b.label}</text>
           );
         })}
       </svg>
@@ -819,7 +819,7 @@ function MultiLineChart({ data, pages, propsMap }: {
         {categories.map((cat, i) => (
           <div key={cat} className="flex items-center gap-1 text-[9px]">
             <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-            <span className="text-gray-500 truncate max-w-[70px]">{cat}</span>
+            <span className="text-ink-secondary truncate max-w-[70px]">{cat}</span>
           </div>
         ))}
       </div>
@@ -832,12 +832,12 @@ function StatCard({ icon, label, value, subtext, color }: {
   color: 'blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan';
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
+    <div className="bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3">
       <StatIconBadge color={color}>{icon}</StatIconBadge>
       <div>
-        <div className="text-2xl font-bold text-gray-900 tabular-nums leading-none mb-1">{formatNumber(value)}</div>
-        <div className="text-xs text-gray-500">{label}</div>
-        {subtext && <div className="text-xs text-gray-400 mt-0.5">{subtext}</div>}
+        <div className="text-2xl font-bold text-ink tabular-nums leading-none mb-1">{formatNumber(value)}</div>
+        <div className="text-xs text-ink-secondary">{label}</div>
+        {subtext && <div className="text-xs text-ink-muted mt-0.5">{subtext}</div>}
       </div>
     </div>
   );
@@ -845,12 +845,12 @@ function StatCard({ icon, label, value, subtext, color }: {
 
 function StatIconBadge({ color, children }: { color: string; children: React.ReactNode }) {
   const colorMap: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-600',
-    purple: 'bg-purple-50 text-purple-600',
-    green: 'bg-green-50 text-green-600',
-    amber: 'bg-amber-50 text-amber-600',
-    pink: 'bg-pink-50 text-pink-600',
-    cyan: 'bg-cyan-50 text-cyan-600',
+    blue: 'bg-accent-soft text-accent-text-light',
+    purple: 'bg-purple-surface text-purple-text',
+    green: 'bg-success-surface text-success-text',
+    amber: 'bg-amber-surface text-amber-text',
+    pink: 'bg-pink-surface text-pink-text',
+    cyan: 'bg-cyan-surface text-cyan-text',
   };
   return <div className={`p-2.5 rounded-lg ${colorMap[color] || colorMap.blue}`}>{children}</div>;
 }

@@ -15,7 +15,7 @@ import type { SchemaProperty, RollupFunction } from '../../types/database';
 //   • Cross-database data flow visualization
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const COLORS = ['#3b82f6','#8b5cf6','#06b6d4','#f59e0b','#ef4444','#22c55e','#ec4899','#6366f1'];
+const COLORS = ['var(--color-chart-1)','var(--color-chart-2)','var(--color-chart-6)','var(--color-chart-4)','var(--color-chart-7)','var(--color-progress-high)','var(--color-chart-3)','var(--color-chart-8)'];
 
 export function RelationRollupDashboard() {
   const { activeViewId, views, databases, pages, resolveRollup } = useDatabaseStore();
@@ -104,7 +104,7 @@ export function RelationRollupDashboard() {
     };
   }, [db, databases, pages, resolveRollup, activeViewId, views]);
 
-  if (!analytics) return <div className="p-8 text-gray-400">No data</div>;
+  if (!analytics) return <div className="p-8 text-ink-muted">No data</div>;
 
   const {
     dbPages, relationProps, rollupProps,
@@ -113,46 +113,46 @@ export function RelationRollupDashboard() {
   } = analytics;
 
   return (
-    <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 to-white p-6">
+    <div className="flex-1 overflow-auto bg-gradient-to-br from-gradient-surface-from to-gradient-surface-to p-6">
       <div className="max-w-[1400px] mx-auto space-y-6">
         {/* ─── Title ─── */}
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Relation & Rollup Analytics</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-xl font-bold text-ink">Relation & Rollup Analytics</h2>
+          <p className="text-sm text-ink-secondary mt-1">
             Cross-database data flow &middot; {relationProps.length} relations &middot; {rollupProps.length} rollups &middot; {dbPages.length} records
           </p>
         </div>
 
         {/* ─── KPI Row ─── */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          <KpiCard label="Relations" value={relationProps.length} color="text-blue-600" />
-          <KpiCard label="Rollups" value={rollupProps.length} color="text-purple-600" />
-          <KpiCard label="Total Links" value={totalLinks} color="text-cyan-600" />
-          <KpiCard label="Linked DBs" value={linkedDbs.size} color="text-amber-600" />
-          <KpiCard label="Projects" value={dbPages.length} color="text-emerald-600" />
-          <KpiCard label="Two-way" value={relationTargets.filter(r => r.isTwoWay).length} color="text-pink-600" />
+          <KpiCard label="Relations" value={relationProps.length} color="text-accent-text-light" />
+          <KpiCard label="Rollups" value={rollupProps.length} color="text-purple-text" />
+          <KpiCard label="Total Links" value={totalLinks} color="text-cyan-text" />
+          <KpiCard label="Linked DBs" value={linkedDbs.size} color="text-amber-text" />
+          <KpiCard label="Projects" value={dbPages.length} color="text-emerald-text" />
+          <KpiCard label="Two-way" value={relationTargets.filter(r => r.isTwoWay).length} color="text-pink-text" />
         </div>
 
         {/* ─── Relation Map ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Cross-Database Relations</h3>
+        <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-ink-body mb-4">Cross-Database Relations</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {relationTargets.map((rt, i) => (
-              <div key={rt.prop.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+              <div key={rt.prop.id} className="flex items-center gap-3 p-3 rounded-lg bg-surface-secondary border border-line-light">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-inverse font-bold text-sm"
                   style={{ background: COLORS[i % COLORS.length] }}>
                   {rt.prop.name.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-800 truncate">{rt.prop.name}</div>
-                  <div className="text-xs text-gray-500 truncate">
+                  <div className="text-sm font-medium text-ink-strong truncate">{rt.prop.name}</div>
+                  <div className="text-xs text-ink-secondary truncate">
                     → {rt.targetDb?.icon} {rt.targetDb?.name || 'Unknown'}
-                    {rt.isTwoWay && <span className="ml-1 text-blue-500">⇄</span>}
+                    {rt.isTwoWay && <span className="ml-1 text-accent-text-soft">⇄</span>}
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-lg font-bold text-gray-800 tabular-nums">{rt.totalLinks}</div>
-                  <div className="text-[10px] text-gray-400">{rt.pagesWithLinks}/{dbPages.length} linked</div>
+                  <div className="text-lg font-bold text-ink-strong tabular-nums">{rt.totalLinks}</div>
+                  <div className="text-[10px] text-ink-muted">{rt.pagesWithLinks}/{dbPages.length} linked</div>
                 </div>
               </div>
             ))}
@@ -162,18 +162,18 @@ export function RelationRollupDashboard() {
         {/* ─── Rollup Function Distribution + Display Format ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Function Distribution */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Rollup Functions Used</h3>
+          <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-ink-body mb-3">Rollup Functions Used</h3>
             <div className="space-y-2">
               {Object.entries(fnDist).sort(([,a],[,b]) => b - a).map(([fn, count], i) => {
                 const pct = (count / rollupProps.length) * 100;
                 return (
                   <div key={fn} className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500 w-28 truncate font-mono">{fn}</span>
-                    <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                    <span className="text-xs text-ink-secondary w-28 truncate font-mono">{fn}</span>
+                    <div className="flex-1 h-3 bg-surface-tertiary rounded-full overflow-hidden">
                       <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: COLORS[i % COLORS.length] }} />
                     </div>
-                    <span className="text-xs text-gray-600 tabular-nums w-6 text-right">{count}</span>
+                    <span className="text-xs text-ink-body-light tabular-nums w-6 text-right">{count}</span>
                   </div>
                 );
               })}
@@ -181,8 +181,8 @@ export function RelationRollupDashboard() {
           </div>
 
           {/* Display Format Distribution */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Display Formats</h3>
+          <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-ink-body mb-3">Display Formats</h3>
             <div className="flex items-center justify-center gap-6 py-4">
               {Object.entries(displayDist).map(([format, count], i) => {
                 const pct = Math.round((count / rollupProps.length) * 100);
@@ -191,14 +191,14 @@ export function RelationRollupDashboard() {
                 return (
                   <div key={format} className="flex flex-col items-center gap-2">
                     <svg width="90" height="90" className="-rotate-90">
-                      <circle cx="45" cy="45" r={r} fill="none" stroke="#f3f4f6" strokeWidth="8" />
+                      <circle cx="45" cy="45" r={r} fill="none" stroke="var(--color-chart-fill)" strokeWidth="8" />
                       <circle cx="45" cy="45" r={r} fill="none"
                         stroke={COLORS[i % COLORS.length]} strokeWidth="8" strokeLinecap="round"
                         strokeDasharray={circ} strokeDashoffset={offset} />
                     </svg>
                     <div className="text-center -mt-1">
-                      <div className="text-lg font-bold text-gray-800">{count}</div>
-                      <div className="text-[10px] text-gray-400 uppercase font-medium">{format}</div>
+                      <div className="text-lg font-bold text-ink-strong">{count}</div>
+                      <div className="text-[10px] text-ink-muted uppercase font-medium">{format}</div>
                     </div>
                   </div>
                 );
@@ -208,8 +208,8 @@ export function RelationRollupDashboard() {
         </div>
 
         {/* ─── Per-Project Completion Rings ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Project Completion Rates (from Rollup)</h3>
+        <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-ink-body mb-4">Project Completion Rates (from Rollup)</h3>
           <div className="flex flex-wrap gap-5">
             {dbPages.map((pg, idx) => {
               const title = pg.properties[analytics.db.titlePropertyId] || 'Untitled';
@@ -221,14 +221,14 @@ export function RelationRollupDashboard() {
               return (
                 <div key={pg.id} className="flex flex-col items-center gap-1 w-20">
                   <svg width="52" height="52" className="-rotate-90">
-                    <circle cx="26" cy="26" r={r} fill="none" stroke="#f3f4f6" strokeWidth="5" />
+                    <circle cx="26" cy="26" r={r} fill="none" stroke="var(--color-chart-fill)" strokeWidth="5" />
                     <circle cx="26" cy="26" r={r} fill="none"
-                      stroke={pct >= 80 ? '#22c55e' : pct >= 50 ? '#3b82f6' : pct >= 25 ? '#f59e0b' : '#ef4444'}
+                      stroke={pct >= 80 ? 'var(--color-progress-high)' : pct >= 50 ? 'var(--color-chart-1)' : pct >= 25 ? 'var(--color-chart-4)' : 'var(--color-chart-7)'}
                       strokeWidth="5" strokeLinecap="round"
                       strokeDasharray={circ} strokeDashoffset={offset} />
                   </svg>
-                  <span className="text-xs font-bold text-gray-700">{pct}%</span>
-                  <span className="text-[10px] text-gray-500 truncate w-full text-center" title={title}>
+                  <span className="text-xs font-bold text-ink-body">{pct}%</span>
+                  <span className="text-[10px] text-ink-secondary truncate w-full text-center" title={title}>
                     {pg.icon} {title.length > 10 ? title.slice(0, 10) + '…' : title}
                   </span>
                 </div>
@@ -238,19 +238,19 @@ export function RelationRollupDashboard() {
         </div>
 
         {/* ─── Numeric Rollup Comparison ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Numeric Rollup Summary</h3>
+        <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-ink-body mb-4">Numeric Rollup Summary</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Rollup</th>
-                  <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Function</th>
-                  <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Display</th>
-                  <th className="text-right py-2 px-3 text-xs font-medium text-gray-500">Min</th>
-                  <th className="text-right py-2 px-3 text-xs font-medium text-gray-500">Max</th>
-                  <th className="text-right py-2 px-3 text-xs font-medium text-gray-500">Avg</th>
-                  <th className="text-right py-2 px-3 text-xs font-medium text-gray-500">Sum</th>
+                <tr className="border-b border-line">
+                  <th className="text-left py-2 px-3 text-xs font-medium text-ink-secondary">Rollup</th>
+                  <th className="text-left py-2 px-3 text-xs font-medium text-ink-secondary">Function</th>
+                  <th className="text-left py-2 px-3 text-xs font-medium text-ink-secondary">Display</th>
+                  <th className="text-right py-2 px-3 text-xs font-medium text-ink-secondary">Min</th>
+                  <th className="text-right py-2 px-3 text-xs font-medium text-ink-secondary">Max</th>
+                  <th className="text-right py-2 px-3 text-xs font-medium text-ink-secondary">Avg</th>
+                  <th className="text-right py-2 px-3 text-xs font-medium text-ink-secondary">Sum</th>
                 </tr>
               </thead>
               <tbody>
@@ -262,9 +262,9 @@ export function RelationRollupDashboard() {
                     const avg = Math.round(rr.numericResults.reduce((a,b)=>a+b,0) / rr.numericResults.length * 100) / 100;
                     const sum = rr.numericResults.reduce((a,b)=>a+b,0);
                     return (
-                      <tr key={rr.prop.id} className="border-b border-gray-100 hover:bg-gray-50/50">
-                        <td className="py-2 px-3 font-medium text-gray-800">{rr.prop.name}</td>
-                        <td className="py-2 px-3 text-gray-500 font-mono text-xs">{rr.fn}</td>
+                      <tr key={rr.prop.id} className="border-b border-line-light hover:bg-hover-surface-soft">
+                        <td className="py-2 px-3 font-medium text-ink-strong">{rr.prop.name}</td>
+                        <td className="py-2 px-3 text-ink-secondary font-mono text-xs">{rr.fn}</td>
                         <td className="py-2 px-3">
                           <DisplayBadge format={rr.displayAs} />
                         </td>
@@ -281,15 +281,15 @@ export function RelationRollupDashboard() {
         </div>
 
         {/* ─── Full Rollup Results Grid ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">All Rollup Results by Project</h3>
+        <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-ink-body mb-4">All Rollup Results by Project</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 px-2 text-xs font-medium text-gray-500 sticky left-0 bg-white z-10">Project</th>
+                <tr className="border-b border-line">
+                  <th className="text-left py-2 px-2 text-xs font-medium text-ink-secondary sticky left-0 bg-surface-primary z-10">Project</th>
                   {rollupResults.map(rr => (
-                    <th key={rr.prop.id} className="text-right py-2 px-2 text-xs font-medium text-gray-500 whitespace-nowrap">
+                    <th key={rr.prop.id} className="text-right py-2 px-2 text-xs font-medium text-ink-secondary whitespace-nowrap">
                       {rr.prop.name}
                     </th>
                   ))}
@@ -299,15 +299,15 @@ export function RelationRollupDashboard() {
                 {dbPages.map(pg => {
                   const title = pg.properties[analytics.db.titlePropertyId] || 'Untitled';
                   return (
-                    <tr key={pg.id} className="border-b border-gray-100 hover:bg-gray-50/50">
-                      <td className="py-1.5 px-2 font-medium text-gray-800 sticky left-0 bg-white whitespace-nowrap">
+                    <tr key={pg.id} className="border-b border-line-light hover:bg-hover-surface-soft">
+                      <td className="py-1.5 px-2 font-medium text-ink-strong sticky left-0 bg-surface-primary whitespace-nowrap">
                         {pg.icon} {title}
                       </td>
                       {rollupResults.map(rr => {
                         const res = rr.results.find(r => r.pageTitle === title);
                         const val = res?.value;
                         return (
-                          <td key={rr.prop.id} className="py-1.5 px-2 text-right tabular-nums text-gray-600">
+                          <td key={rr.prop.id} className="py-1.5 px-2 text-right tabular-nums text-ink-body-light">
                             <RollupCellValue value={val} displayAs={rr.displayAs} />
                           </td>
                         );
@@ -321,16 +321,16 @@ export function RelationRollupDashboard() {
         </div>
 
         {/* ─── Data Flow Diagram ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Data Flow: Databases × Relations</h3>
+        <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-ink-body mb-4">Data Flow: Databases × Relations</h3>
           <div className="flex flex-wrap gap-4 items-start">
             {/* Center: current DB */}
             <div className="flex flex-col items-center gap-3 min-w-[140px]">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl shadow-lg">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gradient-brand-from to-gradient-brand-to flex items-center justify-center text-2xl shadow-lg">
                 {analytics.db.icon}
               </div>
-              <div className="text-sm font-semibold text-gray-800 text-center">{analytics.db.name}</div>
-              <div className="text-[10px] text-gray-400">{dbPages.length} records</div>
+              <div className="text-sm font-semibold text-ink-strong text-center">{analytics.db.name}</div>
+              <div className="text-[10px] text-ink-muted">{dbPages.length} records</div>
             </div>
 
             {/* Arrows + target DBs */}
@@ -341,22 +341,22 @@ export function RelationRollupDashboard() {
                 return (
                   <div key={rt.prop.id} className="flex items-center gap-2">
                     <div className="flex flex-col items-center">
-                      <div className="text-[10px] text-gray-400 mb-1 whitespace-nowrap">{rt.prop.name}</div>
-                      <div className="w-12 h-px bg-gray-300 relative">
+                      <div className="text-[10px] text-ink-muted mb-1 whitespace-nowrap">{rt.prop.name}</div>
+                      <div className="w-12 h-px bg-surface-strong relative">
                         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-[6px] border-l-gray-400 border-y-[3px] border-y-transparent" />
                         {rt.isTwoWay && (
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0 h-0 border-r-[6px] border-r-gray-400 border-y-[3px] border-y-transparent" />
                         )}
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">{rt.totalLinks} links</div>
+                      <div className="text-[10px] text-ink-muted mt-0.5">{rt.totalLinks} links</div>
                     </div>
                     <div className="flex flex-col items-center gap-1">
-                      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm border border-gray-200"
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm border border-line"
                         style={{ background: COLORS[i % COLORS.length] + '15' }}>
                         {rt.targetDb.icon || '📂'}
                       </div>
-                      <div className="text-xs text-gray-600 text-center max-w-[80px] truncate">{rt.targetDb.name}</div>
-                      <div className="text-[10px] text-gray-400">{targetPageCount} records</div>
+                      <div className="text-xs text-ink-body-light text-center max-w-[80px] truncate">{rt.targetDb.name}</div>
+                      <div className="text-[10px] text-ink-muted">{targetPageCount} records</div>
                     </div>
                   </div>
                 );
@@ -366,17 +366,17 @@ export function RelationRollupDashboard() {
         </div>
 
         {/* ─── Edge Cases Table ─── */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Edge Case Coverage</h3>
+        <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-ink-body mb-4">Edge Case Coverage</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Project</th>
+                <tr className="border-b border-line">
+                  <th className="text-left py-2 px-3 text-xs font-medium text-ink-secondary">Project</th>
                   {relationTargets.map(rt => (
-                    <th key={rt.prop.id} className="text-center py-2 px-3 text-xs font-medium text-gray-500">{rt.prop.name}</th>
+                    <th key={rt.prop.id} className="text-center py-2 px-3 text-xs font-medium text-ink-secondary">{rt.prop.name}</th>
                   ))}
-                  <th className="text-center py-2 px-3 text-xs font-medium text-gray-500">Edge Case</th>
+                  <th className="text-center py-2 px-3 text-xs font-medium text-ink-secondary">Edge Case</th>
                 </tr>
               </thead>
               <tbody>
@@ -390,16 +390,16 @@ export function RelationRollupDashboard() {
                     if (ids.length >= 3) edgeCases.push(`Many ${rt.prop.name} (${ids.length})`);
                   }
                   return (
-                    <tr key={pg.id} className="border-b border-gray-100 hover:bg-gray-50/50">
-                      <td className="py-1.5 px-3 font-medium text-gray-800 whitespace-nowrap">{pg.icon} {title}</td>
+                    <tr key={pg.id} className="border-b border-line-light hover:bg-hover-surface-soft">
+                      <td className="py-1.5 px-3 font-medium text-ink-strong whitespace-nowrap">{pg.icon} {title}</td>
                       {relationTargets.map(rt => {
                         const ids: string[] = pg.properties[rt.prop.id] || [];
                         return (
                           <td key={rt.prop.id} className="py-1.5 px-3 text-center">
                             <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                              ids.length === 0 ? 'bg-red-100 text-red-600' :
-                              ids.length === 1 ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-green-100 text-green-700'
+                              ids.length === 0 ? 'bg-danger-surface-muted text-danger-text' :
+                              ids.length === 1 ? 'bg-warning-surface-muted text-warning-text-bold' :
+                              'bg-success-surface-muted text-success-text-bold'
                             }`}>
                               {ids.length}
                             </span>
@@ -410,11 +410,11 @@ export function RelationRollupDashboard() {
                         {edgeCases.length > 0 ? (
                           <div className="flex flex-wrap gap-1 justify-center">
                             {edgeCases.map((ec, i) => (
-                              <span key={i} className="px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">{ec}</span>
+                              <span key={i} className="px-1.5 py-0.5 rounded text-[10px] bg-amber-surface text-amber-text-bold border border-amber-border whitespace-nowrap">{ec}</span>
                             ))}
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400">Normal</span>
+                          <span className="text-xs text-ink-muted">Normal</span>
                         )}
                       </td>
                     </tr>
@@ -433,25 +433,25 @@ export function RelationRollupDashboard() {
 
 function KpiCard({ label, value, color }: { label: string; value: number | string; color: string }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="bg-surface-primary rounded-xl border border-line p-4 shadow-sm">
       <div className={`text-2xl font-bold tabular-nums ${color}`}>{typeof value === 'number' ? value.toLocaleString() : value}</div>
-      <div className="text-xs text-gray-500 mt-1">{label}</div>
+      <div className="text-xs text-ink-secondary mt-1">{label}</div>
     </div>
   );
 }
 
 function DisplayBadge({ format }: { format: string }) {
-  const bg = format === 'bar' ? 'bg-blue-50 text-blue-700' : format === 'ring' ? 'bg-purple-50 text-purple-700' : 'bg-gray-100 text-gray-600';
+  const bg = format === 'bar' ? 'bg-accent-soft text-accent-text' : format === 'ring' ? 'bg-purple-surface text-purple-text-bold' : 'bg-surface-tertiary text-ink-body-light';
   return <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${bg}`}>{format}</span>;
 }
 
 function RollupCellValue({ value, displayAs }: { value: any; displayAs: string }) {
-  if (value == null) return <span className="text-gray-300">—</span>;
+  if (value == null) return <span className="text-ink-disabled">—</span>;
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return <span className="text-gray-300">∅</span>;
+    if (value.length === 0) return <span className="text-ink-disabled">∅</span>;
     return (
-      <span className="text-xs text-gray-500" title={value.join(', ')}>
+      <span className="text-xs text-ink-secondary" title={value.join(', ')}>
         [{value.length}] {value.slice(0, 3).map(v => v === true ? '✓' : v === false ? '✗' : String(v)).join(', ')}
         {value.length > 3 && '…'}
       </span>
@@ -468,9 +468,9 @@ function RollupCellValue({ value, displayAs }: { value: any; displayAs: string }
       return (
         <span className="inline-flex items-center gap-1">
           <svg width="18" height="18" className="-rotate-90 inline-block">
-            <circle cx="9" cy="9" r={r} fill="none" stroke="#e5e7eb" strokeWidth="2.5" />
+            <circle cx="9" cy="9" r={r} fill="none" stroke="var(--color-chart-grid)" strokeWidth="2.5" />
             <circle cx="9" cy="9" r={r} fill="none"
-              stroke={pct >= 80 ? '#22c55e' : pct >= 50 ? '#3b82f6' : '#f59e0b'}
+              stroke={pct >= 80 ? 'var(--color-progress-high)' : pct >= 50 ? 'var(--color-chart-1)' : 'var(--color-chart-4)'}
               strokeWidth="2.5" strokeLinecap="round"
               strokeDasharray={circ} strokeDashoffset={offset} />
           </svg>
@@ -482,8 +482,8 @@ function RollupCellValue({ value, displayAs }: { value: any; displayAs: string }
       const pct = Math.min(100, (value / 15) * 100);
       return (
         <span className="inline-flex items-center gap-1 min-w-[60px]">
-          <span className="inline-block w-10 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <span className="block h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+          <span className="inline-block w-10 h-1.5 bg-surface-tertiary rounded-full overflow-hidden">
+            <span className="block h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
           </span>
           {value}
         </span>

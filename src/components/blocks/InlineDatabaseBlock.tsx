@@ -132,9 +132,9 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
 
   if (!database || !view) {
     return (
-      <div className="my-2 border border-gray-200 rounded-lg p-6 text-center">
-        <Table className="w-8 h-8 mx-auto text-gray-300 mb-2" />
-        <p className="text-sm text-gray-400">Database not found</p>
+      <div className="my-2 border border-line rounded-lg p-6 text-center">
+        <Table className="w-8 h-8 mx-auto text-ink-disabled mb-2" />
+        <p className="text-sm text-ink-muted">Database not found</p>
       </div>
     );
   }
@@ -142,9 +142,9 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
   // ─── Render ──────────────────────────────────────────────────
 
   return (
-    <div className="my-3 border border-gray-200 rounded-lg overflow-hidden bg-white" ref={tableRef}>
+    <div className="my-3 border border-line rounded-lg overflow-hidden bg-surface-primary" ref={tableRef}>
       {/* Database header */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-line-light">
         <span className="text-base">{database.icon}</span>
         {editingName ? (
           <input
@@ -153,19 +153,19 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
             onChange={e => setNameInput(e.target.value)}
             onBlur={handleRename}
             onKeyDown={e => { if (e.key === 'Enter') handleRename(); if (e.key === 'Escape') setEditingName(false); }}
-            className="text-sm font-semibold text-gray-800 outline-none bg-transparent border-b border-gray-300 px-0.5"
+            className="text-sm font-semibold text-ink-strong outline-none bg-transparent border-b border-line-medium px-0.5"
           />
         ) : (
           <button
             onClick={handleStartRename}
-            className="text-sm font-semibold text-gray-800 hover:text-gray-600 transition-colors"
+            className="text-sm font-semibold text-ink-strong hover:text-hover-text transition-colors"
           >
             {database.name}
           </button>
         )}
 
         {/* View indicator */}
-        <div className="ml-auto flex items-center gap-1 text-xs text-gray-400">
+        <div className="ml-auto flex items-center gap-1 text-xs text-ink-muted">
           <Table className="w-3.5 h-3.5" />
           <span>Table</span>
         </div>
@@ -176,15 +176,15 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
         <table className="w-full text-sm">
           {/* Header */}
           <thead>
-            <tr className="bg-gray-50/80">
+            <tr className="bg-surface-secondary-soft2">
               {visibleProps.map(prop => (
                 <th
                   key={prop.id}
-                  className="px-3 py-2 text-left font-medium text-gray-500 text-xs uppercase tracking-wider border-b border-r border-gray-200 last:border-r-0 whitespace-nowrap"
+                  className="px-3 py-2 text-left font-medium text-ink-secondary text-xs uppercase tracking-wider border-b border-r border-line last:border-r-0 whitespace-nowrap"
                   style={{ minWidth: prop.type === 'title' ? 200 : 140 }}
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="text-gray-400">
+                    <span className="text-ink-muted">
                       <PropIcon type={prop.type} className="w-3 h-3" />
                     </span>
                     {prop.name}
@@ -192,10 +192,10 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
                 </th>
               ))}
               {/* Add property column */}
-              <th className="px-2 py-2 border-b border-gray-200 w-8">
+              <th className="px-2 py-2 border-b border-line w-8">
                 <button
                   onClick={handleAddProperty}
-                  className="p-1 text-gray-300 hover:text-gray-500 rounded hover:bg-gray-100 transition-colors"
+                  className="p-1 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors"
                   title="Add property"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -207,7 +207,7 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
           {/* Body */}
           <tbody>
             {pages.map(page => (
-              <tr key={page.id} className="group hover:bg-gray-50/50">
+              <tr key={page.id} className="group hover:bg-hover-surface-soft">
                 {visibleProps.map(prop => {
                   const value = page.properties[prop.id];
                   const isEditing = editingCell?.pageId === page.id && editingCell?.propId === prop.id;
@@ -215,7 +215,7 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
                   return (
                     <td
                       key={prop.id}
-                      className="px-3 py-1.5 border-b border-r border-gray-200 last:border-r-0 overflow-hidden align-middle"
+                      className="px-3 py-1.5 border-b border-r border-line last:border-r-0 overflow-hidden align-middle"
                       style={{ minWidth: prop.type === 'title' ? 200 : 140, maxWidth: 300 }}
                       onClick={() => handleCellClick(page.id, prop.id, prop.type)}
                     >
@@ -232,9 +232,9 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
                     </td>
                   );
                 })}
-                <td className="border-b border-gray-200 px-1">
+                <td className="border-b border-line px-1">
                   <button
-                    className="p-1 text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 rounded hover:bg-gray-100 transition-colors"
+                    className="p-1 text-ink-disabled hover:text-hover-text-muted opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2 transition-colors"
                     onClick={() => deletePage(page.id)}
                     title="Delete row"
                   >
@@ -250,14 +250,14 @@ export function InlineDatabaseBlock({ block, pageId }: BlockRendererProps) {
       {/* Add row */}
       <button
         onClick={handleAddRow}
-        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors border-t border-gray-100"
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface transition-colors border-t border-line-light"
       >
         <Plus className="w-4 h-4" />
         <span>New</span>
       </button>
 
       {/* Meta footer */}
-      <div className="px-4 py-1.5 border-t border-gray-100 bg-gray-50/50 text-xs text-gray-400 flex items-center justify-between">
+      <div className="px-4 py-1.5 border-t border-line-light bg-surface-secondary-soft text-xs text-ink-muted flex items-center justify-between">
         <span>{pages.length} {pages.length === 1 ? 'row' : 'rows'}</span>
       </div>
     </div>
@@ -294,19 +294,19 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
             onChange={e => onUpdate(e.target.value)}
             onBlur={onStopEditing}
             onKeyDown={e => { if (e.key === 'Enter') onStopEditing(); }}
-            className="w-full bg-transparent outline-none text-sm text-gray-900"
+            className="w-full bg-transparent outline-none text-sm text-ink"
             placeholder="Empty"
           />
         );
       }
       return (
         <div className="flex items-center gap-1">
-          <span className={`text-sm ${prop.type === 'title' ? 'font-medium' : ''} text-gray-900 truncate`}>
-            {value || <span className="text-gray-400">Empty</span>}
+          <span className={`text-sm ${prop.type === 'title' ? 'font-medium' : ''} text-ink truncate`}>
+            {value || <span className="text-ink-muted">Empty</span>}
           </span>
           {prop.type === 'title' && (
             <button
-              className="shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-blue-500 bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap"
+              className="shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft hover:bg-hover-accent-muted px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap"
               onClick={(e) => { e.stopPropagation(); onOpenPage(); }}
             >
               <ArrowUpRight className="w-3 h-3" /> OPEN
@@ -325,14 +325,14 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
             onChange={e => onUpdate(e.target.value ? Number(e.target.value) : null)}
             onBlur={onStopEditing}
             onKeyDown={e => { if (e.key === 'Enter') onStopEditing(); }}
-            className="w-full bg-transparent outline-none text-sm text-gray-900 tabular-nums"
+            className="w-full bg-transparent outline-none text-sm text-ink tabular-nums"
             placeholder="Empty"
           />
         );
       }
       return (
-        <div className="text-sm text-gray-900 tabular-nums truncate">
-          {value != null && value !== '' ? Number(value).toLocaleString() : <span className="text-gray-400">Empty</span>}
+        <div className="text-sm text-ink tabular-nums truncate">
+          {value != null && value !== '' ? Number(value).toLocaleString() : <span className="text-ink-muted">Empty</span>}
         </div>
       );
 
@@ -352,7 +352,7 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
       }
       return selOpt ? (
         <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${selOpt.color}`}>{selOpt.value}</span>
-      ) : <span className="text-gray-400 text-sm">Empty</span>;
+      ) : <span className="text-ink-muted text-sm">Empty</span>;
     }
 
     case 'multi_select': {
@@ -373,7 +373,7 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
           {msIds.length > 0 ? msIds.map(id => {
             const opt = prop.options?.find(o => o.id === id);
             return opt ? <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium shrink-0 ${opt.color}`}>{opt.value}</span> : null;
-          }) : <span className="text-gray-400 text-sm">Empty</span>}
+          }) : <span className="text-ink-muted text-sm">Empty</span>}
         </div>
       );
     }
@@ -388,13 +388,13 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
             onChange={e => onUpdate(e.target.value ? new Date(e.target.value).toISOString() : null)}
             onBlur={onStopEditing}
             onKeyDown={e => { if (e.key === 'Enter') onStopEditing(); }}
-            className="w-full bg-transparent outline-none text-sm text-gray-700"
+            className="w-full bg-transparent outline-none text-sm text-ink-body"
           />
         );
       }
       return (
-        <div className="text-sm text-gray-700 truncate">
-          {value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : <span className="text-gray-400">Empty</span>}
+        <div className="text-sm text-ink-body truncate">
+          {value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : <span className="text-ink-muted">Empty</span>}
         </div>
       );
 
@@ -404,10 +404,10 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
           <button
             onClick={(e) => { e.stopPropagation(); onUpdate(!value); }}
             className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-              value ? 'bg-blue-500 border-blue-500' : 'border-gray-300 hover:border-gray-400'
+              value ? 'bg-accent border-accent-border' : 'border-line-medium hover:border-hover-border-strong'
             }`}
           >
-            {value && <span className="text-white text-[10px]">✓</span>}
+            {value && <span className="text-ink-inverse text-[10px]">✓</span>}
           </button>
         </div>
       );
@@ -430,12 +430,12 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
       }
       return value ? (
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[10px] font-bold shrink-0">
             {String(value).charAt(0).toUpperCase()}
           </div>
-          <span className="text-sm text-gray-900 truncate">{value}</span>
+          <span className="text-sm text-ink truncate">{value}</span>
         </div>
-      ) : <span className="text-gray-400 text-sm">Empty</span>;
+      ) : <span className="text-ink-muted text-sm">Empty</span>;
 
     case 'email':
     case 'url':
@@ -454,20 +454,20 @@ function InlineCell({ prop, value, page, databaseId, isEditing, onUpdate, onStop
         );
       }
       return value ? (
-        <span className="text-sm text-blue-600 underline truncate block">{value}</span>
-      ) : <span className="text-gray-400 text-sm">Empty</span>;
+        <span className="text-sm text-accent-text-light underline truncate block">{value}</span>
+      ) : <span className="text-ink-muted text-sm">Empty</span>;
 
     case 'created_time':
     case 'last_edited_time': {
       const timeVal = prop.type === 'created_time' ? page.createdAt : page.updatedAt;
-      return <div className="text-sm text-gray-500 truncate">{timeVal ? new Date(timeVal).toLocaleString() : '—'}</div>;
+      return <div className="text-sm text-ink-secondary truncate">{timeVal ? new Date(timeVal).toLocaleString() : '—'}</div>;
     }
 
     case 'id':
-      return <div className="text-sm text-gray-500 font-mono tabular-nums truncate">{value || '—'}</div>;
+      return <div className="text-sm text-ink-secondary font-mono tabular-nums truncate">{value || '—'}</div>;
 
     default:
-      return <span className="text-sm text-gray-500 truncate">{String(value || '')}</span>;
+      return <span className="text-sm text-ink-secondary truncate">{String(value || '')}</span>;
   }
 }
 
@@ -485,8 +485,8 @@ function InlineSelectEditor({ prop, value, databaseId, onUpdate, onClose }: {
   const exact = options.find(o => o.value.toLowerCase() === input.toLowerCase());
 
   return (
-    <div className="absolute top-0 left-0 w-full min-w-[200px] bg-white shadow-xl border border-gray-200 rounded-lg z-50 overflow-hidden" onClick={e => e.stopPropagation()}>
-      <div className="p-1.5 border-b border-gray-100">
+    <div className="absolute top-0 left-0 w-full min-w-[200px] bg-surface-primary shadow-xl border border-line rounded-lg z-50 overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="p-1.5 border-b border-line-light">
         <input
           autoFocus
           value={input}
@@ -495,7 +495,7 @@ function InlineSelectEditor({ prop, value, databaseId, onUpdate, onClose }: {
             if (e.key === 'Enter') {
               if (exact) { onUpdate(exact.id); onClose(); }
               else if (input.trim()) {
-                const colors = ['bg-red-100 text-red-800', 'bg-blue-100 text-blue-800', 'bg-green-100 text-green-800', 'bg-yellow-100 text-yellow-800', 'bg-purple-100 text-purple-800'];
+                const colors = ['bg-danger-surface-muted text-danger-text-tag', 'bg-accent-muted text-accent-text-bold', 'bg-success-surface-muted text-success-text-tag', 'bg-warning-surface-muted text-warning-text-tag', 'bg-purple-surface-muted text-purple-text-tag'];
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 const id = `opt-${Date.now()}`;
                 addSelectOption(databaseId, prop.id, { id, value: input.trim(), color });
@@ -505,19 +505,19 @@ function InlineSelectEditor({ prop, value, databaseId, onUpdate, onClose }: {
             }
             if (e.key === 'Escape') onClose();
           }}
-          className="w-full text-xs px-2 py-1 bg-gray-50 rounded outline-none"
+          className="w-full text-xs px-2 py-1 bg-surface-secondary rounded outline-none"
           placeholder="Search or create..."
         />
       </div>
       <div className="max-h-40 overflow-y-auto p-1">
         {value && (
-          <button onClick={() => { onUpdate(null); onClose(); }} className="w-full px-2 py-1 hover:bg-gray-50 text-xs text-gray-500 text-left rounded">
+          <button onClick={() => { onUpdate(null); onClose(); }} className="w-full px-2 py-1 hover:bg-hover-surface text-xs text-ink-secondary text-left rounded">
             Clear
           </button>
         )}
         {filtered.map(opt => (
           <button key={opt.id} onClick={() => { onUpdate(opt.id); onClose(); }}
-            className="w-full px-2 py-1 hover:bg-gray-50 text-xs text-left rounded flex items-center gap-2">
+            className="w-full px-2 py-1 hover:bg-hover-surface text-xs text-left rounded flex items-center gap-2">
             <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
           </button>
         ))}
@@ -547,8 +547,8 @@ function InlineMultiSelectEditor({ prop, value, databaseId, onUpdate, onClose }:
   };
 
   return (
-    <div className="absolute top-0 left-0 w-full min-w-[200px] bg-white shadow-xl border border-gray-200 rounded-lg z-50 overflow-hidden" onClick={e => e.stopPropagation()}>
-      <div className="p-1.5 border-b border-gray-100">
+    <div className="absolute top-0 left-0 w-full min-w-[200px] bg-surface-primary shadow-xl border border-line rounded-lg z-50 overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="p-1.5 border-b border-line-light">
         <div className="flex flex-wrap gap-0.5 mb-1">
           {selectedIds.map(id => {
             const opt = options.find(o => o.id === id);
@@ -576,7 +576,7 @@ function InlineMultiSelectEditor({ prop, value, databaseId, onUpdate, onClose }:
       <div className="max-h-36 overflow-y-auto p-1">
         {filtered.map(opt => (
           <button key={opt.id} onClick={() => toggle(opt.id)}
-            className="w-full px-2 py-1 hover:bg-gray-50 text-xs text-left rounded flex items-center">
+            className="w-full px-2 py-1 hover:bg-hover-surface text-xs text-left rounded flex items-center">
             <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
           </button>
         ))}

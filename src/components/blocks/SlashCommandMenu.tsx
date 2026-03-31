@@ -368,8 +368,8 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: SlashC
 
   if (filteredItems.length === 0) {
     return createPortal(
-      <div ref={menuRef} style={style} className="bg-white border border-gray-200 rounded-xl shadow-xl w-80">
-        <div className="px-4 py-6 text-center text-sm text-gray-400">
+      <div ref={menuRef} style={style} className="bg-surface-primary border border-line rounded-xl shadow-xl w-80">
+        <div className="px-4 py-6 text-center text-sm text-ink-muted">
           No results
         </div>
       </div>,
@@ -380,7 +380,7 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: SlashC
   let flatIndex = 0;
 
   return createPortal(
-    <div ref={menuRef} style={style} className="bg-white border border-gray-200 rounded-xl shadow-xl w-80 overflow-hidden">
+    <div ref={menuRef} style={style} className="bg-surface-primary border border-line rounded-xl shadow-xl w-80 overflow-hidden">
       <div
         ref={scrollRef}
         className="overflow-y-auto"
@@ -391,7 +391,7 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: SlashC
           if (!items || items.length === 0) return null;
           return (
             <div key={sectionKey} className="py-1 px-1">
-              <div className="px-2 pt-2 pb-1.5 text-xs font-medium text-gray-500 select-none">
+              <div className="px-2 pt-2 pb-1.5 text-xs font-medium text-ink-secondary select-none">
                 {SECTION_LABELS[sectionKey]}
               </div>
               {items.map(item => {
@@ -403,18 +403,18 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: SlashC
                     data-slash-index={idx}
                     className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-left transition-colors ${
                       idx === selectedIndex
-                        ? 'bg-gray-100'
-                        : 'hover:bg-gray-50'
+                        ? 'bg-surface-tertiary'
+                        : 'hover:bg-hover-surface'
                     }`}
                     onMouseEnter={() => setSelectedIndex(idx)}
                     onClick={() => onSelect(item.type)}
                   >
-                    <div className="w-5 h-5 text-gray-600 shrink-0 flex items-center justify-center">
+                    <div className="w-5 h-5 text-ink-body-light shrink-0 flex items-center justify-center">
                       {item.icon}
                     </div>
-                    <span className="text-sm text-gray-800 flex-1">{item.label}</span>
+                    <span className="text-sm text-ink-strong flex-1">{item.label}</span>
                     {item.shortcut && (
-                      <span className="text-xs text-gray-400 font-mono">{item.shortcut} </span>
+                      <span className="text-xs text-ink-muted font-mono">{item.shortcut} </span>
                     )}
                   </button>
                 );
@@ -425,14 +425,14 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: SlashC
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 px-1 py-1">
+      <div className="border-t border-line px-1 py-1">
         <button
           type="button"
           onClick={onClose}
-          className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-hover-surface transition-colors"
         >
-          <span className="text-sm text-gray-600">Close menu</span>
-          <span className="text-xs text-gray-400">esc</span>
+          <span className="text-sm text-ink-body-light">Close menu</span>
+          <span className="text-xs text-ink-muted">esc</span>
         </button>
       </div>
     </div>,

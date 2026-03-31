@@ -145,8 +145,8 @@ function OptionList({ options, activeId, onSelect }: {
         <button key={o.id} onClick={() => onSelect(o.id)}
           className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
             activeId === o.id
-              ? 'bg-blue-50 text-blue-700 font-medium'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-accent-soft text-accent-text font-medium'
+              : 'text-ink-body hover:bg-hover-surface'
           }`}>
           {o.label}
         </button>
@@ -167,7 +167,7 @@ function PropertyOptionList({ properties, activeId, onSelect, noneLabel }: {
       {noneLabel && (
         <button onClick={() => onSelect('')}
           className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
-            !activeId ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'
+            !activeId ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
           }`}>
           {noneLabel}
         </button>
@@ -176,8 +176,8 @@ function PropertyOptionList({ properties, activeId, onSelect, noneLabel }: {
         <button key={p.id} onClick={() => onSelect(p.id)}
           className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
             activeId === p.id
-              ? 'bg-blue-50 text-blue-700 font-medium'
-              : 'text-gray-700 hover:bg-gray-50'
+              ? 'bg-accent-soft text-accent-text font-medium'
+              : 'text-ink-body hover:bg-hover-surface'
           }`}>
           {p.name}
         </button>
@@ -190,10 +190,10 @@ function PropertyOptionList({ properties, activeId, onSelect, noneLabel }: {
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button onClick={() => onChange(!checked)}
-      className="flex items-center justify-between text-sm text-gray-700 py-1 px-1 rounded-lg hover:bg-gray-50 transition-colors">
+      className="flex items-center justify-between text-sm text-ink-body py-1 px-1 rounded-lg hover:bg-hover-surface transition-colors">
       <span>{label}</span>
-      <div className={`relative w-9 h-5 rounded-full transition-colors ${checked ? 'bg-blue-500' : 'bg-gray-300'}`}>
-        <div className={`absolute w-4 h-4 bg-white rounded-full shadow-sm top-0.5 transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}`} />
+      <div className={`relative w-9 h-5 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-surface-strong'}`}>
+        <div className={`absolute w-4 h-4 bg-surface-primary rounded-full shadow-sm top-0.5 transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}`} />
       </div>
     </button>
   );
@@ -203,23 +203,23 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 
 function CardLayoutPicker({ value, onChange }: { value: 'compact' | 'list'; onChange: (v: 'compact' | 'list') => void }) {
   return (
-    <div className="mx-2 mb-2 rounded-[10px] p-3 bg-gray-100/50 flex flex-col items-center overflow-hidden">
-      <div className="text-xs font-medium text-gray-500 mb-3 select-none">Card layout</div>
+    <div className="mx-2 mb-2 rounded-[10px] p-3 bg-surface-tertiary-soft4 flex flex-col items-center overflow-hidden">
+      <div className="text-xs font-medium text-ink-secondary mb-3 select-none">Card layout</div>
       <div className="flex justify-center w-full px-1.5 gap-3">
         {(['compact', 'list'] as const).map(layout => {
           const isActive = value === layout;
-          const accent = isActive ? 'bg-blue-100/60' : 'bg-gray-100';
-          const elAccent = isActive ? 'bg-blue-200/60' : 'bg-gray-200/80';
+          const accent = isActive ? 'bg-accent-muted2' : 'bg-surface-tertiary';
+          const elAccent = isActive ? 'bg-accent-subtle2' : 'bg-surface-muted-soft';
           return (
             <div key={layout} className="flex flex-col items-center flex-1 max-w-[150px] gap-1.5">
               <button
                 type="button" role="radio" aria-checked={isActive}
                 onClick={() => onChange(layout)}
-                className="relative w-full bg-white border-none rounded-[10px]"
+                className="relative w-full bg-surface-primary border-none rounded-[10px]"
                 style={{
                   padding: 10,
                   aspectRatio: '4 / 3',
-                  outline: isActive ? '2px solid rgb(59 130 246)' : '1px solid rgb(229 231 235)',
+                  outline: isActive ? '2px solid var(--color-outline-active)' : '1px solid var(--color-outline-inactive)',
                   outlineOffset: isActive ? -2 : -1,
                 }}
               >
@@ -245,7 +245,7 @@ function CardLayoutPicker({ value, onChange }: { value: 'compact' | 'list'; onCh
                   </div>
                 )}
               </button>
-              <span className={`text-sm ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>
+              <span className={`text-sm ${isActive ? 'text-ink' : 'text-ink-secondary'}`}>
                 {layout === 'compact' ? 'Compact' : 'List'}
               </span>
             </div>
@@ -277,7 +277,7 @@ function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange, onIcon
         <button
           ref={btnRef}
           onClick={() => setShowPicker(!showPicker)}
-          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-gray-200 hover:border-gray-300 text-gray-500 bg-white transition-colors shrink-0"
+          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-line hover:border-hover-border text-ink-secondary bg-surface-primary transition-colors shrink-0"
           title="Change icon"
         >
           <Icon name={currentIcon} className="w-[18px] h-[18px]" />
@@ -300,16 +300,16 @@ function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange, onIcon
           />
         )}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center h-7 rounded-md border border-gray-200 bg-gray-50/50 px-1.5">
+          <div className="flex items-center h-7 rounded-md border border-line bg-surface-secondary-soft px-1.5">
             <input
               placeholder="View name" type="text"
               value={viewName}
               onChange={e => onNameChange(e.target.value)}
-              className="flex-1 text-sm text-gray-900 outline-none bg-transparent min-w-0"
+              className="flex-1 text-sm text-ink outline-none bg-transparent min-w-0"
             />
             <div className="relative group/info ml-1">
-              <InfoCircleIcon className="w-[14px] h-[14px] text-gray-400 cursor-help" />
-              <div className="absolute right-0 bottom-full mb-1 w-48 p-2 bg-gray-900 text-white text-[10px] rounded-lg opacity-0 group-hover/info:opacity-100 pointer-events-none transition-opacity z-50">
+              <InfoCircleIcon className="w-[14px] h-[14px] text-ink-muted cursor-help" />
+              <div className="absolute right-0 bottom-full mb-1 w-48 p-2 bg-surface-inverse text-ink-inverse text-[10px] rounded-lg opacity-0 group-hover/info:opacity-100 pointer-events-none transition-opacity z-50">
                 Configure how this view displays your data. Changes only affect this view.
               </div>
             </div>
@@ -335,15 +335,15 @@ function PropertyRow({ propId, propName, iconName, visible, databaseId, onToggle
   const btnRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors text-sm group">
+    <div className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-hover-surface transition-colors text-sm group">
       {/* Clickable icon */}
       <button
         ref={btnRef}
         onClick={(e) => { e.stopPropagation(); setShowPicker(!showPicker); }}
-        className="flex items-center justify-center w-5 h-5 rounded hover:bg-gray-200 transition-colors shrink-0"
+        className="flex items-center justify-center w-5 h-5 rounded hover:bg-hover-surface3 transition-colors shrink-0"
         title="Change property icon"
       >
-        <Icon name={iconName} className="w-4 h-4 text-gray-400" />
+        <Icon name={iconName} className="w-4 h-4 text-ink-muted" />
       </button>
       {showPicker && (
         <IconPickerPopover
@@ -366,14 +366,14 @@ function PropertyRow({ propId, propName, iconName, visible, databaseId, onToggle
         onClick={onToggle}
         className="flex-1 text-left min-w-0 truncate"
       >
-        <span className={visible ? 'text-gray-900' : 'text-gray-400'}>{propName}</span>
+        <span className={visible ? 'text-ink' : 'text-ink-muted'}>{propName}</span>
       </button>
 
       {/* Eye toggle */}
       <button onClick={onToggle} className="shrink-0">
         {visible
-          ? <Eye className="w-3.5 h-3.5 text-blue-500 opacity-60 group-hover:opacity-100" />
-          : <EyeOff className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-400" />}
+          ? <Eye className="w-3.5 h-3.5 text-accent-text-soft opacity-60 group-hover:opacity-100" />
+          : <EyeOff className="w-3.5 h-3.5 text-ink-disabled group-hover:text-ink-muted" />}
       </button>
     </div>
   );
@@ -675,7 +675,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
         <div className="p-4 flex flex-col gap-1">
           <button onClick={() => { setGrouping(view.id, undefined); setScreen('layout'); }}
             className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
-              !view.grouping ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50'
+              !view.grouping ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
             }`}>
             None
           </button>
@@ -683,8 +683,8 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
             <button key={p.id} onClick={() => { setGrouping(view.id, { propertyId: p.id }); setScreen('layout'); }}
               className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
                 view.grouping?.propertyId === p.id
-                  ? 'bg-blue-50 text-blue-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-accent-soft text-accent-text font-medium'
+                  : 'text-ink-body hover:bg-hover-surface'
               }`}>
               {p.name}
             </button>
@@ -794,9 +794,9 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
               <button key={ct.type}
                 onClick={() => { updateSetting('chartType', ct.type); setScreen('editChart'); }}
                 className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
-                  isActive ? 'border-blue-500 bg-blue-50/60 text-blue-600' : 'border-gray-200 hover:border-gray-300 text-gray-500'
+                  isActive ? 'border-accent-border bg-accent-soft3 text-accent-text-light' : 'border-line hover:border-hover-border text-ink-secondary'
                 }`}>
-                <span className={isActive ? 'text-blue-500' : 'text-gray-400'}>{ct.icon}</span>
+                <span className={isActive ? 'text-accent-text-soft' : 'text-ink-muted'}>{ct.icon}</span>
                 <span className="text-xs font-medium">{ct.label}</span>
               </button>
             );
@@ -872,10 +872,10 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
           <Toggle label="Show reference line" checked={!!settings.showReferenceLine} onChange={v => updateSetting('showReferenceLine', v)} />
           {settings.showReferenceLine && (
             <label className="flex flex-col gap-1">
-              <span className="text-xs text-gray-500">Value</span>
+              <span className="text-xs text-ink-secondary">Value</span>
               <input type="number" value={settings.referenceLineValue ?? ''}
                 onChange={e => updateSetting('referenceLineValue', e.target.value ? Number(e.target.value) : null)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="e.g. 50" />
+                className="px-3 py-2 border border-line rounded-lg text-sm bg-surface-primary focus:outline-none focus:ring-2 focus:ring-focus-ring-muted" placeholder="e.g. 50" />
             </label>
           )}
         </div>
@@ -942,9 +942,9 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
 
           {/* ═══ CHART TYPE ═══ */}
           <div className="px-2 pt-1.5 relative">
-            <div className="absolute top-0 inset-x-4 h-px bg-gray-100" />
+            <div className="absolute top-0 inset-x-4 h-px bg-surface-tertiary" />
             <div className="flex items-center px-2 mt-1.5 mb-2">
-              <span className="text-xs font-medium text-gray-500 select-none">Chart type</span>
+              <span className="text-xs font-medium text-ink-secondary select-none">Chart type</span>
             </div>
             <div className="flex gap-2 mx-2 pb-1">
               {CHART_TYPE_META.map(item => {
@@ -953,9 +953,9 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
                   <button key={item.type} onClick={() => updateSetting('chartType', item.type)}
                     aria-label={item.label}
                     className={`flex items-center justify-center flex-1 rounded-lg p-1.5 h-10 transition-all ${
-                      isActive ? 'ring-2 ring-blue-500 ring-inset' : 'ring-1 ring-gray-200 ring-inset hover:bg-gray-50'
+                      isActive ? 'ring-2 ring-ring-accent-strong ring-inset' : 'ring-1 ring-ring-neutral ring-inset hover:bg-hover-surface'
                     }`}>
-                    <span className={isActive ? 'text-blue-500' : 'text-gray-400'}>{item.icon}</span>
+                    <span className={isActive ? 'text-accent-text-soft' : 'text-ink-muted'}>{item.icon}</span>
                   </button>
                 );
               })}
@@ -965,14 +965,14 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
           {/* ═══ X AXIS ═══ */}
           <div className="px-2 pt-1">
             <div className="flex items-center px-2 mt-1.5 mb-2">
-              <span className="text-xs font-medium text-gray-500 select-none">X axis</span>
+              <span className="text-xs font-medium text-ink-secondary select-none">X axis</span>
             </div>
             <div className="flex flex-col gap-px">
               <SettingsRow icon={<ArrowTurnDownRightIcon />} label="What to show" value={xPropName} onClick={() => setScreen('xAxisWhat')} />
               <SettingsRow icon={<ArrowUpDownRotatedIcon />} label="Sort by" value={settings.xAxisSort || 'Manual'} onClick={() => setScreen('xAxisSort')} />
               <button onClick={() => updateSetting('xAxisOmitZero', !settings.xAxisOmitZero)}
-                className="w-full flex items-center gap-2.5 px-2 py-[7px] text-sm rounded-md transition-colors text-gray-700 hover:bg-gray-100/70">
-                <span className="w-5 h-5 flex items-center justify-center shrink-0 text-gray-500">
+                className="w-full flex items-center gap-2.5 px-2 py-[7px] text-sm rounded-md transition-colors text-ink-body hover:bg-hover-surface-soft2">
+                <span className="w-5 h-5 flex items-center justify-center shrink-0 text-ink-secondary">
                   <EyeSlashIcon className="w-5 h-5" />
                 </span>
                 <span className="flex-1 text-left text-sm truncate">Omit zero values</span>
@@ -986,7 +986,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
           {/* ═══ Y AXIS ═══ */}
           <div className="px-2 pt-1">
             <div className="flex items-center px-2 mt-1.5 mb-2">
-              <span className="text-xs font-medium text-gray-500 select-none">Y axis</span>
+              <span className="text-xs font-medium text-ink-secondary select-none">Y axis</span>
             </div>
             <div className="flex flex-col gap-px">
               <SettingsRow icon={<ArrowTurnLeftUpIcon />} label="What to show" value={yPropName || 'Count'} onClick={() => setScreen('yAxisWhat')} />
@@ -1001,7 +1001,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
           {/* ═══ STYLE ═══ */}
           <div className="px-2 pt-1 pb-1">
             <div className="flex items-center px-2 mt-1.5 mb-2">
-              <span className="text-xs font-medium text-gray-500 select-none">Style</span>
+              <span className="text-xs font-medium text-ink-secondary select-none">Style</span>
             </div>
             <div className="flex flex-col gap-px">
               <SettingsRow icon={<PaintPaletteIcon />} label="Color" value={settings.colorPalette || 'Auto'} onClick={() => setScreen('colorPalette')} />
@@ -1011,7 +1011,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
 
           {/* ═══ SOURCE / FILTER ═══ */}
           <div className="px-2 pt-2 pb-1 relative">
-            <div className="absolute top-0 inset-x-4 h-px bg-gray-100" />
+            <div className="absolute top-0 inset-x-4 h-px bg-surface-tertiary" />
             <div className="flex flex-col gap-px pt-1">
               <SettingsRow icon={<PathRoundEndsIcon />} label="Source" value={database.name} onClick={() => {}} />
               <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
@@ -1020,7 +1020,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
 
           {/* ═══ SAVE / COPY ═══ */}
           <div className="px-2 pt-2 pb-1 relative">
-            <div className="absolute top-0 inset-x-4 h-px bg-gray-100" />
+            <div className="absolute top-0 inset-x-4 h-px bg-surface-tertiary" />
             <div className="flex flex-col gap-px pt-1">
               <SettingsRow icon={<ArrowLineDownIcon />} label="Save chart as..." onClick={() => {}} />
               <SettingsRow icon={<LinkIcon />} label="Copy link to view" showChevron={false} onClick={() => {}} />
@@ -1029,7 +1029,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
 
           {/* ═══ MANAGE / LOCK ═══ */}
           <div className="px-2 pt-2 pb-1 relative">
-            <div className="absolute top-0 inset-x-4 h-px bg-gray-100" />
+            <div className="absolute top-0 inset-x-4 h-px bg-surface-tertiary" />
             <div className="flex flex-col gap-px pt-1">
               <SettingsRow icon={<CollectionIcon />} label="Manage data sources" onClick={() => {}} />
               <SettingsRow icon={<LockIcon />} label="Lock views" showChevron={false} onClick={() => {}} />
@@ -1038,10 +1038,10 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
 
           {/* ═══ LEARN ═══ */}
           <div className="px-2 pt-2 pb-2 relative">
-            <div className="absolute top-0 inset-x-4 h-px bg-gray-100" />
+            <div className="absolute top-0 inset-x-4 h-px bg-surface-tertiary" />
             <div className="flex flex-col gap-px pt-1">
               <a href="https://www.notion.com/help/charts" target="_blank" rel="noopener noreferrer" className="no-underline">
-                <div className="flex items-center gap-2.5 px-2 py-[7px] text-sm rounded-md transition-colors text-gray-500 hover:bg-gray-100/70 cursor-pointer">
+                <div className="flex items-center gap-2.5 px-2 py-[7px] text-sm rounded-md transition-colors text-ink-secondary hover:bg-hover-surface-soft2 cursor-pointer">
                   <span className="w-5 h-5 flex items-center justify-center shrink-0">
                     <QuestionMarkCircleIcon className="w-5 h-5" />
                   </span>

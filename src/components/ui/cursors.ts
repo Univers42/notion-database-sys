@@ -6,7 +6,7 @@
 import { ICON_REGISTRY } from './iconRegistry';
 
 /** Build a complete SVG string from an icon registry entry */
-function buildCursorSVG(name: string, size = 24, color = '#1f2937'): string {
+function buildCursorSVG(name: string, size = 24, color = 'var(--color-ink-strong)'): string {
   const icon = ICON_REGISTRY[name];
   if (!icon) return '';
   const vb = icon.viewBox || '0 0 20 20';
@@ -33,7 +33,7 @@ export function getCursorStyle(
   opts?: { size?: number; color?: string; hotX?: number; hotY?: number; fallback?: string },
 ): string {
   const size = opts?.size ?? 24;
-  const svg = buildCursorSVG(name, size, opts?.color ?? '#1f2937');
+  const svg = buildCursorSVG(name, size, opts?.color ?? 'var(--color-ink-strong)');
   if (!svg) return opts?.fallback ?? 'auto';
   return encodeCursor(svg, opts?.hotX ?? 0, opts?.hotY ?? 0, opts?.fallback ?? 'auto');
 }

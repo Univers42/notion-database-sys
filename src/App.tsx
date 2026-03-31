@@ -103,7 +103,7 @@ function App() {
   }, [view, database, lockViews]);
 
   return (
-    <div className="flex h-screen w-screen bg-white overflow-hidden">
+    <div className="flex h-screen w-screen bg-surface-primary overflow-hidden">
       <div className="flex-1 flex flex-col min-w-0">
         <ErrorBoundary>
           <BlockHandle
@@ -137,9 +137,9 @@ function App() {
 function EmptyState() {
   return (
     <div className="flex-1 flex items-center justify-center p-8" >
-      <div className="text-center text-gray-400 max-w-sm">
-        <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-        <h3 className="text-lg font-semibold text-gray-600 mb-2">No view selected</h3>
+      <div className="text-center text-ink-muted max-w-sm">
+        <FileText className="w-12 h-12 mx-auto mb-3 text-ink-disabled" />
+        <h3 className="text-lg font-semibold text-ink-body-light mb-2">No view selected</h3>
         <p className="text-sm">Select a database and view from the sidebar to get started.</p>
       </div>
     </div>
@@ -209,17 +209,17 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
       onMouseDown={startResize}
       className={`absolute top-0 ${side === 'left' ? '-left-1' : '-right-1'} w-2 h-full cursor-col-resize z-10 group`}
     >
-      <div className={`w-0.5 h-full mx-auto transition-colors ${isResizing ? 'bg-blue-400' : 'bg-transparent group-hover:bg-blue-300'}`} />
+      <div className={`w-0.5 h-full mx-auto transition-colors ${isResizing ? 'bg-accent-vivid' : 'bg-transparent group-hover:bg-accent-moderate'}`} />
     </div>
   );
 
   const thePage = pages[pageId];
   if (!thePage) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-        <div className="bg-white rounded-xl shadow-2xl p-8 text-center" onClick={e => e.stopPropagation()}>
-          <p className="text-gray-500">Page not found</p>
-          <button onClick={onClose} className="mt-3 text-sm text-blue-500">Close</button>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim" onClick={onClose}>
+        <div className="bg-surface-primary rounded-xl shadow-2xl p-8 text-center" onClick={e => e.stopPropagation()}>
+          <p className="text-ink-secondary">Page not found</p>
+          <button onClick={onClose} className="mt-3 text-sm text-accent-text-soft">Close</button>
         </div>
       </div>
     );
@@ -244,7 +244,7 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
           type="text"
           value={title}
           onChange={(e) => updatePageProperty(pageId, database.titlePropertyId, e.target.value)}
-          className="w-full text-3xl font-bold text-gray-900 placeholder:text-gray-300 outline-none border-none"
+          className="w-full text-3xl font-bold text-ink placeholder:text-ink-disabled outline-none border-none"
           placeholder="Untitled"
         />
       </div>
@@ -260,7 +260,7 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
 
       {/* Divider */}
       <div className={hPad}>
-        <div className="border-t border-gray-200" />
+        <div className="border-t border-line" />
       </div>
 
       {/* Page content area */}
@@ -270,7 +270,7 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
 
       {/* Meta */}
       <div className={`${hPad} pb-8`}>
-        <div className="text-xs text-gray-400 flex flex-col gap-1">
+        <div className="text-xs text-ink-muted flex flex-col gap-1">
           <span>Created: {format(parseISO(thePage.createdAt), 'MMM d, yyyy h:mm a')}</span>
           <span>Updated: {format(parseISO(thePage.updatedAt), 'MMM d, yyyy h:mm a')}</span>
         </div>
@@ -280,24 +280,24 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
 
   /* Shared header bar */
   const headerBar = (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
-      <div className="flex items-center gap-2 text-sm text-gray-400">
+    <div className="flex items-center justify-between px-6 py-4 border-b border-line shrink-0">
+      <div className="flex items-center gap-2 text-sm text-ink-muted">
         {database.icon && <span>{database.icon}</span>}
         <span>{database.name}</span>
         <ChevronRight className="w-3.5 h-3.5" />
-        <span className="text-gray-700 font-medium truncate max-w-[200px]">{title || 'Untitled'}</span>
+        <span className="text-ink-body font-medium truncate max-w-[200px]">{title || 'Untitled'}</span>
       </div>
       <div className="flex items-center gap-1">
         <button onClick={() => { duplicatePage(pageId); }}
-          className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" title="Duplicate">
+          className="p-2 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors" title="Duplicate">
           <Copy className="w-4 h-4" />
         </button>
         <button onClick={() => { deletePage(pageId); onClose(); }}
-          className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors" title="Delete">
+          className="p-2 text-ink-muted hover:text-hover-danger-text rounded-lg hover:bg-hover-surface2 transition-colors" title="Delete">
           <Trash2 className="w-4 h-4" />
         </button>
         <button onClick={onClose}
-          className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+          className="p-2 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -307,9 +307,9 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
   // ── SIDE PEEK: right-side panel ──────────────────────────────────
   if (mode === 'side_peek') {
     return (
-      <div className="fixed inset-0 z-50 flex justify-end bg-black/30" onClick={onClose}>
+      <div className="fixed inset-0 z-50 flex justify-end bg-scrim-light" onClick={onClose}>
         <div
-          className="relative bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-200"
+          className="relative bg-surface-primary shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-200"
           style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH }}
           onClick={e => e.stopPropagation()}
         >
@@ -324,9 +324,9 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
   // ── CENTER PEEK: centered dialog ─────────────────────────────────
   if (mode === 'center_peek') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim-medium" onClick={onClose}>
         <div
-          className="relative bg-white rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200"
+          className="relative bg-surface-primary rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200"
           style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH, maxHeight: 'calc(100vh - 80px)' }}
           onClick={e => e.stopPropagation()}
         >
@@ -342,27 +342,27 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
   // ── FULL PAGE: full-screen overlay ───────────────────────────────
   const fullPageMaxW = contentWidth === 'full' ? 'none' : `${CONTENT_WIDTHS[contentWidth]}px`;
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 bg-surface-primary flex flex-col animate-in fade-in duration-150">
       {/* Full-page header — slightly different: back button + breadcrumb */}
-      <div className="flex items-center justify-between px-8 py-4 border-b border-gray-200 shrink-0">
-        <div className="flex items-center gap-3 text-sm text-gray-400">
+      <div className="flex items-center justify-between px-8 py-4 border-b border-line shrink-0">
+        <div className="flex items-center gap-3 text-sm text-ink-muted">
           <button onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" title="Back">
+            className="p-1.5 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors" title="Back">
             <ChevronRight className="w-4 h-4 rotate-180" />
           </button>
           {database.icon && <span className="text-lg">{database.icon}</span>}
-          <span className="text-gray-500">{database.name}</span>
+          <span className="text-ink-secondary">{database.name}</span>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-gray-800 font-medium truncate max-w-[300px]">{title || 'Untitled'}</span>
+          <span className="text-ink-strong font-medium truncate max-w-[300px]">{title || 'Untitled'}</span>
         </div>
         <div className="flex items-center gap-1">
           {/* Width toggle buttons */}
-          <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden mr-2">
+          <div className="flex items-center border border-line rounded-lg overflow-hidden mr-2">
             {(['narrow', 'default', 'wide', 'full'] as const).map(w => (
               <button
                 key={w}
                 onClick={() => setContentWidth(w)}
-                className={`px-2 py-1 text-xs transition-colors ${contentWidth === w ? 'bg-gray-100 text-gray-800 font-medium' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}
+                className={`px-2 py-1 text-xs transition-colors ${contentWidth === w ? 'bg-surface-tertiary text-ink-strong font-medium' : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface'}`}
                 title={`${w.charAt(0).toUpperCase() + w.slice(1)} width`}
               >
                 {w === 'narrow' ? '▕▏' : w === 'default' ? '▕ ▏' : w === 'wide' ? '▕  ▏' : '▕   ▏'}
@@ -370,15 +370,15 @@ function PageModal({ pageId, onClose, mode = 'side_peek' }: { pageId: string; on
             ))}
           </div>
           <button onClick={() => { duplicatePage(pageId); }}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" title="Duplicate">
+            className="p-2 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors" title="Duplicate">
             <Copy className="w-4 h-4" />
           </button>
           <button onClick={() => { deletePage(pageId); onClose(); }}
-            className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 transition-colors" title="Delete">
+            className="p-2 text-ink-muted hover:text-hover-danger-text rounded-lg hover:bg-hover-surface2 transition-colors" title="Delete">
             <Trash2 className="w-4 h-4" />
           </button>
           <button onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+            className="p-2 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -432,21 +432,21 @@ function PropertyRow({ prop, page, pageId, database }: { prop: SchemaProperty; p
           <input type={prop.type === 'email' ? 'email' : prop.type === 'url' ? 'url' : 'text'}
             value={val || ''}
             onChange={(e) => updatePageProperty(pageId, prop.id, e.target.value)}
-            className="flex-1 text-sm text-gray-900 outline-none bg-transparent px-2 py-1 rounded hover:bg-gray-50 focus:bg-gray-50"
+            className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
             placeholder="Empty" />
         );
       case 'number':
         return (
           <input type="number" value={val ?? ''}
             onChange={(e) => updatePageProperty(pageId, prop.id, e.target.value ? Number(e.target.value) : null)}
-            className="flex-1 text-sm text-gray-900 outline-none bg-transparent px-2 py-1 rounded hover:bg-gray-50 focus:bg-gray-50 tabular-nums"
+            className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface tabular-nums"
             placeholder="Empty" />
         );
       case 'select':
         return (
           <select value={val || ''}
             onChange={(e) => updatePageProperty(pageId, prop.id, e.target.value || null)}
-            className="flex-1 text-sm text-gray-900 outline-none bg-transparent px-2 py-1 rounded hover:bg-gray-50 focus:bg-gray-50">
+            className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface">
             <option value="">Empty</option>
             {prop.options?.map(opt => (
               <option key={opt.id} value={opt.id}>{opt.value}</option>
@@ -463,7 +463,7 @@ function PropertyRow({ prop, page, pageId, database }: { prop: SchemaProperty; p
                 <span key={id} className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`}>
                   {opt.value}
                   <button onClick={() => updatePageProperty(pageId, prop.id, selected.filter(s => s !== id))}
-                    className="hover:text-red-600">×</button>
+                    className="hover:text-hover-danger-text-bold">×</button>
                 </span>
               ) : null;
             })}
@@ -473,7 +473,7 @@ function PropertyRow({ prop, page, pageId, database }: { prop: SchemaProperty; p
                   updatePageProperty(pageId, prop.id, [...selected, e.target.value]);
                 }
               }}
-              className="text-xs text-gray-400 bg-transparent outline-none">
+              className="text-xs text-ink-muted bg-transparent outline-none">
               <option value="">+ Add</option>
               {prop.options?.filter(o => !selected.includes(o.id)).map(opt => (
                 <option key={opt.id} value={opt.id}>{opt.value}</option>
@@ -486,20 +486,20 @@ function PropertyRow({ prop, page, pageId, database }: { prop: SchemaProperty; p
         return (
           <input type="date" value={val || ''}
             onChange={(e) => updatePageProperty(pageId, prop.id, e.target.value || null)}
-            className="flex-1 text-sm text-gray-900 outline-none bg-transparent px-2 py-1 rounded hover:bg-gray-50 focus:bg-gray-50" />
+            className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface" />
         );
       case 'checkbox':
         return (
           <button onClick={() => updatePageProperty(pageId, prop.id, !val)}
-            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${val ? 'bg-blue-500 border-blue-500' : 'border-gray-300 hover:border-gray-400'}`}>
-            {val && <span className="text-white text-xs">✓</span>}
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${val ? 'bg-accent border-accent-border' : 'border-line-medium hover:border-hover-border-strong'}`}>
+            {val && <span className="text-ink-inverse text-xs">✓</span>}
           </button>
         );
       case 'status':
         return (
           <select value={val || ''}
             onChange={(e) => updatePageProperty(pageId, prop.id, e.target.value || null)}
-            className="flex-1 text-sm text-gray-900 outline-none bg-transparent px-2 py-1 rounded hover:bg-gray-50 focus:bg-gray-50">
+            className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface">
             <option value="">Empty</option>
             {prop.options?.map(opt => (
               <option key={opt.id} value={opt.id}>{opt.value}</option>
@@ -511,7 +511,7 @@ function PropertyRow({ prop, page, pageId, database }: { prop: SchemaProperty; p
         return (
           <input type="text" value={val || ''}
             onChange={(e) => updatePageProperty(pageId, prop.id, e.target.value)}
-            className="flex-1 text-sm text-gray-900 outline-none bg-transparent px-2 py-1 rounded hover:bg-gray-50 focus:bg-gray-50"
+            className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
             placeholder="Person name" />
         );
       case 'place': {
@@ -519,38 +519,38 @@ function PropertyRow({ prop, page, pageId, database }: { prop: SchemaProperty; p
         return (
           <input type="text" value={placeVal?.address || (typeof val === 'string' ? val : '')}
             onChange={(e) => updatePageProperty(pageId, prop.id, { address: e.target.value })}
-            className="flex-1 text-sm text-gray-900 outline-none bg-transparent px-2 py-1 rounded hover:bg-gray-50 focus:bg-gray-50"
+            className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
             placeholder="Address..." />
         );
       }
       case 'id':
-        return <span className="text-sm text-gray-500 font-mono tabular-nums px-2">{val || '—'}</span>;
+        return <span className="text-sm text-ink-secondary font-mono tabular-nums px-2">{val || '—'}</span>;
       case 'files_media':
-        return <span className="text-sm text-gray-400 italic px-2">{Array.isArray(val) && val.length > 0 ? `${val.length} file(s)` : 'No files'}</span>;
+        return <span className="text-sm text-ink-muted italic px-2">{Array.isArray(val) && val.length > 0 ? `${val.length} file(s)` : 'No files'}</span>;
       case 'button':
         return (
-          <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-xs font-medium text-gray-700 rounded-md transition-colors">
+          <button className="px-3 py-1 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md transition-colors">
             {prop.buttonConfig?.label || 'Click'}
           </button>
         );
       case 'created_time':
-        return <span className="text-sm text-gray-500 px-2">{page.createdAt ? format(parseISO(page.createdAt), 'MMM d, yyyy h:mm a') : '-'}</span>;
+        return <span className="text-sm text-ink-secondary px-2">{page.createdAt ? format(parseISO(page.createdAt), 'MMM d, yyyy h:mm a') : '-'}</span>;
       case 'last_edited_time':
-        return <span className="text-sm text-gray-500 px-2">{page.updatedAt ? format(parseISO(page.updatedAt), 'MMM d, yyyy h:mm a') : '-'}</span>;
+        return <span className="text-sm text-ink-secondary px-2">{page.updatedAt ? format(parseISO(page.updatedAt), 'MMM d, yyyy h:mm a') : '-'}</span>;
       case 'created_by':
-        return <span className="text-sm text-gray-500 px-2">{page.createdBy || '—'}</span>;
+        return <span className="text-sm text-ink-secondary px-2">{page.createdBy || '—'}</span>;
       case 'last_edited_by':
-        return <span className="text-sm text-gray-500 px-2">{page.lastEditedBy || '—'}</span>;
+        return <span className="text-sm text-ink-secondary px-2">{page.lastEditedBy || '—'}</span>;
       default:
-        return <span className="text-sm text-gray-400 px-2">—</span>;
+        return <span className="text-sm text-ink-muted px-2">—</span>;
     }
   };
 
   return (
-    <div className="flex items-center gap-3 py-1.5 group hover:bg-gray-50 -mx-3 px-3 rounded-lg transition-colors">
+    <div className="flex items-center gap-3 py-1.5 group hover:bg-hover-surface -mx-3 px-3 rounded-lg transition-colors">
       <div className="flex items-center gap-2 w-36 shrink-0">
-        <span className="text-gray-400">{PROP_ICONS[prop.type] || <Hash className="w-3.5 h-3.5" />}</span>
-        <span className="text-sm text-gray-500 truncate">{prop.name}</span>
+        <span className="text-ink-muted">{PROP_ICONS[prop.type] || <Hash className="w-3.5 h-3.5" />}</span>
+        <span className="text-sm text-ink-secondary truncate">{prop.name}</span>
       </div>
       {renderEditor()}
     </div>
@@ -786,7 +786,7 @@ function PageContentEditor({ pageId }: { pageId: string }) {
         <div
           contentEditable
           data-block-editor
-          className="text-sm text-gray-400 outline-none py-1 focus:text-gray-900"
+          className="text-sm text-ink-muted outline-none py-1 focus:text-focus-text"
           onFocus={() => {
             if (content.length === 0) {
               const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
@@ -820,12 +820,12 @@ function PageContentEditor({ pageId }: { pageId: string }) {
                   }
                   focusBlock(newBlock.id);
                 }}
-                className="p-0.5 text-gray-300 hover:text-gray-500 rounded hover:bg-gray-100 transition-colors"
+                className="p-0.5 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors"
                 title="Add block"
               >
                 <Plus className="w-4 h-4" />
               </button>
-              <div className="p-0.5 text-gray-300 hover:text-gray-500 rounded hover:bg-gray-100 transition-colors cursor-grab">
+              <div className="p-0.5 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors cursor-grab">
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
                   <circle cx="5.5" cy="3.5" r="1.5" />
                   <circle cx="10.5" cy="3.5" r="1.5" />
@@ -852,7 +852,7 @@ function PageContentEditor({ pageId }: { pageId: string }) {
       {content.length > 0 && (
         <button
           onClick={handleAddBlock}
-          className="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-500 py-2 transition-colors group"
+          className="flex items-center gap-2 text-sm text-ink-disabled hover:text-hover-text-muted py-2 transition-colors group"
         >
           <Plus className="w-4 h-4" />
           <span className="opacity-0 group-hover:opacity-100 transition-opacity">Add a block</span>

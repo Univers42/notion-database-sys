@@ -21,7 +21,7 @@ export function CalendarView() {
   // Find date property
   const dateProperty = Object.values(database.properties).find(p => p.type === 'date');
   if (!dateProperty) {
-    return <div className="flex-1 flex items-center justify-center text-gray-500">Calendar view requires a date property.</div>;
+    return <div className="flex-1 flex items-center justify-center text-ink-secondary">Calendar view requires a date property.</div>;
   }
 
   const monthStart = startOfMonth(currentMonth);
@@ -61,22 +61,22 @@ export function CalendarView() {
   };
 
   return (
-    <div className="flex-1 overflow-auto p-4 bg-white flex flex-col h-full">
+    <div className="flex-1 overflow-auto p-4 bg-surface-primary flex flex-col h-full">
       {/* Navigation header */}
       <div className="flex items-center justify-between mb-4 px-2">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-gray-900">{format(currentMonth, 'MMMM yyyy')}</h2>
+          <h2 className="text-lg font-semibold text-ink">{format(currentMonth, 'MMMM yyyy')}</h2>
           <div className="flex items-center gap-1">
             <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              className="p-1 hover:bg-gray-100 rounded text-gray-500 transition-colors">
+              className="p-1 hover:bg-hover-surface2 rounded text-ink-secondary transition-colors">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button onClick={() => setCurrentMonth(new Date())}
-              className="px-2 py-1 hover:bg-gray-100 rounded text-xs font-medium text-gray-600 transition-colors">
+              className="px-2 py-1 hover:bg-hover-surface2 rounded text-xs font-medium text-ink-body-light transition-colors">
               Today
             </button>
             <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              className="p-1 hover:bg-gray-100 rounded text-gray-500 transition-colors">
+              className="p-1 hover:bg-hover-surface2 rounded text-ink-secondary transition-colors">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -84,12 +84,12 @@ export function CalendarView() {
       </div>
 
       {/* Calendar Grid */}
-      <div className="flex-1 border border-gray-200 rounded-lg overflow-hidden flex flex-col">
+      <div className="flex-1 border border-line rounded-lg overflow-hidden flex flex-col">
         {/* Day headers */}
-        <div className={`grid bg-gray-50 border-b border-gray-200 shrink-0`}
+        <div className={`grid bg-surface-secondary border-b border-line shrink-0`}
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
           {weekDays.map(day => (
-            <div key={day} className="py-2 text-center text-xs font-medium text-gray-500 border-r border-gray-200 last:border-r-0">
+            <div key={day} className="py-2 text-center text-xs font-medium text-ink-secondary border-r border-line last:border-r-0">
               {day}
             </div>
           ))}
@@ -109,21 +109,21 @@ export function CalendarView() {
 
             return (
               <div key={dayKey}
-                className={`min-h-[90px] p-1 border-b border-r border-gray-200 transition-colors ${
-                  !isCurrentMonth ? 'bg-gray-50/60' : 'bg-white'
-                } ${isDragTarget ? 'bg-blue-50 ring-1 ring-inset ring-blue-300' : ''}`}
+                className={`min-h-[90px] p-1 border-b border-r border-line transition-colors ${
+                  !isCurrentMonth ? 'bg-surface-secondary-soft3' : 'bg-surface-primary'
+                } ${isDragTarget ? 'bg-accent-soft ring-1 ring-inset ring-ring-accent-muted' : ''}`}
                 onDrop={e => handleDrop(e, day)}
                 onDragOver={e => handleDragOver(e, dayKey)}
                 onDragLeave={() => setDragOverDay(null)}>
 
                 <div className="flex items-center justify-between px-1 mb-1">
                   <span className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${
-                    isToday(day) ? 'bg-blue-500 text-white' : isCurrentMonth ? 'text-gray-700' : 'text-gray-400'
+                    isToday(day) ? 'bg-accent text-ink-inverse' : isCurrentMonth ? 'text-ink-body' : 'text-ink-muted'
                   }`}>
                     {format(day, 'd')}
                   </span>
                   <button onClick={() => addPage(database.id, { [dateProperty.id]: day.toISOString() })}
-                    className="p-0.5 text-gray-300 hover:text-gray-500 hover:bg-gray-100 rounded opacity-0 hover:opacity-100 transition-all">
+                    className="p-0.5 text-ink-disabled hover:text-hover-text-muted hover:bg-hover-surface2 rounded opacity-0 hover:opacity-100 transition-all">
                     <Plus className="w-3 h-3" />
                   </button>
                 </div>
@@ -141,7 +141,7 @@ export function CalendarView() {
                         onDragStart={e => handleDragStart(e, page.id)}
                         onClick={() => openPage(page.id)}
                         className={`px-1.5 py-0.5 rounded text-xs cursor-grab active:cursor-grabbing hover:shadow-sm transition-all ${
-                          statusOpt ? statusOpt.color : 'bg-blue-50 text-blue-700'
+                          statusOpt ? statusOpt.color : 'bg-accent-soft text-accent-text'
                         }`}>
                         <span className={wrapTitles ? 'whitespace-pre-wrap break-words' : 'truncate block'}>
                           {page.icon && <span className="mr-0.5">{page.icon}</span>}
@@ -151,7 +151,7 @@ export function CalendarView() {
                     );
                   })}
                   {dayPages.length > 3 && (
-                    <span className="text-xs text-gray-400 px-1">+{dayPages.length - 3} more</span>
+                    <span className="text-xs text-ink-muted px-1">+{dayPages.length - 3} more</span>
                   )}
                 </div>
               </div>

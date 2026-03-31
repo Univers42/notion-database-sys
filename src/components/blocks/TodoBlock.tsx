@@ -17,8 +17,8 @@ export function TodoBlock({ block, pageId, onChange, onKeyDown }: BlockRendererP
         onClick={handleToggle}
         className={`shrink-0 mt-[3px] w-4 h-4 rounded border transition-colors ${
           block.checked
-            ? 'bg-blue-500 border-blue-500 text-white'
-            : 'border-gray-300 hover:border-gray-400 bg-white'
+            ? 'bg-accent border-accent-border text-ink-inverse'
+            : 'border-line-medium hover:border-hover-border-strong bg-surface-primary'
         }`}
       >
         {block.checked && (
@@ -30,7 +30,7 @@ export function TodoBlock({ block, pageId, onChange, onKeyDown }: BlockRendererP
       <EditableContent
         content={block.content}
         className={`text-sm leading-relaxed py-0.5 flex-1 ${
-          block.checked ? 'text-gray-400 line-through' : 'text-gray-700'
+          block.checked ? 'text-ink-muted line-through' : 'text-ink-body'
         }`}
         placeholder="To-do"
         onChange={onChange}

@@ -7,13 +7,13 @@ export function PageBlock({ block }: BlockRendererProps) {
     <div className="my-1">
       <button
         type="button"
-        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-left"
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-line hover:bg-hover-surface transition-colors text-left"
       >
-        <FileText className="w-4 h-4 text-gray-400 shrink-0" />
-        <span className="text-sm text-gray-700 flex-1 truncate">
+        <FileText className="w-4 h-4 text-ink-muted shrink-0" />
+        <span className="text-sm text-ink-body flex-1 truncate">
           {block.content || 'Untitled page'}
         </span>
-        <ArrowUpRight className="w-3.5 h-3.5 text-gray-300" />
+        <ArrowUpRight className="w-3.5 h-3.5 text-ink-disabled" />
       </button>
     </div>
   );

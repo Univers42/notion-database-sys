@@ -101,7 +101,7 @@ export function RollupEditorPanel({ databaseId, propertyId, onClose, position }:
 
   return (
     <div ref={panelRef} style={style}
-      className="w-[290px] bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 flex flex-col max-h-[80vh]">
+      className="w-[290px] bg-surface-primary rounded-xl shadow-2xl border border-line overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 flex flex-col max-h-[80vh]">
 
       <div className="flex-1 overflow-y-auto">
         {/* ─── Relation section ─── */}
@@ -116,14 +116,14 @@ export function RollupEditorPanel({ databaseId, propertyId, onClose, position }:
           {showRelPicker && (
             <PickerList>
               {relationProps.length === 0 ? (
-                <div className="px-3 py-2 text-xs text-gray-400">No relations in this database</div>
+                <div className="px-3 py-2 text-xs text-ink-muted">No relations in this database</div>
               ) : relationProps.map(rp => (
                 <PickerItem key={rp.id} selected={rp.id === relationPropId}
                   onClick={() => { setRelationPropId(rp.id); setTargetPropId(''); setShowRelPicker(false); }}>
-                  <GitBranch className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <GitBranch className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                   <span className="truncate">{rp.name}</span>
                   {rp.relationConfig && (
-                    <span className="ml-auto text-[10px] text-gray-400 shrink-0">
+                    <span className="ml-auto text-[10px] text-ink-muted shrink-0">
                       → {databases[rp.relationConfig.databaseId]?.icon} {databases[rp.relationConfig.databaseId]?.name}
                     </span>
                   )}
@@ -148,7 +148,7 @@ export function RollupEditorPanel({ databaseId, propertyId, onClose, position }:
               {targetProps.map(tp => (
                 <PickerItem key={tp.id} selected={tp.id === targetPropId}
                   onClick={() => { setTargetPropId(tp.id); setShowPropPicker(false); }}>
-                  <span className="text-[10px] text-gray-400 uppercase w-6 shrink-0 text-center">{tp.type.slice(0, 3)}</span>
+                  <span className="text-[10px] text-ink-muted uppercase w-6 shrink-0 text-center">{tp.type.slice(0, 3)}</span>
                   <span className="truncate">{tp.name}</span>
                 </PickerItem>
               ))}
@@ -170,7 +170,7 @@ export function RollupEditorPanel({ databaseId, propertyId, onClose, position }:
                 const items = ROLLUP_FUNCTIONS.filter(f => f.group === group);
                 return (
                   <React.Fragment key={group}>
-                    <div className="px-2 pt-2 pb-0.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{group}</div>
+                    <div className="px-2 pt-2 pb-0.5 text-[10px] font-semibold text-ink-muted uppercase tracking-wider">{group}</div>
                     {items.map(f => (
                       <PickerItem key={f.value} selected={f.value === fn}
                         onClick={() => { setFn(f.value); setShowFnPicker(false); }}>
@@ -199,7 +199,7 @@ export function RollupEditorPanel({ databaseId, propertyId, onClose, position }:
                   {DISPLAY_OPTIONS.map(d => (
                     <PickerItem key={d.value} selected={d.value === displayAs}
                       onClick={() => { setDisplayAs(d.value); setShowDisplayPicker(false); }}>
-                      <span className="text-gray-400">{d.icon}</span>
+                      <span className="text-ink-muted">{d.icon}</span>
                       <span>{d.label}</span>
                     </PickerItem>
                   ))}
@@ -211,11 +211,11 @@ export function RollupEditorPanel({ databaseId, propertyId, onClose, position }:
       </div>
 
       {/* Save */}
-      <div className="px-3 pb-3 pt-1 shrink-0 border-t border-gray-100">
+      <div className="px-3 pb-3 pt-1 shrink-0 border-t border-line-light">
         <button onClick={handleSave} disabled={!relationPropId}
           className={`w-full py-2 rounded-md text-sm font-medium transition-colors ${relationPropId
-            ? 'bg-blue-500 hover:bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+            ? 'bg-accent hover:bg-hover-accent text-ink-inverse'
+            : 'bg-surface-tertiary text-ink-muted cursor-not-allowed'}`}>
           Save
         </button>
       </div>
@@ -228,7 +228,7 @@ export function RollupEditorPanel({ databaseId, propertyId, onClose, position }:
 function SectionHeader({ label }: { label: string }) {
   return (
     <div className="flex items-center px-3 pt-3 pb-1">
-      <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">{label}</span>
+      <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">{label}</span>
     </div>
   );
 }
@@ -239,17 +239,17 @@ function DropdownButton({ label, muted, disabled, open, onClick }: {
   return (
     <button onClick={onClick} disabled={disabled}
       className={`w-full flex items-center justify-between px-2.5 py-2 rounded-md text-sm transition-colors ${
-        disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'
-      } ${open ? 'bg-gray-50' : ''}`}>
-      <span className={`truncate ${muted ? 'text-gray-400' : 'text-gray-700'}`}>{label}</span>
-      <ChevronDown className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-hover-surface cursor-pointer'
+      } ${open ? 'bg-surface-secondary' : ''}`}>
+      <span className={`truncate ${muted ? 'text-ink-muted' : 'text-ink-body'}`}>{label}</span>
+      <ChevronDown className={`w-3.5 h-3.5 text-ink-muted shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
     </button>
   );
 }
 
 function PickerList({ children, maxH = 'max-h-48' }: { children: React.ReactNode; maxH?: string }) {
   return (
-    <div className={`mt-1 bg-gray-50 rounded-lg border border-gray-100 overflow-y-auto ${maxH}`}>
+    <div className={`mt-1 bg-surface-secondary rounded-lg border border-line-light overflow-y-auto ${maxH}`}>
       {children}
     </div>
   );
@@ -259,7 +259,7 @@ function PickerItem({ children, selected, onClick }: { children: React.ReactNode
   return (
     <button onClick={onClick}
       className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-sm transition-colors ${
-        selected ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-white'
+        selected ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface-white'
       }`}>
       {children}
     </button>

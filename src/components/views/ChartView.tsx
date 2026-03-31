@@ -5,8 +5,8 @@ import { BarChart3 } from 'lucide-react';
 type ChartType = 'vertical_bar' | 'horizontal_bar' | 'line' | 'donut' | 'pie' | 'number';
 
 const CHART_COLORS = [
-  '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981',
-  '#06b6d4', '#ef4444', '#6366f1', '#14b8a6', '#f97316',
+  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)', 'var(--color-chart-4)', 'var(--color-chart-5)',
+  'var(--color-chart-6)', 'var(--color-chart-7)', 'var(--color-chart-8)', 'var(--color-chart-9)', 'var(--color-chart-10)',
 ];
 
 export function ChartView() {
@@ -81,9 +81,9 @@ export function ChartView() {
 
   if (!xAxisProperty) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="text-center text-gray-400 max-w-sm">
-          <BarChart3 className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+      <div className="flex-1 flex items-center justify-center p-8 bg-surface-primary">
+        <div className="text-center text-ink-muted max-w-sm">
+          <BarChart3 className="w-12 h-12 mx-auto mb-3 text-ink-disabled" />
           <p className="font-medium mb-1">Configure your chart</p>
           <p className="text-sm">Open view settings to select an X-axis property for charting.</p>
         </div>
@@ -97,10 +97,10 @@ export function ChartView() {
   // Number chart type
   if (chartType === 'number') {
     return (
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-8 bg-surface-primary">
         <div className="text-center">
-          <div className="text-6xl font-bold text-gray-900 tabular-nums">{total.toLocaleString()}</div>
-          <div className="text-sm text-gray-500 mt-2">Total {yAxisAggregation} &middot; {pages.length} records</div>
+          <div className="text-6xl font-bold text-ink tabular-nums">{total.toLocaleString()}</div>
+          <div className="text-sm text-ink-secondary mt-2">Total {yAxisAggregation} &middot; {pages.length} records</div>
         </div>
       </div>
     );
@@ -113,15 +113,15 @@ export function ChartView() {
     const chartHeight = 300;
 
     return (
-      <div className="flex-1 overflow-auto p-8 bg-white">
+      <div className="flex-1 overflow-auto p-8 bg-surface-primary">
         <div className="flex flex-col items-center">
           <svg width={chartWidth} height={chartHeight + 60} className="overflow-visible">
             {/* Y-axis grid lines */}
             {[0, 0.25, 0.5, 0.75, 1].map(pct => (
               <g key={pct}>
                 <line x1={40} y1={chartHeight * (1 - pct) + 10} x2={chartWidth - 20} y2={chartHeight * (1 - pct) + 10}
-                  stroke="#e5e7eb" strokeWidth={1} />
-                <text x={36} y={chartHeight * (1 - pct) + 14} textAnchor="end" fontSize={11} fill="#9ca3af">
+                  stroke="var(--color-chart-grid)" strokeWidth={1} />
+                <text x={36} y={chartHeight * (1 - pct) + 14} textAnchor="end" fontSize={11} fill="var(--color-chart-tick)">
                   {Math.round(maxValue * pct)}
                 </text>
               </g>
@@ -138,11 +138,11 @@ export function ChartView() {
                   <rect x={x} y={y} width={barWidth} height={barHeight}
                     fill={d.color} rx={4} className="transition-all duration-200 hover:opacity-80" />
                   <text x={x + barWidth / 2} y={chartHeight + 28}
-                    textAnchor="middle" fontSize={11} fill="#6b7280" className="select-none">
+                    textAnchor="middle" fontSize={11} fill="var(--color-chart-label)" className="select-none">
                     {d.label.length > 10 ? d.label.slice(0, 10) + '…' : d.label}
                   </text>
                   <text x={x + barWidth / 2} y={y - 6}
-                    textAnchor="middle" fontSize={11} fill="#374151" fontWeight={600}>
+                    textAnchor="middle" fontSize={11} fill="var(--color-chart-axis)" fontWeight={600}>
                     {d.value % 1 === 0 ? d.value : d.value.toFixed(1)}
                   </text>
                 </g>
@@ -161,7 +161,7 @@ export function ChartView() {
     const labelWidth = 120;
 
     return (
-      <div className="flex-1 overflow-auto p-8 bg-white">
+      <div className="flex-1 overflow-auto p-8 bg-surface-primary">
         <div className="max-w-2xl mx-auto">
           <svg width={chartWidth + labelWidth + 60} height={chartData.length * (barHeight + 8) + 20}>
             {chartData.map((d, i) => {
@@ -171,13 +171,13 @@ export function ChartView() {
               return (
                 <g key={d.label}>
                   <text x={labelWidth - 8} y={y + barHeight / 2 + 4}
-                    textAnchor="end" fontSize={12} fill="#374151">
+                    textAnchor="end" fontSize={12} fill="var(--color-chart-axis)">
                     {d.label.length > 16 ? d.label.slice(0, 16) + '…' : d.label}
                   </text>
                   <rect x={labelWidth} y={y} width={barW} height={barHeight}
                     fill={d.color} rx={4} className="transition-all duration-200 hover:opacity-80" />
                   <text x={labelWidth + barW + 8} y={y + barHeight / 2 + 4}
-                    fontSize={12} fill="#374151" fontWeight={600}>
+                    fontSize={12} fill="var(--color-chart-axis)" fontWeight={600}>
                     {d.value % 1 === 0 ? d.value : d.value.toFixed(1)}
                   </text>
                 </g>
@@ -207,13 +207,13 @@ export function ChartView() {
     const areaD = pathD + ` L ${points[points.length - 1]?.x || 0} ${padding.top + innerH} L ${points[0]?.x || 0} ${padding.top + innerH} Z`;
 
     return (
-      <div className="flex-1 overflow-auto p-8 bg-white">
+      <div className="flex-1 overflow-auto p-8 bg-surface-primary">
         <div className="flex flex-col items-center">
           <svg width={chartWidth} height={chartHeight}>
             <defs>
               <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity={0.2} />
+                <stop offset="100%" stopColor="var(--color-chart-1)" stopOpacity={0} />
               </linearGradient>
             </defs>
             {/* Grid */}
@@ -221,9 +221,9 @@ export function ChartView() {
               <g key={pct}>
                 <line x1={padding.left} y1={padding.top + innerH * (1 - pct)}
                   x2={padding.left + innerW} y2={padding.top + innerH * (1 - pct)}
-                  stroke="#e5e7eb" strokeWidth={1} />
+                  stroke="var(--color-chart-grid)" strokeWidth={1} />
                 <text x={padding.left - 8} y={padding.top + innerH * (1 - pct) + 4}
-                  textAnchor="end" fontSize={11} fill="#9ca3af">
+                  textAnchor="end" fontSize={11} fill="var(--color-chart-tick)">
                   {Math.round(maxValue * pct)}
                 </text>
               </g>
@@ -231,15 +231,15 @@ export function ChartView() {
             {/* Area fill */}
             {points.length > 1 && <path d={areaD} fill="url(#lineGrad)" />}
             {/* Line */}
-            {points.length > 1 && <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth={2.5} />}
+            {points.length > 1 && <path d={pathD} fill="none" stroke="var(--color-chart-1)" strokeWidth={2.5} />}
             {/* Points */}
             {points.map((p, i) => (
               <g key={i}>
-                <circle cx={p.x} cy={p.y} r={4} fill="#3b82f6" stroke="white" strokeWidth={2} />
-                <text x={p.x} y={padding.top + innerH + 20} textAnchor="middle" fontSize={11} fill="#6b7280">
+                <circle cx={p.x} cy={p.y} r={4} fill="var(--color-chart-1)" stroke="white" strokeWidth={2} />
+                <text x={p.x} y={padding.top + innerH + 20} textAnchor="middle" fontSize={11} fill="var(--color-chart-label)">
                   {p.label.length > 8 ? p.label.slice(0, 8) + '…' : p.label}
                 </text>
-                <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize={11} fill="#374151" fontWeight={600}>
+                <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize={11} fill="var(--color-chart-axis)" fontWeight={600}>
                   {p.value % 1 === 0 ? p.value : p.value.toFixed(1)}
                 </text>
               </g>
@@ -275,7 +275,7 @@ export function ChartView() {
     };
 
     return (
-      <div className="flex-1 overflow-auto p-8 bg-white">
+      <div className="flex-1 overflow-auto p-8 bg-surface-primary">
         <div className="flex items-center justify-center gap-12">
           <svg width={size} height={size}>
             {slices.map((slice, i) => {
@@ -299,7 +299,7 @@ export function ChartView() {
               );
             })}
             {isDonut && (
-              <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={24} fontWeight={700} fill="#374151">
+              <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={24} fontWeight={700} fill="var(--color-chart-axis)">
                 {total}
               </text>
             )}
@@ -310,9 +310,9 @@ export function ChartView() {
             {chartData.map((d, i) => (
               <div key={d.label} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: d.color }} />
-                <span className="text-sm text-gray-700">{d.label}</span>
-                <span className="text-sm text-gray-400 tabular-nums ml-1">{d.value}</span>
-                <span className="text-xs text-gray-400">({Math.round((d.value / total) * 100)}%)</span>
+                <span className="text-sm text-ink-body">{d.label}</span>
+                <span className="text-sm text-ink-muted tabular-nums ml-1">{d.value}</span>
+                <span className="text-xs text-ink-muted">({Math.round((d.value / total) * 100)}%)</span>
               </div>
             ))}
           </div>
