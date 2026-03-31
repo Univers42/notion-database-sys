@@ -566,7 +566,16 @@ const MemoTableRow = React.memo(function MemoTableRow({
           case 'relation': {
             const relatedIds: string[] = Array.isArray(value) ? value : [];
             const storePages = useDatabaseStore.getState().pages;
-            content = relatedIds.length > 0 ? (
+            content = isEditing ? (
+              <RelationCellEditor
+                property={prop}
+                value={value}
+                pageId={page.id}
+                databaseId={databaseId}
+                onUpdate={v => onUpdateProperty(page.id, prop.id, v)}
+                onClose={() => { onStopEditing(); tableRef.current?.focus(); }}
+              />
+            ) : relatedIds.length > 0 ? (
               <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
                 {relatedIds.map(rid => {
                   const relPage = storePages[rid];
