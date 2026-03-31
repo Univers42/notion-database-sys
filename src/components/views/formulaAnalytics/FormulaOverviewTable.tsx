@@ -1,0 +1,60 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   FormulaOverviewTable.tsx                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:38:17 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+import React from 'react';
+import { Sigma } from 'lucide-react';
+import type { AnalyticsEntry } from './constants';
+
+export function FormulaOverviewTable({ analytics }: { analytics: Record<string, AnalyticsEntry> }) {
+  return (
+    <div className="bg-surface-primary rounded-xl border border-line p-5">
+      <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
+        <Sigma className="w-4 h-4 text-ink-muted" /> All Formula Columns Overview
+      </h3>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-line">
+              <th className="text-left py-2 px-2 text-xs text-ink-secondary font-medium">Name</th>
+              <th className="text-left py-2 px-2 text-xs text-ink-secondary font-medium">Expression</th>
+              <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Type</th>
+              <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Evals</th>
+              <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Errors</th>
+              <th className="text-center py-2 px-2 text-xs text-ink-secondary font-medium">Success</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(analytics).map(([propId, a]) => {
+              const rate = a.total > 0 ? Math.round(((a.total - a.errors) / a.total) * 100) : 100;
+              return (
+                <tr key={propId} className="border-b border-line-faint hover:bg-hover-surface">
+                  <td className="py-2 px-2 font-medium text-ink">{a.propName}</td>
+                  <td className="py-2 px-2 text-ink-secondary font-mono text-xs truncate max-w-[300px]" title={a.expression}>{a.expression}</td>
+                  <td className="py-2 px-2 text-center">
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${a.resultType === 'number' ? 'bg-accent-muted text-accent-text' : a.resultType === 'boolean' ? 'bg-success-surface-muted text-success-text-bold' : a.resultType === 'text' ? 'bg-purple-surface-muted text-purple-text-bold' : 'bg-surface-tertiary text-ink-body-light'}`}>{a.resultType}</span>
+                  </td>
+                  <td className="py-2 px-2 text-center text-ink-body-light tabular-nums">{a.total}</td>
+                  <td className="py-2 px-2 text-center tabular-nums">
+                    <span className={a.errors > 0 ? 'text-danger-text font-bold' : 'text-ink-muted'}>{a.errors}</span>
+                  </td>
+                  <td className="py-2 px-2 text-center">
+                    <span className={`font-bold tabular-nums ${rate === 100 ? 'text-success-text' : rate > 90 ? 'text-amber-text' : 'text-danger-text'}`}>{rate}%</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
