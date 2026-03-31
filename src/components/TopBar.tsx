@@ -66,6 +66,7 @@ export function TopBar() {
   const activeViewId = useDatabaseStore(s => s.activeViewId);
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
+  const searchQuery = useDatabaseStore(s => s.searchQuery);
   const { addView, setActiveView, deleteView, duplicateView,
     addPage, renameDatabase, updateView } = useDatabaseStore.getState();
   const store = useDatabaseStore.getState();
@@ -74,6 +75,8 @@ export function TopBar() {
   const database = view ? databases[view.databaseId] : null;
 
   const [showSearch, setShowSearch] = useState(false);
+  const [localSearchValue, setLocalSearchValue] = useState(searchQuery);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [showFilterPropertyPicker, setShowFilterPropertyPicker] = useState(false);
@@ -287,11 +290,28 @@ export function TopBar() {
                 <Search className="w-3.5 h-3.5 text-gray-400" />
                 <input ref={searchRef}
                   type="text" placeholder="Search..."
-                  value={store.searchQuery}
-                  onChange={(e) => store.setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Escape') { store.setSearchQuery(''); setShowSearch(false); } }}
+                  value={localSearchValue}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setLocalSearchValue(v);
+                    clearTimeout(searchDebounceRef.current);
+                    searchDebounceRef.current = setTimeout(() => store.setSearchQuery(v), 200);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      clearTimeout(searchDebounceRef.current);
+                      setLocalSearchValue('');
+                      store.setSearchQuery('');
+                      setShowSearch(false);
+                    }
+                  }}
                   className="bg-transparent text-sm w-40 outline-none placeholder:text-gray-400" />
-                <button onClick={() => { store.setSearchQuery(''); setShowSearch(false); }}
+                <button onClick={() => {
+                  clearTimeout(searchDebounceRef.current);
+                  setLocalSearchValue('');
+                  store.setSearchQuery('');
+                  setShowSearch(false);
+                }}
                   className="p-0.5 hover:bg-gray-200 rounded">
                   <X className="w-3 h-3 text-gray-400" />
                 </button>

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { PropertyConfigPanel } from '../PropertyConfigPanel';
 import { FormulaEditorPanel } from '../FormulaEditorPanel';
+import { RelationCellEditor, StatusCellEditor } from '../CellEditors';
 import { SchemaProperty, Page } from '../../types/database';
 import { CURSORS } from '../ui/cursors';
 import {
@@ -218,7 +219,7 @@ function PropIcon({ type, className = 'w-3.5 h-3.5' }: { type: string; className
 // ═══════════════════════════════════════════════════════════════════════════════
 // READ-ONLY TYPES (no editing allowed)
 // ═══════════════════════════════════════════════════════════════════════════════
-const READ_ONLY_TYPES = new Set(['created_time', 'last_edited_time', 'created_by', 'last_edited_by', 'id', 'button']);
+const READ_ONLY_TYPES = new Set(['created_time', 'last_edited_time', 'created_by', 'last_edited_by', 'id', 'rollup', 'button']);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MEMOIZED TABLE ROW — only re-renders when its own data changes
@@ -243,6 +244,7 @@ interface MemoTableRowProps {
   onFillDragStart: (propId: string, rowIdx: number) => void;
   onFormulaEdit: (propId: string) => void;
   onRowMenu: (pageId: string, x: number, y: number) => void;
+  onPropertyConfig: (prop: SchemaProperty, position: { top: number; left: number }) => void;
   tableRef: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -250,7 +252,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
   page, rowIdx, visibleProps, focusedPropId, editingPropId,
   fillDrag, showRowNumbers, showVerticalLines, wrapContent,
   getColWidth, databaseId, onCellClick, onUpdateProperty, onStopEditing,
-  onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, tableRef,
+  onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
 }: MemoTableRowProps) {
 
   const cellBorder = showVerticalLines ? 'border-r border-gray-200' : '';
@@ -324,8 +326,7 @@ const MemoTableRow = React.memo(function MemoTableRow({
             );
             break;
 
-          case 'select':
-          case 'status': {
+          case 'select': {
             const selOpt = prop.options?.find(o => o.id === value);
             content = isEditing ? (
               <SelectEditor property={prop} value={value} databaseId={databaseId}
@@ -334,8 +335,32 @@ const MemoTableRow = React.memo(function MemoTableRow({
             ) : (
               selOpt ? (
                 <div className="flex items-center gap-1.5">
-                  {prop.type === 'status' && <span className={`w-2 h-2 rounded-full ${selOpt.color.split(' ')[0]}`} />}
                   <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${selOpt.color}`}>{selOpt.value}</span>
+                </div>
+              ) : <span className="text-gray-400 text-sm">Empty</span>
+            );
+            break;
+          }
+
+          case 'status': {
+            const statusOpt = prop.options?.find(o => o.id === value);
+            content = isEditing ? (
+              <StatusCellEditor
+                property={prop}
+                value={value}
+                databaseId={databaseId}
+                onUpdate={v => onUpdateProperty(page.id, prop.id, v)}
+                onClose={() => { onStopEditing(); tableRef.current?.focus(); }}
+                onEditProperty={() => {
+                  onStopEditing();
+                  onPropertyConfig(prop, { top: 200, left: 200 });
+                }}
+              />
+            ) : (
+              statusOpt ? (
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${statusOpt.color.split(' ')[0]}`} />
+                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusOpt.color}`}>{statusOpt.value}</span>
                 </div>
               ) : <span className="text-gray-400 text-sm">Empty</span>
             );
@@ -541,7 +566,16 @@ const MemoTableRow = React.memo(function MemoTableRow({
           case 'relation': {
             const relatedIds: string[] = Array.isArray(value) ? value : [];
             const storePages = useDatabaseStore.getState().pages;
-            content = relatedIds.length > 0 ? (
+            content = isEditing ? (
+              <RelationCellEditor
+                property={prop}
+                value={value}
+                pageId={page.id}
+                databaseId={databaseId}
+                onUpdate={v => onUpdateProperty(page.id, prop.id, v)}
+                onClose={() => { onStopEditing(); tableRef.current?.focus(); }}
+              />
+            ) : relatedIds.length > 0 ? (
               <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
                 {relatedIds.map(rid => {
                   const relPage = storePages[rid];
@@ -952,6 +986,10 @@ export function TableView() {
     setRowMenu({ pageId, x, y });
   }, []);
 
+  const handlePropertyConfig = useCallback((prop: SchemaProperty, position: { top: number; left: number }) => {
+    setConfigPanel({ prop, position });
+  }, []);
+
   const getColWidth = useCallback((propId: string) => {
     const s = useDatabaseStore.getState();
     const v = s.views[s.activeViewId!];
@@ -1019,6 +1057,7 @@ export function TableView() {
           onFillDragStart={handleFillDragStart}
           onFormulaEdit={handleFormulaEdit}
           onRowMenu={handleRowMenu}
+          onPropertyConfig={handlePropertyConfig}
           tableRef={tableRef}
         />
       );

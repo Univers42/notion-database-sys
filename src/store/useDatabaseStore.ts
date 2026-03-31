@@ -1016,14 +1016,50 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
     let result = Object.values(state.pages)
       .filter(p => p.databaseId === view.databaseId && !p.archived);
 
-    // Global search filter
+    // Global search filter — resolves option IDs, relation page titles, etc.
     if (state.searchQuery) {
       const q = state.searchQuery.toLowerCase();
       result = result.filter(page => {
-        return Object.values(page.properties).some(val => {
-          if (typeof val === 'string') return val.toLowerCase().includes(q);
-          if (Array.isArray(val)) return val.some(v => String(v).toLowerCase().includes(q));
-          return String(val).toLowerCase().includes(q);
+        return Object.entries(page.properties).some(([propId, val]) => {
+          if (val == null || val === '') return false;
+          const prop = db.properties[propId];
+          if (!prop) {
+            // Unknown property — fall back to raw string match
+            return typeof val === 'string' && val.toLowerCase().includes(q);
+          }
+          switch (prop.type) {
+            case 'select':
+            case 'status': {
+              const opt = prop.options?.find(o => o.id === val);
+              return opt ? opt.value.toLowerCase().includes(q) : false;
+            }
+            case 'multi_select': {
+              if (!Array.isArray(val)) return false;
+              return val.some(id => {
+                const opt = prop.options?.find(o => o.id === id);
+                return opt ? opt.value.toLowerCase().includes(q) : false;
+              });
+            }
+            case 'relation': {
+              if (!Array.isArray(val)) return false;
+              return val.some(rid => {
+                const relPage = state.pages[rid];
+                if (!relPage) return false;
+                const relDb = state.databases[relPage.databaseId];
+                const tpId = relDb?.titlePropertyId;
+                if (!tpId) return false;
+                const t = relPage.properties[tpId];
+                return typeof t === 'string' && t.toLowerCase().includes(q);
+              });
+            }
+            case 'checkbox':
+              return (val ? 'true yes checked' : 'false no unchecked').includes(q);
+            default: {
+              if (typeof val === 'string') return val.toLowerCase().includes(q);
+              if (Array.isArray(val)) return val.some(v => String(v).toLowerCase().includes(q));
+              return String(val).toLowerCase().includes(q);
+            }
+          }
         });
       });
     }
