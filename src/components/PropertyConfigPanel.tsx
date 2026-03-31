@@ -92,7 +92,8 @@ interface PropertyConfigPanelProps {
 export function PropertyConfigPanel({ property, databaseId, viewId, position, onClose }: PropertyConfigPanelProps) {
   const {
     updateProperty, deleteProperty, togglePropertyVisibility,
-    addSort, addFilter, setGrouping, insertPropertyAt, views
+    addSort, addFilter, setGrouping, insertPropertyAt, views,
+    updatePageProperty, pages,
   } = useDatabaseStore();
 
   const [propName, setPropName] = useState(property.name);
@@ -101,6 +102,13 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
   const [showRelationEditor, setShowRelationEditor] = useState(false);
   const [showRollupEditor, setShowRollupEditor] = useState(false);
+  const [showIdConfig, setShowIdConfig] = useState(false);
+  const [idPrefix, setIdPrefix] = useState(property.prefix || '');
+  const [idFormat, setIdFormat] = useState<'auto_increment' | 'prefixed' | 'uuid'>(() => {
+    if (property.prefix === 'uuid') return 'uuid';
+    if (property.prefix && property.prefix !== 'uuid') return 'prefixed';
+    return 'auto_increment';
+  });
   const panelRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
