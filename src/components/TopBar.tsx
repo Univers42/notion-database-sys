@@ -66,6 +66,7 @@ export function TopBar() {
   const activeViewId = useDatabaseStore(s => s.activeViewId);
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
+  const searchQuery = useDatabaseStore(s => s.searchQuery);
   const { addView, setActiveView, deleteView, duplicateView,
     addPage, renameDatabase, updateView } = useDatabaseStore.getState();
   const store = useDatabaseStore.getState();
