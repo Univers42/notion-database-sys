@@ -1033,6 +1033,13 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
               const opt = prop.options?.find(o => o.id === val);
               return opt ? opt.value.toLowerCase().includes(q) : false;
             }
+            case 'multi_select': {
+              if (!Array.isArray(val)) return false;
+              return val.some(id => {
+                const opt = prop.options?.find(o => o.id === id);
+                return opt ? opt.value.toLowerCase().includes(q) : false;
+              });
+            }
             default:
           }
           if (typeof val === 'string') return val.toLowerCase().includes(q);
