@@ -1,0 +1,263 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// useBlockEditor — encapsulates block-editing logic for PageContentEditor
+// ═══════════════════════════════════════════════════════════════════════════════
+
+import React, { useState, useRef, useCallback } from 'react';
+import { useDatabaseStore } from '../store/useDatabaseStore';
+import { detectBlockType } from '../lib/markdown';
+import type { Block, BlockType } from '../types/database';
+
+interface SlashMenuState {
+  blockId: string;
+  position: { x: number; y: number };
+  filter: string;
+}
+
+export function useBlockEditor(pageId: string) {
+  const {
+    updatePageContent,
+    insertBlock,
+    deleteBlock,
+    changeBlockType,
+    updateBlock,
+    createInlineDatabase,
+  } = useDatabaseStore.getState();
+
+  const [slashMenu, setSlashMenu] = useState<SlashMenuState | null>(null);
+  const blockRefs = useRef<Map<string, HTMLElement>>(new Map());
+
+  /** Focus a block element after a short delay. */
+  const focusBlock = useCallback((blockId: string, cursorEnd = false) => {
+    setTimeout(() => {
+      const el = blockRefs.current.get(blockId)
+        ?? document.querySelector(`[data-block-id="${blockId}"]`) as HTMLElement;
+      if (!el) return;
+      const editable = (el.querySelector('[contenteditable]') as HTMLElement) ?? el;
+      editable.focus();
+      if (cursorEnd && editable.childNodes.length) {
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(editable);
+        range.collapse(false);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    }, 30);
+  }, []);
+
+  /** Get the bounding rect of the caret. */
+  const getCaretRect = useCallback((): { x: number; y: number } => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      if (rect.x !== 0 || rect.y !== 0) return { x: rect.x, y: rect.bottom };
+    }
+    return { x: 100, y: 300 };
+  }, []);
+
+  /** Handle content change — detects '/' trigger and markdown shortcuts. */
+  const handleBlockChange = useCallback((blockId: string, text: string, content: Block[]) => {
+    // Always persist the content first
+    updateBlock(pageId, blockId, { content: text });
+
+    // Slash menu trigger: opened when '/' is typed
+    if (text.endsWith('/') && !slashMenu) {
+      const pos = getCaretRect();
+      setSlashMenu({ blockId, position: pos, filter: '' });
+      return;
+    }
+
+    // Slash menu is open: update filter based on text after last '/'
+    if (slashMenu?.blockId === blockId) {
+      const slashIdx = text.lastIndexOf('/');
+      if (slashIdx >= 0) {
+        setSlashMenu(prev => prev ? { ...prev, filter: text.slice(slashIdx + 1) } : null);
+      } else {
+        // User deleted the slash — close the menu
+        setSlashMenu(null);
+      }
+      return;
+    }
+
+    // Markdown shortcut detection (only triggers when space is typed after prefix)
+    if (text.endsWith(' ') || text === '---' || text === '```') {
+      const detection = detectBlockType(text);
+      if (detection) {
+        changeBlockType(pageId, blockId, detection.type);
+        updateBlock(pageId, blockId, { content: detection.remainingContent });
+        repositionCursor(blockId, detection.remainingContent);
+      }
+    }
+  }, [pageId, slashMenu, changeBlockType, updateBlock, getCaretRect]);
+
+  /** Handle key presses — Enter, Backspace, Arrow navigation. */
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, blockId: string, content: Block[]) => {
+    const block = content.find(b => b.id === blockId);
+    if (!block) return;
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      if (slashMenu) return;
+      e.preventDefault();
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    }
+
+    if (e.key === 'Backspace' && block.content === '' && content.length > 1) {
+      e.preventDefault();
+      const idx = content.findIndex(b => b.id === blockId);
+      const prevBlockId = idx > 0 ? content[idx - 1].id : null;
+      deleteBlock(pageId, blockId);
+      if (prevBlockId) focusBlock(prevBlockId, true);
+    }
+
+    if (e.key === 'ArrowUp') {
+      const idx = content.findIndex(b => b.id === blockId);
+      if (idx > 0) {
+        const sel = window.getSelection();
+        const range = sel?.getRangeAt(0);
+        if (range?.startOffset === 0 && range.collapsed) {
+          e.preventDefault();
+          focusBlock(content[idx - 1].id, true);
+        }
+      }
+    }
+
+    if (e.key === 'ArrowDown') {
+      const idx = content.findIndex(b => b.id === blockId);
+      if (idx < content.length - 1) {
+        const el = e.target as HTMLElement;
+        const sel = window.getSelection();
+        const range = sel?.getRangeAt(0);
+        if (range?.endOffset === (el.textContent?.length ?? 0) && range.collapsed) {
+          e.preventDefault();
+          focusBlock(content[idx + 1].id);
+        }
+      }
+    }
+
+    if (e.key === 'Escape' && slashMenu) {
+      setSlashMenu(null);
+    }
+  }, [pageId, slashMenu, insertBlock, deleteBlock, focusBlock]);
+
+  /** Handle slash-command selection. */
+  const handleSlashSelect = useCallback((type: BlockType, content: Block[]) => {
+    if (!slashMenu) return;
+    const { blockId } = slashMenu;
+    setSlashMenu(null);
+
+    const block = content.find(b => b.id === blockId);
+    if (block) {
+      const slashIdx = block.content.lastIndexOf('/');
+      const cleanContent = slashIdx >= 0 ? block.content.slice(0, slashIdx) : block.content;
+      updateBlock(pageId, blockId, { content: cleanContent });
+    }
+
+    if (type === 'database_inline' || type === 'database_full_page') {
+      const { databaseId, viewId } = createInlineDatabase(type === 'database_full_page' ? 'Untitled' : undefined);
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { content: '', databaseId, viewId });
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    } else if (type === 'table_block') {
+      updateBlock(pageId, blockId, { content: '' });
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { tableData: [['', '', ''], ['', '', '']] });
+    } else if (type === 'column') {
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, {
+        content: '',
+        columns: [
+          [{ id: crypto.randomUUID(), type: 'paragraph', content: '' }],
+          [{ id: crypto.randomUUID(), type: 'paragraph', content: '' }],
+        ],
+        columnRatios: [1, 1],
+      });
+    } else if (type === 'equation') {
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { content: '', expression: '' });
+    } else if (type === 'spacer') {
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { content: '', spacerHeight: 40 });
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    } else if (type === 'embed') {
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { content: '' });
+    } else if (type === 'table_of_contents' || type === 'breadcrumb') {
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { content: '' });
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    } else if (type === 'divider') {
+      changeBlockType(pageId, blockId, type);
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      insertBlock(pageId, blockId, newBlock);
+      focusBlock(newBlock.id);
+    } else {
+      changeBlockType(pageId, blockId, type);
+      focusBlock(blockId);
+    }
+  }, [pageId, slashMenu, updateBlock, changeBlockType, insertBlock, createInlineDatabase, focusBlock]);
+
+  /** Add a new blank paragraph at the end. */
+  const handleAddBlock = useCallback((content: Block[]) => {
+    const lastId = content.length > 0 ? content[content.length - 1].id : null;
+    const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+    if (lastId) {
+      insertBlock(pageId, lastId, newBlock);
+    } else {
+      updatePageContent(pageId, [newBlock]);
+    }
+    focusBlock(newBlock.id);
+  }, [pageId, insertBlock, updatePageContent, focusBlock]);
+
+  /** Initialize the first block when focusing the empty area. */
+  const handleInitBlock = useCallback((content: Block[]) => {
+    if (content.length === 0) {
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      updatePageContent(pageId, [newBlock]);
+      focusBlock(newBlock.id);
+    }
+  }, [pageId, updatePageContent, focusBlock]);
+
+  /** Register or unregister a block ref. */
+  const registerBlockRef = useCallback((blockId: string, el: HTMLElement | null) => {
+    if (el) blockRefs.current.set(blockId, el);
+    else blockRefs.current.delete(blockId);
+  }, []);
+
+  return {
+    slashMenu,
+    setSlashMenu,
+    handleBlockChange,
+    handleKeyDown,
+    handleSlashSelect,
+    handleAddBlock,
+    handleInitBlock,
+    registerBlockRef,
+    focusBlock,
+  };
+}
+
+/** Reposition the cursor inside a block element after markdown conversion. */
+function repositionCursor(blockId: string, content: string): void {
+  setTimeout(() => {
+    const el = document.querySelector(`[data-block-id="${blockId}"] [contenteditable]`) as HTMLElement;
+    if (el) {
+      el.textContent = content;
+      el.focus();
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
+  }, 30);
+}
