@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   RelationEditorPanel.tsx                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:38 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:39:39 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useDatabaseStore } from '../store/useDatabaseStore';
 import { X, ExternalLink, Hash, ArrowLeftRight, ChevronRight, Database as DbIcon } from 'lucide-react';
