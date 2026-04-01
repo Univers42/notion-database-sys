@@ -17,7 +17,7 @@ export interface EditableContentProps {
 export function EditableContent({
   content,
   className = '',
-  placeholder = "Type '/' for commands...",
+  placeholder = '',
   onChange,
   onKeyDown,
 }: EditableContentProps) {
