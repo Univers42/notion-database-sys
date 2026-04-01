@@ -1,24 +1,62 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { tokenize, renderTokensToHtml } from '../../lib/syntax/tokenizer';
 
 const LANGUAGES = [
   'plaintext', 'javascript', 'typescript', 'python', 'rust', 'cpp', 'c',
   'java', 'go', 'html', 'css', 'json', 'yaml', 'markdown', 'bash', 'sql',
-  'ruby', 'php', 'swift', 'kotlin', 'lua', 'toml',
+  'ruby', 'php', 'swift', 'kotlin', 'lua', 'toml', 'mermaid',
 ];
 
 export function CodeBlock({ block, pageId }: BlockRendererProps) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [showLangPicker, setShowLangPicker] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [localContent, setLocalContent] = useState(block.content);
+  const [isFocused, setIsFocused] = useState(false);
 
-  const handleContentChange = useCallback(
-    (e: React.FormEvent<HTMLPreElement>) => {
-      const text = (e.target as HTMLElement).textContent || '';
-      updateBlock(pageId, block.id, { content: text });
-    },
-    [updateBlock, pageId, block.id]
-  );
+  // Sync from store when content changes externally
+  useEffect(() => {
+    if (!isFocused) {
+      setLocalContent(block.content);
+    }
+  }, [block.content, isFocused]);
+
+  // Auto-resize textarea to match content
+  const syncHeight = useCallback(() => {
+    const ta = textareaRef.current;
+    if (ta) {
+      ta.style.height = '0';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+  }, []);
+
+  useEffect(() => { syncHeight(); }, [localContent, syncHeight]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value;
+    setLocalContent(text);
+    updateBlock(pageId, block.id, { content: text });
+  }, [updateBlock, pageId, block.id]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Tab inserts 2 spaces instead of changing focus
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ta = e.currentTarget;
+      const { selectionStart, selectionEnd } = ta;
+      const before = localContent.slice(0, selectionStart);
+      const after = localContent.slice(selectionEnd);
+      const newContent = before + '  ' + after;
+      setLocalContent(newContent);
+      updateBlock(pageId, block.id, { content: newContent });
+      // Restore caret after the inserted spaces
+      requestAnimationFrame(() => {
+        ta.selectionStart = ta.selectionEnd = selectionStart + 2;
+      });
+    }
+  }, [localContent, updateBlock, pageId, block.id]);
 
   const handleLangSelect = useCallback(
     (lang: string) => {
@@ -27,6 +65,13 @@ export function CodeBlock({ block, pageId }: BlockRendererProps) {
     },
     [updateBlock, pageId, block.id]
   );
+
+  // Memoize syntax highlighting
+  const highlightedHtml = useMemo(() => {
+    const lang = block.language || 'plaintext';
+    const tokens = tokenize(localContent, lang);
+    return renderTokensToHtml(tokens);
+  }, [localContent, block.language]);
 
   return (
     <div className="my-1 rounded-lg bg-surface-secondary border border-line overflow-hidden">
@@ -68,17 +113,69 @@ export function CodeBlock({ block, pageId }: BlockRendererProps) {
         </button>
       </div>
 
-      {/* Code editor */}
-      <pre
-        contentEditable
-        suppressContentEditableWarning
-        data-block-editor
-        className="px-4 py-3 text-sm font-mono text-ink-strong leading-relaxed outline-none overflow-x-auto whitespace-pre-wrap break-words"
-        onInput={handleContentChange}
-        spellCheck={false}
-      >
-        {block.content}
-      </pre>
+      {/* Code editor with syntax highlighting overlay */}
+      <div className="relative">
+        {/* Highlighted code layer (visual, behind textarea) */}
+        <pre
+          aria-hidden
+          className="px-4 py-3 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words pointer-events-none"
+          dangerouslySetInnerHTML={{ __html: highlightedHtml + '\n' }}
+        />
+        {/* Textarea layer (input, transparent text on top) */}
+        <textarea
+          ref={textareaRef}
+          value={localContent}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          spellCheck={false}
+          className="absolute inset-0 px-4 py-3 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words bg-transparent text-transparent caret-ink-strong outline-none resize-none overflow-hidden w-full"
+        />
+      </div>
+
+      {/* Mermaid preview */}
+      {(block.language === 'mermaid') && block.content.trim() && (
+        <MermaidPreview code={block.content} />
+      )}
     </div>
+  );
+}
+
+/** Live mermaid diagram preview below the code editor */
+function MermaidPreview({ code }: { code: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [svgHtml, setSvgHtml] = useState<string>('');
+  const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const renderMermaid = async () => {
+      try {
+        const mermaid = (await import('mermaid')).default;
+        mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+        const id = `mermaid-${Date.now()}`;
+        const { svg } = await mermaid.render(id, code);
+        if (!cancelled) { setSvgHtml(svg); setError(''); }
+      } catch (err: any) {
+        if (!cancelled) { setError(err?.message || 'Invalid mermaid syntax'); setSvgHtml(''); }
+      }
+    };
+    const timer = setTimeout(renderMermaid, 500); // debounce
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [code]);
+
+  if (error) {
+    return (
+      <div className="px-4 py-2 text-xs text-danger border-t border-line bg-danger-surface-muted">
+        Mermaid: {error}
+      </div>
+    );
+  }
+  if (!svgHtml) return null;
+
+  return (
+    <div className="border-t border-line bg-surface-primary p-4 flex justify-center overflow-auto"
+      dangerouslySetInnerHTML={{ __html: svgHtml }} />
   );
 }
