@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   StatusCellEditor.tsx                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:07 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:36:08 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useMemo } from 'react';
 import type { SchemaProperty, SelectOption } from '../../types/database';
 import { CheckCircle2, Settings } from 'lucide-react';

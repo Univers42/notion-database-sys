@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   IdCellEditor.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:58 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:59 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import type { SchemaProperty } from '../../types/database';

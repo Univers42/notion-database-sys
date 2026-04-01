@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   constants.ts                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:56 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:57 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import type { RollupFunction } from '../../types/database';
 
 export const ROLLUP_FUNCTIONS: { value: RollupFunction; label: string; group: string }[] = [
