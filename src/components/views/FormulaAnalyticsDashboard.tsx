@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { Sigma, TrendingUp, AlertTriangle, CheckCircle, Package, Flame, DollarSign, Scale, Clock, ShieldCheck, Zap, BarChart3, PieChart } from 'lucide-react';
 
 // ─── COLORS & PALETTE ──────────────────────────────────────────────────────
@@ -25,7 +26,8 @@ interface FormulaResult {
 
 // ─── MAIN COMPONENT ────────────────────────────────────────────────────────
 export function FormulaAnalyticsDashboard() {
-  const { activeViewId, views, databases, getPagesForView, resolveFormula, getPageTitle, openPage } =
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView, resolveFormula, getPageTitle, openPage } =
     useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
