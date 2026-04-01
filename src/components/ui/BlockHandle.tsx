@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   BlockHandle.tsx                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:37:04 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:37:05 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GripHandleIcon } from './Icons';
 import { ActionPanel, type ActionPanelProps } from './ActionPanel';
