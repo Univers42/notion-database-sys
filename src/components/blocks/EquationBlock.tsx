@@ -1,6 +1,14 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// EquationBlock — LaTeX math equation block (KaTeX rendered)
-// ═══════════════════════════════════════════════════════════════════════════════
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   EquationBlock.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:11 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:12 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
