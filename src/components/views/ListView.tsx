@@ -1,10 +1,12 @@
 import React from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { FileText, MoreHorizontal, ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 
 export function ListView() {
-  const { activeViewId, views, databases, getPagesForView, openPage, getPageTitle, addPage, getGroupedPages } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView, openPage, getPageTitle, addPage, getGroupedPages } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
