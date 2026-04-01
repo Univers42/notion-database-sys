@@ -32,6 +32,8 @@ export const BLOCK_SHORTCUTS: Record<string, string> = {
   heading_2: '## ',
   heading_3: '### ',
   heading_4: '#### ',
+  heading_5: '##### ',
+  heading_6: '###### ',
   bulleted_list: '- ',
   numbered_list: '1. ',
   to_do: '[] ',
@@ -90,11 +92,13 @@ export function detectBlockType(text: string): BlockDetection | null {
     return { type: 'code', content: '', remainingContent: '' };
   }
 
-  // Headings: #### → # (most specific first)
-  if (line.startsWith('#### ')) { const c = stripPrefix(line, 5); return { type: 'heading_4', content: c, remainingContent: c }; }
-  if (line.startsWith('### '))  { const c = stripPrefix(line, 4); return { type: 'heading_3', content: c, remainingContent: c }; }
-  if (line.startsWith('## '))   { const c = stripPrefix(line, 3); return { type: 'heading_2', content: c, remainingContent: c }; }
-  if (line.startsWith('# '))    { const c = stripPrefix(line, 2); return { type: 'heading_1', content: c, remainingContent: c }; }
+  // Headings: ###### → # (most specific first)
+  if (line.startsWith('###### ')) { const c = stripPrefix(line, 7); return { type: 'heading_6', content: c, remainingContent: c }; }
+  if (line.startsWith('##### '))  { const c = stripPrefix(line, 6); return { type: 'heading_5', content: c, remainingContent: c }; }
+  if (line.startsWith('#### '))   { const c = stripPrefix(line, 5); return { type: 'heading_4', content: c, remainingContent: c }; }
+  if (line.startsWith('### '))    { const c = stripPrefix(line, 4); return { type: 'heading_3', content: c, remainingContent: c }; }
+  if (line.startsWith('## '))     { const c = stripPrefix(line, 3); return { type: 'heading_2', content: c, remainingContent: c }; }
+  if (line.startsWith('# '))      { const c = stripPrefix(line, 2); return { type: 'heading_1', content: c, remainingContent: c }; }
 
   // To-do: [] or [x]
   if (line.startsWith('[] ') || line.startsWith('[ ] ')) {
