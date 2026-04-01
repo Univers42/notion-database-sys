@@ -1,10 +1,12 @@
 import React from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { MessageCircle, Heart, Share2, MoreHorizontal, FileText } from 'lucide-react';
 import { parseISO, formatDistanceToNow } from 'date-fns';
 
 export function FeedView() {
-  const { activeViewId, views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
