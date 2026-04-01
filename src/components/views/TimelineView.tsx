@@ -1,8 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   TimelineView.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:38:51 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useRef, useCallback } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { format, addDays, startOfWeek, eachDayOfInterval, differenceInDays, startOfMonth, endOfMonth, eachWeekOfInterval, addWeeks, subWeeks } from 'date-fns';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { getTimelineConfig, getBarStyle } from './TimelineViewHelpers';
+import type { TimelineConfig } from './TimelineViewHelpers';
 
 export function TimelineView() {
   const activeViewId = useActiveViewId();
@@ -27,20 +41,8 @@ export function TimelineView() {
 
   // Calculate timeline range based on zoom level
   const today = new Date();
-  const getTimelineConfig = () => {
-    switch (zoomLevel) {
-      case 'day':
-        return { cellWidth: 60, daysToShow: 21, label: (d: Date) => format(d, 'd'), headerLabel: (d: Date) => format(d, 'MMM d') };
-      case 'week':
-        return { cellWidth: 100, daysToShow: 14, label: (d: Date) => format(d, 'EEE d'), headerLabel: (d: Date) => format(d, 'MMM d') };
-      case 'month':
-        return { cellWidth: 40, daysToShow: 90, label: (d: Date) => format(d, 'd'), headerLabel: (d: Date) => format(d, 'MMM yyyy') };
-      default:
-        return { cellWidth: 100, daysToShow: 14, label: (d: Date) => format(d, 'EEE d'), headerLabel: (d: Date) => format(d, 'MMM d') };
-    }
-  };
 
-  const config = getTimelineConfig();
+  const config = getTimelineConfig(zoomLevel);
   const startDate = addDays(startOfWeek(today, { weekStartsOn: 1 }), offset);
   const endDate = addDays(startDate, config.daysToShow);
   const days = eachDayOfInterval({ start: startDate, end: endDate });
@@ -66,21 +68,6 @@ export function TimelineView() {
     if (pageId) {
       updatePageProperty(pageId, dateProperty.id, days[dayIdx].toISOString());
     }
-  };
-
-  // Calculate bar position for a page
-  const getBarStyle = (page: any) => {
-    const val = page.properties[dateProperty.id];
-    if (!val) return null;
-    const pageDate = new Date(val);
-    const dayIdx = differenceInDays(pageDate, startDate);
-    if (dayIdx < -2 || dayIdx > config.daysToShow + 2) return null;
-    const barWidth = zoomLevel === 'day' ? 2 : zoomLevel === 'week' ? 3 : 5;
-    return {
-      left: Math.max(0, dayIdx) * config.cellWidth,
-      width: barWidth * config.cellWidth,
-      visible: dayIdx >= -barWidth && dayIdx <= config.daysToShow
-    };
   };
 
   return (
@@ -158,7 +145,7 @@ export function TimelineView() {
             )}
 
             {displayedPages.map(page => {
-              const barStyle = getBarStyle(page);
+              const barStyle = getBarStyle(page, dateProperty.id, startDate, config, zoomLevel);
               const title = getPageTitle(page);
 
               // Get status color
