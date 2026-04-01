@@ -46,6 +46,8 @@ export type BlockType =
   | 'heading_2'
   | 'heading_3'
   | 'heading_4'
+  | 'heading_5'
+  | 'heading_6'
   | 'bulleted_list'
   | 'numbered_list'
   | 'to_do'
@@ -62,6 +64,13 @@ export type BlockType =
   | 'page'
   | 'link_to_page'
   | 'table_block'
+  | 'column'
+  | 'table_of_contents'
+  | 'equation'
+  | 'spacer'
+  | 'embed'
+  | 'breadcrumb'
+  | 'synced_block'
   | 'table_view'
   | 'board_view'
   | 'gallery_view'
@@ -84,6 +93,15 @@ export interface Block {
   tableData?: string[][];
   databaseId?: string;
   viewId?: string;
+  // Column layout
+  columns?: Block[][];
+  columnRatios?: number[];
+  // Spacer
+  spacerHeight?: number;
+  // Equation
+  expression?: string;
+  // Synced block
+  syncedBlockId?: string;
 }
 
 // ─── SELECT OPTIONS ──────────────────────────────────────────────────────────
