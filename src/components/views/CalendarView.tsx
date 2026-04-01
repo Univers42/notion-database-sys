@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, addMonths, subMonths, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 
 export function CalendarView() {
-  const { activeViewId, views, databases, getPagesForView, updatePageProperty, openPage, addPage, getPageTitle } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView, updatePageProperty, openPage, addPage, getPageTitle } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const [currentMonth, setCurrentMonth] = useState(new Date());
