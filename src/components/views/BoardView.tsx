@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { Plus, Image, ArrowUpRight } from 'lucide-react';
 import { CURSORS } from '../ui/cursors';
 import { format } from 'date-fns';
 
 export function BoardView() {
-  const { activeViewId, views, databases, updatePageProperty, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, updatePageProperty, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
