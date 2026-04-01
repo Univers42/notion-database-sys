@@ -18,6 +18,12 @@ import { MediaBlock } from './MediaBlock';
 import { PageBlock } from './PageBlock';
 import { DatabaseViewBlock } from './DatabaseViewBlock';
 import { InlineDatabaseBlock } from './InlineDatabaseBlock';
+import { ColumnBlock } from './ColumnBlock';
+import { TableOfContentsBlock } from './TableOfContentsBlock';
+import { EquationBlock } from './EquationBlock';
+import { SpacerBlock } from './SpacerBlock';
+import { EmbedBlock } from './EmbedBlock';
+import { BreadcrumbBlock } from './BreadcrumbBlock';
 
 export interface BlockRendererProps {
   block: Block;
@@ -38,6 +44,8 @@ export const BlockRenderer = React.memo(function BlockRenderer(props: BlockRende
     case 'heading_2':
     case 'heading_3':
     case 'heading_4':
+    case 'heading_5':
+    case 'heading_6':
       return <HeadingBlock {...props} />;
 
     case 'bulleted_list':
@@ -61,6 +69,28 @@ export const BlockRenderer = React.memo(function BlockRenderer(props: BlockRende
 
     case 'divider':
       return <DividerBlock />;
+
+    case 'column':
+      return <ColumnBlock {...props} />;
+
+    case 'table_of_contents':
+      return <TableOfContentsBlock {...props} />;
+
+    case 'equation':
+      return <EquationBlock {...props} />;
+
+    case 'spacer':
+      return <SpacerBlock {...props} />;
+
+    case 'embed':
+      return <EmbedBlock {...props} />;
+
+    case 'breadcrumb':
+      return <BreadcrumbBlock {...props} />;
+
+    case 'synced_block':
+      // Render children of the synced block (fallback to text)
+      return <TextBlock {...props} />;
 
     case 'table_block':
       return <TableBlockComponent {...props} />;
