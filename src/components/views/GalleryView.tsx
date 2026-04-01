@@ -1,11 +1,13 @@
 import React from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { Plus, Image, MoreHorizontal, ArrowUpRight } from 'lucide-react';
 import { CURSORS } from '../ui/cursors';
 import { format } from 'date-fns';
 
 export function GalleryView() {
-  const { activeViewId, views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
