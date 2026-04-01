@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   CodeBlock.tsx                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:34:40 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:34:41 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/useDatabaseStore';

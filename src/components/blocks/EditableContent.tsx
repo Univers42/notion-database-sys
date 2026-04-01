@@ -1,6 +1,14 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// EditableContent — shared contentEditable primitive used by all text blocks
-// ═══════════════════════════════════════════════════════════════════════════════
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   EditableContent.tsx                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:02 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:04 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import React, { useRef, useEffect, useCallback } from 'react';
 import { parseInlineMarkdown } from '../../lib/markdown';
