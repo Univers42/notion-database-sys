@@ -16,7 +16,7 @@
 //   Database: Table view, Board view, Gallery view, List view
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { BlockType } from '../../types/database';
 
@@ -27,7 +27,7 @@ export interface SlashMenuItem {
   label: string;
   icon: React.ReactNode;
   shortcut?: string;
-  section: 'basic' | 'media' | 'database';
+  section: 'basic' | 'media' | 'layout' | 'advanced' | 'database';
   keywords?: string[];
 }
 
@@ -231,6 +231,76 @@ function IconList() {
   );
 }
 
+// ─── Additional icons for new block types ─────────────────────────────────────
+
+function IconH5() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <text x="13" y="15" fontSize="10" fontWeight="bold" textAnchor="middle">H5</text>
+      <path d="M2.877 4.2c.346 0 .625.28.625.625V9.15h5.4V4.825a.625.625 0 0 1 1.25 0v10.35a.625.625 0 0 1-1.25 0V10.4h-5.4v4.775a.625.625 0 0 1-1.25 0V4.825c0-.345.28-.625.625-.625" />
+    </svg>
+  );
+}
+
+function IconH6() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <text x="13" y="15" fontSize="10" fontWeight="bold" textAnchor="middle">H6</text>
+      <path d="M2.877 4.2c.346 0 .625.28.625.625V9.15h5.4V4.825a.625.625 0 0 1 1.25 0v10.35a.625.625 0 0 1-1.25 0V10.4h-5.4v4.775a.625.625 0 0 1-1.25 0V4.825c0-.345.28-.625.625-.625" />
+    </svg>
+  );
+}
+
+function IconColumns() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <rect x="2" y="4" width="7" height="12" rx="1" opacity="0.6" />
+      <rect x="11" y="4" width="7" height="12" rx="1" opacity="0.6" />
+    </svg>
+  );
+}
+
+function IconTOC() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <path d="M3 5h14v1.25H3zm2 3.5h12v1.25H5zm2 3.5h10v1.25H7zm-4 3.5h14v1.25H3z" />
+    </svg>
+  );
+}
+
+function IconEquation() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <text x="10" y="14" fontSize="12" fontStyle="italic" textAnchor="middle" fontFamily="serif">∑</text>
+    </svg>
+  );
+}
+
+function IconSpacer() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <path d="M3 6h14v1H3zm0 7h14v1H3z" opacity="0.4" />
+      <path d="M10 8v4M8 9.5l2-2 2 2M8 10.5l2 2 2-2" stroke="currentColor" fill="none" strokeWidth="1" />
+    </svg>
+  );
+}
+
+function IconEmbed() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <path d="M4.5 3.375A2.125 2.125 0 0 0 2.375 5.5v9c0 1.174.951 2.125 2.125 2.125h11a2.125 2.125 0 0 0 2.125-2.125v-9A2.125 2.125 0 0 0 15.5 3.375zM3.625 5.5c0-.483.392-.875.875-.875h11c.483 0 .875.392.875.875v9a.875.875 0 0 1-.875.875h-11a.875.875 0 0 1-.875-.875zm4.216 2.342a.625.625 0 0 1 0 .884L6.183 10.384l1.658 1.658a.625.625 0 1 1-.884.884l-2.1-2.1a.625.625 0 0 1 0-.884l2.1-2.1a.625.625 0 0 1 .884 0m4.318 0a.625.625 0 0 1 .884 0l2.1 2.1a.625.625 0 0 1 0 .884l-2.1 2.1a.625.625 0 1 1-.884-.884l1.658-1.658-1.658-1.658a.625.625 0 0 1 0-.884" />
+    </svg>
+  );
+}
+
+function IconBreadcrumb() {
+  return (
+    <svg viewBox="0 0 20 20" className="w-5 h-5" fill="currentColor">
+      <path d="M3 9.375h3.5l1.5 1.25-1.5 1.25H3zm5 0h3.5l1.5 1.25-1.5 1.25H8zm5-1h3.5l1.5 2.25-1.5 2.25H13z" opacity="0.6" />
+    </svg>
+  );
+}
+
 // ─── Full item catalog ────────────────────────────────────────────────────────
 
 export const SLASH_ITEMS: SlashMenuItem[] = [
@@ -240,6 +310,8 @@ export const SLASH_ITEMS: SlashMenuItem[] = [
   { type: 'heading_2',      label: 'Heading 2',      icon: <IconH2 />,         section: 'basic', shortcut: '##',   keywords: ['heading', 'h2', 'subtitle'] },
   { type: 'heading_3',      label: 'Heading 3',      icon: <IconH3 />,         section: 'basic', shortcut: '###',  keywords: ['heading', 'h3'] },
   { type: 'heading_4',      label: 'Heading 4',      icon: <IconH4 />,         section: 'basic', shortcut: '####', keywords: ['heading', 'h4'] },
+  { type: 'heading_5',      label: 'Heading 5',      icon: <IconH5 />,         section: 'basic', shortcut: '#####', keywords: ['heading', 'h5'] },
+  { type: 'heading_6',      label: 'Heading 6',      icon: <IconH6 />,         section: 'basic', shortcut: '######', keywords: ['heading', 'h6'] },
   { type: 'bulleted_list',  label: 'Bulleted list',  icon: <IconBullet />,     section: 'basic', shortcut: '-',    keywords: ['bullet', 'list', 'unordered'] },
   { type: 'numbered_list',  label: 'Numbered list',  icon: <IconNumbered />,   section: 'basic', shortcut: '1.',   keywords: ['number', 'list', 'ordered'] },
   { type: 'to_do',          label: 'To-do list',     icon: <IconTodo />,       section: 'basic', shortcut: '[]',   keywords: ['todo', 'checkbox', 'check', 'task'] },
@@ -258,6 +330,16 @@ export const SLASH_ITEMS: SlashMenuItem[] = [
   { type: 'code',           label: 'Code',           icon: <IconCode />,       section: 'media', shortcut: '```',  keywords: ['code', 'snippet', 'program'] },
   { type: 'file',           label: 'File',           icon: <IconFile />,       section: 'media',                   keywords: ['file', 'upload', 'attachment'] },
   { type: 'bookmark',       label: 'Web bookmark',   icon: <IconBookmark />,   section: 'media',                   keywords: ['bookmark', 'link', 'embed', 'web'] },
+  { type: 'embed',          label: 'Embed',          icon: <IconEmbed />,      section: 'media',                   keywords: ['embed', 'iframe', 'youtube', 'figma', 'vimeo', 'video'] },
+
+  // ── Layout
+  { type: 'column',         label: 'Columns',        icon: <IconColumns />,    section: 'layout',                  keywords: ['column', 'columns', 'layout', 'side', 'split', 'grid'] },
+  { type: 'spacer',         label: 'Spacer',         icon: <IconSpacer />,     section: 'layout',                  keywords: ['spacer', 'space', 'gap', 'padding'] },
+
+  // ── Advanced
+  { type: 'table_of_contents', label: 'Table of contents', icon: <IconTOC />,  section: 'advanced',                keywords: ['toc', 'table of contents', 'contents', 'outline', 'navigation'] },
+  { type: 'equation',       label: 'Equation',       icon: <IconEquation />,   section: 'advanced',                keywords: ['equation', 'math', 'latex', 'formula', 'katex'] },
+  { type: 'breadcrumb',     label: 'Breadcrumb',     icon: <IconBreadcrumb />, section: 'advanced',                keywords: ['breadcrumb', 'navigation', 'path', 'trail'] },
 
   // ── Database
   { type: 'database_inline',    label: 'Database - Inline',    icon: <IconTable />,   section: 'database', keywords: ['database', 'inline', 'table', 'spreadsheet', 'data'] },
@@ -267,6 +349,8 @@ export const SLASH_ITEMS: SlashMenuItem[] = [
 const SECTION_LABELS: Record<string, string> = {
   basic: 'Basic blocks',
   media: 'Media',
+  layout: 'Layout',
+  advanced: 'Advanced',
   database: 'Database',
 };
 
@@ -386,7 +470,7 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: SlashC
         className="overflow-y-auto"
         style={{ maxHeight: `min(448px, 40vh)`, maskImage: 'linear-gradient(black 0%, black calc(100% - 34px), transparent 100%)' }}
       >
-        {(['basic', 'media', 'database'] as const).map(sectionKey => {
+        {(['basic', 'media', 'layout', 'advanced', 'database'] as const).map(sectionKey => {
           const items = sections[sectionKey];
           if (!items || items.length === 0) return null;
           return (
