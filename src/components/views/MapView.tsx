@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { MapPin, Plus, FileText, Layers } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -45,7 +46,8 @@ function makeColorIcon(color: string) {
 }
 
 export function MapView() {
-  const { activeViewId, views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const mapContainerRef = useRef<HTMLDivElement>(null);
