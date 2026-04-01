@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { BarChart3 } from 'lucide-react';
 
 type ChartType = 'vertical_bar' | 'horizontal_bar' | 'line' | 'donut' | 'pie' | 'number';
@@ -10,7 +11,8 @@ const CHART_COLORS = [
 ];
 
 export function ChartView() {
-  const { activeViewId, views, databases, getPagesForView } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
