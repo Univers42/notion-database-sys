@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   TodoBlock.tsx                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:45 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:46 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useCallback } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';

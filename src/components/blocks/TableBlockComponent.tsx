@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   TableBlockComponent.tsx                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:39 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:40 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useCallback } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
