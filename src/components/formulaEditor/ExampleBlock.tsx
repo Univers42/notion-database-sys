@@ -1,0 +1,33 @@
+import React, { useState } from 'react';
+import { ArrowUpRight, CheckSquare } from 'lucide-react';
+
+export function ExampleBlock({ code, onInsert }: { code: string; onInsert: (text: string) => void }) {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <div className="flex items-start gap-1 group">
+      <div className="flex-1 p-1.5 rounded bg-surface-primary border border-line font-mono text-[11px] text-ink-body break-all leading-snug">
+        {code}
+      </div>
+      <div className="flex flex-col gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={() => onInsert(code)}
+          className="p-1 rounded hover:bg-hover-accent-soft text-ink-muted hover:text-hover-accent-text transition-colors"
+          title="Insert into formula">
+          <ArrowUpRight className="w-3 h-3" />
+        </button>
+        <button onClick={() => { navigator.clipboard?.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+          className="p-1 rounded hover:bg-hover-surface2 text-ink-muted hover:text-hover-text transition-colors"
+          title="Copy">
+          {copied ? (
+            <CheckSquare className="w-3 h-3 text-success-text" />
+          ) : (
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
