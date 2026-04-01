@@ -347,6 +347,24 @@
 
   /* ── Slate (used in analytics) ── */
   --color-slate:               #94a3b8;   /* slate-400 */
+
+  /* ── Syntax highlighting tokens (light) ── */
+  --syntax-keyword:            #d73a49;   /* red-ish — if/else/return/function */
+  --syntax-string:             #032f62;   /* deep blue — string literals */
+  --syntax-number:             #005cc5;   /* blue — numeric literals */
+  --syntax-comment:            #6a737d;   /* gray — comments */
+  --syntax-function:           #6f42c1;   /* purple — function names */
+  --syntax-operator:           #d73a49;   /* red — +, -, =, etc. */
+  --syntax-punctuation:        #24292e;   /* dark gray — brackets, commas */
+  --syntax-type:               #22863a;   /* green — type names, classes */
+  --syntax-property:           #005cc5;   /* blue — object keys, attrs */
+  --syntax-tag:                #22863a;   /* green — HTML/XML tags */
+  --syntax-attribute:          #6f42c1;   /* purple — HTML attributes */
+  --syntax-variable:           #e36209;   /* orange — variables, params */
+  --syntax-constant:           #005cc5;   /* blue — true/false/null */
+  --syntax-regex:              #032f62;   /* dark blue — regex literals */
+  --syntax-decorator:          #e36209;   /* orange — @decorators */
+  --syntax-builtin:            #005cc5;   /* blue — built-in functions */
 }
 
 /* ─── DARK THEME ─────────────────────────────────────────────────────────── */
@@ -687,4 +705,22 @@
 
   /* ── Slate ── */
   --color-slate:               #6b7280;
+
+  /* ── Syntax highlighting tokens (dark) ── */
+  --syntax-keyword:            #ff7b72;   /* salmon — if/else/return/function */
+  --syntax-string:             #a5d6ff;   /* light blue — string literals */
+  --syntax-number:             #79c0ff;   /* blue — numeric literals */
+  --syntax-comment:            #8b949e;   /* muted gray — comments */
+  --syntax-function:           #d2a8ff;   /* lavender — function names */
+  --syntax-operator:           #ff7b72;   /* salmon — +, -, =, etc. */
+  --syntax-punctuation:        #c9d1d9;   /* light gray — brackets, commas */
+  --syntax-type:               #7ee787;   /* green — type names, classes */
+  --syntax-property:           #79c0ff;   /* blue — object keys, attrs */
+  --syntax-tag:                #7ee787;   /* green — HTML/XML tags */
+  --syntax-attribute:          #d2a8ff;   /* lavender — HTML attributes */
+  --syntax-variable:           #ffa657;   /* orange — variables, params */
+  --syntax-constant:           #79c0ff;   /* blue — true/false/null */
+  --syntax-regex:              #a5d6ff;   /* light blue — regex literals */
+  --syntax-decorator:          #ffa657;   /* orange — @decorators */
+  --syntax-builtin:            #79c0ff;   /* blue — built-in functions */
 }
