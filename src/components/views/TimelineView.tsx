@@ -1,10 +1,12 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { format, addDays, startOfWeek, eachDayOfInterval, differenceInDays, startOfMonth, endOfMonth, eachWeekOfInterval, addWeeks, subWeeks } from 'date-fns';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 
 export function TimelineView() {
-  const { activeViewId, views, databases, getPagesForView, updatePageProperty, openPage, getPageTitle } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, getPagesForView, updatePageProperty, openPage, getPageTitle } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const [offset, setOffset] = useState(0); // scroll offset in units
