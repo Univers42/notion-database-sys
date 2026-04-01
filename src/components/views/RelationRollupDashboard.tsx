@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import type { SchemaProperty, RollupFunction } from '../../types/database';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -18,7 +19,8 @@ import type { SchemaProperty, RollupFunction } from '../../types/database';
 const COLORS = ['var(--color-chart-1)','var(--color-chart-2)','var(--color-chart-6)','var(--color-chart-4)','var(--color-chart-7)','var(--color-progress-high)','var(--color-chart-3)','var(--color-chart-8)'];
 
 export function RelationRollupDashboard() {
-  const { activeViewId, views, databases, pages, resolveRollup } = useDatabaseStore();
+  const activeViewId = useActiveViewId();
+  const { views, databases, pages, resolveRollup } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const db = view ? databases[view.databaseId] : null;
 
