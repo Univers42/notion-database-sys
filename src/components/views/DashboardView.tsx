@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   DashboardView.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:38:09 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 20:33:22 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
@@ -149,15 +161,14 @@ export function DashboardView() {
   const { views, databases, getPagesForView, openPage, getPageTitle } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
-
-  if (view?.settings?.formulaAnalytics) return <FormulaAnalyticsDashboard />;
-  if (view?.settings?.relationAnalytics) return <RelationRollupDashboard />;
-
   const pages = view ? getPagesForView(view.id) : [];
   const allProps = database ? Object.values(database.properties) : [];
   const propsMap = database ? database.properties : {};
+  // Hook must be called unconditionally (React rules of hooks)
   const computedData = useComputedData(pages, database);
 
+  if (view?.settings?.formulaAnalytics) return <FormulaAnalyticsDashboard />;
+  if (view?.settings?.relationAnalytics) return <RelationRollupDashboard />;
   if (!view || !database) return null;
 
   const widgets: DashboardWidget[] = view.settings?.widgets || [];
