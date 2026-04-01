@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   SortPanel.tsx                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:55 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:36:56 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import { Plus, ArrowUp, ArrowDown, X } from 'lucide-react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
