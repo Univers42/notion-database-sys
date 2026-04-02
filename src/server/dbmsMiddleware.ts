@@ -94,6 +94,28 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
   return seed;
 }
 
+// ─── In-memory state cache for live DB sources ──────────────────────────────
+// Avoids querying all 6 tables on every PATCH/DELETE — only refreshes from the
+// live DB on initial load or when the cache is invalidated (source switch).
+let liveCache: NotionState | null = null;
+let liveCacheSource: DbSourceType | null = null;
+
+/** Get state for any source — uses in-memory cache for live DB sources. */
+async function getEffectiveState(source: DbSourceType): Promise<NotionState> {
+  if (!isLiveDbSource(source)) return readState(source);
+  if (liveCache && liveCacheSource === source) return liveCache;
+  const state = await loadLiveState(source);
+  liveCache = state;
+  liveCacheSource = source;
+  return state;
+}
+
+/** Invalidate the live state cache (on source switch or external refresh). */
+function invalidateLiveCache(): void {
+  liveCache = null;
+  liveCacheSource = null;
+}
+
 function statePath(source: DbSourceType): string {
   return join(SOURCE_DIR[source], STATE_FILE);
 }
@@ -313,9 +335,9 @@ export function dbmsMiddleware(server: ViteDevServer): void {
     try {
       // ── GET /api/dbms/state ──
       if (url === '/api/dbms/state' && req.method === 'GET') {
-        const state = isLiveDbSource(activeSource)
-          ? await loadLiveState(activeSource)
-          : readState(activeSource);
+        // Force a fresh load from the live DB (invalidate cache to get latest)
+        if (isLiveDbSource(activeSource)) invalidateLiveCache();
+        const state = await getEffectiveState(activeSource);
         res.writeHead(200);
         res.end(JSON.stringify(state));
         return;
@@ -338,9 +360,8 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           return;
         }
         activeSource = newSource;
-        const state = isLiveDbSource(activeSource)
-          ? await loadLiveState(activeSource)
-          : readState(activeSource);
+        invalidateLiveCache();
+        const state = await getEffectiveState(activeSource);
         res.writeHead(200);
         res.end(JSON.stringify(state));
         return;
@@ -354,7 +375,8 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         const propertyId = body.propertyId as string;
         let value = body.value;
 
-        const state = readState(activeSource);
+        // Live DB: use cached live state; File-based: read from disk
+        const state = await getEffectiveState(activeSource);
         const page = state.pages[pageId] as PageLike | undefined;
         if (!page) {
           res.writeHead(404);
@@ -415,7 +437,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         const properties = (body.properties ?? {}) as Record<string, unknown>;
         const pageId = (body.pageId as string) ?? crypto.randomUUID();
 
-        const state = readState(activeSource);
+        const state = await getEffectiveState(activeSource);
         const allFieldMaps = readFieldMap(activeSource);
         const fieldMap = allFieldMaps[databaseId] ?? {};
 
@@ -460,7 +482,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       const deleteRecordMatch = url.match(/^\/api\/dbms\/records\/([^/]+)$/);
       if (deleteRecordMatch && req.method === 'DELETE') {
         const pageId = decodeURIComponent(deleteRecordMatch[1]);
-        const state = readState(activeSource);
+        const state = await getEffectiveState(activeSource);
         const page = state.pages[pageId] as PageLike | undefined;
         if (!page) {
           res.writeHead(404);
@@ -606,8 +628,12 @@ export function dbmsMiddleware(server: ViteDevServer): void {
             const pageId = body.pageId as string;
             const flatRecord: Record<string, unknown> = {};
             for (const [propId, fieldName] of Object.entries(fieldMap)) {
-              flatRecord[fieldName === 'id' ? 'id' : fieldName] =
-                fieldName === 'id' ? (properties[propId] ?? pageId) : (properties[propId] ?? null);
+              if (fieldName === 'id') {
+                // Live DB: id column = page primary key (e.g. 't1'), not display value ('TASK-1')
+                flatRecord.id = isLiveDbSource(activeSource) ? pageId : (properties[propId] ?? pageId);
+              } else {
+                flatRecord[fieldName] = properties[propId] ?? null;
+              }
             }
             if (!flatRecord.id) flatRecord.id = pageId;
             result = dispatchInsert(activeSource, databaseId, flatRecord, fieldMap);
@@ -615,14 +641,19 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           }
           case 'delete': {
             const pageId = body.pageId as string;
-            // Try to resolve flat ID from current state
-            try {
-              const state = readState(activeSource);
-              const page = state.pages[pageId] as PageLike | undefined;
-              const flatId = page ? resolveFlatId(page, fieldMap) : pageId;
-              result = dispatchDelete(activeSource, databaseId, flatId, fieldMap);
-            } catch {
+            if (isLiveDbSource(activeSource)) {
+              // Live DB: page.id IS the DB primary key
               result = dispatchDelete(activeSource, databaseId, pageId, fieldMap);
+            } else {
+              // File-based: resolve display ID from current state
+              try {
+                const state = readState(activeSource);
+                const page = state.pages[pageId] as PageLike | undefined;
+                const flatId = page ? resolveFlatId(page, fieldMap) : pageId;
+                result = dispatchDelete(activeSource, databaseId, flatId, fieldMap);
+              } catch {
+                result = dispatchDelete(activeSource, databaseId, pageId, fieldMap);
+              }
             }
             break;
           }
@@ -656,21 +687,28 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       }
       // ── PATCH /api/dbms/state — full state replacement ──
       if (url === '/api/dbms/state' && req.method === 'PATCH') {
-        if (isLiveDbSource(activeSource)) {
-          // Live DB sources: no-op — the container is the source of truth
-          res.writeHead(200);
-          res.end(JSON.stringify({ ok: true, skipped: true }));
-          return;
-        }
         const body = await parseBody(req);
         const state = readState(activeSource);
 
-        // Full replacement — critical so deletions propagate correctly
-        if (body.databases) state.databases = body.databases as Record<string, unknown>;
-        if (body.pages) state.pages = body.pages as Record<string, unknown>;
-        if (body.views) state.views = body.views as Record<string, unknown>;
+        if (isLiveDbSource(activeSource)) {
+          // Live DB: persist only schemas + views (pages live in the container)
+          if (body.databases) state.databases = body.databases as Record<string, unknown>;
+          if (body.views) state.views = body.views as Record<string, unknown>;
+          // DO NOT touch state.pages — the seed pages must stay intact
+          writeState(activeSource, state);
+          // Keep the cache schema in sync
+          if (liveCache && liveCacheSource === activeSource) {
+            if (body.databases) liveCache.databases = body.databases as Record<string, unknown>;
+            if (body.views) liveCache.views = body.views as Record<string, unknown>;
+          }
+        } else {
+          // File-based: full replacement — critical so deletions propagate
+          if (body.databases) state.databases = body.databases as Record<string, unknown>;
+          if (body.pages) state.pages = body.pages as Record<string, unknown>;
+          if (body.views) state.views = body.views as Record<string, unknown>;
+          writeState(activeSource, state);
+        }
 
-        writeState(activeSource, state);
         res.writeHead(200);
         res.end(JSON.stringify({ ok: true }));
         return;

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 18:52:38 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 21:13:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,14 +48,16 @@ const LIVE_DB_SOURCES = new Set(['postgresql', 'mongodb']);
 // ─── Helper: Flush full state to server immediately (no debounce) ───────────
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
 function flushState(get: () => ExtendedDatabaseState): void {
-  // Live DB sources: container is the source of truth, skip file flush
-  if (LIVE_DB_SOURCES.has(get().activeDbmsSource)) return;
   if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
-  const { databases, pages, views } = get();
+  const { databases, pages, views, activeDbmsSource } = get();
+  // Live DB: only persist schema (databases + views) — pages live in the container
+  const body = LIVE_DB_SOURCES.has(activeDbmsSource)
+    ? { databases, views }
+    : { databases, pages, views };
   fetch('/api/dbms/state', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ databases, pages, views }),
+    body: JSON.stringify(body),
   }).catch((err) => console.error('[dbms] State flush error:', err));
 }
 
