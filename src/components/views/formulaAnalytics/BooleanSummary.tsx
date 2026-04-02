@@ -14,7 +14,7 @@ import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import type { AnalyticsEntry } from './constants';
 
-export function BooleanSummary({ analytics }: { analytics: Record<string, AnalyticsEntry> }) {
+export function BooleanSummary({ analytics }: Readonly<{ analytics: Record<string, AnalyticsEntry> }>) {
   const boolEntries = Object.entries(analytics).filter(([, a]) => a.resultType === 'boolean');
   if (boolEntries.length === 0) return null;
 

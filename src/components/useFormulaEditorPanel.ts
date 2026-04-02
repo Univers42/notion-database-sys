@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:22 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 02:10:37 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,12 @@ import { useActiveViewId } from '../hooks/useDatabaseScope';
 import type { SchemaProperty, Page } from '../types/database';
 import { FORMULA_FUNCTIONS, FUNCTION_CATEGORIES } from './formulaEditor';
 import type { FunctionDef } from './formulaEditor';
+
+const TYPE_LABEL_MAP: Record<string, string> = {
+  number: 'Number',
+  boolean: 'Boolean',
+  string: 'Text',
+};
 
 export function useFormulaEditorPanel(databaseId: string, propertyId: string, onClose: () => void) {
   const activeViewId = useActiveViewId();
@@ -68,7 +74,7 @@ export function useFormulaEditorPanel(databaseId: string, propertyId: string, on
     try {
       const result = resolveFormula(databaseId, storePages[previewPageId], expression);
       if (result === '#ERROR') return { value: '#ERROR', type: 'Error', error: true };
-      const type = typeof result === 'number' ? 'Number' : typeof result === 'boolean' ? 'Boolean' : typeof result === 'string' ? 'Text' : 'Any';
+      const type = TYPE_LABEL_MAP[typeof result] || 'Any';
       return { value: result, type, error: false };
     } catch { return { value: '#ERROR', type: 'Error', error: true }; }
   }, [expression, previewPageId, databaseId, storePages, resolveFormula]);

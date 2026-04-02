@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:21 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:40:22 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/01 21:00:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ export function useUndoRedo(pageId: string) {
   const undoStack = useRef<HistoryEntry[]>([]);
   const redoStack = useRef<HistoryEntry[]>([]);
   const isProgrammatic = useRef(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastSnapshotRef = useRef<string>('');
 
   /** Take a snapshot of the current page content. */

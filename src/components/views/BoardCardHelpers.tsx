@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@ import React from 'react';
 import { Image, ArrowUpRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { CURSORS } from '../ui/cursors';
+import type { Page, SchemaProperty, PropertyValue } from '../../types/database';
 
 export const COVER_COLORS = [
   'bg-gradient-to-br from-gradient-blue-from to-gradient-blue-to',
@@ -33,10 +34,10 @@ export function getColumnWidth(cardSize: string) {
   }
 }
 
-export function renderBoardPropertyValue(prop: any, val: any, wrapContent: boolean) {
+export function renderBoardPropertyValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
   if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) return null;
   if (prop.type === 'select' || prop.type === 'status') {
-    const opt = prop.options?.find((o: any) => o.id === val);
+    const opt = prop.options?.find(o => o.id === val);
     return opt ? <span className={`inline-block w-fit px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span> : null;
   }
   if (prop.type === 'multi_select') {
@@ -44,7 +45,7 @@ export function renderBoardPropertyValue(prop: any, val: any, wrapContent: boole
     return (
       <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
         {ids.map(id => {
-          const opt = prop.options?.find((o: any) => o.id === id);
+          const opt = prop.options?.find(o => o.id === id);
           return opt ? <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span> : null;
         })}
       </div>
@@ -73,13 +74,13 @@ export function renderBoardPropertyValue(prop: any, val: any, wrapContent: boole
   return null;
 }
 
-export function BoardCardPreview({ cardPreview, coverColor, page, nonTitleGroupProps, wrapContent }: {
+export function BoardCardPreview({ cardPreview, coverColor, page, nonTitleGroupProps, wrapContent }: Readonly<{
   cardPreview: string;
   coverColor: string;
-  page: any;
-  nonTitleGroupProps: any[];
+  page: Page;
+  nonTitleGroupProps: SchemaProperty[];
   wrapContent: boolean;
-}) {
+}>) {
   if (cardPreview === 'none') return null;
 
   if (cardPreview === 'page_cover') {
@@ -97,7 +98,7 @@ export function BoardCardPreview({ cardPreview, coverColor, page, nonTitleGroupP
   }
 
   if (cardPreview === 'page_content') {
-    const textContent = page.content?.map((b: any) => b.content).filter(Boolean).join(' ') || '';
+    const textContent = page.content?.map(b => b.content).filter(Boolean).join(' ') || '';
     return (
       <div className={`h-16 ${coverColor} rounded -mx-3 -mt-3 mb-2 p-2 overflow-hidden relative`}>
         <p className="text-[10px] text-ink-secondary leading-relaxed line-clamp-3">{textContent || 'No content'}</p>
@@ -128,17 +129,17 @@ export function BoardCardPreview({ cardPreview, coverColor, page, nonTitleGroupP
 }
 
 interface BoardCardProps {
-  page: any;
+  page: Page;
   pageIdx: number;
   cardPreview: string;
   wrapContent: boolean;
-  nonTitleGroupProps: any[];
+  nonTitleGroupProps: SchemaProperty[];
   openPage: (id: string) => void;
-  getPageTitle: (page: any) => string;
+  getPageTitle: (page: Page) => string;
   onDragStart: (e: React.DragEvent, pageId: string) => void;
 }
 
-export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGroupProps, openPage, getPageTitle, onDragStart }: BoardCardProps) {
+export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGroupProps, openPage, getPageTitle, onDragStart }: Readonly<BoardCardProps>) {
   const title = getPageTitle(page);
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];
 

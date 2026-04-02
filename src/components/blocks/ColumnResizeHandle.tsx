@@ -2,13 +2,13 @@ import React, { useState, useCallback, useRef } from 'react';
 import type { Block } from '../../types/database';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 
-export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns }: {
+export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _columns }: Readonly<{
   pageId: string;
   blockId: string;
   colIdx: number;
   ratios: number[];
   columns: Block[][];
-}) {
+}>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [dragging, setDragging] = useState(false);
   const startXRef = useRef(0);

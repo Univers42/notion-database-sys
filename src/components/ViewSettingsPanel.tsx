@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { useDatabaseStore } from '../store/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import {
-  ChartIcon, EyeIcon, FilterIcon, SortIcon, ConditionalColorIcon,
+  EyeIcon, FilterIcon, SortIcon, ConditionalColorIcon,
   CopyLinkIcon, SourceIcon, LightningIcon, CollectionIcon, LockIcon,
 } from './ui/Icons';
 import {
@@ -54,7 +54,7 @@ const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> =
 // MAIN EXPORT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
+export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>) {
   const activeViewId = useActiveViewId();
   const {
     views, databases, updateViewSettings, updateView,
@@ -76,6 +76,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
     ['select', 'multi_select', 'status', 'checkbox', 'user', 'person', 'assigned_to', 'due_date'].includes(p.type));
   const placeProps = allProps.filter(p => p.type === 'place' || p.type === 'text');
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateSetting = (key: string, val: any) => updateViewSettings(view.id, { [key]: val });
   const goHome = () => setScreen(view.type === 'chart' ? 'editChart' : 'main');
 

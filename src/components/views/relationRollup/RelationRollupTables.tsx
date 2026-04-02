@@ -14,7 +14,7 @@ import React from 'react';
 import type { RelationRollupAnalytics, RollupResult } from './useRelationRollupAnalytics';
 import { DisplayBadge, RollupCellValue } from './RelationRollupCards';
 
-export function NumericRollupTable({ rollupResults }: { rollupResults: RollupResult[] }) {
+export function NumericRollupTable({ rollupResults }: Readonly<{ rollupResults: RollupResult[] }>) {
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-ink-body mb-4">Numeric Rollup Summary</h3>
@@ -60,7 +60,7 @@ export function NumericRollupTable({ rollupResults }: { rollupResults: RollupRes
   );
 }
 
-export function RollupResultsGrid({ analytics }: { analytics: RelationRollupAnalytics }) {
+export function RollupResultsGrid({ analytics }: Readonly<{ analytics: RelationRollupAnalytics }>) {
   const { dbPages, rollupResults } = analytics;
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
@@ -104,7 +104,7 @@ export function RollupResultsGrid({ analytics }: { analytics: RelationRollupAnal
   );
 }
 
-export function EdgeCasesSection({ analytics }: { analytics: RelationRollupAnalytics }) {
+export function EdgeCasesSection({ analytics }: Readonly<{ analytics: RelationRollupAnalytics }>) {
   const { dbPages, relationTargets } = analytics;
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">

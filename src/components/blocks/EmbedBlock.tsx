@@ -48,7 +48,7 @@ function resolveEmbed(url: string): { src: string; aspectRatio: string } | null 
   return null;
 }
 
-export function EmbedBlock({ block, pageId }: BlockRendererProps) {
+export function EmbedBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [urlInput, setUrlInput] = useState('');
 

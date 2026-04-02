@@ -42,7 +42,7 @@ function parseBlocks(ctx: ParseContext, indent: number): BlockNode[] {
 
     if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) { blocks.push(parseFencedCode(ctx)); continue; }
     if (trimmed.startsWith('$$')) { blocks.push(parseMathBlock(ctx)); continue; }
-    if (/^<([a-zA-Z][a-zA-Z0-9-]*)[\s>\/]/.test(trimmed) && isHtmlBlockTag(trimmed)) { blocks.push(parseHtmlBlock(ctx)); continue; }
+    if (/^<([a-zA-Z][a-zA-Z0-9-]*)[\s>/]/.test(trimmed) && isHtmlBlockTag(trimmed)) { blocks.push(parseHtmlBlock(ctx)); continue; }
     if (isTableStart(ctx)) { blocks.push(parseTable(ctx)); continue; }
     if (/^>\s*\[!(\w+)\]/.test(trimmed)) { blocks.push(parseCallout(ctx, parseBlocks)); continue; }
     if (trimmed.startsWith('> ') || trimmed === '>') { blocks.push(parseBlockquote(ctx, parseBlocks)); continue; }

@@ -19,7 +19,7 @@ import type { ActionItem, ToggleItem, LinkItem, InfoItem, PanelItem } from './Ac
 
 /* ─── Item dispatcher ──────────────────────────────────────────────────── */
 
-export function PanelItemRow({ item }: { item: PanelItem }) {
+export function PanelItemRow({ item }: Readonly<{ item: PanelItem }>) {
   if (item.type === 'info') return <InfoRow item={item} />;
   if (item.type === 'toggle') return <ToggleRow item={item} />;
   if (item.type === 'link') return <LinkRow item={item} />;
@@ -27,7 +27,7 @@ export function PanelItemRow({ item }: { item: PanelItem }) {
 }
 
 /* Action row: icon + label + optional shortcut */
-function ActionRow({ item }: { item: ActionItem }) {
+function ActionRow({ item }: Readonly<{ item: ActionItem }>) {
   return (
     <button
       onClick={item.onClick}
@@ -53,7 +53,7 @@ function ActionRow({ item }: { item: ActionItem }) {
 }
 
 /* Toggle row: icon + label + toggle switch */
-function ToggleRow({ item }: { item: ToggleItem }) {
+function ToggleRow({ item }: Readonly<{ item: ToggleItem }>) {
   return (
     <button
       onClick={() => item.onToggle(!item.checked)}
@@ -73,7 +73,7 @@ function ToggleRow({ item }: { item: ToggleItem }) {
 }
 
 /* Link row: icon + label, rendered as <a> */
-function LinkRow({ item }: { item: LinkItem }) {
+function LinkRow({ item }: Readonly<{ item: LinkItem }>) {
   return (
     <a
       href={item.href}
@@ -92,7 +92,7 @@ function LinkRow({ item }: { item: LinkItem }) {
 }
 
 /* Info row: plain text lines */
-function InfoRow({ item }: { item: InfoItem }) {
+function InfoRow({ item }: Readonly<{ item: InfoItem }>) {
   return (
     <div className="px-2 py-1">
       {item.lines.map((line, i) => (
@@ -112,7 +112,7 @@ export function SectionDivider() {
   );
 }
 
-export function ToggleSwitch({ checked }: { checked: boolean }) {
+export function ToggleSwitch({ checked }: Readonly<{ checked: boolean }>) {
   return (
     <div
       className="flex shrink-0 items-center rounded-full p-[2px] transition-colors"

@@ -12,15 +12,15 @@
 
 import React, { useState, useRef } from 'react';
 import { ChevronDown, Plus, MoreHorizontal, Trash2 } from 'lucide-react';
-import type { FilterOperator, SchemaProperty } from '../../types/database';
+import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
 import { getOperatorsForType, needsValue } from './constants';
 import { PropertyTypeIcon } from './PropertyTypeIcon';
 import { PortalDropdown } from './PortalDropdown';
 
-function FilterOperatorPicker({ type, current, onSelect, onClose }: {
+function FilterOperatorPicker({ type, current, onSelect, onClose }: Readonly<{
   type: string; current: FilterOperator;
   onSelect: (op: FilterOperator) => void; onClose: () => void;
-}) {
+}>) {
   return (
     <div className="flex flex-col py-1" style={{ width: 190, maxHeight: '70vh' }}>
       <div className="overflow-y-auto flex-1 p-1">
@@ -39,8 +39,8 @@ function FilterOperatorPicker({ type, current, onSelect, onClose }: {
 
 function renderInlineFilterValue(
   prop: SchemaProperty,
-  filter: { id: string; operator: FilterOperator; value: any },
-  onUpdateFilter: (id: string, updates: Partial<{ value: any }>) => void,
+  filter: { id: string; operator: FilterOperator; value: PropertyValue },
+  onUpdateFilter: (id: string, updates: Partial<{ value: PropertyValue }>) => void,
 ) {
   if (prop.type === 'select' || prop.type === 'multi_select' || prop.type === 'status') {
     return (
@@ -64,12 +64,18 @@ function renderInlineFilterValue(
   );
 }
 
-export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilter, onUpdateFilter, onRemoveFilter, onDeleteAll, onClose }: {
-  filters: { id: string; propertyId: string; operator: FilterOperator; value: any }[];
+function getFilterLabel(idx: number, conjunction: string): string {
+  if (idx === 0) return 'Where';
+  if (conjunction === 'or') return 'Or';
+  return 'And';
+}
+
+export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilter, onUpdateFilter, onRemoveFilter, onDeleteAll, onClose: _onClose }: {
+  filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   properties: Record<string, SchemaProperty>;
   conjunction: 'and' | 'or';
   onAddFilter: (propId: string) => void;
-  onUpdateFilter: (filterId: string, updates: Partial<{ propertyId: string; operator: FilterOperator; value: any }>) => void;
+  onUpdateFilter: (filterId: string, updates: Partial<{ propertyId: string; operator: FilterOperator; value: PropertyValue }>) => void;
   onRemoveFilter: (filterId: string) => void;
   onDeleteAll: () => void;
   onClose: () => void;
@@ -96,7 +102,7 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
             <div key={filter.id} className="grid gap-2 mb-2 items-start"
               style={{ gridTemplateColumns: '60px minmax(min-content, 120px) 110px auto 32px' }}>
               <div className="text-xs text-ink-muted text-right pr-1 leading-8 truncate">
-                {idx === 0 ? 'Where' : conjunction === 'or' ? 'Or' : 'And'}
+                {getFilterLabel(idx, conjunction)}
               </div>
               <button ref={el => { propBtnRefs.current[filter.id] = el; }}
                 onClick={() => setOpenPropPicker(openPropPicker === filter.id ? null : filter.id)}

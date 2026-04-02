@@ -19,13 +19,13 @@ export function KpiCard({
   label,
   value,
   subtext,
-}: {
+}: Readonly<{
   icon: React.ReactNode;
   color: string;
   label: string;
   value: number | string;
   subtext?: string;
-}) {
+}>) {
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3">
       <div className={`p-2.5 rounded-lg ${STAT_BG[color] || STAT_BG.blue}`}>{icon}</div>

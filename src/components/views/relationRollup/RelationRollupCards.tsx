@@ -11,12 +11,30 @@
 /* ************************************************************************** */
 
 import React from 'react';
+import type { PropertyValue } from '../../../types/database';
 
 export const COLORS = ['var(--color-chart-1)','var(--color-chart-2)','var(--color-chart-6)','var(--color-chart-4)','var(--color-chart-7)','var(--color-progress-high)','var(--color-chart-3)','var(--color-chart-8)'];
 
+const DISPLAY_BADGE_CLASSES: Record<string, string> = {
+  bar: 'bg-accent-soft text-accent-text',
+  ring: 'bg-purple-surface text-purple-text-bold',
+};
+
+function formatBoolish(v: PropertyValue): string {
+  if (v === true) return '✓';
+  if (v === false) return '✗';
+  return String(v);
+}
+
+function getRingStroke(pct: number): string {
+  if (pct >= 80) return 'var(--color-progress-high)';
+  if (pct >= 50) return 'var(--color-chart-1)';
+  return 'var(--color-chart-4)';
+}
+
 // ─── Small sub-components ────────────────────────────────────────────────────
 
-export function KpiCard({ label, value, color }: { label: string; value: number | string; color: string }) {
+export function KpiCard({ label, value, color }: Readonly<{ label: string; value: number | string; color: string }>) {
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-4 shadow-sm">
       <div className={`text-2xl font-bold tabular-nums ${color}`}>{typeof value === 'number' ? value.toLocaleString() : value}</div>
@@ -25,19 +43,19 @@ export function KpiCard({ label, value, color }: { label: string; value: number 
   );
 }
 
-export function DisplayBadge({ format }: { format: string }) {
-  const bg = format === 'bar' ? 'bg-accent-soft text-accent-text' : format === 'ring' ? 'bg-purple-surface text-purple-text-bold' : 'bg-surface-tertiary text-ink-body-light';
+export function DisplayBadge({ format }: Readonly<{ format: string }>) {
+  const bg = DISPLAY_BADGE_CLASSES[format] || 'bg-surface-tertiary text-ink-body-light';
   return <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${bg}`}>{format}</span>;
 }
 
-export function RollupCellValue({ value, displayAs }: { value: any; displayAs: string }) {
+export function RollupCellValue({ value, displayAs }: Readonly<{ value: PropertyValue; displayAs: string }>) {
   if (value == null) return <span className="text-ink-disabled">—</span>;
 
   if (Array.isArray(value)) {
     if (value.length === 0) return <span className="text-ink-disabled">∅</span>;
     return (
       <span className="text-xs text-ink-secondary" title={value.join(', ')}>
-        [{value.length}] {value.slice(0, 3).map(v => v === true ? '✓' : v === false ? '✗' : String(v)).join(', ')}
+        [{value.length}] {value.slice(0, 3).map(v => formatBoolish(v)).join(', ')}
         {value.length > 3 && '…'}
       </span>
     );
@@ -55,7 +73,7 @@ export function RollupCellValue({ value, displayAs }: { value: any; displayAs: s
           <svg width="18" height="18" className="-rotate-90 inline-block">
             <circle cx="9" cy="9" r={r} fill="none" stroke="var(--color-chart-grid)" strokeWidth="2.5" />
             <circle cx="9" cy="9" r={r} fill="none"
-              stroke={pct >= 80 ? 'var(--color-progress-high)' : pct >= 50 ? 'var(--color-chart-1)' : 'var(--color-chart-4)'}
+              stroke={getRingStroke(pct)}
               strokeWidth="2.5" strokeLinecap="round"
               strokeDasharray={circ} strokeDashoffset={offset} />
           </svg>

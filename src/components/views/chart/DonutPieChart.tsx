@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ interface DonutPieChartProps {
   isDonut: boolean;
 }
 
-export function DonutPieChart({ chartData, total, isDonut }: DonutPieChartProps) {
+export function DonutPieChart({ chartData, total, isDonut }: Readonly<DonutPieChartProps>) {
   const size = 300;
   const cx = size / 2;
   const cy = size / 2;
@@ -74,7 +74,7 @@ export function DonutPieChart({ chartData, total, isDonut }: DonutPieChartProps)
 
         {/* Legend */}
         <div className="flex flex-col gap-2">
-          {chartData.map((d, i) => (
+          {chartData.map((d, _i) => (
             <div key={d.label} className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: d.color }} />
               <span className="text-sm text-ink-body">{d.label}</span>

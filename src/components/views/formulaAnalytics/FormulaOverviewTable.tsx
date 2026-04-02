@@ -14,7 +14,19 @@ import React from 'react';
 import { Sigma } from 'lucide-react';
 import type { AnalyticsEntry } from './constants';
 
-export function FormulaOverviewTable({ analytics }: { analytics: Record<string, AnalyticsEntry> }) {
+const RESULT_TYPE_CLASSES: Record<string, string> = {
+  number: 'bg-accent-muted text-accent-text',
+  boolean: 'bg-success-surface-muted text-success-text-bold',
+  text: 'bg-purple-surface-muted text-purple-text-bold',
+};
+
+function getRateColor(rate: number): string {
+  if (rate === 100) return 'text-success-text';
+  if (rate > 90) return 'text-amber-text';
+  return 'text-danger-text';
+}
+
+export function FormulaOverviewTable({ analytics }: Readonly<{ analytics: Record<string, AnalyticsEntry> }>) {
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5">
       <h3 className="text-sm font-semibold text-ink mb-4 flex items-center gap-2">
@@ -40,14 +52,14 @@ export function FormulaOverviewTable({ analytics }: { analytics: Record<string, 
                   <td className="py-2 px-2 font-medium text-ink">{a.propName}</td>
                   <td className="py-2 px-2 text-ink-secondary font-mono text-xs truncate max-w-[300px]" title={a.expression}>{a.expression}</td>
                   <td className="py-2 px-2 text-center">
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${a.resultType === 'number' ? 'bg-accent-muted text-accent-text' : a.resultType === 'boolean' ? 'bg-success-surface-muted text-success-text-bold' : a.resultType === 'text' ? 'bg-purple-surface-muted text-purple-text-bold' : 'bg-surface-tertiary text-ink-body-light'}`}>{a.resultType}</span>
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${RESULT_TYPE_CLASSES[a.resultType] || 'bg-surface-tertiary text-ink-body-light'}`}>{a.resultType}</span>
                   </td>
                   <td className="py-2 px-2 text-center text-ink-body-light tabular-nums">{a.total}</td>
                   <td className="py-2 px-2 text-center tabular-nums">
                     <span className={a.errors > 0 ? 'text-danger-text font-bold' : 'text-ink-muted'}>{a.errors}</span>
                   </td>
                   <td className="py-2 px-2 text-center">
-                    <span className={`font-bold tabular-nums ${rate === 100 ? 'text-success-text' : rate > 90 ? 'text-amber-text' : 'text-danger-text'}`}>{rate}%</span>
+                    <span className={`font-bold tabular-nums ${getRateColor(rate)}`}>{rate}%</span>
                   </td>
                 </tr>
               );

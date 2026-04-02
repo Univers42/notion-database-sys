@@ -17,12 +17,12 @@ import type { Block } from '../types/database';
 
 export const DND_TYPE = 'application/x-block-id';
 
-export function BlockHoverControls({ block, content, pageId, focusBlock }: {
+export function BlockHoverControls({ block, content, pageId, focusBlock }: Readonly<{
   block: Block;
   content: Block[];
   pageId: string;
   focusBlock: (id: string) => void;
-}) {
+}>) {
   const { insertBlock, updatePageContent } = useDatabaseStore.getState();
 
   const handleInsertBefore = () => {
@@ -51,7 +51,7 @@ export function BlockHoverControls({ block, content, pageId, focusBlock }: {
   );
 }
 
-function DragHandle({ blockId }: { blockId: string }) {
+function DragHandle({ blockId }: Readonly<{ blockId: string }>) {
   const handleDragStart = useCallback((e: React.DragEvent) => {
     e.dataTransfer.setData(DND_TYPE, blockId);
     e.dataTransfer.effectAllowed = 'move';
@@ -80,7 +80,7 @@ function DragHandle({ blockId }: { blockId: string }) {
 
 export type DropPosition = 'above' | 'below' | null;
 
-export function DropIndicator({ position }: { position: DropPosition }) {
+export function DropIndicator({ position }: Readonly<{ position: DropPosition }>) {
   if (!position) return null;
   return (
     <div
@@ -93,7 +93,7 @@ export function DropIndicator({ position }: { position: DropPosition }) {
 
 export function DraggableBlockWrapper({
   block, content, pageId, focusBlock, draggedBlockId, onDraggedChange, children,
-}: {
+}: Readonly<{
   block: Block;
   content: Block[];
   pageId: string;
@@ -101,7 +101,7 @@ export function DraggableBlockWrapper({
   draggedBlockId: string | null;
   onDraggedChange: (id: string | null) => void;
   children: React.ReactNode;
-}) {
+}>) {
   const [dropPosition, setDropPosition] = useState<DropPosition>(null);
   const moveBlock = useDatabaseStore(s => s.moveBlock);
 
@@ -155,7 +155,7 @@ export function DraggableBlockWrapper({
   );
 }
 
-export function EmptyBlockPlaceholder({ onFocus }: { onFocus: () => void }) {
+export function EmptyBlockPlaceholder({ onFocus }: Readonly<{ onFocus: () => void }>) {
   return (
     <div
       contentEditable

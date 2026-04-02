@@ -1,6 +1,6 @@
 // Syntax tokenizer — extended language rules (set A)
 import type { Rule } from './tokenizerRules';
-import { kw, SINGLE_LINE_COMMENT, MULTI_LINE_COMMENT, HASH_COMMENT, DOUBLE_DASH_COMMENT, DOUBLE_QUOTED_STRING, SINGLE_QUOTED_STRING, BACKTICK_STRING, NUMBER_LITERAL, COMMON_OPERATORS, COMMON_PUNCTUATION, cFamilyComments, cFamilyStrings, cFamilyLiterals, cFamilyTail } from './tokenizerRules';
+import { kw, MULTI_LINE_COMMENT, HASH_COMMENT, DOUBLE_QUOTED_STRING, SINGLE_QUOTED_STRING, BACKTICK_STRING, NUMBER_LITERAL, cFamilyComments, cFamilyStrings, cFamilyTail } from './tokenizerRules';
 
 export const javaRules: Rule[] = [
   ...cFamilyComments,

@@ -14,7 +14,7 @@ import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { FileText, ArrowUpRight } from 'lucide-react';
 
-export function PageBlock({ block }: BlockRendererProps) {
+export function PageBlock({ block }: Readonly<BlockRendererProps>) {
   return (
     <div className="my-1">
       <button

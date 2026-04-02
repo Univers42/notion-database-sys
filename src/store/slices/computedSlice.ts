@@ -6,14 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:42:39 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // ─── computedSlice — read-only computed helpers for the store ─────────────────
 
 import type { Page } from '../../types/database';
-import type { DatabaseState } from '../storeTypes';
 import { initFormulaEngine, evalFormula, isWasmReady } from '../../lib/engine/bridge';
 import { getCachedFormula, setCachedFormula } from '../../lib/formula/formulaCache';
 import { evaluateFilter } from '../../lib/filter/evaluateFilter';
@@ -30,8 +29,9 @@ let pagesForViewCache: {
   results: Map<string, Page[]>;
 } = { pagesRef: null, viewsRef: null, searchQuery: '', results: new Map() };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createComputedSlice(_set: any, get: () => DatabaseState) {
+import type { StoreSet, StoreGet } from '../storeTypes';
+
+export function createComputedSlice(_set: StoreSet, get: StoreGet) {
   return {
     getPageTitle: (page: Page) => {
       const state = get();

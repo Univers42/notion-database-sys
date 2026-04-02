@@ -21,12 +21,12 @@ type ContentWidth = keyof typeof CONTENT_WIDTHS;
 
 // ─── Full page view ─────────────────────────────────────────────────────────
 
-export function FullPageView({ page, database, pageId, onClose }: {
+export function FullPageView({ page, database, pageId, onClose }: Readonly<{
   page: Page;
   database: DatabaseSchema;
   pageId: string;
   onClose: () => void;
-}) {
+}>) {
   const { deletePage, duplicatePage } = useDatabaseStore.getState();
   const title = (page.properties[database.titlePropertyId] as string) || 'Untitled';
   const [contentWidth, setContentWidth] = useState<ContentWidth>('default');
@@ -83,7 +83,7 @@ function FullPageHeader({ database, title, pageId, onClose, contentWidth, setCon
   );
 }
 
-function WidthToggle({ contentWidth, setContentWidth }: { contentWidth: ContentWidth; setContentWidth: (w: ContentWidth) => void }) {
+function WidthToggle({ contentWidth, setContentWidth }: Readonly<{ contentWidth: ContentWidth; setContentWidth: (w: ContentWidth) => void }>) {
   const widths: ContentWidth[] = ['narrow', 'default', 'wide', 'full'];
   const labels: Record<ContentWidth, string> = { narrow: '▕▏', default: '▕ ▏', wide: '▕  ▏', full: '▕   ▏' };
   return (

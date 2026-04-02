@@ -15,13 +15,13 @@ import { X, Plus } from 'lucide-react';
 import type { SchemaProperty } from '../../types/database';
 import { PropertyTypeIcon } from './PropertyTypeIcon';
 
-export function FilterPropertyPicker({ properties, onSelect, onClose, onAdvancedFilter, title = 'Add filter' }: {
+export function FilterPropertyPicker({ properties, onSelect, onClose, onAdvancedFilter, title = 'Add filter' }: Readonly<{
   properties: SchemaProperty[];
   onSelect: (propId: string) => void;
   onClose: () => void;
   onAdvancedFilter?: () => void;
   title?: string;
-}) {
+}>) {
   const [search, setSearch] = useState('');
   const filtered = properties.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase())

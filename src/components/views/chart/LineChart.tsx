@@ -18,7 +18,7 @@ interface LineChartProps {
   maxValue: number;
 }
 
-export function LineChart({ chartData, maxValue }: LineChartProps) {
+export function LineChart({ chartData, maxValue }: Readonly<LineChartProps>) {
   const chartWidth = Math.max(600, chartData.length * 80);
   const chartHeight = 300;
   const padding = { top: 20, right: 20, bottom: 50, left: 50 };

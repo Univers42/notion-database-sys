@@ -1,5 +1,6 @@
 // ─── pageSlice — page CRUD and block mutation actions ────────────────────────
 import type { Page, Block, DatabaseSchema, SchemaProperty } from '../../types/database';
+import type { StoreSet, StoreGet, DatabaseState } from '../storeTypes';
 
 export interface PageSliceState {
   pages: Record<string, Page>;
@@ -24,8 +25,7 @@ export interface PageSliceActions {
 
 export type PageSlice = PageSliceState & PageSliceActions;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createPageSlice(set: (partial: any) => void, get: () => any): PageSliceActions {
+export function createPageSlice(set: StoreSet, get: StoreGet): PageSliceActions {
   const now = (): string => new Date().toISOString();
 
   return {
@@ -58,7 +58,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
         createdBy: 'You',
         lastEditedBy: 'You',
       };
-      set((state: any) => {
+      set((state: DatabaseState) => {
         const updatedDb = Object.keys(dbUpdates).length > 0
           ? {
               ...state.databases,
@@ -73,7 +73,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       return id;
     },
 
-    updatePageProperty: (pageId, propertyId, value) => set((state: any) => {
+    updatePageProperty: (pageId, propertyId, value) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page) return state;
       return {
@@ -89,7 +89,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       };
     }),
 
-    deletePage: (pageId) => set((state: any) => {
+    deletePage: (pageId) => set((state: DatabaseState) => {
       const newPages = { ...state.pages };
       delete newPages[pageId];
       return { pages: newPages, openPageId: state.openPageId === pageId ? null : state.openPageId };
@@ -115,7 +115,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       set({ pages: { ...state.pages, [id]: newPage } });
     },
 
-    updatePageContent: (pageId, content) => set((state: any) => {
+    updatePageContent: (pageId, content) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page) return state;
       return {
@@ -126,7 +126,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       };
     }),
 
-    changeBlockType: (pageId, blockId, newType) => set((state: any) => {
+    changeBlockType: (pageId, blockId, newType) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page?.content) return state;
       const content = page.content.map((b: Block) =>
@@ -135,7 +135,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: now(), lastEditedBy: 'You' } } };
     }),
 
-    insertBlock: (pageId, afterBlockId, block) => set((state: any) => {
+    insertBlock: (pageId, afterBlockId, block) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page) return state;
       const content = [...(page.content || [])];
@@ -148,14 +148,14 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: now(), lastEditedBy: 'You' } } };
     }),
 
-    deleteBlock: (pageId, blockId) => set((state: any) => {
+    deleteBlock: (pageId, blockId) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page?.content) return state;
       const content = page.content.filter((b: Block) => b.id !== blockId);
       return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: now(), lastEditedBy: 'You' } } };
     }),
 
-    moveBlock: (pageId, blockId, targetIndex) => set((state: any) => {
+    moveBlock: (pageId, blockId, targetIndex) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page?.content) return state;
       const content = [...page.content];
@@ -166,7 +166,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: now(), lastEditedBy: 'You' } } };
     }),
 
-    toggleBlockChecked: (pageId, blockId) => set((state: any) => {
+    toggleBlockChecked: (pageId, blockId) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page?.content) return state;
       const content = page.content.map((b: Block) =>
@@ -175,7 +175,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: now(), lastEditedBy: 'You' } } };
     }),
 
-    toggleBlockCollapsed: (pageId, blockId) => set((state: any) => {
+    toggleBlockCollapsed: (pageId, blockId) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page?.content) return state;
       const content = page.content.map((b: Block) =>
@@ -184,7 +184,7 @@ export function createPageSlice(set: (partial: any) => void, get: () => any): Pa
       return { pages: { ...state.pages, [pageId]: { ...page, content, updatedAt: now(), lastEditedBy: 'You' } } };
     }),
 
-    updateBlock: (pageId, blockId, updates) => set((state: any) => {
+    updateBlock: (pageId, blockId, updates) => set((state: DatabaseState) => {
       const page = state.pages[pageId];
       if (!page?.content) return state;
       const content = page.content.map((b: Block) =>

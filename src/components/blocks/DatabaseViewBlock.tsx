@@ -21,7 +21,7 @@ const VIEW_CONFIG: Record<string, { icon: typeof Table; label: string }> = {
   list_view: { icon: List, label: 'List view' },
 };
 
-export function DatabaseViewBlock({ block }: BlockRendererProps) {
+export function DatabaseViewBlock({ block }: Readonly<BlockRendererProps>) {
   const config = VIEW_CONFIG[block.type] || VIEW_CONFIG.table_view;
   const Icon = config.icon;
 

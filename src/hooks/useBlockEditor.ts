@@ -56,7 +56,7 @@ export function useBlockEditor(pageId: string) {
   }, []);
 
   /** Handle content change — detects '/' trigger and markdown shortcuts. */
-  const handleBlockChange = useCallback((blockId: string, text: string, content: Block[]) => {
+  const handleBlockChange = useCallback((blockId: string, text: string, _content: Block[]) => {
     // Always persist the content first
     updateBlock(pageId, blockId, { content: text });
 

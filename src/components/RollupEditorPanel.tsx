@@ -30,7 +30,7 @@ interface RollupEditorPanelProps {
   position?: { top: number; left: number };
 }
 
-export function RollupEditorPanel({ databaseId, propertyId, onClose, position }: RollupEditorPanelProps) {
+export function RollupEditorPanel({ databaseId, propertyId, onClose, position }: Readonly<RollupEditorPanelProps>) {
   const { databases, updateProperty } = useDatabaseStore();
   const db = databases[databaseId];
   const prop = db?.properties[propertyId];

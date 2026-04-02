@@ -4,7 +4,7 @@ import type { DatabaseSchema } from '../types/database';
 
 export const DB_PROJECTS = 'db-projects';
 
-const now = new Date().toISOString();
+const _now = new Date().toISOString();
 export const d = (daysOffset: number) => {
   const date = new Date();
   date.setDate(date.getDate() + daysOffset);

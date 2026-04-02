@@ -6,15 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:11 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:12 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 
-export function EquationBlock({ block, pageId }: BlockRendererProps) {
+export function EquationBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [editing, setEditing] = useState(!block.content);
   const [latex, setLatex] = useState(block.content || '');
@@ -24,18 +24,19 @@ export function EquationBlock({ block, pageId }: BlockRendererProps) {
   useEffect(() => {
     if (!editing && block.content && previewRef.current) {
       import('katex').then(katex => {
+        if (!previewRef.current) return;
         try {
-          previewRef.current!.innerHTML = katex.default.renderToString(block.content, {
+          previewRef.current.innerHTML = katex.default.renderToString(block.content, {
             displayMode: true,
             throwOnError: false,
             output: 'html',
           });
         } catch {
-          previewRef.current!.innerHTML = `<span class="text-danger-text text-sm">Invalid equation</span>`;
+          previewRef.current.innerHTML = `<span class="text-danger-text text-sm">Invalid equation</span>`;
         }
       }).catch(() => {
         // KaTeX not available — show raw LaTeX
-        previewRef.current!.textContent = block.content;
+        if (previewRef.current) previewRef.current.textContent = block.content;
       });
     }
   }, [editing, block.content]);
@@ -93,10 +94,12 @@ export function EquationBlock({ block, pageId }: BlockRendererProps) {
   }
 
   return (
-    <div
-      ref={previewRef}
+    <button
+      type="button"
       onClick={() => setEditing(true)}
-      className="my-2 p-3 text-center cursor-pointer hover:bg-hover-surface rounded-lg transition-colors overflow-x-auto"
-    />
+      className="my-2 p-3 text-center cursor-pointer hover:bg-hover-surface rounded-lg transition-colors overflow-x-auto w-full border-0 bg-transparent font-[inherit]"
+    >
+      <div ref={previewRef} />
+    </button>
   );
 }

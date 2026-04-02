@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@ const MAX_WIDTH_RATIO = 0.92;
 
 // ─── Resize handle ──────────────────────────────────────────────────────────
 
-function ResizeHandle({ side = 'left', isResizing, onMouseDown }: {
+function ResizeHandle({ side = 'left', isResizing, onMouseDown }: Readonly<{
   side?: 'left' | 'right';
   isResizing: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
-}) {
+}>) {
   return (
     <div
       onMouseDown={onMouseDown}
@@ -36,7 +36,7 @@ function ResizeHandle({ side = 'left', isResizing, onMouseDown }: {
 
 // ─── Side peek view ─────────────────────────────────────────────────────────
 
-export function SidePeekView({ page, database, pageId, onClose, panelWidth, isResizing, startResize }: {
+export function SidePeekView({ page, database, pageId, onClose, panelWidth, isResizing, startResize }: Readonly<{
   page: Page;
   database: DatabaseSchema;
   pageId: string;
@@ -44,10 +44,11 @@ export function SidePeekView({ page, database, pageId, onClose, panelWidth, isRe
   panelWidth: number;
   isResizing: boolean;
   startResize: (e: React.MouseEvent) => void;
-}) {
+}>) {
   const title = (page.properties[database.titlePropertyId] as string) || 'Untitled';
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-scrim-light" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-scrim-light">
+      <button type="button" className="fixed inset-0 z-50 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={onClose} tabIndex={-1} aria-label="Close" />
       <div
         className="relative bg-surface-primary shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-200"
         style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH }}
@@ -63,7 +64,7 @@ export function SidePeekView({ page, database, pageId, onClose, panelWidth, isRe
 
 // ─── Center peek view ───────────────────────────────────────────────────────
 
-export function CenterPeekView({ page, database, pageId, onClose, panelWidth, isResizing, startResize }: {
+export function CenterPeekView({ page, database, pageId, onClose, panelWidth, isResizing, startResize }: Readonly<{
   page: Page;
   database: DatabaseSchema;
   pageId: string;
@@ -71,10 +72,11 @@ export function CenterPeekView({ page, database, pageId, onClose, panelWidth, is
   panelWidth: number;
   isResizing: boolean;
   startResize: (e: React.MouseEvent) => void;
-}) {
+}>) {
   const title = (page.properties[database.titlePropertyId] as string) || 'Untitled';
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim-medium" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim-medium">
+      <button type="button" className="fixed inset-0 z-50 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={onClose} tabIndex={-1} aria-label="Close" />
       <div
         className="relative bg-surface-primary rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200"
         style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH, maxHeight: 'calc(100vh - 80px)' }}

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:45 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 17:33:31 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
-import { SchemaProperty, Page } from '../../../types/database';
+import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import {
   renderTitleOrText,
   renderNumber,
@@ -43,11 +43,11 @@ import {
 export interface CellRendererProps {
   prop: SchemaProperty;
   page: Page;
-  value: any;
+  value: PropertyValue;
   isEditing: boolean;
   wrapContent: boolean;
   databaseId: string;
-  onUpdate: (pageId: string, propId: string, value: any) => void;
+  onUpdate: (pageId: string, propId: string, value: PropertyValue) => void;
   onStopEditing: () => void;
   onOpenPage: (pageId: string) => void;
   onFormulaEdit: (propId: string) => void;

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:49 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,11 @@
 //   block.columnRatios: number[] — flex ratios for each column
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { Block } from '../../types/database';
 import { BlockRenderer } from './BlockRenderer';
-import { EditableContent } from './EditableContent';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
-import { Plus, GripVertical } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ColumnResizeHandle } from './ColumnResizeHandle';
 
 export interface ColumnBlockProps {
@@ -36,10 +35,10 @@ export interface ColumnBlockProps {
   pageId: string;
 }
 
-export function ColumnBlock({ block, pageId }: ColumnBlockProps) {
+export function ColumnBlock({ block, pageId }: Readonly<ColumnBlockProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
-  const columns = block.columns || [[], []];
-  const ratios = block.columnRatios || columns.map(() => 1);
+  const columns = useMemo(() => block.columns || [[], []], [block.columns]);
+  const ratios = useMemo(() => block.columnRatios || columns.map(() => 1), [block.columnRatios, columns]);
 
   const handleAddColumn = useCallback(() => {
     const newColumns = [...columns, []];
@@ -47,7 +46,7 @@ export function ColumnBlock({ block, pageId }: ColumnBlockProps) {
     updateBlock(pageId, block.id, { columns: newColumns, columnRatios: newRatios });
   }, [columns, ratios, updateBlock, pageId, block.id]);
 
-  const handleRemoveColumn = useCallback((colIdx: number) => {
+  const _handleRemoveColumn = useCallback((colIdx: number) => {
     if (columns.length <= 1) return;
     const newColumns = columns.filter((_, i) => i !== colIdx);
     const newRatios = ratios.filter((_, i) => i !== colIdx);
@@ -78,14 +77,29 @@ export function ColumnBlock({ block, pageId }: ColumnBlockProps) {
     updateBlock(pageId, block.id, { columns: newColumns });
   }, [columns, updateBlock, pageId, block.id]);
 
+  const handleColumnKeyDown = useCallback((e: React.KeyboardEvent, colIdx: number, blockIdx: number, childBlock: Block, col: Block[]) => {
+    if (e.key === 'Backspace' && childBlock.content === '' && col.length > 1) {
+      e.preventDefault();
+      handleDeleteBlock(colIdx, childBlock.id);
+    }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+      const newCols = columns.map((c, ci) =>
+        ci === colIdx ? [...c.slice(0, blockIdx + 1), newBlock, ...c.slice(blockIdx + 1)] : c
+      );
+      updateBlock(pageId, block.id, { columns: newCols });
+    }
+  }, [columns, handleDeleteBlock, updateBlock, pageId, block.id]);
+
   // Column resize
-  const handleKeyDownNoop = useCallback(() => {}, []);
+  const _handleKeyDownNoop = useCallback(() => {}, []);
 
   return (
     <div className="my-2">
       <div className="flex gap-4" style={{ display: 'flex' }}>
         {columns.map((col, colIdx) => (
-          <React.Fragment key={colIdx}>
+          <React.Fragment key={colIdx}>{/* NOSONAR - columns identified by position */}
             {colIdx > 0 && (
               <ColumnResizeHandle
                 pageId={pageId}
@@ -115,22 +129,7 @@ export function ColumnBlock({ block, pageId }: ColumnBlockProps) {
                         pageId={pageId}
                         index={blockIdx}
                         onChange={(text) => handleBlockChange(colIdx, blockIdx, text)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Backspace' && childBlock.content === '' && col.length > 1) {
-                            e.preventDefault();
-                            handleDeleteBlock(colIdx, childBlock.id);
-                          }
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
-                            const newColumns = columns.map((c, ci) =>
-                              ci === colIdx
-                                ? [...c.slice(0, blockIdx + 1), newBlock, ...c.slice(blockIdx + 1)]
-                                : c
-                            );
-                            updateBlock(pageId, block.id, { columns: newColumns });
-                          }
-                        }}
+                        onKeyDown={(e) => handleColumnKeyDown(e, colIdx, blockIdx, childBlock, col)}
                       />
                     </div>
                   ))

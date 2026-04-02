@@ -17,13 +17,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-export function PortalDropdown({ anchorRef, children, onClose, width, align = 'left' }: {
+export function PortalDropdown({ anchorRef, children, onClose, width, align = 'left' }: Readonly<{
   anchorRef: React.RefObject<HTMLElement | null>;
   children: React.ReactNode;
   onClose: () => void;
   width?: number;
   align?: 'left' | 'right';
-}) {
+}>) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 

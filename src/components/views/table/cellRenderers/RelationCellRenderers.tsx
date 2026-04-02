@@ -13,8 +13,28 @@
 import React from 'react';
 import { useDatabaseStore } from '../../../../store/useDatabaseStore';
 import type { CellRendererProps } from '../CellRenderer';
+import type { PropertyValue } from '../../../../types/database';
 import { RelationCellEditor } from '../../../cellEditors';
 import { ArrowUpRight, Sigma } from 'lucide-react';
+
+function formatBoolish(v: PropertyValue): string {
+  if (v === true) return '✓';
+  if (v === false) return '✗';
+  return String(v ?? '—');
+}
+
+function getRingStroke(pct: number): string {
+  if (pct >= 80) return 'var(--color-progress-high)';
+  if (pct >= 50) return 'var(--color-chart-1)';
+  if (pct >= 25) return 'var(--color-chart-4)';
+  return 'var(--color-chart-7)';
+}
+
+function toStringArray(value: PropertyValue): string[] {
+  if (Array.isArray(value)) return value;
+  if (value) return [value] as string[];
+  return [];
+}
 
 export function renderFormula(p: CellRendererProps): React.ReactNode {
   const { prop, page, databaseId, onFormulaEdit } = p;
@@ -55,13 +75,13 @@ export function renderRollup(p: CellRendererProps): React.ReactNode {
   );
 }
 
-export function renderRollupArray(arr: any[], wrapContent: boolean): React.ReactNode {
+export function renderRollupArray(arr: PropertyValue[], wrapContent: boolean): React.ReactNode {
   if (arr.length === 0) return <span className="text-ink-muted text-sm">Empty</span>;
   return (
     <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
       {arr.map((v, i) => (
         <span key={i} className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-tertiary text-xs text-ink-body-light font-medium shrink-0 max-w-[120px] truncate">
-          {v === true ? '✓' : v === false ? '✗' : String(v ?? '—')}
+          {formatBoolish(v)}
         </span>
       ))}
     </div>
@@ -85,7 +105,7 @@ export function renderRollupRing(value: number): React.ReactNode {
   const r = 8;
   const circ = 2 * Math.PI * r;
   const offset = circ - (pct / 100) * circ;
-  const stroke = pct >= 80 ? 'var(--color-progress-high)' : pct >= 50 ? 'var(--color-chart-1)' : pct >= 25 ? 'var(--color-chart-4)' : 'var(--color-chart-7)';
+  const stroke = getRingStroke(pct);
   return (
     <div className="flex items-center gap-2">
       <svg width="22" height="22" className="shrink-0 -rotate-90">
@@ -128,8 +148,8 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
   );
 }
 
-export function renderAssignedTo(value: any, wrapContent: boolean): React.ReactNode {
-  const assignees: string[] = Array.isArray(value) ? value : (value ? [value] : []);
+export function renderAssignedTo(value: PropertyValue, wrapContent: boolean): React.ReactNode {
+  const assignees: string[] = toStringArray(value);
   if (assignees.length === 0) return <span className="text-ink-muted text-sm">Unassigned</span>;
   return (
     <div className={`flex items-center ${wrapContent ? 'flex-wrap gap-1' : '-space-x-1.5'}`}>

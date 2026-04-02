@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ interface PageModalProps {
 
 // ─── Main export ────────────────────────────────────────────────────────────
 
-export function PageModal({ pageId, onClose, mode = 'side_peek' }: PageModalProps) {
+export function PageModal({ pageId, onClose, mode = 'side_peek' }: Readonly<PageModalProps>) {
   const databases = useDatabaseStore(s => s.databases);
   const pages = useDatabaseStore(s => s.pages);
 
@@ -52,9 +52,10 @@ export function PageModal({ pageId, onClose, mode = 'side_peek' }: PageModalProp
   return <FullPageView page={thePage} database={database} pageId={pageId} onClose={onClose} />;
 }
 
-function PageNotFound({ onClose }: { onClose: () => void }) {
+function PageNotFound({ onClose }: Readonly<{ onClose: () => void }>) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim">
+      <button type="button" className="fixed inset-0 z-50 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={onClose} tabIndex={-1} aria-label="Close" />
       <div className="bg-surface-primary rounded-xl shadow-2xl p-8 text-center" onClick={e => e.stopPropagation()}>
         <p className="text-ink-secondary">Page not found</p>
         <button onClick={onClose} className="mt-3 text-sm text-accent-text-soft">Close</button>

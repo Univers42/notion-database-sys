@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ import {
 import { SettingsHeader, SettingsRow, ToggleSwitch } from '../ui/MenuPrimitives';
 import { CHART_TYPE_META } from './constants';
 import { ViewIdentityRow } from './SubComponents';
-import type { PanelScreen } from './constants';
-import type { SchemaProperty } from '../../types/database';
 
 // Re-export sub-screens so existing consumers keep working via this module
 export {
@@ -140,7 +138,7 @@ export function EditChartScreen(props: ChartScreensProps) {
 
 // ─── Tiny layout helpers ─────────────────────────────────────────────────────
 
-function ChartAxisSection({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartAxisSection({ title, children }: Readonly<{ title: string; children: React.ReactNode }>) {
   return (
     <div className="px-2 pt-1">
       <div className="flex items-center px-2 mt-1.5 mb-2">
@@ -151,7 +149,7 @@ function ChartAxisSection({ title, children }: { title: string; children: React.
   );
 }
 
-function ChartDividerSection({ children }: { children: React.ReactNode }) {
+function ChartDividerSection({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="px-2 pt-2 pb-1 relative">
       <div className="absolute top-0 inset-x-4 h-px bg-surface-tertiary" />

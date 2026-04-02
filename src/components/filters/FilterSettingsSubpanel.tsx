@@ -12,16 +12,16 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, Plus, GripVertical, X } from 'lucide-react';
-import type { FilterOperator, SchemaProperty } from '../../types/database';
+import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { getOperatorsForType } from './constants';
 import { PropertyTypeIcon } from './PropertyTypeIcon';
 import { FilterPropertyPicker } from './FilterPropertyPicker';
 
-export function FilterSettingsSubpanel({ viewId, properties, filters, conjunction, onBack, onClose }: {
+export function FilterSettingsSubpanel({ viewId, properties, filters, conjunction: _conjunction, onBack, onClose }: {
   viewId: string;
   properties: Record<string, SchemaProperty>;
-  filters: { id: string; propertyId: string; operator: FilterOperator; value: any }[];
+  filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   conjunction: 'and' | 'or';
   onBack: () => void;
   onClose: () => void;

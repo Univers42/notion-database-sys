@@ -29,9 +29,9 @@ export function useOutsideClick(
 }
 
 /** Generic dropdown wrapper with outside-click dismiss */
-export function Dropdown({ children, onClose, className = '' }: {
+export function Dropdown({ children, onClose, className = '' }: Readonly<{
   children: React.ReactNode; onClose: () => void; className?: string;
-}) {
+}>) {
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, true, onClose);
 

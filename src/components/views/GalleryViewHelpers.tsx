@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
+import type { SchemaProperty, PropertyValue } from '../../types/database';
 
 // Gallery-specific color palette for empty covers
 export const coverColors = [
@@ -11,10 +12,10 @@ export const coverColors = [
   'bg-gradient-to-br from-gradient-cyan-from to-gradient-cyan-to',
 ];
 
-export function renderPropertyValue(prop: any, val: any, wrapContent: boolean) {
+export function renderPropertyValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
   if (val === undefined || val === null || val === '') return null;
   if (prop.type === 'select' || prop.type === 'status') {
-    const opt = prop.options?.find((o: any) => o.id === val);
+    const opt = prop.options?.find(o => o.id === val);
     return opt ? <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span> : null;
   }
   if (prop.type === 'multi_select') {
@@ -22,7 +23,7 @@ export function renderPropertyValue(prop: any, val: any, wrapContent: boolean) {
     return (
       <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
         {ids.map(id => {
-          const opt = prop.options?.find((o: any) => o.id === id);
+          const opt = prop.options?.find(o => o.id === id);
           return opt ? <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span> : null;
         })}
       </div>

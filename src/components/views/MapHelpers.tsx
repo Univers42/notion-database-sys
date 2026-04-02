@@ -6,16 +6,17 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { MapPin, Plus, FileText, Layers } from 'lucide-react';
 import L from 'leaflet';
+import type { Page, SchemaProperty } from '../../types/database';
 
 export type MappablePage = {
-  page: any;
+  page: Page;
   lat: number;
   lng: number;
   address: string;
@@ -49,10 +50,10 @@ export function makeColorIcon(color: string) {
   });
 }
 
-export function MapEmptyOverlay({ noPlaceProp, pageCount }: {
+export function MapEmptyOverlay({ noPlaceProp, pageCount }: Readonly<{
   noPlaceProp: boolean;
   pageCount: number;
-}) {
+}>) {
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-overlay-medium backdrop-blur-sm">
       <div className="text-center max-w-sm">
@@ -78,14 +79,14 @@ export function MapEmptyOverlay({ noPlaceProp, pageCount }: {
   );
 }
 
-export function MapLegend({ categoryProp }: { categoryProp: any }) {
+export function MapLegend({ categoryProp }: Readonly<{ categoryProp: SchemaProperty }>) {
   return (
     <div className="absolute top-3 left-3 z-[1000] bg-overlay backdrop-blur border border-line rounded-lg p-3 shadow-lg max-w-[200px]">
       <div className="flex items-center gap-1.5 text-xs font-semibold text-ink-body mb-2">
         <Layers className="w-3.5 h-3.5" /> {categoryProp.name}
       </div>
       <div className="flex flex-col gap-1.5">
-        {categoryProp.options?.map((opt: any) => (
+        {categoryProp.options?.map(opt => (
           <div key={opt.id} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full shrink-0" style={{ background: MARKER_COLORS[opt.color] || 'var(--color-chart-label)' }} />
             <span className="text-[11px] text-ink-body-light truncate">{opt.value}</span>
@@ -96,14 +97,14 @@ export function MapLegend({ categoryProp }: { categoryProp: any }) {
   );
 }
 
-export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, addPage, databaseId }: {
+export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, addPage, databaseId }: Readonly<{
   mappablePages: MappablePage[];
-  pages: any[];
-  getPageTitle: (page: any) => string;
+  pages: Page[];
+  getPageTitle: (page: Page) => string;
   openPage: (id: string) => void;
   addPage: (dbId: string) => void;
   databaseId: string;
-}) {
+}>) {
   return (
     <div className="w-72 border-l border-line flex flex-col bg-surface-primary shrink-0">
       <div className="px-4 py-3 border-b border-line flex items-center justify-between">
@@ -115,14 +116,14 @@ export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, addPa
           const title = getPageTitle(page);
           const dotColor = color ? MARKER_COLORS[color] || 'var(--color-chart-1)' : 'var(--color-chart-1)';
           return (
-            <div key={page.id} onClick={() => openPage(page.id)}
-              className="flex items-start gap-2.5 px-4 py-2.5 hover:bg-hover-surface cursor-pointer border-b border-line-faint transition-colors group">
+            <button type="button" key={page.id} onClick={() => openPage(page.id)}
+              className="flex items-start gap-2.5 px-4 py-2.5 hover:bg-hover-surface cursor-pointer border-b border-line-faint transition-colors group text-left w-full">
               <div className="w-3 h-3 rounded-full mt-1 shrink-0" style={{ background: dotColor }} />
               <div className="overflow-hidden min-w-0">
                 <div className="text-sm font-medium text-ink truncate">{title || 'Untitled'}</div>
                 {address && <div className="text-xs text-ink-secondary truncate">{address}</div>}
               </div>
-            </div>
+            </button>
           );
         })}
         {mappablePages.length === 0 && pages.length > 0 && (

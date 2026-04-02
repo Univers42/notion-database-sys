@@ -27,7 +27,7 @@ interface IconProps {
   fill?: string;
 }
 
-export function Icon({ name, className = 'w-5 h-5', style, fill = 'currentColor' }: IconProps) {
+export function Icon({ name, className = 'w-5 h-5', style, fill = 'currentColor' }: Readonly<IconProps>) {
   const entry = ICON_REGISTRY[name];
   if (!entry) {
     // Fallback: render a placeholder square

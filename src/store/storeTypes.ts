@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:37 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:43:39 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,16 @@
 
 import type {
   DatabaseSchema, Page, ViewConfig, PropertyType, ViewSettings,
-  SelectOption, Filter, Sort, Grouping, Block, SchemaProperty,
+  SelectOption, Filter, Sort, Grouping, Block, SchemaProperty, PropertyValue,
 } from '../types/database';
+
+/** Zustand `set` helper — used in every store slice. */
+export type StoreSet = (
+  partial: Partial<DatabaseState> | ((state: DatabaseState) => Partial<DatabaseState>),
+) => void;
+
+/** Zustand `get` helper — used in every store slice. */
+export type StoreGet = () => DatabaseState;
 
 export interface DatabaseState {
   databases: Record<string, DatabaseSchema>;
@@ -30,8 +38,8 @@ export interface DatabaseState {
   updateDatabaseIcon: (databaseId: string, icon: string) => void;
 
   // Page CRUD
-  addPage: (databaseId: string, properties?: Record<string, any>) => string;
-  updatePageProperty: (pageId: string, propertyId: string, value: any) => void;
+  addPage: (databaseId: string, properties?: Record<string, PropertyValue>) => string;
+  updatePageProperty: (pageId: string, propertyId: string, value: PropertyValue) => void;
   deletePage: (pageId: string) => void;
   duplicatePage: (pageId: string) => void;
   updatePageContent: (pageId: string, content: Block[]) => void;
@@ -83,8 +91,8 @@ export interface DatabaseState {
   getPagesForView: (viewId: string) => Page[];
   getPageTitle: (page: Page) => string;
   getGroupedPages: (viewId: string) => { groupId: string; groupLabel: string; groupColor: string; pages: Page[] }[];
-  resolveFormula: (databaseId: string, page: Page, expression: string) => any;
-  resolveRollup: (databaseId: string, page: Page, propertyId: string) => any;
+  resolveFormula: (databaseId: string, page: Page, expression: string) => PropertyValue;
+  resolveRollup: (databaseId: string, page: Page, propertyId: string) => PropertyValue;
   getSmartDefaults: (databaseId: string) => {
     suggestedView: string;
     suggestedGroupBy?: string;

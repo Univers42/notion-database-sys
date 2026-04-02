@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
 
   const [showSearch, setShowSearch] = useState(false);
   const [localSearchValue, setLocalSearchValue] = useState(searchQuery);
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [showFilterPropertyPicker, setShowFilterPropertyPicker] = useState(false);
@@ -188,7 +188,8 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
       </div>
 
       {showViewSettings && (
-        <div className="fixed inset-0 z-50 flex justify-end" onClick={() => setShowViewSettings(false)}>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <button type="button" className="fixed inset-0 z-50 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={() => setShowViewSettings(false)} tabIndex={-1} aria-label="Close" />
           <div className="w-80 bg-surface-primary border-l border-line shadow-xl h-full overflow-auto" onClick={e => e.stopPropagation()}>
             <ViewSettingsPanel onClose={() => setShowViewSettings(false)} />
           </div>

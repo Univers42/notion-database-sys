@@ -18,7 +18,7 @@ import {
   GitBranch, ExternalLink, UserCheck, AlertTriangle
 } from 'lucide-react';
 
-export function PropTypeIcon({ type, className = 'w-3.5 h-3.5' }: { type: string; className?: string }) {
+export function PropTypeIcon({ type, className = 'w-3.5 h-3.5' }: Readonly<{ type: string; className?: string }>) {
   switch (type) {
     case 'title': case 'text': return <Type className={className} />;
     case 'number': return <Hash className={className} />;

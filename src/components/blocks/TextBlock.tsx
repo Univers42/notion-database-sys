@@ -14,7 +14,7 @@ import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 
-export function TextBlock({ block, index, onChange, onKeyDown }: BlockRendererProps) {
+export function TextBlock({ block, index, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   return (
     <EditableContent
       content={block.content}

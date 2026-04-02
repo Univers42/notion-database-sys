@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:34 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:34:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/01 21:00:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ function getCrumbs(pageId: string, pages: Record<string, { title: string; icon?:
   return page ? [{ id: pageId, title: page.title || 'Untitled', icon: page.icon }] : [];
 }
 
-export function BreadcrumbBlock({ pageId }: BlockRendererProps) {
+export function BreadcrumbBlock({ pageId }: Readonly<BlockRendererProps>) {
   const pages = useDatabaseStore(s => s.pages);
-  const crumbs = getCrumbs(pageId, pages as Record<string, { title: string; icon?: string }>);
+  const crumbs = getCrumbs(pageId, pages as unknown as Record<string, { title: string; icon?: string }>);
 
   return (
     <nav className="flex items-center gap-1 py-2 text-sm text-ink-secondary select-none">

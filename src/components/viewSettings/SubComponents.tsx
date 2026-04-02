@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:07 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,12 @@
 // View settings — shared sub-components
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useRef } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
-import { Icon } from '../ui/Icon';
-import { IconPickerPopover } from '../ui/IconPickerPopover';
-import { SettingsHeader, ToggleSwitch } from '../ui/MenuPrimitives';
-import type { ViewType } from '../../types/database';
-import { DEFAULT_VIEW_ICONS } from './constants';
-import { InfoCircleIcon } from '../ui/Icons';
+import React from 'react';
+import { SettingsHeader } from '../ui/MenuPrimitives';
 
 // ─── SubPanelHeader ──────────────────────────────────────────────────────────
 
-export function SubPanelHeader({ title, onBack, onClose }: { title: string; onBack?: () => void; onClose?: () => void }) {
+export function SubPanelHeader({ title, onBack, onClose }: Readonly<{ title: string; onBack?: () => void; onClose?: () => void }>) {
   return <SettingsHeader title={title} onBack={onBack} onClose={onClose} />;
 }
 
@@ -82,7 +76,7 @@ export function PropertyOptionList({ properties, activeId, onSelect, noneLabel }
 
 // ─── Toggle ──────────────────────────────────────────────────────────────────
 
-export function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+export function Toggle({ label, checked, onChange }: Readonly<{ label: string; checked: boolean; onChange: (v: boolean) => void }>) {
   return (
     <button onClick={() => onChange(!checked)}
       className="flex items-center justify-between text-sm text-ink-body py-1 px-1 rounded-lg hover:bg-hover-surface transition-colors">

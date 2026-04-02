@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:34:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ const LANGUAGES = [
   'ruby', 'php', 'swift', 'kotlin', 'lua', 'toml', 'mermaid',
 ];
 
-export function CodeBlock({ block, pageId }: BlockRendererProps) {
+export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [showLangPicker, setShowLangPicker] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -155,8 +155,7 @@ export function CodeBlock({ block, pageId }: BlockRendererProps) {
 }
 
 /** Live mermaid diagram preview below the code editor */
-function MermaidPreview({ code }: { code: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+function MermaidPreview({ code }: Readonly<{ code: string }>) {
   const [svgHtml, setSvgHtml] = useState<string>('');
   const [error, setError] = useState<string>('');
 
@@ -169,8 +168,8 @@ function MermaidPreview({ code }: { code: string }) {
         const id = `mermaid-${Date.now()}`;
         const { svg } = await mermaid.render(id, code);
         if (!cancelled) { setSvgHtml(svg); setError(''); }
-      } catch (err: any) {
-        if (!cancelled) { setError(err?.message || 'Invalid mermaid syntax'); setSvgHtml(''); }
+      } catch (err: unknown) {
+        if (!cancelled) { setError(err instanceof Error ? err.message : 'Invalid mermaid syntax'); setSvgHtml(''); }
       }
     };
     const timer = setTimeout(renderMermaid, 500); // debounce

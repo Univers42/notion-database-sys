@@ -18,7 +18,7 @@ interface BarChartProps {
   maxValue: number;
 }
 
-export function VerticalBarChart({ chartData, maxValue }: BarChartProps) {
+export function VerticalBarChart({ chartData, maxValue }: Readonly<BarChartProps>) {
   const barWidth = Math.max(24, Math.min(64, 600 / chartData.length));
   const chartWidth = Math.max(600, chartData.length * (barWidth + 16));
   const chartHeight = 300;
@@ -65,7 +65,7 @@ export function VerticalBarChart({ chartData, maxValue }: BarChartProps) {
   );
 }
 
-export function HorizontalBarChart({ chartData, maxValue }: BarChartProps) {
+export function HorizontalBarChart({ chartData, maxValue }: Readonly<BarChartProps>) {
   const barHeight = 28;
   const chartWidth = 500;
   const labelWidth = 120;

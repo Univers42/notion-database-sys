@@ -20,7 +20,7 @@ import { ExampleBlock } from './ExampleBlock';
 
 type SelectedItem = { type: 'property'; prop: SchemaProperty } | { type: 'function'; fn: FunctionDef } | null;
 
-export function DocPanel({ selectedItem, insertAtCursor }: { selectedItem: SelectedItem; insertAtCursor: (text: string) => void }) {
+export function DocPanel({ selectedItem, insertAtCursor }: Readonly<{ selectedItem: SelectedItem; insertAtCursor: (text: string) => void }>) {
   if (!selectedItem) {
     return (
       <div className="w-[240px] shrink-0 border-l border-line-light bg-surface-secondary-soft5 flex flex-col overflow-hidden">
@@ -45,7 +45,7 @@ export function DocPanel({ selectedItem, insertAtCursor }: { selectedItem: Selec
   );
 }
 
-function PropertyDoc({ prop, insertAtCursor }: { prop: SchemaProperty; insertAtCursor: (text: string) => void }) {
+function PropertyDoc({ prop, insertAtCursor }: Readonly<{ prop: SchemaProperty; insertAtCursor: (text: string) => void }>) {
   return (
     <>
       <div className="flex items-center gap-2">
@@ -94,7 +94,7 @@ function PropertyDoc({ prop, insertAtCursor }: { prop: SchemaProperty; insertAtC
   );
 }
 
-function FunctionDoc({ fn, insertAtCursor }: { fn: FunctionDef; insertAtCursor: (text: string) => void }) {
+function FunctionDoc({ fn, insertAtCursor }: Readonly<{ fn: FunctionDef; insertAtCursor: (text: string) => void }>) {
   return (
     <>
       <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ function FunctionDoc({ fn, insertAtCursor }: { fn: FunctionDef; insertAtCursor: 
   );
 }
 
-function DocField({ label, children }: { label: string; children: React.ReactNode }) {
+function DocField({ label, children }: Readonly<{ label: string; children: React.ReactNode }>) {
   return (
     <div>
       <span className="text-[11px] font-semibold text-ink-muted uppercase">{label}</span>

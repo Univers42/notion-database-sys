@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ export interface IconPickerProps {
 
 /** Human-readable label from kebab key */
 function toLabel(name: string): string {
-  return name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return name.replaceAll('-', ' ').replaceAll(/\b\w/g, c => c.toUpperCase());
 }
 
 // ─── Inner picker panel (no portal logic) ────────────────────────────────────
@@ -41,7 +41,7 @@ function IconPickerPanel({
   value,
   onSelect,
   onRemove,
-}: IconPickerProps) {
+}: Readonly<IconPickerProps>) {
   const [filter, setFilter] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -52,7 +52,7 @@ function IconPickerPanel({
   const filtered = useMemo(() => {
     if (!filter.trim()) return PICKER_ICON_NAMES;
     const q = filter.toLowerCase().trim();
-    return PICKER_ICON_NAMES.filter(name => name.replace(/-/g, ' ').includes(q));
+    return PICKER_ICON_NAMES.filter(name => name.replaceAll('-', ' ').includes(q));
   }, [filter]);
 
   const handleRandom = useCallback(() => {

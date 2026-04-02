@@ -16,10 +16,10 @@ import type { FormulaResult } from './constants';
 export function SampleResultsTable({
   formulaResults,
   openPage,
-}: {
+}: Readonly<{
   formulaResults: FormulaResult[];
   openPage: (id: string) => void;
-}) {
+}>) {
   const sampleCount = 15;
   // Get first N pages from the first formula result
   const samplePages = formulaResults[0]?.results.slice(0, sampleCount) || [];

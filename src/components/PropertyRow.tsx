@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:36 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
-import { Hash } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
 import { useDatabaseStore } from '../store/useDatabaseStore';
 import { PropIcon } from '../constants/propertyIcons';
 import type { SchemaProperty, DatabaseSchema, Page } from '../types/database';
@@ -27,12 +25,12 @@ import {
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
-export function PropertyRow({ prop, page, pageId, database }: {
+export function PropertyRow({ prop, page, pageId, database: _database }: Readonly<{
   prop: SchemaProperty;
   page: Page;
   pageId: string;
   database: DatabaseSchema;
-}) {
+}>) {
   const { updatePageProperty } = useDatabaseStore.getState();
   const val = page.properties[prop.id];
   const update = (v: unknown) => updatePageProperty(pageId, prop.id, v);

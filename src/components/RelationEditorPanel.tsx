@@ -32,7 +32,7 @@ interface RelationEditorPanelProps {
   position?: { top: number; left: number };
 }
 
-export function RelationEditorPanel({ databaseId, propertyId, onClose, position }: RelationEditorPanelProps) {
+export function RelationEditorPanel({ databaseId, propertyId, onClose, position }: Readonly<RelationEditorPanelProps>) {
   const { databases, updateProperty } = useDatabaseStore();
   const db = databases[databaseId];
   const prop = db?.properties[propertyId];

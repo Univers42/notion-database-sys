@@ -3,20 +3,22 @@ import { format, parseISO } from 'date-fns';
 
 // ─── Read-only property renderers ───────────────────────────────────────────
 
-export function ReadOnlyText({ value, fallback = '—' }: { value: unknown; fallback?: string }) {
+export function ReadOnlyText({ value, fallback = '—' }: Readonly<{ value: unknown; fallback?: string }>) {
   return <span className="text-sm text-ink-secondary px-2">{typeof value === 'string' && value ? value : fallback}</span>;
 }
 
-export function ReadOnlyTime({ iso }: { iso: string | undefined }) {
+export function ReadOnlyTime({ iso }: Readonly<{ iso: string | undefined }>) {
   return <span className="text-sm text-ink-secondary px-2">{iso ? format(parseISO(iso), 'MMM d, yyyy h:mm a') : '-'}</span>;
 }
 
 // ─── Editable property renderers ────────────────────────────────────────────
 
-export function TextEditor({ value, onChange, type }: { value: string; onChange: (v: string) => void; type?: string }) {
+const inputTypeMap: Record<string, string> = { email: 'email', url: 'url' };
+
+export function TextEditor({ value, onChange, type }: Readonly<{ value: string; onChange: (v: string) => void; type?: string }>) {
   return (
     <input
-      type={type === 'email' ? 'email' : type === 'url' ? 'url' : 'text'}
+      type={inputTypeMap[type ?? ''] || 'text'}
       value={value || ''}
       onChange={e => onChange(e.target.value)}
       className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
@@ -25,7 +27,7 @@ export function TextEditor({ value, onChange, type }: { value: string; onChange:
   );
 }
 
-export function NumberEditor({ value, onChange }: { value: number | null; onChange: (v: number | null) => void }) {
+export function NumberEditor({ value, onChange }: Readonly<{ value: number | null; onChange: (v: number | null) => void }>) {
   return (
     <input
       type="number"
@@ -85,7 +87,7 @@ export function MultiSelectEditor({ value, options, onChange }: {
   );
 }
 
-export function CheckboxEditor({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+export function CheckboxEditor({ value, onChange }: Readonly<{ value: boolean; onChange: (v: boolean) => void }>) {
   return (
     <button
       onClick={() => onChange(!value)}
@@ -98,7 +100,7 @@ export function CheckboxEditor({ value, onChange }: { value: boolean; onChange: 
   );
 }
 
-export function DateEditor({ value, onChange }: { value: string; onChange: (v: string | null) => void }) {
+export function DateEditor({ value, onChange }: Readonly<{ value: string; onChange: (v: string | null) => void }>) {
   return (
     <input
       type="date"
@@ -109,7 +111,7 @@ export function DateEditor({ value, onChange }: { value: string; onChange: (v: s
   );
 }
 
-export function PlaceEditor({ value, onChange }: { value: unknown; onChange: (v: { address: string }) => void }) {
+export function PlaceEditor({ value, onChange }: Readonly<{ value: unknown; onChange: (v: { address: string }) => void }>) {
   const placeVal = typeof value === 'object' && value ? (value as { address?: string }) : null;
   return (
     <input

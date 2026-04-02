@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:43 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
-import type { Block } from '../../types/database';
 import { List } from 'lucide-react';
 
 const INDENT: Record<string, string> = {
@@ -33,7 +32,7 @@ const TEXT_SIZE: Record<string, string> = {
   heading_4: 'text-xs text-ink-muted',
 };
 
-export function TableOfContentsBlock({ pageId }: { pageId: string }) {
+export function TableOfContentsBlock({ pageId }: Readonly<{ pageId: string }>) {
   const pages = useDatabaseStore(s => s.pages);
   const page = pages[pageId];
 

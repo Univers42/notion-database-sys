@@ -1,4 +1,5 @@
 import { format, differenceInDays } from 'date-fns';
+import type { Page } from '../../types/database';
 
 export type ZoomLevel = 'day' | 'week' | 'month';
 
@@ -23,7 +24,7 @@ export function getTimelineConfig(zoomLevel: string): TimelineConfig {
 }
 
 export function getBarStyle(
-  page: any,
+  page: Page,
   datePropertyId: string,
   startDate: Date,
   config: TimelineConfig,
@@ -34,7 +35,8 @@ export function getBarStyle(
   const pageDate = new Date(val);
   const dayIdx = differenceInDays(pageDate, startDate);
   if (dayIdx < -2 || dayIdx > config.daysToShow + 2) return null;
-  const barWidth = zoomLevel === 'day' ? 2 : zoomLevel === 'week' ? 3 : 5;
+  const barWidthMap: Record<string, number> = { day: 2, week: 3, month: 5 };
+  const barWidth = barWidthMap[zoomLevel] || 3;
   return {
     left: Math.max(0, dayIdx) * config.cellWidth,
     width: barWidth * config.cellWidth,

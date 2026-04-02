@@ -8,7 +8,7 @@ import { InfoCircleIcon } from '../ui/Icons';
 
 // ─── CardLayoutPicker ────────────────────────────────────────────────────────
 
-export function CardLayoutPicker({ value, onChange }: { value: 'compact' | 'list'; onChange: (v: 'compact' | 'list') => void }) {
+export function CardLayoutPicker({ value, onChange }: Readonly<{ value: 'compact' | 'list'; onChange: (v: 'compact' | 'list') => void }>) {
   return (
     <div className="mx-2 mb-2 rounded-[10px] p-3 bg-surface-tertiary-soft4 flex flex-col items-center overflow-hidden">
       <div className="text-xs font-medium text-ink-secondary mb-3 select-none">Card layout</div>
@@ -62,11 +62,11 @@ export function CardLayoutPicker({ value, onChange }: { value: 'compact' | 'list
 
 // ─── ViewIdentityRow ─────────────────────────────────────────────────────────
 
-export function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange, onIconChange, fallbackIcon, viewType }: {
+export function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange, onIconChange, fallbackIcon: _fallbackIcon, viewType }: Readonly<{
   viewIcon: string; setViewIcon: (v: string) => void; viewName: string;
   onNameChange: (v: string) => void; onIconChange: (v: string) => void;
   fallbackIcon: React.ReactNode; viewType: ViewType;
-}) {
+}>) {
   const [showPicker, setShowPicker] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const currentIcon = viewIcon || DEFAULT_VIEW_ICONS[viewType];
@@ -104,10 +104,10 @@ export function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange,
 
 // ─── PropertyRow ─────────────────────────────────────────────────────────────
 
-export function PropertyVisibilityRow({ propId, propName, iconName, visible, databaseId, onToggle, onIconChange }: {
+export function PropertyVisibilityRow({ propId: _propId, propName, iconName, visible, databaseId: _databaseId, onToggle, onIconChange }: Readonly<{
   propId: string; propName: string; iconName: string; visible: boolean;
   databaseId: string; onToggle: () => void; onIconChange: (name: string) => void;
-}) {
+}>) {
   const [showPicker, setShowPicker] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
 

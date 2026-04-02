@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ import React from 'react';
 import { SubPanelHeader, OptionList, PropertyOptionList, PropertyVisibilityRow } from './SubComponents';
 import { DEFAULT_PROPERTY_ICONS } from './constants';
 import type { PanelScreen } from './constants';
-import type { SchemaProperty } from '../../types/database';
+import type { SchemaProperty, PropertyValue } from '../../types/database';
 
 // ─── Option screen configs ───────────────────────────────────────────────────
 
@@ -28,16 +28,16 @@ interface OptionScreenCfg {
   options: { id: string; label: string }[];
   activeKey: string;
   defaultVal: string;
-  transform?: (id: string) => any;
+  transform?: (id: string) => PropertyValue;
 }
 
-const OPTION_SCREENS: Record<string, (s: Record<string, any>) => OptionScreenCfg> = {
-  loadLimit: (s) => ({
+const OPTION_SCREENS: Record<string, (_s: Record<string, PropertyValue>) => OptionScreenCfg> = {
+  loadLimit: (_s) => ({
     title: 'Load limit', back: 'layout',
     options: [5, 10, 25, 50, 75, 100, 150].map(n => ({ id: String(n), label: n + ' pages' })),
     activeKey: 'loadLimit', defaultVal: '50', transform: id => Number(id),
   }),
-  cardPreview: (s) => ({
+  cardPreview: (_s) => ({
     title: 'Card preview', back: 'layout',
     options: [
       { id: 'none', label: 'None' }, { id: 'page_cover', label: 'Page cover' },
@@ -45,17 +45,17 @@ const OPTION_SCREENS: Record<string, (s: Record<string, any>) => OptionScreenCfg
     ],
     activeKey: 'cardPreview', defaultVal: 'none',
   }),
-  cardSize: (s) => ({
+  cardSize: (_s) => ({
     title: 'Card size', back: 'layout',
     options: [{ id: 'small', label: 'Small' }, { id: 'medium', label: 'Medium' }, { id: 'large', label: 'Large' }],
     activeKey: 'cardSize', defaultVal: 'medium',
   }),
-  showCalendarAs: (s) => ({
+  showCalendarAs: (_s) => ({
     title: 'Show calendar as', back: 'layout',
     options: [{ id: 'month', label: 'Month' }, { id: 'week', label: 'Week' }],
     activeKey: 'calendarMode', defaultVal: 'month',
   }),
-  openPagesIn: (s) => ({
+  openPagesIn: (_s) => ({
     title: 'Open pages in', back: 'layout',
     options: [
       { id: 'side_peek', label: 'Side peek' }, { id: 'center_peek', label: 'Center peek' },
@@ -68,8 +68,8 @@ const OPTION_SCREENS: Record<string, (s: Record<string, any>) => OptionScreenCfg
 // ─── Context type for property screens ───────────────────────────────────────
 
 export interface PropertyScreensContext {
-  settings: Record<string, any>;
-  updateSetting: (key: string, val: any) => void;
+  settings: Record<string, PropertyValue>;
+  updateSetting: (key: string, val: PropertyValue) => void;
   setScreen: (s: PanelScreen) => void;
   onClose: () => void;
   dateProps: SchemaProperty[];
@@ -82,7 +82,7 @@ export interface PropertyScreensContext {
   visibleProperties: string[];
   databaseId: string;
   togglePropertyVisibility: (viewId: string, propId: string) => void;
-  updateProperty: (dbId: string, propId: string, updates: any) => void;
+  updateProperty: (dbId: string, propId: string, updates: Partial<SchemaProperty>) => void;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

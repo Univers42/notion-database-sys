@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 17:37:08 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@ interface TableRowContextMenuProps {
 
 export function TableRowContextMenu({
   rowMenu, onClose, openPage, duplicatePage, deletePage,
-}: TableRowContextMenuProps) {
+}: Readonly<TableRowContextMenuProps>) {
   return (
     <>
-      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <button type="button" className="fixed inset-0 z-40 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={onClose} tabIndex={-1} aria-label="Close" />
       <div
         className="fixed z-50 min-w-[160px] bg-surface-primary rounded-lg p-1 shadow-xl border border-line text-sm"
         style={{ left: rowMenu.x, top: rowMenu.y }}

@@ -23,7 +23,7 @@ const MEDIA_CONFIG: Record<string, { icon: typeof Image; label: string; accept?:
   bookmark: { icon: Bookmark, label: 'web bookmark' },
 };
 
-export function MediaBlock({ block, pageId }: BlockRendererProps) {
+export function MediaBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const config = MEDIA_CONFIG[block.type] || MEDIA_CONFIG.file;
   const Icon = config.icon;

@@ -68,7 +68,7 @@ export function BlockHandle({
   dragData,
   className = '',
   handleClassName = '',
-}: BlockHandleProps) {
+}: Readonly<BlockHandleProps>) {
   const [showPanel, setShowPanel] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLButtonElement>(null);

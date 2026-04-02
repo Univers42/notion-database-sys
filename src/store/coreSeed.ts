@@ -7,13 +7,13 @@ export const DB_CRM = 'db-crm';
 export const DB_CONTENT = 'db-content';
 export const DB_INVENTORY = 'db-inventory';
 
-const now = new Date().toISOString();
+const _now = new Date().toISOString();
 export function daysFromNow(offset: number): string {
   const date = new Date();
   date.setDate(date.getDate() + offset);
   return date.toISOString();
 }
-const d = daysFromNow;
+const _d = daysFromNow;
 
 export { corePages, coreViews } from './coreSeedData';
 

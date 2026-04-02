@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 17:43:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
-import type { SchemaProperty } from '../../types/database';
+import type { SchemaProperty, Filter, DatabaseSchema, ViewConfig } from '../../types/database';
 import { getOperatorsForType, FilterPropertyPicker, FilterBar, AdvancedFilterGrid } from '../FilterComponents';
 import { useOutsideClick } from './Dropdown';
 import { SortPanel } from './SortPanel';
@@ -26,9 +26,9 @@ export interface FilterSortPanelsProps {
   setShowAdvancedFilter: (v: boolean) => void;
   setShowFilterPanel: (v: boolean) => void;
   showSortPanel: boolean;
-  filters: any[];
-  database: any;
-  view: any;
+  filters: Filter[];
+  database: DatabaseSchema;
+  view: ViewConfig;
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
 }
 
@@ -36,7 +36,7 @@ export function FilterSortPanels({
   showFilterPanel, showFilterPropertyPicker, setShowFilterPropertyPicker,
   showAdvancedFilter, setShowAdvancedFilter, setShowFilterPanel,
   showSortPanel, filters, database, view, filterBtnRef,
-}: FilterSortPanelsProps) {
+}: Readonly<FilterSortPanelsProps>) {
   const advancedFilterRef = useRef<HTMLDivElement>(null);
   const store = useDatabaseStore.getState();
 

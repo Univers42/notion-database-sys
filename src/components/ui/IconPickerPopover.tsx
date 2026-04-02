@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { IconPicker as IconPickerPanel } from './IconPicker';
 import type { IconPickerProps } from './IconPicker';
@@ -18,7 +18,7 @@ export function IconPickerPopover({
   anchorRef,
   align = 'left',
   ...pickerProps
-}: IconPickerPopoverProps) {
+}: Readonly<IconPickerPopoverProps>) {
   const [pos, setPos] = useState({ top: 0, left: 0, width: 380, height: 340 });
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -73,7 +73,7 @@ export function IconPickerPopover({
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [pickerProps.onClose, anchorRef]);
+  }, [pickerProps, anchorRef]);
 
   // Close on Escape
   useEffect(() => {
@@ -82,7 +82,7 @@ export function IconPickerPopover({
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [pickerProps.onClose]);
+  }, [pickerProps]);
 
   return ReactDOM.createPortal(
     <div

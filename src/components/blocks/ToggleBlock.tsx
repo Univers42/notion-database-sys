@@ -16,7 +16,7 @@ import { EditableContent } from './EditableContent';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { ChevronRight } from 'lucide-react';
 
-export function ToggleBlock({ block, pageId, onChange, onKeyDown }: BlockRendererProps) {
+export function ToggleBlock({ block, pageId, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   const toggleCollapsed = useDatabaseStore(s => s.toggleBlockCollapsed);
 
   const handleToggle = useCallback(() => {

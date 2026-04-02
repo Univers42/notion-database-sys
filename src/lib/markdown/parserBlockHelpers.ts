@@ -1,6 +1,6 @@
 // Markdown parser — parse context, simple block parsers, and helpers
 import type {
-  BlockNode, InlineNode, ListItemNode, TableRowNode, TableCellNode, TableAlign,
+  BlockNode, TableRowNode, TableCellNode, TableAlign,
 } from './ast';
 import { parseInline } from './parserInline';
 export interface ParseContext {

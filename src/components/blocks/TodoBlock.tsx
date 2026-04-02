@@ -15,7 +15,7 @@ import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 
-export function TodoBlock({ block, pageId, onChange, onKeyDown }: BlockRendererProps) {
+export function TodoBlock({ block, pageId, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   const toggleChecked = useDatabaseStore(s => s.toggleBlockChecked);
 
   const handleToggle = useCallback(() => {

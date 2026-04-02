@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:42:49 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,9 @@ export interface SelectionSliceActions {
 
 export type SelectionSlice = SelectionSliceState & SelectionSliceActions;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zustand set/get typing
-type SetFn = (partial: any) => void;
+import type { StoreSet } from '../storeTypes';
 
-export function createSelectionSlice(set: SetFn): SelectionSliceActions {
+export function createSelectionSlice(set: StoreSet): SelectionSliceActions {
   return {
     setSearchQuery: (query) => set({ searchQuery: query }),
   };

@@ -23,7 +23,7 @@ import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { DatabaseBlock } from '../DatabaseBlock';
 
-export function InlineDatabaseBlock({ block }: BlockRendererProps) {
+export function InlineDatabaseBlock({ block }: Readonly<BlockRendererProps>) {
   return (
     <DatabaseBlock
       databaseId={block.databaseId}

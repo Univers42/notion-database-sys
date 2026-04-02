@@ -12,7 +12,7 @@ export interface SlashCommandMenuProps {
   onClose: () => void;
 }
 
-export function SlashCommandMenu({ position, filter, onSelect, onClose }: SlashCommandMenuProps) {
+export function SlashCommandMenu({ position, filter, onSelect, onClose }: Readonly<SlashCommandMenuProps>) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);

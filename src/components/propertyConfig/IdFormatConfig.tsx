@@ -4,9 +4,9 @@ import type { SchemaProperty } from '../../types/database';
 import { Fingerprint } from 'lucide-react';
 import { ActionButton } from './ActionButton';
 
-export function IdFormatConfig({ property, databaseId, onClose }: {
+export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
   property: SchemaProperty; databaseId: string; onClose: () => void;
-}) {
+}>) {
   const { updateProperty, updatePageProperty, pages } = useDatabaseStore();
   const [showIdConfig, setShowIdConfig] = useState(false);
   const [idPrefix, setIdPrefix] = useState(property.prefix || '');

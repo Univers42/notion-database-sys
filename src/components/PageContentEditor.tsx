@@ -27,7 +27,7 @@ import { DraggableBlockWrapper, EmptyBlockPlaceholder } from './PageContentEdito
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
-export function PageContentEditor({ pageId }: { pageId: string }) {
+export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
   const pages = useDatabaseStore(s => s.pages);
   const page = pages[pageId];
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);

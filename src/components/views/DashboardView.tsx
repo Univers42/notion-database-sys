@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 20:33:22 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
-import type { DashboardWidget } from '../../types/database';
+import type { DashboardWidget, SchemaProperty } from '../../types/database';
 import { Hash, TrendingUp, Users, CheckCircle, Clock, BarChart3 } from 'lucide-react';
 import { isThisWeek, parseISO } from 'date-fns';
 import { FormulaAnalyticsDashboard } from './FormulaAnalyticsDashboard';
@@ -27,7 +27,7 @@ import type { ComputedData } from './dashboard';
 // ─── Aggregation hook ────────────────────────────────────────────────────────
 
 function useComputedData(pages: { updatedAt: string; properties: Record<string, unknown> }[], database: { properties: Record<string, { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }> } | null): ComputedData {
-  const allProps = database ? Object.values(database.properties) : [];
+  const allProps = useMemo(() => database ? Object.values(database.properties) : [], [database]);
   return useMemo(() => {
     if (!database) return { numberAggs: {}, selectCounts: {}, checked: 0, unchecked: 0, recentCount: 0 };
 
@@ -69,7 +69,7 @@ function useComputedData(pages: { updatedAt: string; properties: Record<string, 
 function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageTitle }: {
   widgets: DashboardWidget[];
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
-  propsMap: Record<string, { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }>;
+  propsMap: Record<string, SchemaProperty>;
   computedData: ComputedData;
   openPage: (id: string) => void;
   getPageTitle: (page: unknown) => string;
@@ -141,7 +141,7 @@ function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageT
           {numberProps.length > 0 && (
             <div className="bg-surface-primary rounded-xl border border-line p-5">
               <h3 className="text-sm font-semibold text-ink mb-4">Number Summary</h3>
-              <NumberSummaryWidget numberProps={numberProps as any} numberAggs={computedData.numberAggs} />
+              <NumberSummaryWidget numberProps={numberProps as SchemaProperty[]} numberAggs={computedData.numberAggs} />
             </div>
           )}
           <div className={`bg-surface-primary rounded-xl border border-line p-5 ${!mainSelectData.length && !numberProps.length ? 'lg:col-span-3' : ''}`}>

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:51 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
-import { SchemaProperty, Page } from '../../../types/database';
+import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
@@ -32,8 +32,8 @@ export interface MemoTableRowProps {
   wrapContent: boolean;
   getColWidth: (propId: string) => number;
   databaseId: string;
-  onCellClick: (pageId: string, propId: string, type: string, currentValue: any) => void;
-  onUpdateProperty: (pageId: string, propId: string, value: any) => void;
+  onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue) => void;
+  onUpdateProperty: (pageId: string, propId: string, value: PropertyValue) => void;
   onStopEditing: () => void;
   onOpenPage: (pageId: string) => void;
   onFillDragStart: (propId: string, rowIdx: number) => void;
@@ -49,7 +49,7 @@ function isInFillRange(
   propId: string,
   rowIdx: number,
 ): boolean {
-  if (!fillDrag || propId !== fillDrag.sourcePropId) return false;
+  if (propId !== fillDrag?.sourcePropId) return false;
   const minR = Math.min(fillDrag.sourceRowIdx, fillDrag.currentRowIdx);
   const maxR = Math.max(fillDrag.sourceRowIdx, fillDrag.currentRowIdx);
   return rowIdx >= minR && rowIdx <= maxR && rowIdx !== fillDrag.sourceRowIdx;
@@ -93,18 +93,25 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
           onFormulaEdit, onPropertyConfig, tableRef,
         };
 
+        let cellCursor: string | undefined;
+        if (fillDrag) cellCursor = CURSORS.crosshair;
+        else if (isEditing) cellCursor = undefined;
+        else cellCursor = CURSORS.cell;
+
         return (
           <td key={prop.id}
             className={`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`}
             style={{
               width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id),
-              cursor: fillDrag ? CURSORS.crosshair : isEditing ? undefined : CURSORS.cell,
+              cursor: cellCursor,
             }}
             onClick={() => onCellClick(page.id, prop.id, prop.type, value)}>
             {renderCellContent(cellProps)}
             {isFocused && !isEditing && (
-              <div className="absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20"
+              <button type="button" className="absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20 p-0 appearance-none outline-none"
                 style={{ bottom: -3, right: -3, cursor: CURSORS.crosshair }}
+                tabIndex={-1}
+                aria-label="Fill handle"
                 onMouseDown={e => { e.stopPropagation(); e.preventDefault(); onFillDragStart(prop.id, rowIdx); }} />
             )}
           </td>

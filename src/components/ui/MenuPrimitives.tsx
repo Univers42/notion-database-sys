@@ -21,7 +21,7 @@ import { ChevronRightIcon } from './Icons';
    Notion-style inline toggle switch (14px height, 26px width).
    Use standalone or inside ToggleSettingRow.
    ─────────────────────────────────────────────────────────────────── */
-export function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+export function ToggleSwitch({ checked, onChange }: Readonly<{ checked: boolean; onChange: (v: boolean) => void }>) {
   return (
     <button onClick={e => { e.stopPropagation(); onChange(!checked); }}
       className="relative shrink-0"
@@ -41,7 +41,7 @@ export function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange
    Full-row toggle: label on left, ToggleSwitch on right.
    No left icon — used in per-view layout settings panels.
    ─────────────────────────────────────────────────────────────────── */
-export function ToggleSettingRow({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+export function ToggleSettingRow({ label, checked, onChange }: Readonly<{ label: string; checked: boolean; onChange: (v: boolean) => void }>) {
   return (
     <button
       onClick={() => onChange(!checked)}
@@ -61,7 +61,7 @@ export function ToggleSettingRow({ label, checked, onChange }: { label: string; 
    Navigation row: label on left, optional value + chevron on right.
    No left icon — used in per-view layout settings panels.
    ─────────────────────────────────────────────────────────────────── */
-export function NavSettingRow({ label, value, onClick }: { label: string; value?: string; onClick: () => void }) {
+export function NavSettingRow({ label, value, onClick }: Readonly<{ label: string; value?: string; onClick: () => void }>) {
   return (
     <button
       onClick={onClick}
@@ -96,7 +96,7 @@ export interface MenuRowProps {
   danger?: boolean;
 }
 
-export function MenuRow({ icon, label, onClick, className = '', danger = false }: MenuRowProps) {
+export function MenuRow({ icon, label, onClick, className = '', danger = false }: Readonly<MenuRowProps>) {
   return (
     <button
       onClick={onClick}
@@ -130,7 +130,7 @@ export interface SettingsRowProps {
   onClick?: () => void;
 }
 
-export function SettingsRow({ icon, label, value, showChevron, onClick }: SettingsRowProps) {
+export function SettingsRow({ icon, label, value, showChevron, onClick }: Readonly<SettingsRowProps>) {
   const hasChevron = showChevron ?? !!onClick;
   return (
     <button

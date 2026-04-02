@@ -49,7 +49,7 @@ const STOCK_IDS = STOCK_OPTIONS.map(o => o.id);
 const CONDITION_IDS = CONDITION_OPTIONS.map(o => o.id);
 const RATING_IDS = RATING_OPTIONS.map(o => o.id);
 const SHIPPING_IDS = SHIPPING_OPTIONS.map(o => o.id);
-const BRAND_TAG_IDS = BRAND_TAG_OPTIONS.map(o => o.id);
+const _BRAND_TAG_IDS = BRAND_TAG_OPTIONS.map(o => o.id);
 
 function mulberry32(seed: number): () => number {
   return () => {
@@ -124,6 +124,12 @@ const VENDORS = [
   'beautyline.co', 'freshfoods.com', 'toyland.co', 'toolpro.com', 'greengarden.co',
 ];
 
+function getRelatedProducts(globalIdx: number): string[] {
+  if (globalIdx % 10 === 0) return ['i1', 'i3'];
+  if (globalIdx % 7 === 0) return ['i2'];
+  return [];
+}
+
 function generateProductPages(): Record<string, Page> {
   const pages: Record<string, Page> = {};
   let globalIdx = 0;
@@ -169,7 +175,7 @@ function generateProductPages(): Record<string, Page> {
           'pp-warehouse': { address: `${wh.address}, Aisle ${(itemIdx % 8) + 1}`, lat: wh.lat + (itemIdx * 0.003 - 0.04), lng: wh.lng + (itemIdx * 0.004 - 0.05) },
           'pp-origin': { address: orig.address, lat: orig.lat, lng: orig.lng },
           'pp-sku': `SKU-${globalIdx}`,
-          'pp-related': globalIdx % 10 === 0 ? ['i1', 'i3'] : globalIdx % 7 === 0 ? ['i2'] : [],
+          'pp-related': getRelatedProducts(globalIdx),
           'pp-assigned': globalIdx % 3 === 0 ? [MANAGERS[managerIdx]] : [MANAGERS[managerIdx], MANAGERS[reviewerIdx]],
           'pp-due': _d(daysAgo + 30 + (globalIdx % 14) * 7),
           'pp-stock-qty': Math.floor(10 + rng() * 490),

@@ -5,7 +5,7 @@ import { IconPickerPopover } from '../ui/IconPickerPopover';
 import { Icon } from '../ui/Icon';
 import { DEFAULT_PROPERTY_ICONS } from './constants';
 
-export function PropertyIconButton({ property, databaseId }: { property: SchemaProperty; databaseId: string }) {
+export function PropertyIconButton({ property, databaseId }: Readonly<{ property: SchemaProperty; databaseId: string }>) {
   const [showPicker, setShowPicker] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const { updateProperty } = useDatabaseStore();

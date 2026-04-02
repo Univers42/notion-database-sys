@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 17:33:32 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
-import { SchemaProperty, Page } from '../../../types/database';
+import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import type { FillDragState } from './useFillDrag';
 import { MemoTableRow } from './MemoTableRow';
 
@@ -33,11 +33,11 @@ interface RenderPageRowsProps {
   wrapContent: boolean;
   getColWidth: (propId: string) => number;
   databaseId: string;
-  onCellClick: (pageId: string, propId: string, type: string, currentValue: any) => void;
-  onUpdateProperty: (pageId: string, propId: string, value: any) => void;
+  onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue) => void;
+  onUpdateProperty: (pageId: string, propId: string, value: PropertyValue) => void;
   onStopEditing: () => void;
   onOpenPage: (pageId: string) => void;
-  onFillDragStart: (pageId: string, propId: string, e: React.MouseEvent) => void;
+  onFillDragStart: (propId: string, rowIdx: number) => void;
   onFormulaEdit: (propId: string) => void;
   onRowMenu: (pageId: string, x: number, y: number) => void;
   onPropertyConfig: (prop: SchemaProperty, position: { top: number; left: number }) => void;
@@ -100,7 +100,7 @@ interface TableGroupRowsProps extends RenderPageRowsProps {
 export function TableGroupRows({
   groupedData, collapsedGroups, toggleGroup, colCount,
   addPage, databaseId, ...rowProps
-}: TableGroupRowsProps) {
+}: Readonly<TableGroupRowsProps>) {
   return (
     <>
       {groupedData.map((group) => {

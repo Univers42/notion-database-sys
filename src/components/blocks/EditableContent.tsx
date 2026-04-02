@@ -28,7 +28,7 @@ export function EditableContent({
   placeholder = '',
   onChange,
   onKeyDown,
-}: EditableContentProps) {
+}: Readonly<EditableContentProps>) {
   const ref = useRef<HTMLDivElement>(null);
   const lastContentRef = useRef(content);
 

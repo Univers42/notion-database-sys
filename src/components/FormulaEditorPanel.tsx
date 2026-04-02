@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:22 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 02:01:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,19 @@ import { useFormulaEditorPanel } from './useFormulaEditorPanel';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 
+function getPreviewContainerStyle(hasError: boolean, hasExpression: boolean): string {
+  if (hasError) return 'bg-danger-surface-soft border-danger-border';
+  if (hasExpression) return 'bg-surface-secondary border-line';
+  return 'bg-surface-secondary-soft border-line-light';
+}
+
 interface FormulaEditorPanelProps {
   databaseId: string;
   propertyId: string;
   onClose: () => void;
 }
 
-export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaEditorPanelProps) {
+export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly<FormulaEditorPanelProps>) {
   const {
     db, property, expression, setExpression, aiPrompt, setAiPrompt,
     debugMode, setDebugMode, selectedItem, setSelectedItem,
@@ -115,7 +121,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: FormulaE
                   <Bug className="w-3 h-3" /> Debug
                 </button>
               </div>
-              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border ${previewResult.error ? 'bg-danger-surface-soft border-danger-border' : expression.trim() ? 'bg-surface-secondary border-line' : 'bg-surface-secondary-soft border-line-light'}`}>
+              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border ${getPreviewContainerStyle(!!previewResult.error, !!expression.trim())}`}>
                 <div className="flex-1 min-w-0">
                   {expression.trim() ? (
                     <div className="flex items-center gap-2">

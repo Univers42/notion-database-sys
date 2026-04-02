@@ -65,7 +65,7 @@ export interface DatabaseViewProps {
   compact?: boolean;
 }
 
-export function DatabaseView({ viewId, compact = false }: DatabaseViewProps) {
+export function DatabaseView({ viewId, compact = false }: Readonly<DatabaseViewProps>) {
   // If a viewId override is provided, scope it via context.
   // Otherwise, use the global activeViewId (from context or store).
   const globalViewId = useActiveViewId();

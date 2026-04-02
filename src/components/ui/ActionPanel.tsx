@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,11 @@ export interface ActionPanelProps {
   className?: string;
 }
 
+function matchesSearch(item: PanelItem, q: string): boolean {
+  if (item.type === 'info') return item.lines.some(l => l.toLowerCase().includes(q));
+  return ('label' in item ? item.label : '').toLowerCase().includes(q);
+}
+
 /* ─── Component ─────────────────────────────────────────────────────────── */
 
 export function ActionPanel({
@@ -92,7 +97,7 @@ export function ActionPanel({
   searchPlaceholder = 'Search actions…',
   width = 265,
   className = '',
-}: ActionPanelProps) {
+}: Readonly<ActionPanelProps>) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -105,13 +110,7 @@ export function ActionPanel({
     if (!query.trim()) return sections;
     const q = query.toLowerCase();
     return sections
-      .map(s => ({
-        ...s,
-        items: s.items.filter(item => {
-          if (item.type === 'info') return item.lines.some(l => l.toLowerCase().includes(q));
-          return (item as any).label?.toLowerCase().includes(q);
-        }),
-      }))
+      .map(s => ({ ...s, items: s.items.filter(item => matchesSearch(item, q)) }))
       .filter(s => s.items.length > 0);
   }, [sections, query]);
 
@@ -140,7 +139,7 @@ export function ActionPanel({
         {/* ── Scrollable body ── */}
         <div className="overflow-y-auto flex-1 min-h-0">
           {filtered.map((section, si) => (
-            <div key={si}>
+            <div key={section.label ?? `s${si}`}>{/* NOSONAR */}
               {/* Divider between sections (not before first) */}
               {si > 0 && <SectionDivider />}
 
@@ -153,8 +152,8 @@ export function ActionPanel({
                 )}
 
                 {/* Items */}
-                {section.items.map((item, ii) => (
-                  <PanelItemRow key={ii} item={item} />
+                {section.items.map((item) => (
+                  <PanelItemRow key={'label' in item ? item.label : item.lines?.[0] ?? 'info'} item={item} />
                 ))}
               </div>
             </div>

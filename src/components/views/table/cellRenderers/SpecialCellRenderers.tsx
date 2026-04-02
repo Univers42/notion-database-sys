@@ -12,10 +12,10 @@
 
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
-import type { SchemaProperty } from '../../../../types/database';
+import type { SchemaProperty, PropertyValue } from '../../../../types/database';
 import { InlineInput, renderCheckbox } from './BasicCellRenderers';
 
-export function renderFilesMedia(value: any): React.ReactNode {
+export function renderFilesMedia(value: PropertyValue): React.ReactNode {
   return (
     <div className="text-sm text-ink-muted italic truncate">
       {Array.isArray(value) && value.length > 0 ? `${value.length} file(s)` : 'No files'}
@@ -74,13 +74,19 @@ export function renderCustom(p: CellRendererProps): React.ReactNode {
   return renderCustomDisplay(dt, value);
 }
 
-export function renderCustomEditor(dt: string, value: any, onChange: (v: any) => void, onStop: () => void, tableRef: React.RefObject<HTMLDivElement | null>): React.ReactNode {
-  const inputType = dt === 'integer' || dt === 'float' ? 'number' : dt === 'timestamp' ? 'datetime-local' : 'text';
+const DATA_TYPE_INPUT_MAP: Record<string, string> = {
+  integer: 'number',
+  float: 'number',
+  timestamp: 'datetime-local',
+};
+
+export function renderCustomEditor(dt: string, value: PropertyValue, onChange: (v: PropertyValue) => void, onStop: () => void, tableRef: React.RefObject<HTMLDivElement | null>): React.ReactNode {
+  const inputType = DATA_TYPE_INPUT_MAP[dt] || 'text';
   return (
     <input autoFocus type={inputType} step={dt === 'float' ? '0.01' : undefined}
       value={dt === 'boolean' ? undefined : (value ?? '')}
       onChange={e => {
-        let v: any = e.target.value;
+        let v: PropertyValue = e.target.value;
         if (dt === 'integer') v = parseInt(v) || 0;
         else if (dt === 'float') v = parseFloat(v) || 0;
         else if (dt === 'json') { try { v = JSON.parse(v); } catch { /* keep string */ } }
@@ -92,7 +98,7 @@ export function renderCustomEditor(dt: string, value: any, onChange: (v: any) =>
   );
 }
 
-export function renderCustomDisplay(dt: string, value: any): React.ReactNode {
+export function renderCustomDisplay(dt: string, value: PropertyValue): React.ReactNode {
   if (dt === 'boolean') return renderCheckbox(value);
   if (dt === 'timestamp') {
     return <div className="text-sm text-ink-secondary font-mono truncate">{value ? new Date(value).toLocaleString() : <span className="text-ink-muted">—</span>}</div>;

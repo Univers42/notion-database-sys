@@ -46,7 +46,7 @@ export const DISPLAY_OPTIONS: { value: RollupDisplayAs; label: string; icon: Rea
 
 // ─── Shared sub-components ───────────────────────────────────────────────────
 
-export function SectionHeader({ label }: { label: string }) {
+export function SectionHeader({ label }: Readonly<{ label: string }>) {
   return (
     <div className="flex items-center px-3 pt-3 pb-1">
       <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">{label}</span>
@@ -54,9 +54,9 @@ export function SectionHeader({ label }: { label: string }) {
   );
 }
 
-export function DropdownButton({ label, muted, disabled, open, onClick }: {
+export function DropdownButton({ label, muted, disabled, open, onClick }: Readonly<{
   label: string; muted?: boolean; disabled?: boolean; open?: boolean; onClick: () => void;
-}) {
+}>) {
   return (
     <button onClick={onClick} disabled={disabled}
       className={`w-full flex items-center justify-between px-2.5 py-2 rounded-md text-sm transition-colors ${
@@ -68,7 +68,7 @@ export function DropdownButton({ label, muted, disabled, open, onClick }: {
   );
 }
 
-export function PickerList({ children, maxH = 'max-h-48' }: { children: React.ReactNode; maxH?: string }) {
+export function PickerList({ children, maxH = 'max-h-48' }: Readonly<{ children: React.ReactNode; maxH?: string }>) {
   return (
     <div className={`mt-1 bg-surface-secondary rounded-lg border border-line-light overflow-y-auto ${maxH}`}>
       {children}
@@ -76,7 +76,7 @@ export function PickerList({ children, maxH = 'max-h-48' }: { children: React.Re
   );
 }
 
-export function PickerItem({ children, selected, onClick }: { children: React.ReactNode; selected?: boolean; onClick: () => void }) {
+export function PickerItem({ children, selected, onClick }: Readonly<{ children: React.ReactNode; selected?: boolean; onClick: () => void }>) {
   return (
     <button onClick={onClick}
       className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-sm transition-colors ${
@@ -89,12 +89,12 @@ export function PickerItem({ children, selected, onClick }: { children: React.Re
 
 // ─── Function selector section ───────────────────────────────────────────────
 
-export function FunctionSelector({ fn, setFn, showFnPicker, setShowFnPicker }: {
+export function FunctionSelector({ fn, setFn, showFnPicker, setShowFnPicker }: Readonly<{
   fn: RollupFunction;
   setFn: (f: RollupFunction) => void;
   showFnPicker: boolean;
   setShowFnPicker: (v: boolean) => void;
-}) {
+}>) {
   const selectedFn = ROLLUP_FUNCTIONS.find(f => f.value === fn);
   return (
     <>
@@ -130,13 +130,13 @@ export function FunctionSelector({ fn, setFn, showFnPicker, setShowFnPicker }: {
 
 // ─── Display mode selector section ───────────────────────────────────────────
 
-export function DisplaySelector({ fn, displayAs, setDisplayAs, showDisplayPicker, setShowDisplayPicker }: {
+export function DisplaySelector({ fn, displayAs, setDisplayAs, showDisplayPicker, setShowDisplayPicker }: Readonly<{
   fn: RollupFunction;
   displayAs: RollupDisplayAs;
   setDisplayAs: (d: RollupDisplayAs) => void;
   showDisplayPicker: boolean;
   setShowDisplayPicker: (v: boolean) => void;
-}) {
+}>) {
   if (['show_original', 'show_unique'].includes(fn)) return null;
   return (
     <>

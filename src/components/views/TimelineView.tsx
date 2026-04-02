@@ -6,17 +6,37 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:51 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 02:01:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
-import { format, addDays, startOfWeek, eachDayOfInterval, differenceInDays, startOfMonth, endOfMonth, eachWeekOfInterval, addWeeks, subWeeks } from 'date-fns';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { format, addDays, startOfWeek, eachDayOfInterval } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTimelineConfig, getBarStyle } from './TimelineViewHelpers';
-import type { TimelineConfig } from './TimelineViewHelpers';
+
+function getDayHeaderBg(isTodayCol: boolean, isWeekend: boolean): string {
+  if (isTodayCol) return 'bg-accent-soft';
+  if (isWeekend) return 'bg-surface-secondary-soft2';
+  return 'bg-surface-primary';
+}
+
+function getBarColorClass(statusOpt: { color: string } | undefined): string {
+  if (!statusOpt) return 'bg-accent';
+  if (statusOpt.color.includes('green')) return 'bg-success';
+  if (statusOpt.color.includes('blue')) return 'bg-accent';
+  if (statusOpt.color.includes('yellow')) return 'bg-warning';
+  if (statusOpt.color.includes('red')) return 'bg-danger';
+  return 'bg-purple';
+}
+
+function getGridCellBg(isTodayCell: boolean, isWeekend: boolean): string {
+  if (isTodayCell) return 'bg-accent-soft5';
+  if (isWeekend) return 'bg-surface-secondary-soft4';
+  return '';
+}
 
 export function TimelineView() {
   const activeViewId = useActiveViewId();
@@ -103,11 +123,11 @@ export function TimelineView() {
               {displayedPages.map(page => {
                 const title = getPageTitle(page);
                 return (
-                  <div key={page.id} onClick={() => openPage(page.id)}
-                    className="h-10 border-b border-line-light flex items-center px-3 text-sm text-ink truncate hover:bg-hover-surface2 cursor-pointer">
+                  <button type="button" key={page.id} onClick={() => openPage(page.id)}
+                    className="h-10 border-b border-line-light flex items-center px-3 text-sm text-ink truncate hover:bg-hover-surface2 cursor-pointer text-left w-full">
                     {page.icon && <span className="mr-1.5">{page.icon}</span>}
                     {title || <span className="text-ink-muted">Untitled</span>}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -124,7 +144,7 @@ export function TimelineView() {
               return (
                 <div key={day.toISOString()}
                   className={`shrink-0 border-r border-line flex flex-col items-center justify-end pb-2 text-xs ${
-                    isTodayCol ? 'bg-accent-soft' : isWeekend ? 'bg-surface-secondary-soft2' : 'bg-surface-primary'
+                    getDayHeaderBg(isTodayCol, isWeekend)
                   }`}
                   style={{ width: config.cellWidth }}>
                   <span className="text-ink-muted text-[10px]">{format(day, 'EEE')}</span>
@@ -152,9 +172,7 @@ export function TimelineView() {
               const statusProp = Object.values(database.properties).find(p => p.type === 'select' && p.name.toLowerCase().includes('status'));
               const statusVal = statusProp ? page.properties[statusProp.id] : null;
               const statusOpt = statusProp?.options?.find(o => o.id === statusVal);
-              const barColor = statusOpt
-                ? statusOpt.color.includes('green') ? 'bg-success' : statusOpt.color.includes('blue') ? 'bg-accent' : statusOpt.color.includes('yellow') ? 'bg-warning' : statusOpt.color.includes('red') ? 'bg-danger' : 'bg-purple'
-                : 'bg-accent';
+              const barColor = getBarColorClass(statusOpt);
 
               return (
                 <div key={page.id} className="h-10 border-b border-line-light flex items-center relative group hover:bg-hover-surface-soft">
@@ -163,7 +181,7 @@ export function TimelineView() {
                     {days.map((day, i) => (
                       <div key={day.toISOString()}
                         className={`shrink-0 border-r border-line-light h-full ${
-                          todayIdx === i ? 'bg-accent-soft5' : (day.getDay() === 0 || day.getDay() === 6) ? 'bg-surface-secondary-soft4' : ''
+                          getGridCellBg(todayIdx === i, day.getDay() === 0 || day.getDay() === 6)
                         }`}
                         style={{ width: config.cellWidth }}
                         onDragOver={e => e.preventDefault()}

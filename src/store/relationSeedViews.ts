@@ -3,7 +3,9 @@ import type { ViewConfig } from '../types/database';
 
 const DB_PROJECTS = 'db-projects';
 
-export const reverseRelationProps: Record<string, Record<string, any>> = {
+import type { SchemaProperty } from '../types/database';
+
+export const reverseRelationProps: Record<string, Record<string, SchemaProperty>> = {
   'db-tasks': {
     'prop-project': {
       id: 'prop-project', name: 'Project', type: 'relation',

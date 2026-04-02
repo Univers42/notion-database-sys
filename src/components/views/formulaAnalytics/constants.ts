@@ -6,9 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:49:21 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+import type { PropertyValue } from '../../../types/database';
 
 // ─── COLORS & PALETTE ──────────────────────────────────────────────────────
 export const COLORS = ['var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)', 'var(--color-chart-4)', 'var(--color-chart-5)', 'var(--color-chart-6)', 'var(--color-chart-7)', 'var(--color-chart-8)', 'var(--color-chart-9)', 'var(--color-chart-10)'];
@@ -28,7 +30,7 @@ export interface FormulaResult {
   propId: string;
   propName: string;
   expression: string;
-  results: { pageId: string; pageName: string; value: any; error: boolean }[];
+  results: { pageId: string; pageName: string; value: PropertyValue; error: boolean }[];
 }
 
 export interface AnalyticsEntry {

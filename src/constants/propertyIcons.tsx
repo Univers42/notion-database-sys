@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 /** Returns a Lucide icon component for the given property type. */
-export function PropIcon({ type, className = 'w-3.5 h-3.5' }: { type: string; className?: string }): React.ReactElement {
+export function PropIcon({ type, className = 'w-3.5 h-3.5' }: Readonly<{ type: string; className?: string }>): React.ReactElement {
   switch (type) {
     case 'title':
     case 'text':

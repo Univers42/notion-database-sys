@@ -1,5 +1,6 @@
 // ─── viewSlice — view CRUD, filter, sort, grouping, and property visibility ─
 import type { ViewConfig, ViewSettings, Filter, Sort, Grouping } from '../../types/database';
+import type { StoreSet, StoreGet, DatabaseState } from '../storeTypes';
 
 export interface ViewSliceState {
   views: Record<string, ViewConfig>;
@@ -28,22 +29,21 @@ export interface ViewSliceActions {
 
 export type ViewSlice = ViewSliceState & ViewSliceActions;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createViewSlice(set: (partial: any) => void, get: () => any): ViewSliceActions {
+export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions {
   return {
-    addView: (view) => set((state: any) => {
+    addView: (view) => set((state: DatabaseState) => {
       const id = `v-${crypto.randomUUID().slice(0, 8)}`;
       return {
         views: { ...state.views, [id]: { ...view, id } as ViewConfig },
         activeViewId: id,
       };
     }),
-    updateView: (viewId, updates) => set((state: any) => {
+    updateView: (viewId, updates) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return { views: { ...state.views, [viewId]: { ...view, ...updates } } };
     }),
-    updateViewSettings: (viewId, settings) => set((state: any) => {
+    updateViewSettings: (viewId, settings) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return {
@@ -54,7 +54,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    deleteView: (viewId) => set((state: any) => {
+    deleteView: (viewId) => set((state: DatabaseState) => {
       const newViews = { ...state.views };
       delete newViews[viewId];
       const isActive = state.activeViewId === viewId;
@@ -78,7 +78,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
     },
 
     setActiveView: (viewId) => set({ activeViewId: viewId }),
-    addFilter: (viewId, filter) => set((state: any) => {
+    addFilter: (viewId, filter) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return {
@@ -89,7 +89,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    updateFilter: (viewId, filterId, updates) => set((state: any) => {
+    updateFilter: (viewId, filterId, updates) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return {
@@ -103,7 +103,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    removeFilter: (viewId, filterId) => set((state: any) => {
+    removeFilter: (viewId, filterId) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return {
@@ -114,11 +114,11 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    clearFilters: (viewId) => set((state: any) => ({
+    clearFilters: (viewId) => set((state: DatabaseState) => ({
       views: { ...state.views, [viewId]: { ...state.views[viewId], filters: [] } },
     })),
 
-    addSort: (viewId, sort) => set((state: any) => {
+    addSort: (viewId, sort) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return {
@@ -129,7 +129,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    updateSort: (viewId, sortId, updates) => set((state: any) => {
+    updateSort: (viewId, sortId, updates) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return {
@@ -143,7 +143,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    removeSort: (viewId, sortId) => set((state: any) => {
+    removeSort: (viewId, sortId) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       return {
@@ -154,15 +154,15 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    clearSorts: (viewId) => set((state: any) => ({
+    clearSorts: (viewId) => set((state: DatabaseState) => ({
       views: { ...state.views, [viewId]: { ...state.views[viewId], sorts: [] } },
     })),
 
-    setGrouping: (viewId, grouping) => set((state: any) => ({
+    setGrouping: (viewId, grouping) => set((state: DatabaseState) => ({
       views: { ...state.views, [viewId]: { ...state.views[viewId], grouping } },
     })),
 
-    togglePropertyVisibility: (viewId, propertyId) => set((state: any) => {
+    togglePropertyVisibility: (viewId, propertyId) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       const isVisible = view.visibleProperties.includes(propertyId);
@@ -179,7 +179,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    hideAllProperties: (viewId) => set((state: any) => {
+    hideAllProperties: (viewId) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
       const db = state.databases[view.databaseId];
@@ -192,7 +192,7 @@ export function createViewSlice(set: (partial: any) => void, get: () => any): Vi
       };
     }),
 
-    reorderProperties: (viewId, propertyIds) => set((state: any) => ({
+    reorderProperties: (viewId, propertyIds) => set((state: DatabaseState) => ({
       views: { ...state.views, [viewId]: { ...state.views[viewId], visibleProperties: propertyIds } },
     })),
   };

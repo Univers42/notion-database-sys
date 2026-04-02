@@ -1,13 +1,13 @@
 import React from 'react';
-import type { SchemaProperty, RollupFunction } from '../../types/database';
+import type { SchemaProperty, RollupFunction, DatabaseSchema } from '../../types/database';
 import { ExternalLink, Hash, BarChart2, ChevronDown, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { ROLLUP_FUNCTIONS } from './constants';
 
 /* ── Section: Relation ── */
-export function RelationSection({ relationProps, selected, open, onToggle, onSelect, relationPropId }: {
+export function RelationSection({ relationProps, selected, open, onToggle, onSelect, relationPropId }: Readonly<{
   relationProps: SchemaProperty[]; selected: SchemaProperty | undefined | null;
   open: boolean; onToggle: () => void; onSelect: (p: SchemaProperty) => void; relationPropId: string;
-}) {
+}>) {
   return (
     <div className="px-2 pt-2">
       <div className="px-2 py-1 text-xs font-medium text-ink-muted uppercase tracking-wide">Relation</div>
@@ -30,10 +30,10 @@ export function RelationSection({ relationProps, selected, open, onToggle, onSel
 }
 
 /* ── Section: Property ── */
-export function PropertySection({ targetDb, targetProps, selected, open, onToggle, onSelect, targetPropId }: {
-  targetDb: any; targetProps: SchemaProperty[]; selected: SchemaProperty | undefined | null;
+export function PropertySection({ targetDb, targetProps, selected, open, onToggle, onSelect, targetPropId }: Readonly<{
+  targetDb: DatabaseSchema | null; targetProps: SchemaProperty[]; selected: SchemaProperty | undefined | null;
   open: boolean; onToggle: () => void; onSelect: (p: SchemaProperty) => void; targetPropId: string;
-}) {
+}>) {
   return (
     <div className="px-2 pt-1 border-t border-line-light mt-2">
       <div className="px-2 py-1 text-xs font-medium text-ink-muted uppercase tracking-wide">Property</div>
@@ -61,13 +61,13 @@ export function PropertySection({ targetDb, targetProps, selected, open, onToggl
 }
 
 /* ── Section: Calculate ── */
-export function CalculateSection({ fn, selectedFnLabel, fnGroups, open, calcSubmenu, onToggle, onSelect, setCalcSubmenu }: {
+export function CalculateSection({ fn, selectedFnLabel, fnGroups, open, calcSubmenu, onToggle, onSelect, setCalcSubmenu }: Readonly<{
   fn: RollupFunction; selectedFnLabel: string;
   fnGroups: Record<string, typeof ROLLUP_FUNCTIONS>;
   open: boolean; calcSubmenu: string | null;
   onToggle: () => void; onSelect: (f: RollupFunction) => void;
   setCalcSubmenu: (s: string | null) => void;
-}) {
+}>) {
   return (
     <div className="px-2 pt-1 border-t border-line-light mt-2 pb-2">
       <div className="px-2 py-1 text-xs font-medium text-ink-muted uppercase tracking-wide">Calculate</div>
@@ -122,9 +122,9 @@ export function CalcSubmenuGroup({ label, items, activeFn, isOpen, onToggle, onS
 }
 
 /* ── Shared section toggle button ── */
-export function SectionButton({ icon, label, open, onClick }: {
+export function SectionButton({ icon, label, open, onClick }: Readonly<{
   icon: React.ReactNode; label: string; open: boolean; onClick: () => void;
-}) {
+}>) {
   return (
     <button onClick={onClick} className="w-full flex items-center gap-2 px-2 py-2 rounded-md hover:bg-hover-surface text-sm transition-colors">
       {icon}

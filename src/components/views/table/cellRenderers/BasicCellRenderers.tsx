@@ -12,14 +12,14 @@
 
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
-import type { SchemaProperty, Page } from '../../../../types/database';
+import type { SchemaProperty, Page, PropertyValue } from '../../../../types/database';
 import { ArrowUpRight, CheckCircle2, MapPin } from 'lucide-react';
 
 // ─── Inline input shared by text, number, date, person, email/url/phone, place ──
-export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, className = '', placeholder = 'Empty', step }: {
-  type?: string; value: any; onChange: (v: any) => void; onStop: () => void;
+export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, className = '', placeholder = 'Empty', step }: Readonly<{
+  type?: string; value: PropertyValue; onChange: (v: PropertyValue) => void; onStop: () => void;
   tableRef: React.RefObject<HTMLDivElement | null>; className?: string; placeholder?: string; step?: string;
-}) {
+}>) {
   return (
     <input
       autoFocus type={type} value={value ?? ''} step={step}
@@ -68,7 +68,7 @@ export function renderNumber(p: CellRendererProps): React.ReactNode {
   );
 }
 
-export function renderCheckbox(value: any): React.ReactNode {
+export function renderCheckbox(value: PropertyValue): React.ReactNode {
   return (
     <div className="flex items-center justify-center">
       <div className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer ${value ? 'bg-accent border-accent-border' : 'border-line-medium hover:border-hover-border-strong'}`}>
@@ -140,7 +140,7 @@ export function renderPlace(p: CellRendererProps): React.ReactNode {
   );
 }
 
-export function renderId(value: any): React.ReactNode {
+export function renderId(value: PropertyValue): React.ReactNode {
   return (
     <div className="text-sm text-ink-secondary font-mono tabular-nums truncate">
       {value || <span className="text-ink-disabled">—</span>}

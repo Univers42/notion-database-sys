@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:43:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,11 @@ export const useDatabaseStore = create<DatabaseState>((set, get) => ({
   searchQuery: '',
 
   // ─── Compose domain slices ─────────────────────────────────
-  ...createDatabaseSlice(set as any, get as any),
-  ...createPageSlice(set as any, get as any),
-  ...createViewSlice(set as any, get as any),
-  ...createSelectionSlice(set as any),
-  ...createComputedSlice(set as any, get as any),
+  ...createDatabaseSlice(set, get),
+  ...createPageSlice(set, get),
+  ...createViewSlice(set, get),
+  ...createSelectionSlice(set),
+  ...createComputedSlice(set, get),
 
   // ─── Inline Database Creation ──────────────────────────────
   createInlineDatabase: (name = 'Untitled Database') => {

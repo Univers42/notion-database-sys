@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 20:33:22 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ export function FormulaAnalyticsDashboard() {
     useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
-  const pages = view ? getPagesForView(view.id) : [];
+  const pages = useMemo(() => view ? getPagesForView(view.id) : [], [view, getPagesForView]);
 
   // ─── Compute all formula results ─────────────────────────────────────────
   const formulaResults = useMemo(() => {

@@ -6,22 +6,22 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:39 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 
-export function TableBlockComponent({ block, pageId }: BlockRendererProps) {
+export function TableBlockComponent({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
 
-  const data = block.tableData || [
+  const data = useMemo(() => block.tableData || [
     ['', '', ''],
     ['', '', ''],
     ['', '', ''],
-  ];
+  ], [block.tableData]);
 
   const handleCellChange = useCallback(
     (row: number, col: number, value: string) => {
@@ -49,10 +49,10 @@ export function TableBlockComponent({ block, pageId }: BlockRendererProps) {
       <table className="w-full text-sm">
         <tbody>
           {data.map((row, ri) => (
-            <tr key={ri} className={ri === 0 ? 'bg-surface-secondary font-medium' : ''}>
+            <tr key={ri} className={ri === 0 ? 'bg-surface-secondary font-medium' : ''}>{/* NOSONAR - table rows identified by position */}
               {row.map((cell, ci) => (
                 <td
-                  key={ci}
+                  key={ci} // NOSONAR - table cells identified by position
                   contentEditable
                   suppressContentEditableWarning
                   className="border-b border-r border-line last:border-r-0 px-3 py-1.5 outline-none focus:bg-focus-surface-accent min-w-[80px] text-ink-body"

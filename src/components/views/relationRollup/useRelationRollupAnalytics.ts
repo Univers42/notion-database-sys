@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 17:03:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useMemo } from 'react';
 import { useDatabaseStore } from '../../../store/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import type { SchemaProperty, RollupFunction, DatabaseSchema, Page } from '../../../types/database';
+import type { SchemaProperty, RollupFunction, DatabaseSchema, Page, PropertyValue } from '../../../types/database';
 
 // ─── Exported types ──────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ export type RollupResult = {
   prop: SchemaProperty;
   fn: RollupFunction;
   displayAs: string;
-  results: { pageTitle: string; value: any }[];
+  results: { pageTitle: string; value: PropertyValue }[];
   numericResults: number[];
   errorCount: number;
 };
@@ -83,7 +83,7 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
 
     // ─── Rollup analytics ────────────────────────────────────
     const rollupResults: RollupResult[] = rollupProps.map(rp => {
-      const results: { pageTitle: string; value: any }[] = [];
+      const results: { pageTitle: string; value: PropertyValue }[] = [];
       const numericResults: number[] = [];
       let errorCount = 0;
 
@@ -126,5 +126,5 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
       relationTargets, totalLinks, linkedDbs,
       rollupResults, fnDist, displayDist,
     };
-  }, [db, databases, pages, resolveRollup, activeViewId, views]);
+  }, [db, databases, pages, resolveRollup]);
 }

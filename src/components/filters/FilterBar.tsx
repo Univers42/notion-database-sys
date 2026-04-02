@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 17:43:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef } from 'react';
 import { ChevronDown, Plus, Filter } from 'lucide-react';
-import type { FilterOperator, SchemaProperty } from '../../types/database';
+import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { getOperatorsForType } from './constants';
 import { PropertyTypeIcon } from './PropertyTypeIcon';
@@ -20,8 +20,8 @@ import { PortalDropdown } from './PortalDropdown';
 import { FilterValueEditor } from './FilterValueEditors';
 import { FilterPropertyPicker } from './FilterPropertyPicker';
 
-export function FilterBar({ filters, properties, conjunction, viewId, onOpenAdvanced }: {
-  filters: { id: string; propertyId: string; operator: FilterOperator; value: any }[];
+export function FilterBar({ filters, properties, conjunction: _conjunction, viewId, onOpenAdvanced }: {
+  filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   properties: Record<string, SchemaProperty>;
   conjunction: 'and' | 'or';
   viewId: string;

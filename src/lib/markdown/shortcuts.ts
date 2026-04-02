@@ -1,8 +1,8 @@
 // Markdown shortcuts — inline parsing and block conversion
 import type { BlockType, Block } from '../../types/database';
-import type { InlineNode, BlockNode } from './ast';
+import type { InlineNode } from './ast';
 import { parse, parseInline } from './parser';
-import { renderHtml } from './renderers/html';
+
 export type { BlockDetection } from './shortcutsDetect';
 export { BLOCK_SHORTCUTS, detectBlockType } from './shortcutsDetect';
 

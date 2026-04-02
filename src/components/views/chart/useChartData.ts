@@ -6,11 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useMemo } from 'react';
+import type { SchemaProperty, PropertyValue, SelectOption } from '../../../types/database';
 
 export type ChartType = 'vertical_bar' | 'horizontal_bar' | 'line' | 'donut' | 'pie' | 'number';
 
@@ -26,8 +27,8 @@ export const CHART_COLORS = [
 ];
 
 export function useChartData(
-  database: { properties: Record<string, any> } | null,
-  pages: { properties: Record<string, any> }[],
+  database: { properties: Record<string, SchemaProperty> } | null,
+  pages: { properties: Record<string, PropertyValue> }[],
   xAxisProperty: string | undefined,
   yAxisProperty: string | undefined,
   yAxisAggregation: string,
@@ -47,7 +48,7 @@ export function useChartData(
       let colorClass = '';
 
       if (xProp.type === 'select') {
-        const opt = xProp.options?.find((o: any) => o.id === xVal);
+        const opt = xProp.options?.find((o: SelectOption) => o.id === xVal);
         label = opt?.value || 'None';
         colorClass = opt?.color || '';
       } else if (xProp.type === 'checkbox') {

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,17 @@ import { MenuRow, MenuDivider, ViewTypeCard, PanelSectionLabel } from '../ui/Men
 import { PencilIcon, DuplicateIcon, NewDataSourceIcon } from '../ui/Icons';
 import { Icon } from '../ui/Icon';
 import { ViewDotsMenu, ActiveViewMenu } from './MenuComponents';
+import type { DatabaseSchema } from '../../types/database';
+import type { ViewConfig } from '../../types/views';
 
 export interface ViewTabsRowProps {
-  dbViews: any[];
+  dbViews: ViewConfig[];
   activeViewId: string;
-  view: any;
-  database: any;
+  view: ViewConfig;
+  database: DatabaseSchema;
   setActiveView: (id: string) => void;
-  addView: (view: any) => void;
-  updateView: (id: string, updates: any) => void;
+  addView: (view: Partial<ViewConfig>) => void;
+  updateView: (id: string, updates: Partial<ViewConfig>) => void;
   duplicateView: (id: string) => void;
   deleteView: (id: string) => void;
   onEditTitle: () => void;
@@ -36,7 +38,7 @@ export interface ViewTabsRowProps {
 export function ViewTabsRow({
   dbViews, activeViewId, view, database, setActiveView,
   addView, updateView, duplicateView, deleteView, onEditTitle, onEditLayout,
-}: ViewTabsRowProps) {
+}: Readonly<ViewTabsRowProps>) {
   const [renamingViewId, setRenamingViewId] = useState<string | null>(null);
   const [viewRenameValue, setViewRenameValue] = useState('');
   const [showViewMenu, setShowViewMenu] = useState<string | null>(null);
@@ -123,10 +125,10 @@ export function ViewTabsRow({
                             let defaultGrouping: { propertyId: string } | undefined;
                             if (type === 'board') {
                               const props = Object.values(database.properties);
-                              const priorityProp = props.find((p: any) => p.name.toLowerCase().includes('priority') && (p.type === 'select' || p.type === 'status'));
-                              const statusProp = props.find((p: any) => p.type === 'status');
-                              const firstSelectProp = props.find((p: any) => p.type === 'select' || p.type === 'status');
-                              const groupProp: any = priorityProp || statusProp || firstSelectProp;
+                              const priorityProp = props.find(p => p.name.toLowerCase().includes('priority') && (p.type === 'select' || p.type === 'status'));
+                              const statusProp = props.find(p => p.type === 'status');
+                              const firstSelectProp = props.find(p => p.type === 'select' || p.type === 'status');
+                              const groupProp = priorityProp || statusProp || firstSelectProp;
                               if (groupProp) defaultGrouping = { propertyId: groupProp.id };
                             }
                             addView({ databaseId: database.id, name: VIEW_LABELS[type], type, filters: [], filterConjunction: 'and', sorts: [],

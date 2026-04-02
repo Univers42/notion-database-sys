@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:42:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // ─── databaseSlice — database schema CRUD actions ───────────────────────────
 
 import type { DatabaseSchema, SchemaProperty, PropertyType, SelectOption } from '../../types/database';
+import type { StoreSet, StoreGet, DatabaseState } from '../storeTypes';
 
 export interface DatabaseSliceState {
   databases: Record<string, DatabaseSchema>;
@@ -30,26 +31,23 @@ export interface DatabaseSliceActions {
 
 export type DatabaseSlice = DatabaseSliceState & DatabaseSliceActions;
 
-export type SetFn = (partial: Record<string, unknown> | ((state: Record<string, unknown>) => Record<string, unknown>)) => void;
-export type GetFn = () => Record<string, unknown>;
-
-export function createDatabaseSlice(set: SetFn, get: GetFn): DatabaseSliceActions {
+export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSliceActions {
   return {
-    renameDatabase: (databaseId, name) => set((state: any) => ({
+    renameDatabase: (databaseId, name) => set((state: DatabaseState) => ({
       databases: {
         ...state.databases,
         [databaseId]: { ...state.databases[databaseId], name },
       },
     })),
 
-    updateDatabaseIcon: (databaseId, icon) => set((state: any) => ({
+    updateDatabaseIcon: (databaseId, icon) => set((state: DatabaseState) => ({
       databases: {
         ...state.databases,
         [databaseId]: { ...state.databases[databaseId], icon },
       },
     })),
 
-    addProperty: (databaseId, name, type) => set((state: any) => {
+    addProperty: (databaseId, name, type) => set((state: DatabaseState) => {
       const db = state.databases[databaseId];
       if (!db) return state;
       const newPropId = `prop-${crypto.randomUUID().slice(0, 8)}`;
@@ -75,7 +73,7 @@ export function createDatabaseSlice(set: SetFn, get: GetFn): DatabaseSliceAction
       };
     }),
 
-    insertPropertyAt: (databaseId, name, type, viewId, afterPropId) => set((state: any) => {
+    insertPropertyAt: (databaseId, name, type, viewId, afterPropId) => set((state: DatabaseState) => {
       const db = state.databases[databaseId];
       if (!db) return state;
       const newPropId = `prop-${crypto.randomUUID().slice(0, 8)}`;
@@ -103,7 +101,7 @@ export function createDatabaseSlice(set: SetFn, get: GetFn): DatabaseSliceAction
       };
     }),
 
-    updateProperty: (databaseId, propertyId, updates) => set((state: any) => {
+    updateProperty: (databaseId, propertyId, updates) => set((state: DatabaseState) => {
       const db = state.databases[databaseId];
       if (!db || !db.properties[propertyId]) return state;
       return {
@@ -120,7 +118,7 @@ export function createDatabaseSlice(set: SetFn, get: GetFn): DatabaseSliceAction
       };
     }),
 
-    deleteProperty: (databaseId, propertyId) => set((state: any) => {
+    deleteProperty: (databaseId, propertyId) => set((state: DatabaseState) => {
       const db = state.databases[databaseId];
       if (!db) return state;
       const { [propertyId]: _, ...remainingProps } = db.properties;
@@ -142,7 +140,7 @@ export function createDatabaseSlice(set: SetFn, get: GetFn): DatabaseSliceAction
       };
     }),
 
-    addSelectOption: (databaseId, propertyId, option) => set((state: any) => {
+    addSelectOption: (databaseId, propertyId, option) => set((state: DatabaseState) => {
       const db = state.databases[databaseId];
       if (!db) return state;
       const prop = db.properties[propertyId];

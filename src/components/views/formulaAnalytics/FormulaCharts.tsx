@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:55:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 02:10:37 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ export function FormulaTypePie({ analytics }: { analytics: Record<string, { resu
 
 export function ErrorBarChart({ analytics }: { analytics: Record<string, { propName: string; total: number; errors: number }> }) {
   const entries = Object.values(analytics).sort((a, b) => b.errors - a.errors);
-  const maxTotal = Math.max(...entries.map((e) => e.total), 1);
+  const _maxTotal = Math.max(...entries.map((e) => e.total), 1);
 
   return (
     <div className="flex flex-col gap-2.5 overflow-auto max-h-52">
@@ -96,6 +96,12 @@ export function ErrorBarChart({ analytics }: { analytics: Record<string, { propN
       })}
     </div>
   );
+}
+
+function getComplexityColor(pct: number): string {
+  if (pct > 70) return 'var(--color-chart-7)';
+  if (pct > 40) return 'var(--color-chart-4)';
+  return 'var(--color-chart-5)';
 }
 
 export function ComplexityChart({ analytics }: { analytics: Record<string, { propName: string; expression: string }> }) {
@@ -133,7 +139,7 @@ export function ComplexityChart({ analytics }: { analytics: Record<string, { pro
                 className="h-2 rounded-full transition-all"
                 style={{
                   width: `${pct}%`,
-                  backgroundColor: pct > 70 ? 'var(--color-chart-7)' : pct > 40 ? 'var(--color-chart-4)' : 'var(--color-chart-5)',
+                  backgroundColor: getComplexityColor(pct),
                 }}
               />
             </div>

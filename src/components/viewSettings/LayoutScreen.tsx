@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:39:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,24 +21,26 @@ import {
 import { VIEW_META, LAYOUT_ORDER } from './constants';
 import { SubPanelHeader, CardLayoutPicker } from './SubComponents';
 import type { PanelScreen } from './constants';
-import type { ViewType, SchemaProperty } from '../../types/database';
+import type { ViewType, SchemaProperty, ViewSettings } from '../../types/database';
 
 export interface LayoutScreenProps {
   viewId: string;
   viewType: ViewType;
-  settings: Record<string, any>;
+  settings: ViewSettings;
   allProps: SchemaProperty[];
   grouping?: { propertyId: string };
   setScreen: (s: PanelScreen) => void;
   goHome: () => void;
   onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateView: (id: string, updates: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateSetting: (key: string, val: any) => void;
 }
 
 // ─── Per-view-type settings ──────────────────────────────────────────────────
 
-function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, updateSetting }: LayoutScreenProps) {
+function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, updateSetting }: Readonly<LayoutScreenProps>) {
   const groupName = grouping ? allProps.find(p => p.id === grouping.propertyId)?.name : 'None';
 
   switch (viewType) {

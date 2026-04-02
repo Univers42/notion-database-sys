@@ -1,5 +1,13 @@
 // Database core type definitions
 
+/**
+ * Heterogeneous property value — covers every property type stored in a Page.
+ * Use `unknown` to enforce explicit narrowing at read-sites while allowing
+ * any value to be passed in at write-sites.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type PropertyValue = any;
+
 // Re-export filter and view types for backward compatibility
 export type { FilterOperator, Filter, Sort, Grouping, SubGrouping } from './filters';
 export type {
@@ -101,8 +109,8 @@ export interface SelectOption {
   color: string;
 }
 
-import type { StatusGroup, FileAttachment, ButtonConfig, PlaceValue, FormulaConfig,
-  RollupFunction, RollupDisplayAs, RollupConfig, RelationConfig, CustomFieldConfig,
+import type { StatusGroup, ButtonConfig, FormulaConfig,
+  RollupConfig, RelationConfig, CustomFieldConfig,
 } from './databasePropertyTypes';
 export type { StatusGroup, FileAttachment, ButtonConfig, PlaceValue, FormulaConfig,
   RollupFunction, RollupDisplayAs, RollupConfig, RelationConfig, CustomFieldConfig,

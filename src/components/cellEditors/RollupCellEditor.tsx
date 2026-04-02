@@ -6,14 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:32:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useMemo } from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import type { SchemaProperty, RollupFunction } from '../../types/database';
-import { ExternalLink, Hash, BarChart2, ChevronDown, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { CellPortal } from './CellPortal';
 import { ROLLUP_FUNCTIONS } from './constants';
 import { RelationSection, PropertySection, CalculateSection } from './RollupCellEditorSections';
@@ -24,7 +23,7 @@ interface RollupCellEditorProps {
   onClose: () => void;
 }
 
-export function RollupCellEditor({ property, databaseId, onClose }: RollupCellEditorProps) {
+export function RollupCellEditor({ property, databaseId, onClose }: Readonly<RollupCellEditorProps>) {
   const databases = useDatabaseStore(s => s.databases);
   const updateProperty = useDatabaseStore(s => s.updateProperty);
 
@@ -65,7 +64,10 @@ export function RollupCellEditor({ property, databaseId, onClose }: RollupCellEd
 
   const fnGroups = useMemo(() => {
     const groups: Record<string, typeof ROLLUP_FUNCTIONS> = {};
-    for (const f of ROLLUP_FUNCTIONS) (groups[f.group] ||= []).push(f);
+    for (const f of ROLLUP_FUNCTIONS) {
+      if (!groups[f.group]) groups[f.group] = [];
+      groups[f.group].push(f);
+    }
     return groups;
   }, []);
 

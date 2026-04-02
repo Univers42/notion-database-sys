@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MARKER_COLORS, makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar } from './MapHelpers';
+import { MARKER_COLORS, makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar, type MappablePage } from './MapHelpers';
 
 // Fix default marker icon issue in bundlers
 const defaultIcon = L.icon({
@@ -38,7 +38,7 @@ export function MapView() {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
 
-  const pages = view ? getPagesForView(view.id) : [];
+  const pages = useMemo(() => view ? getPagesForView(view.id) : [], [view, getPagesForView]);
   const settings = view?.settings || {};
 
   // Find the place property to use for mapping
@@ -58,12 +58,12 @@ export function MapView() {
         const place = page.properties[placePropId];
         if (place && typeof place === 'object' && typeof place.lat === 'number' && typeof place.lng === 'number') {
           const catVal = categoryProp ? page.properties[categoryProp.id] : null;
-          const catOpt = categoryProp?.options?.find((o: any) => o.id === catVal);
+          const catOpt = categoryProp?.options?.find(o => o.id === catVal);
           return { page, lat: place.lat, lng: place.lng, address: place.address || '', color: catOpt?.color };
         }
         return null;
       })
-      .filter(Boolean) as { page: any; lat: number; lng: number; address: string; color?: string }[];
+      .filter(Boolean) as MappablePage[];
   }, [pages, placePropId, categoryProp]);
 
   // Init map
@@ -136,7 +136,9 @@ export function MapView() {
 
   // Bridge for popup click → store
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__mapOpenPage = (pageId: string) => openPage(pageId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => { delete (window as any).__mapOpenPage; };
   }, [openPage]);
 

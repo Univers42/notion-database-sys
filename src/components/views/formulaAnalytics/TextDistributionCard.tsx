@@ -13,7 +13,7 @@
 import React from 'react';
 import { COLORS } from './constants';
 
-function MiniDonut({ data, size = 100 }: { data: [string, number][]; size?: number }) {
+function MiniDonut({ data, size = 100 }: Readonly<{ data: [string, number][]; size?: number }>) {
   const total = data.reduce((s, [, c]) => s + c, 0);
   if (total === 0) return null;
   const radius = size / 2 - 8;
@@ -52,13 +52,13 @@ export function TextDistributionCard({
   title,
   expression,
   textValues,
-  total,
-}: {
+  total: _total,
+}: Readonly<{
   title: string;
   expression: string;
   textValues: Record<string, number>;
   total: number;
-}) {
+}>) {
   const sorted = Object.entries(textValues).sort((a, b) => b[1] - a[1]);
   const displayTotal = sorted.reduce((s, [, c]) => s + c, 0);
 

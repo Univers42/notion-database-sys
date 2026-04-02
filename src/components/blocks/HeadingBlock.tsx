@@ -32,7 +32,7 @@ const HEADING_PLACEHOLDERS: Record<string, string> = {
   heading_6: 'Heading 6',
 };
 
-export function HeadingBlock({ block, onChange, onKeyDown }: BlockRendererProps) {
+export function HeadingBlock({ block, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   return (
     <EditableContent
       content={block.content}

@@ -6,14 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:38:42 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
-import { FileText, MoreHorizontal, ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { FileText, MoreHorizontal, ChevronDown, Plus } from 'lucide-react';
+import type { Page } from '../../types/database';
 import { format } from 'date-fns';
 
 export function ListView() {
@@ -29,13 +30,13 @@ export function ListView() {
   const loadLimit = settings.loadLimit || 50;
   const hasGrouping = !!view.grouping;
 
-  const renderPageRow = (page: any) => {
+  const renderPageRow = (page: Page) => {
     const title = getPageTitle(page);
     const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
 
     return (
-      <div key={page.id} onClick={() => openPage(page.id)}
-        className="flex items-center justify-between py-2 px-3 hover:bg-hover-surface rounded-lg cursor-pointer group transition-colors">
+      <button type="button" key={page.id} onClick={() => openPage(page.id)}
+        className="flex items-center justify-between py-2 px-3 hover:bg-hover-surface rounded-lg cursor-pointer group transition-colors text-left w-full">
         <div className="flex items-center gap-2.5 overflow-hidden min-w-0">
           {showPageIcon && (
             page.icon
@@ -97,7 +98,7 @@ export function ListView() {
             <MoreHorizontal className="w-4 h-4" />
           </button>
         </div>
-      </div>
+      </button>
     );
   };
 

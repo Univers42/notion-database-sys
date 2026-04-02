@@ -13,7 +13,7 @@
 import React, { useState } from 'react';
 import { ArrowUpRight, CheckSquare } from 'lucide-react';
 
-export function ExampleBlock({ code, onInsert }: { code: string; onInsert: (text: string) => void }) {
+export function ExampleBlock({ code, onInsert }: Readonly<{ code: string; onInsert: (text: string) => void }>) {
   const [copied, setCopied] = useState(false);
 
   return (

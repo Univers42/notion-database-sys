@@ -2,7 +2,7 @@
 //
 //
 
-import type { BlockNode, InlineNode, TableAlign } from '../ast';
+import type { BlockNode, InlineNode } from '../ast';
 
 export interface HtmlRenderOptions {
   wrapperClass?: string;

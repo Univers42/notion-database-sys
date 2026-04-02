@@ -6,16 +6,16 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:55 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:36:56 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { Plus, ArrowUp, ArrowDown, X } from 'lucide-react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
-import type { SchemaProperty } from '../../types/database';
+import type { SchemaProperty, DatabaseSchema, ViewConfig, Sort } from '../../types/database';
 
-export function SortPanel({ database, view }: { database: any; view: any }) {
+export function SortPanel({ database, view }: Readonly<{ database: DatabaseSchema; view: ViewConfig }>) {
   const { addSort, updateSort, removeSort, clearSorts } = useDatabaseStore.getState();
   const allProps = Object.values(database.properties) as SchemaProperty[];
   const sorts = view.sorts || [];
@@ -28,7 +28,7 @@ export function SortPanel({ database, view }: { database: any; view: any }) {
           <button onClick={() => clearSorts(view.id)} className="text-xs text-danger-text-soft hover:text-hover-danger-text-bold">Clear all</button>
         )}
       </div>
-      {sorts.map((sort: any) => (
+      {sorts.map((sort: Sort) => (
         <div key={sort.id} className="flex items-center gap-2 text-sm">
           <select value={sort.propertyId}
             onChange={e => updateSort(view.id, sort.id, { propertyId: e.target.value })}

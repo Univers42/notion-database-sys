@@ -17,7 +17,7 @@ import { COLORS } from './RelationRollupCards';
 
 // ─── Dashboard section components ────────────────────────────────────────────
 
-export function RelationMapSection({ relationTargets, dbPages }: { relationTargets: RelationTarget[]; dbPages: Page[] }) {
+export function RelationMapSection({ relationTargets, dbPages }: Readonly<{ relationTargets: RelationTarget[]; dbPages: Page[] }>) {
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-ink-body mb-4">Cross-Database Relations</h3>
@@ -46,7 +46,7 @@ export function RelationMapSection({ relationTargets, dbPages }: { relationTarge
   );
 }
 
-export function FunctionDistSection({ fnDist, rollupCount }: { fnDist: Record<string, number>; rollupCount: number }) {
+export function FunctionDistSection({ fnDist, rollupCount }: Readonly<{ fnDist: Record<string, number>; rollupCount: number }>) {
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-ink-body mb-3">Rollup Functions Used</h3>
@@ -68,7 +68,7 @@ export function FunctionDistSection({ fnDist, rollupCount }: { fnDist: Record<st
   );
 }
 
-export function DisplayFormatSection({ displayDist, rollupCount }: { displayDist: Record<string, number>; rollupCount: number }) {
+export function DisplayFormatSection({ displayDist, rollupCount }: Readonly<{ displayDist: Record<string, number>; rollupCount: number }>) {
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-ink-body mb-3">Display Formats</h3>
@@ -97,13 +97,20 @@ export function DisplayFormatSection({ displayDist, rollupCount }: { displayDist
   );
 }
 
-export function CompletionRingsSection({ analytics }: { analytics: RelationRollupAnalytics }) {
+function getCompletionStroke(pct: number): string {
+  if (pct >= 80) return 'var(--color-progress-high)';
+  if (pct >= 50) return 'var(--color-chart-1)';
+  if (pct >= 25) return 'var(--color-chart-4)';
+  return 'var(--color-chart-7)';
+}
+
+export function CompletionRingsSection({ analytics }: Readonly<{ analytics: RelationRollupAnalytics }>) {
   const { dbPages, rollupResults } = analytics;
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">
       <h3 className="text-sm font-semibold text-ink-body mb-4">Project Completion Rates (from Rollup)</h3>
       <div className="flex flex-wrap gap-5">
-        {dbPages.map((pg, idx) => {
+        {dbPages.map((pg, _idx) => {
           const title = pg.properties[analytics.db.titlePropertyId] || 'Untitled';
           const donePctProp = rollupResults.find(r => r.prop.id === 'proj-done-pct');
           const val = donePctProp?.results.find(r => r.pageTitle === title)?.value;
@@ -115,7 +122,7 @@ export function CompletionRingsSection({ analytics }: { analytics: RelationRollu
               <svg width="52" height="52" className="-rotate-90">
                 <circle cx="26" cy="26" r={r} fill="none" stroke="var(--color-chart-fill)" strokeWidth="5" />
                 <circle cx="26" cy="26" r={r} fill="none"
-                  stroke={pct >= 80 ? 'var(--color-progress-high)' : pct >= 50 ? 'var(--color-chart-1)' : pct >= 25 ? 'var(--color-chart-4)' : 'var(--color-chart-7)'}
+                  stroke={getCompletionStroke(pct)}
                   strokeWidth="5" strokeLinecap="round"
                   strokeDasharray={circ} strokeDashoffset={offset} />
               </svg>
@@ -131,7 +138,7 @@ export function CompletionRingsSection({ analytics }: { analytics: RelationRollu
   );
 }
 
-export function DataFlowSection({ analytics, pages }: { analytics: RelationRollupAnalytics; pages: Record<string, Page> }) {
+export function DataFlowSection({ analytics, pages }: Readonly<{ analytics: RelationRollupAnalytics; pages: Record<string, Page> }>) {
   const { db, dbPages, relationTargets } = analytics;
   return (
     <div className="bg-surface-primary rounded-xl border border-line p-5 shadow-sm">

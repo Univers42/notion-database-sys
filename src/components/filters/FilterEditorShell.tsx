@@ -6,30 +6,30 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef } from 'react';
 import { ChevronDown, MoreHorizontal, Trash2, Filter } from 'lucide-react';
-import type { FilterOperator, SchemaProperty } from '../../types/database';
+import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
 import { getOperatorsForType } from './constants';
 import { PortalDropdown } from './PortalDropdown';
 
 export interface FilterValueEditorProps {
   property: SchemaProperty;
   operator: FilterOperator;
-  value: any;
+  value: PropertyValue;
   onOperatorChange: (op: FilterOperator) => void;
-  onValueChange: (val: any) => void;
+  onValueChange: (val: PropertyValue) => void;
   onDelete: () => void;
   onClose: () => void;
 }
 
-function FilterOperatorPicker({ type, current, onSelect, onClose }: {
+function FilterOperatorPicker({ type, current, onSelect, onClose }: Readonly<{
   type: string; current: FilterOperator;
   onSelect: (op: FilterOperator) => void; onClose: () => void;
-}) {
+}>) {
   return (
     <div className="flex flex-col py-1" style={{ width: 190, maxHeight: '70vh' }}>
       <div className="overflow-y-auto flex-1 p-1">
@@ -46,13 +46,13 @@ function FilterOperatorPicker({ type, current, onSelect, onClose }: {
   );
 }
 
-export function FilterEditorShell({ property, operator, onOperatorChange, onDelete, children }: {
+export function FilterEditorShell({ property, operator, onOperatorChange, onDelete, children }: Readonly<{
   property: SchemaProperty;
   operator: FilterOperator;
   onOperatorChange: (op: FilterOperator) => void;
   onDelete: () => void;
   children: React.ReactNode;
-}) {
+}>) {
   const [showOperatorMenu, setShowOperatorMenu] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const operatorBtnRef = useRef<HTMLButtonElement>(null);

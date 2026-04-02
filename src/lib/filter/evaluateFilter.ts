@@ -18,7 +18,7 @@ import { containsValue, isEmpty } from './filterHelpers';
 export function evaluateFilter(
   page: Page,
   filter: Filter,
-  property: SchemaProperty | undefined,
+  _property: SchemaProperty | undefined,
 ): boolean {
   const val = page.properties[filter.propertyId];
   const fv = filter.value;

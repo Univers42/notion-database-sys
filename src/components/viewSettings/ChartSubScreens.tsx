@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,21 +18,23 @@ import React from 'react';
 import { CHART_TYPE_META } from './constants';
 import { SubPanelHeader, OptionList, PropertyOptionList, Toggle } from './SubComponents';
 import type { PanelScreen } from './constants';
-import type { SchemaProperty } from '../../types/database';
+import type { SchemaProperty, ViewSettings } from '../../types/database';
 
 export interface ChartScreensProps {
   screen: PanelScreen;
   setScreen: (s: PanelScreen) => void;
-  settings: Record<string, any>;
+  settings: ViewSettings;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateSetting: (key: string, val: any) => void;
   allProps: SchemaProperty[];
   groupableProps: SchemaProperty[];
   databaseName: string;
   onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   identityProps: any;
 }
 
-export function ChartTypeScreen({ setScreen, settings, updateSetting, onClose }: ChartScreensProps) {
+export function ChartTypeScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className="flex flex-col h-full">
       <SubPanelHeader title="Chart type" onBack={() => setScreen('editChart')} onClose={onClose} />
@@ -54,7 +56,7 @@ export function ChartTypeScreen({ setScreen, settings, updateSetting, onClose }:
   );
 }
 
-export function XAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: ChartScreensProps) {
+export function XAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: Readonly<ChartScreensProps>) {
   const eligible = allProps.filter(p => ['select', 'multi_select', 'status', 'checkbox', 'user', 'person', 'text', 'date'].includes(p.type));
   return (
     <div className="flex flex-col h-full">
@@ -64,7 +66,7 @@ export function XAxisWhatScreen({ setScreen, settings, updateSetting, allProps, 
   );
 }
 
-export function XAxisSortScreen({ setScreen, settings, updateSetting, onClose }: ChartScreensProps) {
+export function XAxisSortScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className="flex flex-col h-full">
       <SubPanelHeader title="X-Axis: Sort by" onBack={() => setScreen('editChart')} onClose={onClose} />
@@ -77,7 +79,7 @@ export function XAxisSortScreen({ setScreen, settings, updateSetting, onClose }:
   );
 }
 
-export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: ChartScreensProps) {
+export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: Readonly<ChartScreensProps>) {
   const eligible = allProps.filter(p => p.type === 'number');
   return (
     <div className="flex flex-col h-full">
@@ -87,7 +89,7 @@ export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, 
   );
 }
 
-export function YAxisGroupByScreen({ setScreen, settings, updateSetting, groupableProps, onClose }: ChartScreensProps) {
+export function YAxisGroupByScreen({ setScreen, settings, updateSetting, groupableProps, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className="flex flex-col h-full">
       <SubPanelHeader title="Y-Axis: Group by" onBack={() => setScreen('editChart')} onClose={onClose} />
@@ -96,7 +98,7 @@ export function YAxisGroupByScreen({ setScreen, settings, updateSetting, groupab
   );
 }
 
-export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }: ChartScreensProps) {
+export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className="flex flex-col h-full">
       <SubPanelHeader title="Y-Axis: Range" onBack={() => setScreen('editChart')} onClose={onClose} />
@@ -109,7 +111,7 @@ export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }
   );
 }
 
-export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, onClose }: ChartScreensProps) {
+export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className="flex flex-col h-full">
       <SubPanelHeader title="Reference line" onBack={() => setScreen('editChart')} onClose={onClose} />
@@ -128,7 +130,7 @@ export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, o
   );
 }
 
-export function ColorPaletteScreen({ setScreen, settings, updateSetting, onClose }: ChartScreensProps) {
+export function ColorPaletteScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className="flex flex-col h-full">
       <SubPanelHeader title="Color palette" onBack={() => setScreen('editChart')} onClose={onClose} />
@@ -141,7 +143,7 @@ export function ColorPaletteScreen({ setScreen, settings, updateSetting, onClose
   );
 }
 
-export function MoreStyleScreen({ setScreen, settings, updateSetting, onClose }: ChartScreensProps) {
+export function MoreStyleScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className="flex flex-col h-full">
       <SubPanelHeader title="Style options" onBack={() => setScreen('editChart')} onClose={onClose} />

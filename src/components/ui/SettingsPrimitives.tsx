@@ -27,7 +27,7 @@ export interface SettingsHeaderProps {
   onBack?: () => void;
 }
 
-export function SettingsHeader({ title, onClose, onBack }: SettingsHeaderProps) {
+export function SettingsHeader({ title, onClose, onBack }: Readonly<SettingsHeaderProps>) {
   return (
     <div className="flex items-center shrink-0" style={{ paddingTop: 14, paddingBottom: 6, paddingInline: 16, height: 42 }}>
       {onBack && (
@@ -57,7 +57,7 @@ export function SettingsHeader({ title, onClose, onBack }: SettingsHeaderProps) 
    Muted section label divider within settings panels.
    ─────────────────────────────────────────────────────────────────────── */
 
-export function SettingsSectionLabel({ children }: { children: React.ReactNode }) {
+export function SettingsSectionLabel({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="relative pt-[6px] mt-1">
       <div className="absolute top-0 left-4 right-4 h-px bg-surface-muted-soft2" />
@@ -91,7 +91,7 @@ export interface ViewTypeCardProps {
   onClick?: () => void;
 }
 
-export function ViewTypeCard({ icon, label, active = false, onClick }: ViewTypeCardProps) {
+export function ViewTypeCard({ icon, label, active = false, onClick }: Readonly<ViewTypeCardProps>) {
   return (
     <button
       onClick={onClick}
@@ -112,7 +112,7 @@ export function ViewTypeCard({ icon, label, active = false, onClick }: ViewTypeC
    Small muted section header label.
    ─────────────────────────────────────────────────────────────────────── */
 
-export function PanelSectionLabel({ children }: { children: React.ReactNode }) {
+export function PanelSectionLabel({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="flex items-center px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-ink-muted select-none">
       <span className="truncate">{children}</span>

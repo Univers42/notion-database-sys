@@ -20,12 +20,12 @@ import type { Page, DatabaseSchema, SchemaProperty } from '../../types/database'
 
 // ─── Action buttons (duplicate / delete / close) ────────────────────────────
 
-export function ActionButtons({ pageId, onClose, deletePage, duplicatePage }: {
+export function ActionButtons({ pageId, onClose, deletePage, duplicatePage }: Readonly<{
   pageId: string;
   onClose: () => void;
   deletePage: (id: string) => void;
   duplicatePage: (id: string) => void;
-}) {
+}>) {
   return (
     <div className="flex items-center gap-1">
       <button onClick={() => duplicatePage(pageId)}

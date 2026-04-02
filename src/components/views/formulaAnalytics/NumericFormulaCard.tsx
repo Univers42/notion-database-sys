@@ -21,7 +21,7 @@ export function NumericFormulaCard({
   expression,
   prefix = '',
   suffix = '',
-}: {
+}: Readonly<{
   title: string;
   icon: React.ReactNode;
   color: string;
@@ -29,7 +29,7 @@ export function NumericFormulaCard({
   expression: string;
   prefix?: string;
   suffix?: string;
-}) {
+}>) {
   if (values.length === 0) return null;
   const sorted = [...values].sort((a, b) => a - b);
   const sum = values.reduce((s, v) => s + v, 0);

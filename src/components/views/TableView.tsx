@@ -3,7 +3,7 @@ import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { PropertyConfigPanel } from '../PropertyConfigPanel';
 import { FormulaEditorPanel } from '../FormulaEditorPanel';
-import { SchemaProperty } from '../../types/database';
+import { SchemaProperty, PropertyValue } from '../../types/database';
 import { READ_ONLY_TYPES } from '../../constants/propertyIcons';
 import { useFillDrag } from './table/useFillDrag';
 import { useColumnResize, useColWidth } from './table/useColumnResize';
@@ -41,15 +41,15 @@ export function TableView() {
 
   const visibleProps = useMemo(
     () => (view && database) ? view.visibleProperties.map(id => database.properties[id]).filter(Boolean) : [],
-    [view?.visibleProperties, database?.properties]
+    [view, database]
   );
   const allProps = useMemo(
     () => database ? Object.values(database.properties) : [],
-    [database?.properties]
+    [database]
   );
   const hiddenProps = useMemo(
     () => allProps.filter(p => view ? !view.visibleProperties.includes(p.id) : true),
-    [allProps, view?.visibleProperties]
+    [allProps, view]
   );
   const filteredVisible = useMemo(
     () => visibleProps.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())),
@@ -61,7 +61,13 @@ export function TableView() {
   );
   const [rowMenu, setRowMenu] = useState<{ pageId: string; x: number; y: number } | null>(null);
 
-  const handleCellClick = useCallback((pageId: string, propId: string, type: string, currentValue: any) => {
+  const pages = view ? getPagesForView(view.id) : [];
+  const loadLimit = view?.settings?.loadLimit || 50;
+  const currentLimit = visibleCount ?? loadLimit;
+  const displayedPages = pages.slice(0, currentLimit);
+  const hasMore = pages.length > currentLimit;
+
+  const handleCellClick = useCallback((pageId: string, propId: string, type: string, currentValue: PropertyValue) => {
     setFocusedCell({ pageId, propId });
     if (type === 'checkbox') {
       useDatabaseStore.getState().updatePageProperty(pageId, propId, !currentValue);
@@ -69,7 +75,7 @@ export function TableView() {
       setEditingCell({ pageId, propId });
     }
   }, []);
-  const handleUpdateProperty = useCallback((pageId: string, propId: string, value: any) => {
+  const handleUpdateProperty = useCallback((pageId: string, propId: string, value: PropertyValue) => {
     useDatabaseStore.getState().updatePageProperty(pageId, propId, value);
   }, []);
   const handleStopEditing = useCallback(() => { setEditingCell(null); }, []);
@@ -91,25 +97,20 @@ export function TableView() {
     });
   };
 
-  if (!view || !database) return null;
-
-  const pages = getPagesForView(view.id);
-  const settings = view.settings || {};
-  const showVerticalLines = settings.showVerticalLines !== false;
-  const wrapContent = settings.wrapContent === true;
-  const showRowNumbers = settings.showRowNumbers === true;
-  const loadLimit = settings.loadLimit || 50;
-  const currentLimit = visibleCount ?? loadLimit;
-  const displayedPages = pages.slice(0, currentLimit);
-  const hasMore = pages.length > currentLimit;
-  const colCount = visibleProps.length + (showRowNumbers ? 1 : 0) + 2;
-  const isGrouped = !!view.grouping;
-  const groupedData = isGrouped ? getGroupedPages(view.id) : [];
-
   const handleKeyDown = useTableKeyboard({
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
   });
+
+  if (!view || !database) return null;
+
+  const settings = view.settings || {};
+  const showVerticalLines = settings.showVerticalLines !== false;
+  const wrapContent = settings.wrapContent === true;
+  const showRowNumbers = settings.showRowNumbers === true;
+  const colCount = visibleProps.length + (showRowNumbers ? 1 : 0) + 2;
+  const isGrouped = !!view.grouping;
+  const groupedData = isGrouped ? getGroupedPages(view.id) : [];
 
   const rowProps = {
     visibleProps, focusedCell, editingCell, fillDrag,
@@ -122,7 +123,7 @@ export function TableView() {
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-surface-primary outline-none" tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
+    <div className="flex-1 overflow-auto bg-surface-primary outline-none" role="grid" tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
       <div className="inline-block min-w-full">
         <table className="min-w-full text-left border-collapse">
           <TableHeader

@@ -30,7 +30,7 @@ interface PropertyConfigPanelProps {
   onClose: () => void;
 }
 
-export function PropertyConfigPanel({ property, databaseId, viewId, position, onClose }: PropertyConfigPanelProps) {
+export function PropertyConfigPanel({ property, databaseId, viewId, position, onClose }: Readonly<PropertyConfigPanelProps>) {
   const {
     updateProperty, deleteProperty, togglePropertyVisibility,
     addSort, addFilter, setGrouping, insertPropertyAt, views,

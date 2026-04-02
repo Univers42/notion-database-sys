@@ -1,5 +1,5 @@
 
-import type { BlockNode, InlineNode, TableAlign } from '../ast';
+import type { BlockNode, InlineNode } from '../ast';
 export const ESC = '\x1b';
 export const RESET = `${ESC}[0m`;
 export const BOLD = `${ESC}[1m`;
@@ -177,6 +177,7 @@ export function renderInlinesPlain(nodes: InlineNode[]): string {
 }
 
 export function stripAnsi(str: string): string {
+  // eslint-disable-next-line no-control-regex
   return str.replace(/\x1b\[[0-9;]*m/g, '');
 }
 

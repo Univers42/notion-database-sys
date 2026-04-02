@@ -32,7 +32,7 @@ const CALLOUT_COLORS: Record<string, { bg: string; border: string }> = {
   '⭐': { bg: 'bg-warning-surface', border: 'border-warning-border' },
 };
 
-export function CalloutBlock({ block, pageId, onChange, onKeyDown }: BlockRendererProps) {
+export function CalloutBlock({ block, pageId, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [showIconPicker, setShowIconPicker] = useState(false);
 

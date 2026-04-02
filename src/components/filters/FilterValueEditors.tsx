@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:32:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,14 @@ import type { FilterValueEditorProps } from './FilterEditorShell';
 
 // ─── Select / MultiSelect editor ─────────────────────────────────────────────
 
-function SelectFilterValueEditor(props: FilterValueEditorProps) {
+function SelectFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const { property, operator, value, onOperatorChange, onValueChange, onDelete } = props;
   const [search, setSearch] = useState('');
   const options = property.options || [];
-  const selectedIds: string[] = Array.isArray(value) ? value : (value ? [value] : []);
+  let selectedIds: string[];
+  if (Array.isArray(value)) selectedIds = value;
+  else if (value) selectedIds = [value];
+  else selectedIds = [];
   const filtered = options.filter(o => o.value.toLowerCase().includes(search.toLowerCase()));
 
   const toggleOption = (optId: string) => {
@@ -88,7 +91,7 @@ function SelectFilterValueEditor(props: FilterValueEditorProps) {
 
 // ─── Date editor ──────────────────────────────────────────────────────────────
 
-function DateFilterValueEditor(props: FilterValueEditorProps) {
+function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const { property, operator, value, onOperatorChange, onValueChange, onDelete } = props;
   const [showPresetMenu, setShowPresetMenu] = useState(false);
   const presetBtnRef = useRef<HTMLButtonElement>(null);
@@ -151,7 +154,7 @@ function DateFilterValueEditor(props: FilterValueEditorProps) {
 
 // ─── Text / Number editor ─────────────────────────────────────────────────────
 
-function TextFilterValueEditor(props: FilterValueEditorProps) {
+function TextFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const { property, operator, value, onOperatorChange, onValueChange, onDelete } = props;
 
   return (
@@ -173,7 +176,7 @@ function TextFilterValueEditor(props: FilterValueEditorProps) {
 
 export type { FilterValueEditorProps } from './FilterEditorShell';
 
-export function FilterValueEditor(props: FilterValueEditorProps) {
+export function FilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const t = props.property.type;
   if (t === 'select' || t === 'multi_select' || t === 'status') return <SelectFilterValueEditor {...props} />;
   if (t === 'date' || t === 'due_date' || t === 'created_time' || t === 'last_edited_time') return <DateFilterValueEditor {...props} />;

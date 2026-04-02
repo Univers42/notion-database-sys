@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 17:33:32 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { useDatabaseStore } from '../../../store/useDatabaseStore';
-import { SchemaProperty } from '../../../types/database';
+import { SchemaProperty, PropertyType } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { PropIcon, ADD_PROPERTY_TYPES } from '../../../constants/propertyIcons';
 import {
@@ -45,7 +45,7 @@ export function TableHeader({
   resizingCol, handleResizeStart, dragColId, setDragColId,
   viewId, databaseId, searchQuery, setSearchQuery,
   filteredVisible, filteredHidden, onHeaderClick,
-}: TableHeaderProps) {
+}: Readonly<TableHeaderProps>) {
   const { addProperty, togglePropertyVisibility, hideAllProperties } = useDatabaseStore.getState();
 
   return (
@@ -95,7 +95,7 @@ export function TableHeader({
               <DropdownMenu.Content className="w-48 bg-surface-primary rounded-lg p-1 shadow-xl border border-line text-sm z-50">
                 <div className="px-2 py-1.5 text-xs font-semibold text-ink-muted uppercase">Property Type</div>
                 {ADD_PROPERTY_TYPES.map(([label, type]) => (
-                  <DropdownMenu.Item key={type} onSelect={() => addProperty(databaseId, `New ${label}`, type as any)}
+                  <DropdownMenu.Item key={type} onSelect={() => addProperty(databaseId, `New ${label}`, type as PropertyType)}
                     className="flex items-center gap-2 px-2 py-1.5 outline-none hover:bg-hover-surface rounded cursor-pointer">
                     <PropIcon type={type} className="w-4 h-4 text-ink-muted" /> {label}
                   </DropdownMenu.Item>

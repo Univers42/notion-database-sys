@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 02:01:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@ import React from 'react';
 import { useDatabaseStore } from '../../store/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { Plus, Image, MoreHorizontal, ArrowUpRight } from 'lucide-react';
+import type { Page, Block } from '../../types/database';
 import { CURSORS } from '../ui/cursors';
-import { format } from 'date-fns';
 import { renderPropertyValue, coverColors } from './GalleryViewHelpers';
 
 export function GalleryView() {
@@ -37,15 +37,27 @@ export function GalleryView() {
   const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
   const nonTitleProps = visibleProps.filter(p => p.id !== database.titlePropertyId);
 
-  const gridCols = cardSize === 'small' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
-    : cardSize === 'large' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-    : cardSize === 'xl' ? 'grid-cols-1 sm:grid-cols-2'
-    : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+  const gridColsMap: Record<string, string> = {
+    small: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5',
+    large: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+    xl: 'grid-cols-1 sm:grid-cols-2',
+  };
+  const gridCols = gridColsMap[cardSize] || 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
 
-  const coverHeight = cardSize === 'small' ? 'h-24' : cardSize === 'large' ? 'h-48' : cardSize === 'xl' ? 'h-56' : 'h-36';
+  const coverHeightMap: Record<string, string> = {
+    small: 'h-24',
+    large: 'h-48',
+    xl: 'h-56',
+  };
+  const coverHeight = coverHeightMap[cardSize] || 'h-36';
+
+  const minHeightMap: Record<string, string> = {
+    small: '120px',
+    large: '240px',
+  };
 
   // Render cover based on cardPreview setting
-  const renderCover = (page: any, idx: number) => {
+  const renderCover = (page: Page, idx: number) => {
     const coverColor = coverColors[idx % coverColors.length];
 
     if (cardPreview === 'none') {
@@ -57,13 +69,15 @@ export function GalleryView() {
       // Show page cover image, icon, or colored placeholder
       return (
         <div className={`${coverHeight} ${coverColor} relative flex items-center justify-center`}>
-          {page.cover ? (
-            <img src={page.cover} alt="" className={`w-full h-full ${fitMedia ? 'object-cover' : 'object-contain'}`} />
-          ) : page.icon ? (
-            <span className="text-4xl">{page.icon}</span>
-          ) : (
-            <Image className="w-8 h-8 text-ink-disabled" />
-          )}
+          {(() => {
+            if (page.cover) {
+              return <img src={page.cover} alt="" className={`w-full h-full ${fitMedia ? 'object-cover' : 'object-contain'}`} />;
+            }
+            if (page.icon) {
+              return <span className="text-4xl">{page.icon}</span>;
+            }
+            return <Image className="w-8 h-8 text-ink-disabled" />;
+          })()}
           <button className="absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
             onClick={(e) => { e.stopPropagation(); }}>
             <MoreHorizontal className="w-4 h-4" />
@@ -74,7 +88,7 @@ export function GalleryView() {
 
     if (cardPreview === 'page_content') {
       // Show a preview of the page's block content
-      const textContent = page.content?.map((b: any) => b.content).filter(Boolean).join(' ') || '';
+      const textContent = page.content?.map((b: Block) => b.content).filter(Boolean).join(' ') || '';
       return (
         <div className={`${coverHeight} ${coverColor} relative p-3 overflow-hidden`}>
           <p className="text-xs text-ink-secondary leading-relaxed line-clamp-5">{textContent || 'No content'}</p>
@@ -120,9 +134,9 @@ export function GalleryView() {
           const title = getPageTitle(page);
 
           return (
-            <div key={page.id} onClick={() => openPage(page.id)}
+            <button type="button" key={page.id} onClick={() => openPage(page.id)}
               style={{ cursor: CURSORS.pointer }}
-              className="group border border-line rounded-xl overflow-hidden hover:shadow-lg hover:border-hover-border transition-all duration-200 bg-surface-primary">
+              className="group border border-line rounded-xl overflow-hidden hover:shadow-lg hover:border-hover-border transition-all duration-200 bg-surface-primary text-left w-full">
               {/* Cover / Preview */}
               {renderCover(page, idx)}
 
@@ -154,19 +168,19 @@ export function GalleryView() {
                   </div>
                 )}
               </div>
-            </div>
+            </button>
           );
         })}
 
         {/* Add card */}
-        <div onClick={() => addPage(database.id)}
+        <button type="button" onClick={() => addPage(database.id)}
           className="border-2 border-dashed border-line rounded-xl flex items-center justify-center hover:border-hover-border-strong hover:bg-hover-surface transition-all duration-200"
-          style={{ cursor: CURSORS.pointer, minHeight: cardSize === 'small' ? '120px' : cardSize === 'large' ? '240px' : '180px' }}>
+          style={{ cursor: CURSORS.pointer, minHeight: minHeightMap[cardSize] || '180px' }}>
           <div className="flex flex-col items-center gap-1 text-ink-muted">
             <Plus className="w-6 h-6" />
             <span className="text-sm">New page</span>
           </div>
-        </div>
+        </button>
       </div>
 
       {pages.length === 0 && (

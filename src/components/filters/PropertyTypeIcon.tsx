@@ -21,7 +21,7 @@ import {
   Clock, User, Sigma, GitBranch, ExternalLink, Database,
 } from 'lucide-react';
 
-export function PropertyTypeIcon({ type, className = 'w-4 h-4' }: { type: string; className?: string }) {
+export function PropertyTypeIcon({ type, className = 'w-4 h-4' }: Readonly<{ type: string; className?: string }>) {
   switch (type) {
     case 'title': case 'text': return <Type className={className} />;
     case 'number': return <Hash className={className} />;

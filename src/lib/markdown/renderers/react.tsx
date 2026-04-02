@@ -1,8 +1,8 @@
 // React renderer — AST to React elements
 import React from 'react';
-import type { BlockNode, InlineNode } from '../ast';
+import type { BlockNode } from '../ast';
 import { parse } from '../parser';
-import { renderTable, renderInlines, isExternal } from './reactHelpers';
+import { renderTable, renderInlines } from './reactHelpers';
 
 export interface ReactRenderOptions {
   /** CSS class prefix (default: 'md') */

@@ -14,7 +14,7 @@ import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 
-export function ListBlock({ block, onChange, onKeyDown, index }: BlockRendererProps) {
+export function ListBlock({ block, onChange, onKeyDown, index }: Readonly<BlockRendererProps>) {
   const isBulleted = block.type === 'bulleted_list';
 
   return (
