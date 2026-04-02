@@ -1,4 +1,14 @@
-// ─── Page — container for blocks and database rows ──────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   page.ts                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:07:23 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:07:24 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { ObjectId, ISODateString, Timestamps, SoftDeletable, PropertyValue } from './common';
 import type { Block } from './block';

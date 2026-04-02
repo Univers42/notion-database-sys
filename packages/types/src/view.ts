@@ -1,9 +1,17 @@
-// ─── View & Personalization ─────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   view.ts                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:07:48 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:08:07 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { ObjectId, Timestamps } from './common';
 import type { FilterNode, Filter, Sort, Grouping, SubGrouping } from './filter';
-
-// ─── View type enum ──────────────────────────────────────────────────────────
 
 export type ViewType =
   | 'table'
@@ -16,9 +24,6 @@ export type ViewType =
   | 'feed'
   | 'map'
   | 'dashboard';
-
-// ─── Dashboard widgets ───────────────────────────────────────────────────────
-
 export interface DashboardWidget {
   id: string;
   type: 'stat' | 'chart' | 'table' | 'list';
@@ -29,8 +34,6 @@ export interface DashboardWidget {
   width: 1 | 2 | 3 | 4;
   height: 1 | 2;
 }
-
-// ─── View settings ───────────────────────────────────────────────────────────
 
 export interface ViewSettings {
   icon?: string;
@@ -105,16 +108,12 @@ export interface ViewSettings {
   relationAnalytics?: boolean;
 }
 
-// ─── Field configuration ─────────────────────────────────────────────────────
-
 export interface FieldConfig {
   propertyId: string;
   visible: boolean;
   width?: number;
   order: number;
 }
-
-// ─── View config (shared/base view) ─────────────────────────────────────────
 
 export interface ViewConfig extends Timestamps {
   _id: ObjectId;
@@ -137,8 +136,6 @@ export interface ViewConfig extends Timestamps {
   fieldConfigs?: FieldConfig[];
   settings: ViewSettings;
 }
-
-// ─── User view override — per-user personalization of a shared view ─────────
 
 export interface UserViewOverride extends Timestamps {
   _id: ObjectId;

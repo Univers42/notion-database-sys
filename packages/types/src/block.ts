@@ -1,4 +1,15 @@
-// ─── Block — atomic content unit ─────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   block.ts                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:06:52 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:54 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Blocks are stored as a standalone collection (not embedded in pages)
 // to avoid the 16MB BSON document limit on large databases.
 
