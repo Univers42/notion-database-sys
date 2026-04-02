@@ -1,4 +1,4 @@
-.PHONY: help up down restart logs build db-up db-down db-reset db-build db-status \
+.PHONY: help up down restart logs pull db-up db-down db-reset db-status \
 	seed-pg seed-mongo seed-all seed-state psql mongo-shell \
 	build-rust check-rust dev clean verify smoke-test
 
@@ -15,14 +15,12 @@ help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "$(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
 
-db-build: ## Build custom Docker images (postgres + mongo)
-	docker compose build
-	@echo -e "$(GREEN)✔ Docker images built$(RESET)"
+pull: ## Pull stock images (one-time, cached after)
+	@docker compose pull --quiet
+	@echo -e "$(GREEN)✔ Images pulled$(RESET)"
 
-build: db-build ## Alias for db-build
-
-up: ## Start all containers (builds if needed)
-	docker compose up -d --build
+up: ## Start containers (zero-build, stock images)
+	docker compose up -d
 	@echo -e "$(GREEN)✔ Containers up$(RESET)"
 
 down: ## Stop all containers
@@ -40,7 +38,7 @@ db-down: down ## Alias for down
 
 db-reset: ## Destroy volumes and recreate (fresh DB)
 	docker compose down -v
-	docker compose up -d --build
+	docker compose up -d
 	@echo -e "$(GREEN)✔ Volumes destroyed, containers recreated$(RESET)"
 
 db-status: ## Show container status + health
@@ -59,7 +57,7 @@ status: db-status ## Alias for db-status
 
 seed-pg: ## Seed PostgreSQL from SQL files
 	@echo "Waiting for PostgreSQL..."
-	@until docker compose exec -T postgres pg_isready -U $${POSTGRES_USER:-notion_user} > /dev/null 2>&1; do sleep 1; done
+	@until docker compose exec -T postgres pg_isready -U $${POSTGRES_USER:-notion_user} > /dev/null 2>&1; do sleep 0.5; done
 	docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
 		-f /docker-entrypoint-initdb.d/001_schema.sql
 	docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
@@ -68,7 +66,7 @@ seed-pg: ## Seed PostgreSQL from SQL files
 
 seed-mongo: ## Seed MongoDB from JSON seed files
 	@echo "Waiting for MongoDB..."
-	@until docker compose exec -T mongodb mongosh --quiet --eval "db.adminCommand('ping')" > /dev/null 2>&1; do sleep 1; done
+	@until docker compose exec -T mongodb mongosh --quiet --eval "db.adminCommand('ping')" > /dev/null 2>&1; do sleep 0.5; done
 	@for f in src/store/dbms/mongodb/*.seed.json; do \
 		collection=$$(basename "$$f" .seed.json); \
 		echo "  Importing $$collection..."; \
@@ -106,14 +104,14 @@ mongo-shell: ## Open MongoDB shell
 	docker compose exec mongodb mongosh \
 		"mongodb://$${MONGO_USER:-notion_user}:$${MONGO_PASSWORD:-notion_pass}@localhost:27017/$${MONGO_DB:-notion_db}?authSource=admin"
 
-smoke-test: ## End-to-end: build, up, seed, verify
+smoke-test: ## End-to-end: pull, up, seed, verify
 	@echo -e "$(CYAN)══ Smoke Test ══$(RESET)"
-	@echo "1/4  Building images..."
-	@$(MAKE) db-build --no-print-directory 2>&1 | tail -1
+	@echo "1/4  Pulling images..."
+	@$(MAKE) pull --no-print-directory 2>&1 | tail -1
 	@echo "2/4  Starting containers..."
 	@$(MAKE) up --no-print-directory 2>&1 | tail -1
 	@echo "3/4  Seeding databases..."
-	@sleep 5
+	@sleep 3
 	@$(MAKE) seed-all --no-print-directory
 	@echo "4/4  Verifying data..."
 	@$(MAKE) verify --no-print-directory

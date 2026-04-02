@@ -1391,9 +1391,7 @@
         "prop-title": "CSV Persistence Works!fsadfsdfaffsafsf1654513",
         "prop-status": "opt-done",
         "prop-priority": "pri-high",
-        "prop-tags": [
-          "tag-design"
-        ],
+        "prop-tags": "tag-design",
         "prop-assignee": "Alice",
         "prop-due": "2026-03-29T14:22:50.751Z",
         "prop-done": true,
@@ -1402,7 +1400,8 @@
         "prop-project": [
           "pj1",
           "pj4"
-        ]
+        ],
+        "prop-created": "2026-03-23T00:00:00Z"
       },
       "content": [
         {
@@ -1412,9 +1411,9 @@
         }
       ],
       "createdAt": "2026-03-23T15:22:50.751Z",
-      "updatedAt": "2026-04-02T15:03:21.584Z",
+      "updatedAt": "2026-04-02T16:40:39.820Z",
       "createdBy": "Alice",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "t2": {
       "id": "t2",
@@ -1424,9 +1423,7 @@
         "prop-title": "Implement View Engine",
         "prop-status": "opt-in-progress",
         "prop-priority": "pri-urgent",
-        "prop-tags": [
-          "tag-feature"
-        ],
+        "prop-tags": "tag-feature",
         "prop-assignee": "Bob",
         "prop-due": "2026-04-04T14:22:50.751Z",
         "prop-done": false,
@@ -1435,7 +1432,8 @@
         "prop-project": [
           "pj1",
           "pj6"
-        ]
+        ],
+        "prop-created": "2026-03-26T00:00:00Z"
       },
       "content": [
         {
@@ -1445,9 +1443,9 @@
         }
       ],
       "createdAt": "2026-03-26T15:22:50.751Z",
-      "updatedAt": "2026-04-02T15:03:27.532Z",
+      "updatedAt": "2026-04-02T16:40:39.820Z",
       "createdBy": "Bob",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "t3": {
       "id": "t3",
@@ -1455,26 +1453,25 @@
       "icon": "🐛",
       "properties": {
         "prop-title": "Fix Drag-and-Drop Bug",
-        "prop-status": "opt-todo",
-        "prop-priority": "pri-med",
-        "prop-tags": [
-          "tag-bug"
-        ],
+        "prop-status": "opt-review",
+        "prop-priority": "Medium",
+        "prop-tags": "Bug",
         "prop-assignee": "Charlie",
-        "prop-due": "2026-04-07T14:22:50.751Z",
+        "prop-due": "2026-04-07T00:00:00Z",
         "prop-done": false,
         "prop-points": 3,
         "prop-task-id": "TASK-3",
         "prop-project": [
           "pj4",
           "pj5"
-        ]
+        ],
+        "prop-created": "2026-03-30T00:00:00Z"
       },
       "content": [],
       "createdAt": "2026-03-30T14:22:50.751Z",
-      "updatedAt": "2026-03-30T14:22:50.751Z",
+      "updatedAt": "2026-04-02T16:40:49.333Z",
       "createdBy": "Charlie",
-      "lastEditedBy": "Charlie"
+      "lastEditedBy": "You"
     },
     "t4": {
       "id": "t4",
@@ -1482,26 +1479,25 @@
       "icon": "📖",
       "properties": {
         "prop-title": "Write API Documentation",
-        "prop-status": "opt-todo",
-        "prop-priority": "pri-low",
-        "prop-tags": [
-          "tag-docs"
-        ],
+        "prop-status": "opt-review",
+        "prop-priority": "Low",
+        "prop-tags": "Documentation",
         "prop-assignee": "Alice",
-        "prop-due": "2026-04-12T14:22:50.751Z",
+        "prop-due": "2026-04-12T00:00:00Z",
         "prop-done": false,
         "prop-points": 2,
         "prop-task-id": "TASK-4",
         "prop-project": [
           "pj2",
           "pj5"
-        ]
+        ],
+        "prop-created": "2026-03-31T00:00:00Z"
       },
       "content": [],
       "createdAt": "2026-03-31T14:22:50.751Z",
-      "updatedAt": "2026-03-31T14:22:50.751Z",
+      "updatedAt": "2026-04-02T16:40:49.338Z",
       "createdBy": "Alice",
-      "lastEditedBy": "Alice"
+      "lastEditedBy": "You"
     },
     "t5": {
       "id": "t5",
@@ -1509,25 +1505,24 @@
       "icon": "🚀",
       "properties": {
         "prop-title": "Deploy to Production",
-        "prop-status": "opt-blocked",
-        "prop-priority": "pri-high",
-        "prop-tags": [
-          "tag-infra"
-        ],
+        "prop-status": "opt-review",
+        "prop-priority": "High",
+        "prop-tags": "Infrastructure",
         "prop-assignee": "Bob",
-        "prop-due": "2026-04-09T14:22:50.751Z",
+        "prop-due": "2026-04-09T00:00:00Z",
         "prop-done": false,
         "prop-points": 8,
         "prop-task-id": "TASK-5",
         "prop-project": [
           "pj3"
-        ]
+        ],
+        "prop-created": "2026-04-01T00:00:00Z"
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-01T14:22:50.751Z",
+      "updatedAt": "2026-04-02T16:40:49.343Z",
       "createdBy": "Bob",
-      "lastEditedBy": "Bob"
+      "lastEditedBy": "You"
     },
     "t6": {
       "id": "t6",
@@ -1536,26 +1531,24 @@
       "properties": {
         "prop-title": "Write Integration Tests",
         "prop-status": "opt-review",
-        "prop-priority": "pri-med",
-        "prop-tags": [
-          "tag-feature",
-          "tag-infra"
-        ],
+        "prop-priority": "Medium",
+        "prop-tags": "Feature|Infrastructure",
         "prop-assignee": "Diana",
-        "prop-due": "2026-04-05T14:22:50.751Z",
+        "prop-due": "2026-04-05T00:00:00Z",
         "prop-done": false,
         "prop-points": 5,
         "prop-task-id": "TASK-6",
         "prop-project": [
           "pj3",
           "pj8"
-        ]
+        ],
+        "prop-created": "2026-03-28T00:00:00Z"
       },
       "content": [],
       "createdAt": "2026-03-28T15:22:50.751Z",
-      "updatedAt": "2026-04-02T14:22:50.751Z",
+      "updatedAt": "2026-04-02T16:40:49.349Z",
       "createdBy": "Diana",
-      "lastEditedBy": "Diana"
+      "lastEditedBy": "You"
     },
     "t7": {
       "id": "t7",
@@ -1563,26 +1556,25 @@
       "icon": "🎯",
       "properties": {
         "prop-title": "Performance Optimization",
-        "prop-status": "opt-in-progress",
-        "prop-priority": "pri-high",
-        "prop-tags": [
-          "tag-infra"
-        ],
+        "prop-status": "opt-review",
+        "prop-priority": "High",
+        "prop-tags": "Infrastructure",
         "prop-assignee": "Eve",
-        "prop-due": "2026-04-06T14:22:50.751Z",
+        "prop-due": "2026-04-06T00:00:00Z",
         "prop-done": false,
         "prop-points": 8,
         "prop-task-id": "TASK-7",
         "prop-project": [
           "pj1",
           "pj6"
-        ]
+        ],
+        "prop-created": "2026-03-29T00:00:00Z"
       },
       "content": [],
       "createdAt": "2026-03-29T14:22:50.751Z",
-      "updatedAt": "2026-04-02T14:22:50.751Z",
+      "updatedAt": "2026-04-02T16:40:49.354Z",
       "createdBy": "Eve",
-      "lastEditedBy": "Eve"
+      "lastEditedBy": "You"
     },
     "t8": {
       "id": "t8",
@@ -1590,26 +1582,25 @@
       "icon": "💅",
       "properties": {
         "prop-title": "UI Polish Pass",
-        "prop-status": "opt-todo",
-        "prop-priority": "pri-med",
-        "prop-tags": [
-          "tag-design"
-        ],
+        "prop-status": "opt-review",
+        "prop-priority": "Medium",
+        "prop-tags": "Design",
         "prop-assignee": "Alice",
-        "prop-due": "2026-04-10T14:22:50.751Z",
+        "prop-due": "2026-04-10T00:00:00Z",
         "prop-done": false,
         "prop-points": 3,
         "prop-task-id": "TASK-8",
         "prop-project": [
           "pj2",
           "pj4"
-        ]
+        ],
+        "prop-created": "2026-04-01T00:00:00Z"
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-01T14:22:50.751Z",
+      "updatedAt": "2026-04-02T16:40:49.360Z",
       "createdBy": "Alice",
-      "lastEditedBy": "Alice"
+      "lastEditedBy": "You"
     },
     "c1": {
       "id": "c1",
@@ -19264,78 +19255,118 @@
       "id": "65564e39-ddae-4726-8e83-4247adb1bff4",
       "databaseId": "db-tasks",
       "properties": {
-        "prop-title": "fasdfsa",
+        "prop-title": "",
         "prop-task-id": "TASK-9",
-        "prop-status": "opt-review"
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-due": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:46:41.890Z",
-      "updatedAt": "2026-04-02T15:51:20.542Z",
+      "updatedAt": "2026-04-02T16:40:56.343Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "01f65ed1-f2ff-4aef-ba5d-f0126e507614": {
       "id": "01f65ed1-f2ff-4aef-ba5d-f0126e507614",
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "",
-        "prop-task-id": "TASK-10"
+        "prop-task-id": "TASK-10",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-due": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:46.506Z",
-      "updatedAt": "2026-04-02T15:51:19.282Z",
+      "updatedAt": "2026-04-02T16:40:56.343Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670": {
       "id": "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670",
       "databaseId": "db-tasks",
       "properties": {
-        "prop-title": "afssdfsadf",
-        "prop-task-id": "TASK-11"
+        "prop-title": "",
+        "prop-task-id": "TASK-11",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-due": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:47.178Z",
-      "updatedAt": "2026-04-02T15:50:25.909Z",
+      "updatedAt": "2026-04-02T16:40:56.343Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "a5bb379f-8410-4cb8-8c0f-c8e22b673cd5": {
       "id": "a5bb379f-8410-4cb8-8c0f-c8e22b673cd5",
       "databaseId": "db-tasks",
       "properties": {
-        "prop-title": "fsafsadfsa",
-        "prop-task-id": "TASK-12"
+        "prop-title": "",
+        "prop-task-id": "TASK-12",
+        "prop-assignee": "",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-due": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:47.793Z",
-      "updatedAt": "2026-04-02T15:50:28.496Z",
+      "updatedAt": "2026-04-02T16:40:56.343Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "d493060f-9f13-4494-9f7a-70d37c96e707": {
       "id": "d493060f-9f13-4494-9f7a-70d37c96e707",
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "",
-        "prop-task-id": "TASK-13"
+        "prop-task-id": "TASK-13",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-due": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:48.611Z",
-      "updatedAt": "2026-04-02T15:50:52.468Z",
+      "updatedAt": "2026-04-02T16:40:56.344Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "2c33ad1f-d893-4f90-adfe-99d98edd78ea": {
       "id": "2c33ad1f-d893-4f90-adfe-99d98edd78ea",
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "fafdsaf",
-        "prop-task-id": "TASK-9"
+        "prop-task-id": "TASK-9",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:32.361Z",
-      "updatedAt": "2026-04-02T15:50:21.334Z",
+      "updatedAt": "2026-04-02T16:40:39.459Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19344,11 +19375,12 @@
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "fasfasdfs",
-        "prop-task-id": "TASK-10"
+        "prop-task-id": "TASK-10",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:42.331Z",
-      "updatedAt": "2026-04-02T15:50:19.606Z",
+      "updatedAt": "2026-04-02T16:40:39.465Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19357,11 +19389,12 @@
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "fasdfasdfds",
-        "prop-task-id": "TASK-11"
+        "prop-task-id": "TASK-11",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:58.546Z",
-      "updatedAt": "2026-04-02T15:50:17.261Z",
+      "updatedAt": "2026-04-02T16:40:39.508Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19370,11 +19403,12 @@
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "fssdfsadf",
-        "prop-task-id": "TASK-12"
+        "prop-task-id": "TASK-12",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:59.197Z",
-      "updatedAt": "2026-04-02T15:50:12.942Z",
+      "updatedAt": "2026-04-02T16:40:39.472Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19383,11 +19417,12 @@
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "gdfdffsdafs",
-        "prop-task-id": "TASK-13"
+        "prop-task-id": "TASK-13",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:59.759Z",
-      "updatedAt": "2026-04-02T15:50:11.368Z",
+      "updatedAt": "2026-04-02T16:40:39.478Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19396,11 +19431,12 @@
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "",
-        "prop-task-id": "TASK-14"
+        "prop-task-id": "TASK-14",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:50:51.957Z",
-      "updatedAt": "2026-04-02T15:50:51.957Z",
+      "updatedAt": "2026-04-02T16:40:39.486Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19409,11 +19445,12 @@
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "",
-        "prop-task-id": "TASK-15"
+        "prop-task-id": "TASK-15",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:50:54.705Z",
-      "updatedAt": "2026-04-02T15:50:54.705Z",
+      "updatedAt": "2026-04-02T16:40:39.494Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19422,11 +19459,12 @@
       "databaseId": "db-tasks",
       "properties": {
         "prop-title": "",
-        "prop-task-id": "TASK-9"
+        "prop-task-id": "TASK-9",
+        "prop-status": "opt-review"
       },
       "content": [],
       "createdAt": "2026-04-02T15:51:14.702Z",
-      "updatedAt": "2026-04-02T15:51:14.702Z",
+      "updatedAt": "2026-04-02T16:40:39.513Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },

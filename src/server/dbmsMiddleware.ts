@@ -25,6 +25,7 @@ import {
   dispatchAddColumn, dispatchDropColumn, dispatchChangeType,
   getQueryLog, clearQueryLog,
 } from './ops/index';
+import { validatePropertyValue } from '../store/validation';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
@@ -309,7 +310,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         const pageId = decodeURIComponent(pageMatch[1]);
         const body = await parseBody(req);
         const propertyId = body.propertyId as string;
-        const value = body.value;
+        let value = body.value;
 
         const state = readState(activeSource);
         const page = state.pages[pageId] as PageLike | undefined;
@@ -317,6 +318,21 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           res.writeHead(404);
           res.end(JSON.stringify({ error: `Page ${pageId} not found` }));
           return;
+        }
+
+        // Server-side validation & coercion
+        const dbId = page.databaseId;
+        const db = state.databases[dbId] as { properties: Record<string, { id: string; name: string; type: string; options?: { id: string; value: string; color: string }[]; relationConfig?: { databaseId: string } }> } | undefined;
+        const prop = db?.properties?.[propertyId];
+        if (prop) {
+          // Cast to SchemaProperty-compatible shape for validation
+          const vr = validatePropertyValue(value, prop as never, state.pages as never);
+          if (!vr.ok) {
+            res.writeHead(400);
+            res.end(JSON.stringify({ error: vr.reason }));
+            return;
+          }
+          value = vr.value;
         }
 
         // Update property
@@ -328,7 +344,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         writeState(activeSource, state);
 
         // Sync to flat entity files (JSON/CSV legacy)
-        const dbId = page.databaseId;
         const allFieldMaps = readFieldMap(activeSource);
         const fieldMap = allFieldMaps[dbId] ?? {};
         syncJsonEntity(activeSource, page, fieldMap);

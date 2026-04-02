@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 18:20:47 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 18:29:52 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ import { createPageSlice } from './slices/pageSlice';
 import { createViewSlice } from './slices/viewSlice';
 import { createSelectionSlice } from './slices/selectionSlice';
 import { createComputedSlice } from './slices/computedSlice';
+import { validatePropertyValue } from './validation';
 
 /** Extended state with DBMS loading capabilities. */
 interface DbmsExtras {
@@ -157,18 +158,33 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   ...createSelectionSlice(set),
   ...createComputedSlice(set, get),
 
-  // ─── Override updatePageProperty to add write-through persistence ──
+  // ─── Override updatePageProperty to add validation + write-through persistence ──
   updatePageProperty: (pageId: string, propertyId: string, value: unknown) => {
+    // 0) Validate & coerce against schema
+    const page = get().pages[pageId];
+    if (!page) return;
+    const db = get().databases[page.databaseId];
+    const prop = db?.properties[propertyId];
+    let coerced = value;
+    if (prop) {
+      const result = validatePropertyValue(value, prop, get().pages);
+      if (!result.ok) {
+        console.warn(`[validation] ${prop.name}: ${result.reason}`);
+        return; // reject invalid value silently
+      }
+      coerced = result.value;
+    }
+
     // 1) Update Zustand state (same logic as pageSlice)
     set((state) => {
-      const page = state.pages[pageId];
-      if (!page) return state;
+      const p = state.pages[pageId];
+      if (!p) return state;
       return {
         pages: {
           ...state.pages,
           [pageId]: {
-            ...page,
-            properties: { ...page.properties, [propertyId]: value },
+            ...p,
+            properties: { ...p.properties, [propertyId]: coerced },
             updatedAt: new Date().toISOString(),
             lastEditedBy: 'You',
           },
@@ -176,7 +192,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
       };
     });
     // 2) Persist to DBMS backend (fire-and-forget)
-    get().persistPageProperty(pageId, propertyId, value);
+    get().persistPageProperty(pageId, propertyId, coerced);
   },
 
   // ─── Override addPage: flush state + dispatch ops ──
