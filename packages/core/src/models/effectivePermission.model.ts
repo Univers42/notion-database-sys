@@ -1,4 +1,14 @@
-// ─── EffectivePermission model — materialized ABAC cache with TTL ───────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   effectivePermission.model.ts                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:04:47 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:04:49 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { Schema, model, type Document } from 'mongoose';
 import type { EffectivePermission } from '@notion-db/types';

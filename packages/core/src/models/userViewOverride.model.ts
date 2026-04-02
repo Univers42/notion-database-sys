@@ -1,4 +1,14 @@
-// ─── UserViewOverride model — per-user view customization ───────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   userViewOverride.model.ts                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:05:13 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:05:15 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { Schema, model, type Document } from 'mongoose';
 import type { UserViewOverride } from '@notion-db/types';

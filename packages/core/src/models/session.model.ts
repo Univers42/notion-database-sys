@@ -1,4 +1,14 @@
-// ─── Session model — JWT refresh tokens with TTL ────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   session.model.ts                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:05:05 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:05:06 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { Schema, model, type Document } from 'mongoose';
 import type { Session } from '@notion-db/types';

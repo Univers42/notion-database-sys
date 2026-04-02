@@ -1,4 +1,15 @@
-// ─── Block model ────────────────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   block.model.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:04:40 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:04:44 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Blocks stored as standalone documents — avoids 16MB BSON limit.
 // Tree structure via parentBlockId. Ordering via fractional index string.
 

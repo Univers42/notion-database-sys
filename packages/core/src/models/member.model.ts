@@ -1,4 +1,14 @@
-// ─── WorkspaceMember model ───────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   member.model.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:04:55 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:04:56 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { Schema, model, type Document } from 'mongoose';
 import type { WorkspaceMember } from '@notion-db/types';
