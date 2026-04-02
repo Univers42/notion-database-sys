@@ -6,14 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:04 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Numeric aggregation and grouping utilities
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/** Standard descriptive statistics for a numeric array. */
 export interface NumericAgg {
   sum: number;
   count: number;
@@ -23,7 +20,15 @@ export interface NumericAgg {
   median: number;
 }
 
-/** Computes standard descriptive statistics for a numeric array */
+/**
+ * Computes standard descriptive statistics for a numeric array.
+ *
+ * Returns zeroed stats for empty arrays. Median uses the sorted mid-point
+ * for odd counts and the average of the two middle values for even counts.
+ *
+ * @param values - Array of numbers to aggregate.
+ * @returns Object with sum, count, min, max, average, and median.
+ */
 export function aggregateNumbers(values: readonly number[]): NumericAgg {
   if (values.length === 0) {
     return { sum: 0, count: 0, min: 0, max: 0, average: 0, median: 0 };
@@ -45,7 +50,11 @@ export function aggregateNumbers(values: readonly number[]): NumericAgg {
   };
 }
 
-/** Counts occurrences of each string value */
+/**
+ * Counts occurrences of each string value in an array.
+ *
+ * @returns Record mapping each unique string to its occurrence count.
+ */
 export function countByValue(values: readonly string[]): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const v of values) {
@@ -54,7 +63,13 @@ export function countByValue(values: readonly string[]): Record<string, number> 
   return counts;
 }
 
-/** Groups an array of items by the result of a key function */
+/**
+ * Groups an array of items by the result of a key function.
+ *
+ * @param items - Items to group.
+ * @param keyFn - Function that returns the grouping key for each item.
+ * @returns Record mapping each key to its array of items.
+ */
 export function groupBy<T>(
   items: readonly T[],
   keyFn: (item: T) => string,

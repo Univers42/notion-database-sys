@@ -6,15 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:15:50 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Centralized color constants — chart palettes, stat badges, cover gradients
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/** Chart color palette — CSS custom properties, supports light/dark via tokens */
+/** Chart color palette — CSS custom properties, supports light/dark via tokens. */
 export const CHART_COLORS: readonly string[] = [
   'var(--color-chart-1)',
   'var(--color-chart-2)',
@@ -28,12 +24,12 @@ export const CHART_COLORS: readonly string[] = [
   'var(--color-chart-10)',
 ] as const;
 
-/** Cycles through chart colors by index */
+/** Cycles through chart colors by index, wrapping at 10. */
 export function chartColor(index: number): string {
   return CHART_COLORS[index % CHART_COLORS.length];
 }
 
-/** Tailwind background+text class pairs for semantic stat/badge colors */
+/** Tailwind background+text class pairs for semantic stat/badge colors. */
 export const STAT_BG: Readonly<Record<string, string>> = {
   blue:   'bg-accent-soft text-accent-text-light',
   purple: 'bg-purple-surface text-purple-text',
@@ -46,14 +42,22 @@ export const STAT_BG: Readonly<Record<string, string>> = {
 } as const;
 
 /**
- * Ordered stat color cycle — for components that need sequential color assignment
- * without semantic meaning (e.g. KPI card grids)
+ * Ordered stat color cycle for components that need sequential color
+ * assignment without semantic meaning (e.g. KPI card grids).
  */
 export const STAT_COLOR_CYCLE: ReadonlyArray<keyof typeof STAT_BG> = [
   'blue', 'purple', 'green', 'amber', 'pink', 'cyan',
 ] as const;
 
-/** Maps a Tailwind color token string to a Tailwind dot-indicator class */
+/**
+ * Maps a Tailwind color token string to a dot-indicator background class.
+ *
+ * Matches against color keywords in the input string (e.g. "green-500"
+ * maps to `bg-success`). Falls back to `bg-surface-strong` for unknown colors.
+ *
+ * @param optColor - A Tailwind color class string to inspect.
+ * @returns A single Tailwind `bg-*` class name.
+ */
 export function getDotColor(optColor: string): string {
   if (optColor.includes('green'))  return 'bg-success';
   if (optColor.includes('blue'))   return 'bg-accent';
@@ -67,8 +71,8 @@ export function getDotColor(optColor: string): string {
 }
 
 /**
- * Cover gradient classes for cards — used in BoardView and GalleryView.
- * Order is intentional; cycle with index % CARD_COVER_GRADIENTS.length
+ * Cover gradient classes for cards, used by BoardView and GalleryView.
+ * Cycle with `index % CARD_COVER_GRADIENTS.length`.
  */
 export const CARD_COVER_GRADIENTS: readonly string[] = [
   'bg-gradient-to-br from-gradient-blue-from to-gradient-blue-to',
@@ -79,7 +83,7 @@ export const CARD_COVER_GRADIENTS: readonly string[] = [
   'bg-gradient-to-br from-gradient-cyan-from to-gradient-cyan-to',
 ] as const;
 
-/** Returns the cover gradient class for a given card index */
+/** Returns the cover gradient class for a given card index, wrapping cyclically. */
 export function cardCoverGradient(index: number): string {
   return CARD_COVER_GRADIENTS[index % CARD_COVER_GRADIENTS.length];
 }

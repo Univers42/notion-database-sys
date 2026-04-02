@@ -6,15 +6,30 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:15:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SVG path utilities — donut slices, arc paths, progress rings
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/** Builds an SVG arc path for a donut/pie slice */
+/**
+ * Builds an SVG arc path string for a single donut or pie slice.
+ *
+ * Angles follow the SVG/canvas convention: 0 = right, values increase
+ * clockwise. Start at `-Math.PI / 2` for a 12-o'clock origin.
+ * When `innerR` is 0, produces a pie wedge (M center L start-arc Z).
+ * When `innerR` > 0, produces a donut slice (outer arc + inner arc reversed).
+ *
+ * @param params.cx         - Center X coordinate.
+ * @param params.cy         - Center Y coordinate.
+ * @param params.outerR     - Outer radius in SVG units.
+ * @param params.innerR     - Inner radius. Pass 0 for a solid pie slice.
+ * @param params.startAngle - Start angle in radians.
+ * @param params.endAngle   - End angle in radians. Must be > startAngle.
+ * @returns SVG path `d` attribute string.
+ *
+ * @example
+ * const d = donutSlicePath({ cx: 50, cy: 50, outerR: 40, innerR: 25,
+ *   startAngle: -Math.PI / 2, endAngle: 0 });
+ */
 export function donutSlicePath(params: {
   cx: number;
   cy: number;
@@ -40,7 +55,17 @@ export function donutSlicePath(params: {
   return `M ${sx} ${sy} A ${outerR} ${outerR} 0 ${large} 1 ${ex} ${ey} L ${ix} ${iy} A ${innerR} ${innerR} 0 ${large} 0 ${is_} ${isY} Z`;
 }
 
-/** Computes cumulative start angles for a sequence of donut slices */
+/**
+ * Computes cumulative arc slices for a sequence of values.
+ *
+ * Each slice gets a start/end angle proportional to its share of the total.
+ * Useful for building donut or pie charts from raw data.
+ *
+ * @param values      - Array of numeric values (one per slice).
+ * @param total       - Sum of all values (denominator for percentage).
+ * @param startOffset - Angle offset in radians. Default `-π/2` (12 o'clock).
+ * @returns Array of `{ startAngle, endAngle, pct }` for each slice.
+ */
 export function computeDonutSlices(
   values: readonly number[],
   total: number,
@@ -57,7 +82,13 @@ export function computeDonutSlices(
   return slices;
 }
 
-/** Builds a circular stroke-dasharray pair for a progress ring */
+/**
+ * Builds stroke-dasharray parameters for a circular progress ring.
+ *
+ * @param radius - Ring radius in SVG units.
+ * @param pct    - Fill percentage (0–100).
+ * @returns Object with `dashArray`, `dashOffset`, and `circumference`.
+ */
 export function progressRingDash(
   radius: number,
   pct: number,

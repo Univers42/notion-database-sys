@@ -6,16 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Centralized rollup function metadata
-// ═══════════════════════════════════════════════════════════════════════════════
-
 import type { RollupFunction } from '../types/database';
 
+/** Metadata for a single rollup aggregation function. */
 export interface RollupFunctionMeta {
   value: RollupFunction;
   label: string;
@@ -40,7 +37,7 @@ export const ROLLUP_FUNCTIONS: readonly RollupFunctionMeta[] = [
   { value: 'range',               label: 'Range',                group: 'Math' },
 ] as const;
 
-/** Returns functions grouped by their group key */
+/** Returns rollup functions organized by their group key (Show, Count, Percent, Math). */
 export function groupedRollupFunctions(): Record<string, readonly RollupFunctionMeta[]> {
   const groups: Record<string, RollupFunctionMeta[]> = {};
   for (const fn of ROLLUP_FUNCTIONS) {
@@ -50,7 +47,7 @@ export function groupedRollupFunctions(): Record<string, readonly RollupFunction
   return groups;
 }
 
-/** Finds the label for a given rollup function value */
+/** Returns the human-readable label for a rollup function value, defaulting to "Show original". */
 export function getRollupLabel(value: RollupFunction): string {
   return ROLLUP_FUNCTIONS.find(f => f.value === value)?.label ?? 'Show original';
 }

@@ -6,25 +6,32 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:15:55 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Centralized formatting utilities — numbers, dates, cell display, SVG paths
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { format, parseISO, isValid } from 'date-fns';
 import type { SchemaProperty, PropertyValue } from '../types/database';
 
-/** Compact human-readable number: 1400000 → "1.4M", 12000 → "12K" */
+/**
+ * Formats a number into a compact human-readable string.
+ *
+ * @example
+ * formatNumber(1400000) // => "1.4M"
+ * formatNumber(12000)   // => "12.0K"
+ * formatNumber(999)     // => "999"
+ */
 export function formatNumber(val: number): string {
   if (Math.abs(val) >= 1_000_000) return `${(val / 1_000_000).toFixed(1)}M`;
   if (Math.abs(val) >= 10_000)   return `${(val / 1_000).toFixed(1)}K`;
   return val.toLocaleString();
 }
 
-/** Full date+time display: "Jan 5, 2026 3:42 PM" */
+/**
+ * Formats an ISO string or Date into full date+time display.
+ *
+ * @returns Formatted string like "Jan 5, 2026 3:42 PM", or "—" on failure.
+ */
 export function formatDateTime(isoOrDate: string | Date | undefined): string {
   if (!isoOrDate) return '—';
   try {
@@ -36,7 +43,11 @@ export function formatDateTime(isoOrDate: string | Date | undefined): string {
   }
 }
 
-/** Short date display: "Jan 5, 2026" */
+/**
+ * Formats an ISO string or Date into short date display.
+ *
+ * @returns Formatted string like "Jan 5, 2026", or "—" on failure.
+ */
 export function formatDate(isoOrDate: string | Date | undefined): string {
   if (!isoOrDate) return '—';
   try {
@@ -48,7 +59,11 @@ export function formatDate(isoOrDate: string | Date | undefined): string {
   }
 }
 
-/** Compact date: "Jan 5" */
+/**
+ * Formats an ISO string or Date into compact month+day.
+ *
+ * @returns Formatted string like "Jan 5", or empty string on failure.
+ */
 export function formatShortDate(isoOrDate: string | Date | undefined): string {
   if (!isoOrDate) return '';
   try {
@@ -61,8 +76,15 @@ export function formatShortDate(isoOrDate: string | Date | undefined): string {
 }
 
 /**
- * Display a property value as a human-readable string.
- * Used by dashboard table widgets and any context needing a plain-text cell value.
+ * Renders a property value as a plain-text string suitable for display.
+ *
+ * Handles type-specific formatting: numbers get `toLocaleString()`,
+ * selects resolve to their label via `prop.options`, dates use `formatDate`,
+ * checkboxes become "✓" or "—". Falls back to `String(val)` for unknown types.
+ *
+ * @param val  - The raw property value from a page's properties map.
+ * @param prop - The schema definition for this property (provides type and options).
+ * @returns Human-readable string, or "—" for empty/null values.
  */
 export function formatCellValue(val: PropertyValue, prop: SchemaProperty): string {
   if (val === undefined || val === null || val === '') return '—';
@@ -78,8 +100,14 @@ export function formatCellValue(val: PropertyValue, prop: SchemaProperty): strin
 }
 
 /**
- * Catmull-Rom spline → cubic Bézier SVG path string.
- * Pure function: no DOM access. Used by all SVG chart components.
+ * Converts a point sequence into a smooth cubic Bézier SVG path string
+ * via Catmull-Rom spline interpolation.
+ *
+ * Pure function with no DOM access. The control points are derived from
+ * neighboring points using 1/6 tangent scaling for natural curvature.
+ *
+ * @param pts - Ordered array of {x, y} points. Needs >= 2 for a valid path.
+ * @returns SVG path `d` attribute string, or empty string if fewer than 2 points.
  */
 export function smoothLine(pts: ReadonlyArray<{ x: number; y: number }>): string {
   if (pts.length < 2) return '';

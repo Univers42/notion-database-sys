@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Centralized z-index layers, panel widths, and viewport clamping utilities
-// ═══════════════════════════════════════════════════════════════════════════════
 
 /** Application z-index layer system — all z values must come from here */
 export const Z = {
@@ -52,7 +48,15 @@ export const PANEL_WIDTH = {
   RELATION_MAX: 560,
 } as const;
 
-/** Clamps a panel position so it stays within the visible viewport */
+/**
+ * Clamps a panel position so it stays within the visible viewport.
+ *
+ * @param top         - Desired top offset in CSS pixels.
+ * @param left        - Desired left offset in CSS pixels.
+ * @param panelHeight - Expected panel height for bottom-edge clamping. Default 400.
+ * @param panelWidth  - Expected panel width for right-edge clamping.
+ * @returns `{ top, left }` clamped to the current window dimensions.
+ */
 export function clampPanelPosition(
   top: number,
   left: number,
@@ -65,7 +69,14 @@ export function clampPanelPosition(
   };
 }
 
-/** Returns an absolute panel position below an anchor element */
+/**
+ * Positions a panel below an anchor rect, clamped to the viewport.
+ *
+ * @param anchorRect - Bounding rect of the element the panel anchors to.
+ * @param panelWidth - Expected panel width for right-edge clamping.
+ * @param gap        - Vertical gap between anchor bottom and panel top. Default 4.
+ * @returns `{ top, left }` in viewport-relative CSS pixels.
+ */
 export function positionBelowAnchor(
   anchorRect: DOMRect,
   panelWidth = PANEL_WIDTH.NARROW,

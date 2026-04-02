@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:15:34 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Centralized property type → icon mappings (pure data, no React)
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import type { PropertyType } from '../types/database';
 
@@ -50,7 +46,11 @@ export const PROPERTY_ICON_NAMES: Readonly<Record<PropertyType, string>> = {
   custom:          'identification-badge',
 } as const;
 
-/** Returns the icon name for a property type, falling back to 'document' */
+/**
+ * Returns the icon name for a property type, falling back to 'document'.
+ *
+ * @param type - Property type string (e.g. 'select', 'number').
+ */
 export function getPropertyIconName(type: PropertyType | string): string {
   return (PROPERTY_ICON_NAMES as Record<string, string>)[type] ?? 'document';
 }
