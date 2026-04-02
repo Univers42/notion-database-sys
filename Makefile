@@ -1,7 +1,3 @@
-.PHONY: help up down restart re logs pull db-up db-down db-reset db-status \
-	seed-pg seed-mongo seed-all seed-state psql mongo-shell \
-	build-rust check-rust dev clean verify smoke-test
-
 SHELL := /bin/bash
 -include .env
 export
@@ -11,25 +7,25 @@ GREEN := \033[32m
 RED   := \033[31m
 RESET := \033[0m
 
-help: ## Show this help
+help:
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "$(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
 
-pull: ## Pull stock images (one-time, cached after)
+pull:
 	@docker compose pull --quiet
 	@echo -e "$(GREEN)✔ Images pulled$(RESET)"
 
-up: ## Start containers (zero-build, stock images)
+up:
 	docker compose up -d
 	@echo -e "$(GREEN)✔ Containers up$(RESET)"
 
-down: ## Stop all containers
+down:
 	docker compose down
 	@echo -e "$(GREEN)✔ Containers down$(RESET)"
 
-restart: down up ## Restart containers
+restart: down up
 
-re: ## Full reset: pull latest images, wipe volumes, start fresh, seed all
+re:
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
 	@echo "1/4  Pulling latest images..."
 	@docker compose pull --quiet
@@ -42,19 +38,19 @@ re: ## Full reset: pull latest images, wipe volumes, start fresh, seed all
 	@$(MAKE) seed-all --no-print-directory
 	@echo -e "$(GREEN)══ Full restart complete — both DBs seeded and ready ══$(RESET)"
 
-logs: ## Tail container logs
+logs:
 	docker compose logs -f --tail=50
 
-db-up: up ## Alias for up
+db-up: up
 
-db-down: down ## Alias for down
+db-down: down
 
-db-reset: ## Destroy volumes and recreate (fresh DB)
+db-reset:
 	docker compose down -v
 	docker compose up -d
 	@echo -e "$(GREEN)✔ Volumes destroyed, containers recreated$(RESET)"
 
-db-status: ## Show container status + health
+db-status:
 	@docker compose ps
 	@echo ""
 	@echo "PostgreSQL:"
@@ -66,9 +62,9 @@ db-status: ## Show container status + health
 		&& echo -e "  $(GREEN)✔ Accepting connections$(RESET)" \
 		|| echo -e "  $(RED)✘ Not ready$(RESET)"
 
-status: db-status ## Alias for db-status
+status: db-status
 
-seed-pg: ## Seed PostgreSQL from SQL files
+seed-pg:
 	@echo "Waiting for PostgreSQL..."
 	@until docker compose exec -T postgres pg_isready -U $${POSTGRES_USER:-notion_user} > /dev/null 2>&1; do sleep 0.5; done
 	docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
@@ -77,7 +73,7 @@ seed-pg: ## Seed PostgreSQL from SQL files
 		-f /docker-entrypoint-initdb.d/002_seed.sql
 	@echo -e "$(GREEN)✔ PostgreSQL seeded$(RESET)"
 
-seed-mongo: ## Seed MongoDB from JSON seed files
+seed-mongo:
 	@echo "Waiting for MongoDB..."
 	@until docker compose exec -T mongodb mongosh --quiet --eval "db.adminCommand('ping')" > /dev/null 2>&1; do sleep 0.5; done
 	@for f in src/store/dbms/mongodb/*.seed.json; do \
@@ -89,12 +85,12 @@ seed-mongo: ## Seed MongoDB from JSON seed files
 	done
 	@echo -e "$(GREEN)✔ MongoDB seeded$(RESET)"
 
-seed-all: seed-pg seed-mongo ## Seed all databases
+seed-all: seed-pg seed-mongo
 
-seed-state: ## Generate _notion_state.json for each DBMS source
+seed-state:
 	@npx tsx scripts/generate-state-files.ts
 
-verify-pg: ## Verify PostgreSQL has data in all tables
+verify-pg:
 	@echo "── PostgreSQL table counts ──"
 	@for tbl in tasks contacts content inventory projects products; do \
 		count=$$(docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
@@ -102,22 +98,22 @@ verify-pg: ## Verify PostgreSQL has data in all tables
 		printf "  %-12s %s rows\n" "$$tbl" "$$count"; \
 	done
 
-verify-mongo: ## Verify MongoDB has data in all collections
+verify-mongo:
 	@echo "── MongoDB collection counts ──"
 	@docker compose exec -T mongodb mongosh --quiet \
 		"mongodb://$${MONGO_USER:-notion_user}:$${MONGO_PASSWORD:-notion_pass}@localhost:27017/$${MONGO_DB:-notion_db}?authSource=admin" \
 		--eval 'db.getCollectionNames().filter(function(c){return c.indexOf("system")!==0}).forEach(function(c){print("  "+c+"  "+db[c].countDocuments()+" docs")})'
 
-verify: verify-pg verify-mongo ## Verify data in both databases
+verify: verify-pg verify-mongo
 
-psql: ## Open PostgreSQL shell
+psql:
 	docker compose exec postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}
 
-mongo-shell: ## Open MongoDB shell
+mongo-shell:
 	docker compose exec mongodb mongosh \
 		"mongodb://$${MONGO_USER:-notion_user}:$${MONGO_PASSWORD:-notion_pass}@localhost:27017/$${MONGO_DB:-notion_db}?authSource=admin"
 
-smoke-test: ## End-to-end: pull, up, seed, verify
+smoke-test:
 	@echo -e "$(CYAN)══ Smoke Test ══$(RESET)"
 	@echo "1/4  Pulling images..."
 	@$(MAKE) pull --no-print-directory 2>&1 | tail -1
@@ -133,25 +129,29 @@ smoke-test: ## End-to-end: pull, up, seed, verify
 
 RUST_CRATES := src/lib/rust/json_writer src/lib/rust/csv_writer
 
-build-rust: ## Build Rust utilities (release)
+build-rust:
 	@for crate in $(RUST_CRATES); do \
 		echo "Building $$crate..."; \
 		(cd "$$crate" && cargo build --release) || exit 1; \
 	done
 	@echo -e "$(GREEN)✔ Rust crates built$(RESET)"
 
-check-rust: ## Type-check Rust utilities
+check-rust:
 	@for crate in $(RUST_CRATES); do \
 		echo "Checking $$crate..."; \
 		(cd "$$crate" && cargo check) || exit 1; \
 	done
 	@echo -e "$(GREEN)✔ Rust crates ok$(RESET)"
 
-dev: ## Start Vite dev server
+dev:
 	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
 	npm run dev
 
-clean: ## Remove build artifacts, node_modules, Docker volumes
+clean:
 	docker compose down -v 2>/dev/null || true
 	rm -rf node_modules dist .vite
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
+
+.PHONY: help up down restart re logs pull db-up db-down db-reset db-status \
+	seed-pg seed-mongo seed-all seed-state psql mongo-shell \
+	build-rust check-rust dev clean verify smoke-test
