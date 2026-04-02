@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
           if (!id.includes('d3-dsv') && !id.includes('chunk-')) return null;
           if (!code.includes('new Function("d"')) return null;
           return code.replace(
-            /return new Function\("d", "return \{" \+ columns\.map\(function\(name, i\) \{\s*return JSON\.stringify\(name\) \+ ": d\[" \+ i \+ "\] \|\| \\\"\\\"";[\s\S]*?\}\)\.join\(","\) \+ "\}"\);/,
+            /return new Function\("d", "return \{" \+ columns\.map\(function\(name, i\) \{\s*return JSON\.stringify\(name\) \+ ": d\[" \+ i \+ "\] \|\| \\"\\"";\[\s\S]*?\}\)\.join\(","\) \+ "\}"\);/,
             `return function(d) { var o = {}; columns.forEach(function(name, i) { o[name] = d[i] || ""; }); return o; };`,
           );
         },
