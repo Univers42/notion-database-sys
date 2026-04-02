@@ -6,15 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:56 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:43:57 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ─── views — view type, config, settings, and dashboard widget types ────────
-
 import type { Filter, Sort, Grouping, SubGrouping } from './filters';
 
-// ─── VIEW TYPE ───────────────────────────────────────────────────────────────
 
 export type ViewType =
   | 'table'
@@ -28,7 +25,6 @@ export type ViewType =
   | 'map'
   | 'dashboard';
 
-// ─── DASHBOARD WIDGETS ───────────────────────────────────────────────────────
 
 export interface DashboardWidget {
   id: string;
@@ -41,7 +37,6 @@ export interface DashboardWidget {
   height: 1 | 2;
 }
 
-// ─── VIEW SETTINGS ───────────────────────────────────────────────────────────
 
 export interface ViewSettings {
   icon?: string;
@@ -116,8 +111,7 @@ export interface ViewSettings {
   relationAnalytics?: boolean;
 }
 
-// ─── VIEW CONFIG ─────────────────────────────────────────────────────────────
-
+/** Complete configuration for a database view. */
 export interface ViewConfig {
   id: string;
   databaseId: string;

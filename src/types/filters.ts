@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:19:59 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:43:51 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ─── filters — filter, sort, and grouping type definitions ──────────────────
-
-// ─── FILTER OPERATORS ────────────────────────────────────────────────────────
 
 export type FilterOperator =
   | 'equals'
@@ -36,6 +32,7 @@ export type FilterOperator =
   | 'is_checked'
   | 'is_not_checked';
 
+/** Represents a single filter condition on a property. */
 export interface Filter {
   id: string;
   propertyId: string;
@@ -43,7 +40,6 @@ export interface Filter {
   value: unknown;
 }
 
-// ─── SORT ────────────────────────────────────────────────────────────────────
 
 export interface Sort {
   id: string;
@@ -51,7 +47,6 @@ export interface Sort {
   direction: 'asc' | 'desc';
 }
 
-// ─── GROUPING ────────────────────────────────────────────────────────────────
 
 export interface Grouping {
   propertyId: string;

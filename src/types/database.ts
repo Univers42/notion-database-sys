@@ -6,11 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:40:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 20:02:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// Database core type definitions
 
 /**
  * Heterogeneous property value — covers every property type stored in a Page.
