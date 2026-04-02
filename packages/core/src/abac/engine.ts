@@ -1,4 +1,14 @@
-// ─── ABAC Engine — permission evaluation with materialized cache ────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   engine.ts                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:04:16 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:04:18 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { PermissionLevel, ObjectId } from '@notion-db/types';
 import { AccessRuleModel } from '../models/accessRule.model';
@@ -74,7 +84,7 @@ export class AbacEngine {
     userId: ObjectId,
     workspaceId: ObjectId,
     resourceId: ObjectId,
-    resourceType: 'workspace' | 'page' | 'database' | 'block',
+    _resourceType: 'workspace' | 'page' | 'database' | 'block',
   ): Promise<PermissionLevel> {
     // Get the user's workspace role
     const member = await WorkspaceMemberModel.findOne({
