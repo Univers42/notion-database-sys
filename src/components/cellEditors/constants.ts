@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:56 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:57 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 12:36:09 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,3 +43,4 @@ export function getDotColor(optColor: string): string {
   if (optColor.includes('cyan') || optColor.includes('teal')) return 'bg-cyan';
   return 'bg-surface-strong';
 }
+

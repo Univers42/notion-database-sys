@@ -21,7 +21,7 @@ export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
       <div className="py-1 px-1">
         <ActionButton
           icon={<Fingerprint className="w-3.5 h-3.5" />}
-          label={showIdConfig ? 'Close ID format' : 'Edit ID format'}
+          label={showIdConfig ? 'Close ID format' : 'Edit ID format'};
           onClick={() => setShowIdConfig(!showIdConfig)}
         />
       </div>
@@ -86,3 +86,4 @@ export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
     </>
   );
 }
+
