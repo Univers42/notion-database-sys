@@ -19,14 +19,14 @@ export class PostgresOps implements DbmsAdapter {
     logQuery('postgresql', 'INSERT', table, query, 1);
     const placeholders = vals.map((_, i) => `$${i + 1}`).join(', ');
     const liveSQL = `INSERT INTO ${sqlId(table)} (${cols.map(sqlId).join(', ')}) VALUES (${placeholders}) ON CONFLICT (id) DO NOTHING`;
-    pgQuery(liveSQL, vals).catch(() => {});
+    pgQuery(liveSQL, vals).catch((e) => console.error('[pg] INSERT error:', e));
     return { query, executed: true, affected: 1 };
   }
 
   deleteRecord(table: string, flatId: string): QueryResult {
     const query = `DELETE FROM ${sqlId(table)} WHERE ${sqlId('id')} = ${sqlLit(flatId)};`;
     logQuery('postgresql', 'DELETE', table, query, 1);
-    pgQuery(`DELETE FROM ${sqlId(table)} WHERE id = $1`, [flatId]).catch(() => {});
+    pgQuery(`DELETE FROM ${sqlId(table)} WHERE id = $1`, [flatId]).catch((e) => console.error('[pg] DELETE error:', e));
     return { query, executed: true, affected: 1 };
   }
 
@@ -42,7 +42,7 @@ export class PostgresOps implements DbmsAdapter {
     pgQuery(
       `UPDATE ${sqlId(table)} SET ${sqlId(fieldName)} = $1, updated_at = NOW(), last_edited_by = 'app' WHERE id = $2`,
       [value, flatId],
-    ).catch(() => {});
+    ).catch((e) => console.error('[pg] UPDATE error:', e));
     return { query, executed: true, affected: 1 };
   }
 
@@ -50,14 +50,14 @@ export class PostgresOps implements DbmsAdapter {
     const sqlType = PROP_TO_SQL[propType] ?? 'TEXT';
     const query = `ALTER TABLE ${sqlId(table)} ADD COLUMN ${sqlId(columnName)} ${sqlType};`;
     logQuery('postgresql', 'ADD_COLUMN', table, query, 0);
-    pgQuery(`ALTER TABLE ${sqlId(table)} ADD COLUMN IF NOT EXISTS ${sqlId(columnName)} ${sqlType}`).catch(() => {});
+    pgQuery(`ALTER TABLE ${sqlId(table)} ADD COLUMN IF NOT EXISTS ${sqlId(columnName)} ${sqlType}`).catch((e) => console.error('[pg] ADD_COLUMN error:', e));
     return { query, executed: true, affected: 0 };
   }
 
   removeColumn(table: string, columnName: string): QueryResult {
     const query = `ALTER TABLE ${sqlId(table)} DROP COLUMN IF EXISTS ${sqlId(columnName)};`;
     logQuery('postgresql', 'DROP_COLUMN', table, query, 0);
-    pgQuery(`ALTER TABLE ${sqlId(table)} DROP COLUMN IF EXISTS ${sqlId(columnName)}`).catch(() => {});
+    pgQuery(`ALTER TABLE ${sqlId(table)} DROP COLUMN IF EXISTS ${sqlId(columnName)}`).catch((e) => console.error('[pg] DROP_COLUMN error:', e));
     return { query, executed: true, affected: 0 };
   }
 
@@ -70,7 +70,7 @@ export class PostgresOps implements DbmsAdapter {
       `USING ${sqlId(columnName)}::${pureType};`,
     ].join('\n');
     logQuery('postgresql', 'ALTER_TYPE', table, query, 0);
-    pgQuery(`ALTER TABLE ${sqlId(table)} ALTER COLUMN ${sqlId(columnName)} TYPE ${pureType} USING ${sqlId(columnName)}::${pureType}`).catch(() => {});
+    pgQuery(`ALTER TABLE ${sqlId(table)} ALTER COLUMN ${sqlId(columnName)} TYPE ${pureType} USING ${sqlId(columnName)}::${pureType}`).catch((e) => console.error('[pg] ALTER_TYPE error:', e));
     return { query, executed: true, affected: 0 };
   }
 }

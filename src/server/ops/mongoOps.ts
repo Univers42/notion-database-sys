@@ -18,14 +18,14 @@ export class MongoOps implements DbmsAdapter {
     const docStr = JSON.stringify(doc, null, 2);
     const query = `db.${table}.insertOne(${docStr})`;
     logQuery('mongodb', 'INSERT', table, query, 1);
-    mongoInsert(table, doc).catch(() => {});
+    mongoInsert(table, doc).catch((e) => console.error('[mongo] INSERT error:', e));
     return { query, executed: true, affected: 1 };
   }
 
   deleteRecord(table: string, flatId: string): QueryResult {
     const query = `db.${table}.deleteOne({ _id: ${mongoLit(flatId)} })`;
     logQuery('mongodb', 'DELETE', table, query, 1);
-    mongoDelete(table, flatId).catch(() => {});
+    mongoDelete(table, flatId).catch((e) => console.error('[mongo] DELETE error:', e));
     return { query, executed: true, affected: 1 };
   }
 
@@ -37,7 +37,7 @@ export class MongoOps implements DbmsAdapter {
       `)`,
     ].join('\n');
     logQuery('mongodb', 'UPDATE', table, query, 1);
-    mongoUpdate(table, flatId, { [fieldName]: value }).catch(() => {});
+    mongoUpdate(table, flatId, { [fieldName]: value }).catch((e) => console.error('[mongo] UPDATE error:', e));
     return { query, executed: true, affected: 1 };
   }
 

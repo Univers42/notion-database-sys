@@ -386,11 +386,10 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         const fieldMap = allFieldMaps[dbId] ?? {};
 
         if (isLiveDbSource(activeSource)) {
-          // Live DB source: execute query directly, do NOT write state file
-          const flatId = resolveFlatId(page, fieldMap);
+          // Live DB source: use page.id as the DB primary key (NOT display ID)
           const fieldName = fieldMap[propertyId];
-          if (flatId && fieldName) {
-            dispatchUpdate(activeSource, dbId, flatId, fieldName, value, fieldMap);
+          if (fieldName) {
+            dispatchUpdate(activeSource, dbId, page.id, fieldName, value, fieldMap);
           }
         } else {
           // File-based source: persist state + sync flat files
@@ -424,7 +423,8 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         const flatRecord: Record<string, unknown> = {};
         for (const [propId, fieldName] of Object.entries(fieldMap)) {
           if (fieldName === 'id') {
-            flatRecord.id = properties[propId] ?? pageId;
+            // Live DB: id column = page primary key, not display value
+            flatRecord.id = isLiveDbSource(activeSource) ? pageId : (properties[propId] ?? pageId);
           } else {
             flatRecord[fieldName] = properties[propId] ?? null;
           }
@@ -471,7 +471,8 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         const dbId = page.databaseId;
         const allFieldMaps = readFieldMap(activeSource);
         const fieldMap = allFieldMaps[dbId] ?? {};
-        const flatId = resolveFlatId(page, fieldMap);
+        // Live DB: use page.id as the DB primary key
+        const flatId = isLiveDbSource(activeSource) ? pageId : resolveFlatId(page, fieldMap);
 
         // Remove from state
         delete state.pages[pageId];

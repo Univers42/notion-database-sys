@@ -15,9 +15,9 @@ function invertMap(fm: Record<string, string>): Record<string, string> {
   return inv;
 }
 
-/** Page-level metadata columns that live outside `properties`. */
+/** Columns that live outside `properties` (metadata + primary key). */
 const META_COLS = new Set([
-  'icon', 'created_at', 'updated_at', 'created_by', 'last_edited_by',
+  'id', 'icon', 'created_at', 'updated_at', 'created_by', 'last_edited_by',
 ]);
 
 /** Convert a PG row to a Notion-style page object. */
