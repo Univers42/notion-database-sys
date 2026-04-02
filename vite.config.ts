@@ -40,6 +40,8 @@ export default defineConfig(({mode}) => {
           '**/src/store/dbms/**/products.json',
           '**/src/store/dbms/**/projects.json',
           '**/src/store/dbms/**/*.csv',
+          '**/src/store/dbms/**/*.sql',
+          '**/src/store/dbms/**/*.seed.json',
         ],
       },
     },
