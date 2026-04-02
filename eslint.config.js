@@ -6,7 +6,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
-  { ignores: ['dist/', 'node_modules/', 'src/lib/engine/**/pkg/'] },
+  { ignores: ['**/dist/**', '**/node_modules/**', 'src/lib/engine/**/pkg/', '**/build/**'] },
 
   // Base JS recommended rules
   js.configs.recommended,
@@ -65,7 +65,7 @@ export default [
 
   // Config/script files (JS)
   {
-    files: ['*.config.{js,ts}', 'scripts/**/*.{js,ts}'],
+    files: ['*.config.{js,ts}', '**/*.config.{js,ts}', 'scripts/**/*.{js,ts}'],
     languageOptions: {
       globals: { ...globals.node },
     },
