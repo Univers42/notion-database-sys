@@ -1,4 +1,14 @@
-// ─── View routes — CRUD + user overrides ────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   view.routes.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:03:26 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:03:28 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
 import { ViewService } from '@notion-db/core';
@@ -13,9 +23,9 @@ export async function viewRoutes(app: FastifyInstance) {
     Body: Record<string, unknown>;
   }>('/', async (request, reply) => {
     const view = await svc.create({
-      ...(request.body as any),
+      ...request.body,
       createdBy: request.user.sub,
-    });
+    } as Parameters<ViewService['create']>[0]);
     reply.code(201).send(view);
   });
 
@@ -44,7 +54,7 @@ export async function viewRoutes(app: FastifyInstance) {
       request.params.id,
       request.user.sub,
       request.body.workspaceId,
-      request.body.overrides as any,
+      request.body.overrides as Parameters<ViewService['saveOverride']>[3],
     );
     return { ok: true };
   });

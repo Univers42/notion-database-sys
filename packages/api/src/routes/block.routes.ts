@@ -1,4 +1,14 @@
-// ─── Block routes ───────────────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   block.routes.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:03:10 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:03:13 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
 import { BlockService } from '@notion-db/core';
@@ -19,7 +29,7 @@ export async function blockRoutes(app: FastifyInstance) {
       order: string;
     };
   }>('/', async (request, reply) => {
-    const block = await svc.create(request.body as any);
+    const block = await svc.create(request.body as Parameters<BlockService['create']>[0]);
     reply.code(201).send(block);
   });
 
@@ -40,7 +50,7 @@ export async function blockRoutes(app: FastifyInstance) {
     Params: { id: string };
     Body: Record<string, unknown>;
   }>('/:id', async (request, reply) => {
-    const block = await svc.update(request.params.id, request.body as any);
+    const block = await svc.update(request.params.id, request.body as Parameters<BlockService['update']>[1]);
     if (!block) return reply.code(404).send({ error: 'Block not found' });
     return block;
   });

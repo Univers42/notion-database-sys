@@ -1,24 +1,39 @@
-// ─── WebSocket routes — real-time sync via MongoDB Change Streams ────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ws.routes.ts                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:03:35 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:03:36 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
 import mongoose from 'mongoose';
 
+interface WsSocket {
+  readyState: number;
+  send(data: string): void;
+}
+
 interface WsClient {
   userId: string;
   workspaceId: string;
-  socket: any;
+  socket: WsSocket;
 }
 
 const clients = new Map<string, WsClient>();
 
 export async function wsRoutes(app: FastifyInstance) {
   // WS /ws/:workspaceId
-  app.get<{ Params: { workspaceId: string } }>(
+  app.get<{ Params: { workspaceId: string }; Querystring: { token?: string } }>(
     '/:workspaceId',
     { websocket: true },
     async (socket, request) => {
       // Verify JWT from query param
-      const token = (request.query as any).token;
+      const token = request.query.token;
       if (!token) {
         socket.close(4001, 'Missing token');
         return;
@@ -41,9 +56,9 @@ export async function wsRoutes(app: FastifyInstance) {
 
       app.log.info(`WS connected: ${clientId}`);
 
-      socket.on('message', (raw: any) => {
+      socket.on('message', (raw: unknown) => {
         try {
-          const msg = JSON.parse(raw.toString());
+          const msg = JSON.parse(String(raw));
           // Handle cursor presence updates
           if (msg.type === 'cursor') {
             broadcastToWorkspace(request.params.workspaceId, clientId, {
@@ -93,6 +108,7 @@ function startChangeStreams(app: FastifyInstance) {
       const collection = db.collection(collName);
       const stream = collection.watch([], { fullDocument: 'updateLookup' });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       stream.on('change', (change: any) => {
         const doc = change.fullDocument;
         if (!doc?.workspaceId) return;

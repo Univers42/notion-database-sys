@@ -1,7 +1,18 @@
-// ─── Workspace routes ───────────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   workspace.routes.ts                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:03:31 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:03:32 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
 import { WorkspaceService } from '@notion-db/core';
+import type { WorkspaceRole } from '@notion-db/types';
 
 export async function workspaceRoutes(app: FastifyInstance) {
   const svc = new WorkspaceService();
@@ -40,7 +51,7 @@ export async function workspaceRoutes(app: FastifyInstance) {
     Body: { userId: string; role?: string };
   }>('/:id/members', async (request, reply) => {
     const { userId, role } = request.body;
-    await svc.addMember(request.params.id, userId, (role as any) ?? 'member', request.user.sub);
+    await svc.addMember(request.params.id, userId, (role ?? 'member') as WorkspaceRole, request.user.sub);
     reply.code(201).send({ ok: true });
   });
 
@@ -49,7 +60,7 @@ export async function workspaceRoutes(app: FastifyInstance) {
     Params: { id: string; userId: string };
     Body: { role: string };
   }>('/:id/members/:userId', async (request) => {
-    await svc.updateMemberRole(request.params.id, request.params.userId, request.body.role as any);
+    await svc.updateMemberRole(request.params.id, request.params.userId, request.body.role as WorkspaceRole);
     return { ok: true };
   });
 

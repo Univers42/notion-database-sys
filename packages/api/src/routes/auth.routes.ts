@@ -1,4 +1,14 @@
-// ─── Auth routes — register, login, refresh, logout ─────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   auth.routes.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:03:03 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:03:08 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
 import { AuthService } from '@notion-db/core';
@@ -24,8 +34,8 @@ export async function authRoutes(app: FastifyInstance) {
       });
 
       reply.code(201).send({ user, accessToken, refreshToken });
-    } catch (err: any) {
-      reply.code(400).send({ error: err.message });
+    } catch (err: unknown) {
+      reply.code(400).send({ error: (err as Error).message });
     }
   });
 
@@ -44,8 +54,8 @@ export async function authRoutes(app: FastifyInstance) {
       });
 
       reply.send({ accessToken, refreshToken, user: { id: userId, email } });
-    } catch (err: any) {
-      reply.code(401).send({ error: err.message });
+    } catch (err: unknown) {
+      reply.code(401).send({ error: (err as Error).message });
     }
   });
 
