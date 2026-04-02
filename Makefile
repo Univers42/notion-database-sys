@@ -68,9 +68,9 @@ seed-pg:
 	@echo "Waiting for PostgreSQL..."
 	@until docker compose exec -T postgres pg_isready -U $${POSTGRES_USER:-notion_user} > /dev/null 2>&1; do sleep 0.5; done
 	docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
-		-f /docker-entrypoint-initdb.d/001_schema.sql
+		-f /seed/001_schema.sql
 	docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
-		-f /docker-entrypoint-initdb.d/002_seed.sql
+		-f /seed/002_seed.sql
 	@echo -e "$(GREEN)✔ PostgreSQL seeded$(RESET)"
 
 seed-mongo:

@@ -15,7 +15,7 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./src/store/dbms/relational:/docker-entrypoint-initdb.d:ro
+      - ./src/store/dbms/relational:/seed:ro
       - ./src/services/postgresql/conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - ./src/services/postgresql/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     command:
