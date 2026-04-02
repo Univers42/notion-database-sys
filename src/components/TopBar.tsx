@@ -191,8 +191,8 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
 
       {showViewSettings && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <button type="button" className="fixed inset-0 z-50 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={() => setShowViewSettings(false)} tabIndex={-1} aria-label="Close" />
-          <div className="w-80 bg-surface-primary border-l border-line shadow-xl h-full overflow-auto" onClick={e => e.stopPropagation()}>
+          <button type="button" className="fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={() => setShowViewSettings(false)} tabIndex={-1} aria-label="Close" />
+          <div className="relative z-[60] w-80 bg-surface-primary border-l border-line shadow-xl h-full overflow-auto" onClick={e => e.stopPropagation()}>
             <ViewSettingsPanel onClose={() => setShowViewSettings(false)} />
           </div>
         </div>

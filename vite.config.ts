@@ -28,6 +28,9 @@ export default defineConfig(({mode}) => {
       },
     },
     server: {
+      headers: {
+        'Content-Security-Policy': "script-src 'self' 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:;",
+      },
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
         ignored: [
