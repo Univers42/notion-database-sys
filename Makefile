@@ -1,4 +1,4 @@
-.PHONY: help up down restart logs pull db-up db-down db-reset db-status \
+.PHONY: help up down restart re logs pull db-up db-down db-reset db-status \
 	seed-pg seed-mongo seed-all seed-state psql mongo-shell \
 	build-rust check-rust dev clean verify smoke-test
 
@@ -28,6 +28,19 @@ down: ## Stop all containers
 	@echo -e "$(GREEN)✔ Containers down$(RESET)"
 
 restart: down up ## Restart containers
+
+re: ## Full reset: pull latest images, wipe volumes, start fresh, seed all
+	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
+	@echo "1/4  Pulling latest images..."
+	@docker compose pull --quiet
+	@echo "2/4  Wiping volumes and stopping containers..."
+	@docker compose down -v
+	@echo "3/4  Starting fresh containers..."
+	@docker compose up -d
+	@echo "4/4  Seeding databases..."
+	@sleep 4
+	@$(MAKE) seed-all --no-print-directory
+	@echo -e "$(GREEN)══ Full restart complete — both DBs seeded and ready ══$(RESET)"
 
 logs: ## Tail container logs
 	docker compose logs -f --tail=50
