@@ -1,13 +1,21 @@
-// ─── ViewConfig model — shared/base view configuration ──────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   view.model.ts                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:05:34 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:05:35 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { Schema, model, type Document } from 'mongoose';
 import type { ViewConfig } from '@notion-db/types';
 
 export type ViewConfigDocument = Omit<ViewConfig, '_id'> & Document;
 
-// ─── Filter AST sub-schemas ─────────────────────────────────────────────────
-
-const filterConditionSchema = new Schema({
+const _filterConditionSchema = new Schema({
   type: { type: String, enum: ['condition'], required: true },
   id: { type: String, required: true },
   propertyId: { type: String, required: true },
@@ -15,14 +23,12 @@ const filterConditionSchema = new Schema({
   value: Schema.Types.Mixed,
 }, { _id: false });
 
-const filterGroupSchema: any = new Schema({
+const _filterGroupSchema = new Schema({
   type: { type: String, enum: ['group'], required: true },
   id: { type: String, required: true },
   conjunction: { type: String, enum: ['and', 'or'], required: true },
   children: [Schema.Types.Mixed], // recursive — FilterNode[]
 }, { _id: false });
-
-// ─── Legacy flat filter ─────────────────────────────────────────────────────
 
 const flatFilterSchema = new Schema({
   id: { type: String, required: true },
@@ -31,15 +37,11 @@ const flatFilterSchema = new Schema({
   value: Schema.Types.Mixed,
 }, { _id: false });
 
-// ─── Sort ────────────────────────────────────────────────────────────────────
-
 const sortSchema = new Schema({
   id: { type: String, required: true },
   propertyId: { type: String, required: true },
   direction: { type: String, enum: ['asc', 'desc'], default: 'asc' },
 }, { _id: false });
-
-// ─── Grouping ────────────────────────────────────────────────────────────────
 
 const groupingSchema = new Schema({
   propertyId: { type: String, required: true },
@@ -51,16 +53,12 @@ const subGroupingSchema = new Schema({
   propertyId: { type: String, required: true },
 }, { _id: false });
 
-// ─── Field config ────────────────────────────────────────────────────────────
-
 const fieldConfigSchema = new Schema({
   propertyId: { type: String, required: true },
   visible: { type: Boolean, default: true },
   width: Number,
   order: { type: Number, required: true },
 }, { _id: false });
-
-// ─── Main view schema ───────────────────────────────────────────────────────
 
 const viewConfigSchema = new Schema({
   databaseId: { type: Schema.Types.ObjectId, required: true, ref: 'Page', index: true },
