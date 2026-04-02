@@ -52,8 +52,8 @@ function flushState(get: () => ExtendedDatabaseState): void {
   const { databases, pages, views, activeDbmsSource } = get();
   // Live DB: only persist schema (databases + views) — pages live in the container
   const body = LIVE_DB_SOURCES.has(activeDbmsSource)
-    ? { databases, views }
-    : { databases, pages, views };
+    ? { databases, views, _source: activeDbmsSource }
+    : { databases, pages, views, _source: activeDbmsSource };
   fetch('/api/dbms/state', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -62,11 +62,11 @@ function flushState(get: () => ExtendedDatabaseState): void {
 }
 
 // ─── Helper: Fire ops dispatch (query generation only, no state mod) ────────
-function dispatchOps(action: string, payload: Record<string, unknown>): void {
+function dispatchOps(action: string, payload: Record<string, unknown>, source: string): void {
   fetch('/api/dbms/ops', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, ...payload }),
+    body: JSON.stringify({ action, _source: source, ...payload }),
   }).catch(() => { /* ops dispatch is best-effort */ });
 }
 
@@ -134,12 +134,19 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
       const key = `${pageId}::${propertyId}`;
       const prev = timers.get(key);
       if (prev) clearTimeout(prev);
+      // Capture source NOW (before debounce) to detect race conditions
+      const sourceAtCallTime = get().activeDbmsSource;
       timers.set(key, setTimeout(() => {
         timers.delete(key);
+        // ABORT if the user switched sources during the debounce window
+        if (get().activeDbmsSource !== sourceAtCallTime) {
+          console.log(`[dbms] Persist skipped: source changed (${sourceAtCallTime} → ${get().activeDbmsSource})`);
+          return;
+        }
         fetch(`/api/dbms/pages/${encodeURIComponent(pageId)}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ propertyId, value }),
+          body: JSON.stringify({ propertyId, value, _source: sourceAtCallTime }),
         }).catch((err) => console.error('[dbms] Persist error:', err));
       }, 600));
     };
@@ -215,7 +222,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     // Dispatch ops (query generation only — fire-and-forget)
     const page = get().pages[pageId];
     if (page) {
-      dispatchOps('insert', { databaseId, pageId, properties: page.properties });
+      dispatchOps('insert', { databaseId, pageId, properties: page.properties }, get().activeDbmsSource);
     }
     return pageId;
   },
@@ -231,7 +238,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
       dispatchOps('delete', {
         databaseId: page.databaseId,
         pageId,
-      });
+      }, get().activeDbmsSource);
     }
   },
 
@@ -240,7 +247,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     const sliceActions = createDatabaseSlice(set, get);
     sliceActions.addProperty(databaseId, name, type as never);
     flushState(get);
-    dispatchOps('addColumn', { databaseId, columnName: name, propType: type });
+    dispatchOps('addColumn', { databaseId, columnName: name, propType: type }, get().activeDbmsSource);
   },
 
   // ─── Override deleteProperty: flush state + dispatch ops ──
@@ -251,7 +258,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     sliceActions.deleteProperty(databaseId, propertyId);
     flushState(get);
     if (propName) {
-      dispatchOps('dropColumn', { databaseId, columnName: propName });
+      dispatchOps('dropColumn', { databaseId, columnName: propName }, get().activeDbmsSource);
     }
   },
 
@@ -266,7 +273,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
       dispatchOps('changeType', {
         databaseId, columnName: fieldName,
         oldType: oldProp.type, newType: updates.type,
-      });
+      }, get().activeDbmsSource);
     }
   },
 

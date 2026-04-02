@@ -58,6 +58,19 @@ let activeSource: DbSourceType = (process.env.ACTIVE_DB_SOURCE as DbSourceType) 
 /** Expose a getter for the file watcher. */
 export function getActiveSource(): DbSourceType { return activeSource; }
 
+/** Reject mutation requests from a stale source (race condition guard).
+ *  Returns true if the request should be skipped. */
+function isStaleSource(body: Record<string, unknown>, res: import('http').ServerResponse): boolean {
+  const reqSource = body._source as string | undefined;
+  if (reqSource && reqSource !== activeSource) {
+    console.log(`[dbms-middleware] Stale request from '${reqSource}' (active: '${activeSource}') — skipped`);
+    res.writeHead(409);
+    res.end(JSON.stringify({ ok: false, skipped: true, reason: 'source_mismatch' }));
+    return true;
+  }
+  return false;
+}
+
 /** Whether the source is backed by a live database container. */
 function isLiveDbSource(src: DbSourceType): boolean { return src === 'postgresql' || src === 'mongodb'; }
 
@@ -372,6 +385,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       if (pageMatch && req.method === 'PATCH') {
         const pageId = decodeURIComponent(pageMatch[1]);
         const body = await parseBody(req);
+        if (isStaleSource(body, res)) return;
         const propertyId = body.propertyId as string;
         let value = body.value;
 
@@ -433,6 +447,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       // ── POST /api/dbms/records — create a new record ──
       if (url === '/api/dbms/records' && req.method === 'POST') {
         const body = await parseBody(req);
+        if (isStaleSource(body, res)) return;
         const databaseId = body.databaseId as string;
         const properties = (body.properties ?? {}) as Record<string, unknown>;
         const pageId = (body.pageId as string) ?? crypto.randomUUID();
@@ -517,6 +532,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       // ── POST /api/dbms/columns — add a column ──
       if (url === '/api/dbms/columns' && req.method === 'POST') {
         const body = await parseBody(req);
+        if (isStaleSource(body, res)) return;
         const databaseId = body.databaseId as string;
         const columnName = body.columnName as string;
         const propType = (body.propType as string) ?? 'text';
@@ -614,6 +630,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       // ── POST /api/dbms/ops — ops-only dispatch (no state modification) ──
       if (url === '/api/dbms/ops' && req.method === 'POST') {
         const body = await parseBody(req);
+        if (isStaleSource(body, res)) return;
         const action = body.action as string;
         const databaseId = body.databaseId as string;
 
@@ -688,6 +705,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       // ── PATCH /api/dbms/state — full state replacement ──
       if (url === '/api/dbms/state' && req.method === 'PATCH') {
         const body = await parseBody(req);
+        if (isStaleSource(body, res)) return;
         const state = readState(activeSource);
 
         if (isLiveDbSource(activeSource)) {
