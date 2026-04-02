@@ -126,4 +126,6 @@ CREATE TABLE IF NOT EXISTS products (
     last_edited_by    VARCHAR(100)
 );
 
+ALTER TABLE "tasks" ADD COLUMN "urgency_score" NUMERIC(12,2);
+
 COMMIT;

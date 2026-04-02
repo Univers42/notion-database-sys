@@ -23,11 +23,26 @@ import './store/dbms/hardcoded/useThemeStore.ts';
 // ─── Live file watcher — listen for server-side file change events ──────────
 // When a flat file (JSON/CSV) is edited in the codespace, the server's
 // inotify watcher reverse-syncs it and pushes a WebSocket event here.
-// We simply re-fetch the state — no full page reload.
+// We surgically patch only the changed properties — zero page reload.
 if (import.meta.hot) {
   import.meta.hot.on('dbms:file-changed', (data) => {
-    console.log('[dbms] 📝 External file change:', data.file, `(${data.source})`);
-    useDatabaseStore.getState().loadFromSource(undefined, { silent: true });
+    const { file, source, patches } = data as {
+      file: string; source: string;
+      patches?: Record<string, Record<string, unknown>>;
+    };
+    console.log('[dbms] 📝 External file change:', file, `(${source})`);
+
+    if (patches && Object.keys(patches).length > 0) {
+      // Surgical update — patch only changed page properties in Zustand
+      useDatabaseStore.getState().patchPages(patches);
+      const n = Object.values(patches).reduce(
+        (s, p) => s + Object.keys(p).length, 0,
+      );
+      console.log(`[dbms] ✅ Patched ${n} properties in ${Object.keys(patches).length} pages (no reload)`);
+    } else {
+      // Fallback — full refetch (should rarely happen)
+      useDatabaseStore.getState().loadFromSource(undefined, { silent: true });
+    }
   });
 }
 

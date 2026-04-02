@@ -3,17 +3,28 @@
 // file-based DBMS adapters.  Runs inside the Vite Node.js process.
 //
 // Endpoints:
-//   GET  /api/dbms/state          → full { databases, pages, views }
-//   GET  /api/dbms/source         → { source: "json" | "csv" | … }
-//   PUT  /api/dbms/source         → { source }  — switch active source
-//   PATCH /api/dbms/pages/:id     → { propertyId, value }
-//   PATCH /api/dbms/state         → partial state  — bulk update
+//   GET  /api/dbms/state                                → full { databases, pages, views }
+//   GET  /api/dbms/source                               → { source: "json" | "csv" | … }
+//   PUT  /api/dbms/source                               → { source }  — switch active source
+//   PATCH /api/dbms/pages/:id                           → { propertyId, value }
+//   PATCH /api/dbms/state                               → partial state  — bulk update
+//   POST  /api/dbms/records                             → create record
+//   DELETE /api/dbms/records/:pageId                    → delete record
+//   POST  /api/dbms/columns                             → add column
+//   DELETE /api/dbms/columns/:databaseId/:propId        → remove column
+//   PATCH  /api/dbms/columns/:databaseId/:propId/type   → change column type
+//   GET  /api/dbms/query-log                            → recent generated queries
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Connect, ViteDevServer } from 'vite';
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { initFileWatcher, stopFileWatcher, markOwnWrite } from './fileWatcher';
+import {
+  dispatchInsert, dispatchDelete, dispatchUpdate,
+  dispatchAddColumn, dispatchDropColumn, dispatchChangeType,
+  getQueryLog, clearQueryLog,
+} from './ops/index';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
@@ -94,6 +105,16 @@ function resolveFlatIds(page: PageLike, fieldMap: Record<string, string>): strin
   // Always include raw page ID as fallback
   if (!ids.includes(page.id)) ids.push(page.id);
   return ids;
+}
+
+/** Resolve the single best flat-file ID for a page (auto-increment first). */
+function resolveFlatId(page: PageLike, fieldMap: Record<string, string>): string {
+  for (const [propId, fieldName] of Object.entries(fieldMap)) {
+    if (fieldName === 'id' && propId in page.properties) {
+      return String(page.properties[propId]);
+    }
+  }
+  return page.id;
 }
 
 /** Sync a page change to its flat JSON entity file. */
@@ -306,13 +327,188 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         // Persist state file
         writeState(activeSource, state);
 
-        // Sync to flat entity files
+        // Sync to flat entity files (JSON/CSV legacy)
         const dbId = page.databaseId;
         const allFieldMaps = readFieldMap(activeSource);
         const fieldMap = allFieldMaps[dbId] ?? {};
         syncJsonEntity(activeSource, page, fieldMap);
         syncCsvEntity(activeSource, page, fieldMap);
 
+        // Dispatch through ops layer for query generation
+        const flatId = resolveFlatId(page, fieldMap);
+        const fieldName = fieldMap[propertyId];
+        if (flatId && fieldName) {
+          dispatchUpdate(activeSource, dbId, flatId, fieldName, value, fieldMap);
+        }
+
+        res.writeHead(200);
+        res.end(JSON.stringify({ ok: true }));
+        return;
+      }
+
+      // ── POST /api/dbms/records — create a new record ──
+      if (url === '/api/dbms/records' && req.method === 'POST') {
+        const body = await parseBody(req);
+        const databaseId = body.databaseId as string;
+        const properties = (body.properties ?? {}) as Record<string, unknown>;
+        const pageId = (body.pageId as string) ?? crypto.randomUUID();
+
+        const state = readState(activeSource);
+        const allFieldMaps = readFieldMap(activeSource);
+        const fieldMap = allFieldMaps[databaseId] ?? {};
+
+        // Build flat record from properties + field map
+        const flatRecord: Record<string, unknown> = {};
+        for (const [propId, fieldName] of Object.entries(fieldMap)) {
+          if (fieldName === 'id') {
+            flatRecord.id = properties[propId] ?? pageId;
+          } else {
+            flatRecord[fieldName] = properties[propId] ?? null;
+          }
+        }
+        if (!flatRecord.id) flatRecord.id = pageId;
+
+        // Add page to state
+        state.pages[pageId] = {
+          id: pageId,
+          databaseId,
+          properties,
+          content: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          createdBy: 'You',
+          lastEditedBy: 'You',
+        };
+        writeState(activeSource, state);
+
+        // Dispatch to ops layer
+        const result = dispatchInsert(activeSource, databaseId, flatRecord, fieldMap);
+
+        res.writeHead(201);
+        res.end(JSON.stringify({ ok: true, pageId, query: result?.query ?? null }));
+        return;
+      }
+
+      // ── DELETE /api/dbms/records/:pageId — delete a record ──
+      const deleteRecordMatch = url.match(/^\/api\/dbms\/records\/([^/]+)$/);
+      if (deleteRecordMatch && req.method === 'DELETE') {
+        const pageId = decodeURIComponent(deleteRecordMatch[1]);
+        const state = readState(activeSource);
+        const page = state.pages[pageId] as PageLike | undefined;
+        if (!page) {
+          res.writeHead(404);
+          res.end(JSON.stringify({ error: `Page ${pageId} not found` }));
+          return;
+        }
+
+        const dbId = page.databaseId;
+        const allFieldMaps = readFieldMap(activeSource);
+        const fieldMap = allFieldMaps[dbId] ?? {};
+        const flatId = resolveFlatId(page, fieldMap);
+
+        // Remove from state
+        delete state.pages[pageId];
+        writeState(activeSource, state);
+
+        // Dispatch to ops layer
+        const result = flatId
+          ? dispatchDelete(activeSource, dbId, flatId, fieldMap)
+          : null;
+
+        res.writeHead(200);
+        res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
+        return;
+      }
+
+      // ── POST /api/dbms/columns — add a column ──
+      if (url === '/api/dbms/columns' && req.method === 'POST') {
+        const body = await parseBody(req);
+        const databaseId = body.databaseId as string;
+        const columnName = body.columnName as string;
+        const propType = (body.propType as string) ?? 'text';
+
+        const result = dispatchAddColumn(activeSource, databaseId, columnName, propType);
+
+        // Also persist to state (add empty values for all pages in this DB)
+        const state = readState(activeSource);
+        for (const page of Object.values(state.pages) as PageLike[]) {
+          if (page.databaseId === databaseId) {
+            if (!(body.propId as string in page.properties)) {
+              page.properties[body.propId as string] = null;
+            }
+          }
+        }
+        writeState(activeSource, state);
+
+        res.writeHead(201);
+        res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
+        return;
+      }
+
+      // ── DELETE /api/dbms/columns/:databaseId/:propId — remove a column ──
+      const dropColMatch = url.match(/^\/api\/dbms\/columns\/([^/]+)\/([^/]+)$/);
+      if (dropColMatch && req.method === 'DELETE') {
+        const databaseId = decodeURIComponent(dropColMatch[1]);
+        const propId = decodeURIComponent(dropColMatch[2]);
+
+        const allFieldMaps = readFieldMap(activeSource);
+        const fieldMap = allFieldMaps[databaseId] ?? {};
+        const fieldName = fieldMap[propId];
+
+        let result = null;
+        if (fieldName) {
+          result = dispatchDropColumn(activeSource, databaseId, fieldName);
+        }
+
+        // Remove from all pages in state
+        const state = readState(activeSource);
+        for (const page of Object.values(state.pages) as PageLike[]) {
+          if (page.databaseId === databaseId) {
+            delete page.properties[propId];
+          }
+        }
+        writeState(activeSource, state);
+
+        res.writeHead(200);
+        res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
+        return;
+      }
+
+      // ── PATCH /api/dbms/columns/:databaseId/:propId/type — change column type ──
+      const changeTypeMatch = url.match(/^\/api\/dbms\/columns\/([^/]+)\/([^/]+)\/type$/);
+      if (changeTypeMatch && req.method === 'PATCH') {
+        const databaseId = decodeURIComponent(changeTypeMatch[1]);
+        const propId = decodeURIComponent(changeTypeMatch[2]);
+        const body = await parseBody(req);
+        const oldType = body.oldType as string;
+        const newType = body.newType as string;
+
+        const allFieldMaps = readFieldMap(activeSource);
+        const fieldMap = allFieldMaps[databaseId] ?? {};
+        const fieldName = fieldMap[propId];
+
+        let result = null;
+        if (fieldName) {
+          result = dispatchChangeType(activeSource, databaseId, fieldName, oldType, newType);
+        }
+
+        res.writeHead(200);
+        res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
+        return;
+      }
+
+      // ── GET /api/dbms/query-log — recent generated queries ──
+      if (url.startsWith('/api/dbms/query-log') && req.method === 'GET') {
+        const params = new URL(url, 'http://localhost').searchParams;
+        const limit = Number(params.get('limit')) || 50;
+        res.writeHead(200);
+        res.end(JSON.stringify(getQueryLog(limit)));
+        return;
+      }
+
+      // ── DELETE /api/dbms/query-log — clear query log ──
+      if (url === '/api/dbms/query-log' && req.method === 'DELETE') {
+        clearQueryLog();
         res.writeHead(200);
         res.end(JSON.stringify({ ok: true }));
         return;

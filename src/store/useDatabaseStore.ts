@@ -32,9 +32,27 @@ interface DbmsExtras {
   loadFromSource: (source?: string, opts?: { silent?: boolean }) => Promise<void>;
   /** Persist a page property change to the active DBMS source. */
   persistPageProperty: (pageId: string, propertyId: string, value: unknown) => void;
+  /** Surgically patch specific page properties without replacing entire state.
+   *  Used by the file-watcher WebSocket handler for zero-reload updates. */
+  patchPages: (patches: Record<string, Record<string, unknown>>) => void;
 }
 
 export type ExtendedDatabaseState = DatabaseState & DbmsExtras;
+
+// ─── Helper: Debounced full-state persist for schema changes ────────────────
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+function persistState(get: () => ExtendedDatabaseState): void {
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    const { databases, pages, views } = get();
+    fetch('/api/dbms/state', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ databases, pages, views }),
+    }).catch((err) => console.error('[dbms] State persist error:', err));
+  }, 800);
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // STORE
@@ -109,6 +127,23 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     };
   })(),
 
+  patchPages: (patches: Record<string, Record<string, unknown>>) => {
+    set((state) => {
+      const updatedPages = { ...state.pages };
+      for (const [pageId, propChanges] of Object.entries(patches)) {
+        const page = updatedPages[pageId];
+        if (!page) continue;
+        updatedPages[pageId] = {
+          ...page,
+          properties: { ...page.properties, ...propChanges },
+          updatedAt: new Date().toISOString(),
+          lastEditedBy: 'External',
+        };
+      }
+      return { pages: updatedPages };
+    });
+  },
+
   // ─── Compose domain slices ─────────────────────────────────
   ...createDatabaseSlice(set, get),
   ...createPageSlice(set, get),
@@ -136,6 +171,88 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     });
     // 2) Persist to DBMS backend (fire-and-forget)
     get().persistPageProperty(pageId, propertyId, value);
+  },
+
+  // ─── Override addPage to persist new record to DBMS ──
+  addPage: (databaseId: string, properties: Record<string, unknown> = {}) => {
+    // 1) Delegate to the slice for state update
+    const sliceActions = createPageSlice(set, get);
+    const pageId = sliceActions.addPage(databaseId, properties);
+    // 2) Fire-and-forget persist to DBMS
+    const page = get().pages[pageId];
+    if (page) {
+      fetch('/api/dbms/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ databaseId, properties: page.properties, pageId }),
+      }).catch((err) => console.error('[dbms] addPage persist error:', err));
+    }
+    return pageId;
+  },
+
+  // ─── Override deletePage to persist removal to DBMS ──
+  deletePage: (pageId: string) => {
+    // 1) Delegate to slice for state update
+    const sliceActions = createPageSlice(set, get);
+    sliceActions.deletePage(pageId);
+    // 2) Fire-and-forget persist to DBMS
+    fetch(`/api/dbms/records/${encodeURIComponent(pageId)}`, {
+      method: 'DELETE',
+    }).catch((err) => console.error('[dbms] deletePage persist error:', err));
+  },
+
+  // ─── Override addProperty to persist new column to DBMS ──
+  addProperty: (databaseId: string, name: string, type: string) => {
+    // 1) Delegate to slice
+    const sliceActions = createDatabaseSlice(set, get);
+    sliceActions.addProperty(databaseId, name, type as never);
+    // 2) Get the new propId and persist
+    const db = get().databases[databaseId];
+    if (db) {
+      const newProp = Object.values(db.properties).find(
+        (p) => p.name === name && p.type === type,
+      );
+      if (newProp) {
+        fetch('/api/dbms/columns', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            databaseId, columnName: name, propType: type, propId: newProp.id,
+          }),
+        }).catch((err) => console.error('[dbms] addProperty persist error:', err));
+      }
+    }
+    // Persist full state for schema changes
+    persistState(get);
+  },
+
+  // ─── Override deleteProperty to persist column removal to DBMS ──
+  deleteProperty: (databaseId: string, propertyId: string) => {
+    // 1) Delegate to slice
+    const sliceActions = createDatabaseSlice(set, get);
+    sliceActions.deleteProperty(databaseId, propertyId);
+    // 2) Persist
+    fetch(`/api/dbms/columns/${encodeURIComponent(databaseId)}/${encodeURIComponent(propertyId)}`, {
+      method: 'DELETE',
+    }).catch((err) => console.error('[dbms] deleteProperty persist error:', err));
+    persistState(get);
+  },
+
+  // ─── Override updateProperty to detect type changes → DBMS ──
+  updateProperty: (databaseId: string, propertyId: string, updates: Partial<{ name: string; type: string }>) => {
+    const oldProp = get().databases[databaseId]?.properties[propertyId];
+    // 1) Delegate to slice
+    const sliceActions = createDatabaseSlice(set, get);
+    sliceActions.updateProperty(databaseId, propertyId, updates as never);
+    // 2) If type changed, dispatch change-type to DBMS
+    if (updates.type && oldProp && oldProp.type !== updates.type) {
+      fetch(`/api/dbms/columns/${encodeURIComponent(databaseId)}/${encodeURIComponent(propertyId)}/type`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldType: oldProp.type, newType: updates.type }),
+      }).catch((err) => console.error('[dbms] changeType persist error:', err));
+    }
+    persistState(get);
   },
 
   // ─── Inline Database Creation ──────────────────────────────

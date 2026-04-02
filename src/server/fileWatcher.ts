@@ -107,29 +107,29 @@ function invertMap(fmap: Record<string, string>): Record<string, string> {
   return inv;
 }
 
+/** Changeset: pageId → { propId → newValue } */
+type Changeset = Record<string, Record<string, unknown>>;
+
 /** Read flat JSON records and merge back into the state pages. */
 function syncJsonToState(
   filePath: string, dbId: string, state: NotionState,
   fieldMap: Record<string, string>,
-): boolean {
+): Changeset {
   const inv = invertMap(fieldMap);
+  const patches: Changeset = {};
   let raw: unknown;
-  try { raw = JSON.parse(readFileSync(filePath, 'utf-8')); } catch { return false; }
+  try { raw = JSON.parse(readFileSync(filePath, 'utf-8')); } catch { return patches; }
   const records: Record<string, unknown>[] =
     (raw && typeof raw === 'object' && 'records' in (raw as Record<string, unknown>))
       ? ((raw as Record<string, unknown>).records as Record<string, unknown>[])
       : (raw as Record<string, unknown>[]);
-  if (!Array.isArray(records)) return false;
+  if (!Array.isArray(records)) return patches;
 
-  let changed = false;
   for (const rec of records) {
     const flatId = String(rec.id ?? '');
-    // Find the page with this flat ID
     const page = Object.values(state.pages).find((p) => {
       if (p.databaseId !== dbId) return false;
-      // Match by page id
       if (p.id === flatId) return true;
-      // Match by auto-increment property (e.g. prop-task-id maps to 'id')
       for (const [propId, fname] of Object.entries(fieldMap)) {
         if (fname === 'id' && String(p.properties[propId]) === flatId) return true;
       }
@@ -137,40 +137,39 @@ function syncJsonToState(
     });
     if (!page) continue;
 
-    // Apply each flat field → page property
     for (const [flatField, flatValue] of Object.entries(rec)) {
-      if (flatField === 'id') continue; // skip primary key
+      if (flatField === 'id') continue;
       const propId = inv[flatField];
       if (!propId) continue;
-      // Only update if actually different
       const currentVal = page.properties[propId];
       if (currentVal !== flatValue) {
         page.properties[propId] = flatValue;
         (page as Record<string, unknown>).updatedAt = new Date().toISOString();
         (page as Record<string, unknown>).lastEditedBy = 'External';
-        changed = true;
+        if (!patches[page.id]) patches[page.id] = {};
+        patches[page.id][propId] = flatValue;
       }
     }
   }
-  return changed;
+  return patches;
 }
 
 /** Read flat CSV records and merge back into the state pages. */
 function syncCsvToState(
   filePath: string, dbId: string, state: NotionState,
   fieldMap: Record<string, string>,
-): boolean {
+): Changeset {
   const inv = invertMap(fieldMap);
+  const patches: Changeset = {};
   let content: string;
-  try { content = readFileSync(filePath, 'utf-8'); } catch { return false; }
+  try { content = readFileSync(filePath, 'utf-8'); } catch { return patches; }
   const lines = content.split('\n').filter(l => l.trim());
-  if (lines.length < 2) return false;
+  if (lines.length < 2) return patches;
 
   const headers = parseCSVLine(lines[0]);
   const idCol = headers.indexOf('id');
-  if (idCol === -1) return false;
+  if (idCol === -1) return patches;
 
-  let changed = false;
   for (let i = 1; i < lines.length; i++) {
     const cells = parseCSVLine(lines[i]);
     const flatId = cells[idCol];
@@ -192,7 +191,6 @@ function syncCsvToState(
       const propId = inv[headerName];
       if (!propId) continue;
       const flatValue = cells[c] ?? '';
-      // Coerce to number / boolean if the current value is of that type
       let coerced: unknown = flatValue;
       const cur = page.properties[propId];
       if (typeof cur === 'number') coerced = flatValue === '' ? null : Number(flatValue);
@@ -201,11 +199,12 @@ function syncCsvToState(
         page.properties[propId] = coerced;
         (page as Record<string, unknown>).updatedAt = new Date().toISOString();
         (page as Record<string, unknown>).lastEditedBy = 'External';
-        changed = true;
+        if (!patches[page.id]) patches[page.id] = {};
+        patches[page.id][propId] = coerced;
       }
     }
   }
-  return changed;
+  return patches;
 }
 
 // ─── Main watcher ────────────────────────────────────────────────────────────
@@ -287,15 +286,15 @@ function handleFileChange(
       existsSync(mapPath) ? JSON.parse(readFileSync(mapPath, 'utf-8')) : {};
     const fieldMap = allFieldMaps[dbId] ?? {};
 
-    // 3) Reverse-sync flat → state
-    let changed = false;
+    // 3) Reverse-sync flat → state, collecting changed page properties
+    let patches: Changeset = {};
     if (ext === '.json') {
-      changed = syncJsonToState(filePath, dbId, state, fieldMap);
+      patches = syncJsonToState(filePath, dbId, state, fieldMap);
     } else if (ext === '.csv') {
-      changed = syncCsvToState(filePath, dbId, state, fieldMap);
+      patches = syncCsvToState(filePath, dbId, state, fieldMap);
     }
 
-    if (!changed) {
+    if (Object.keys(patches).length === 0) {
       console.log(`[file-watcher]    No property changes detected, skipping push.`);
       return;
     }
@@ -303,13 +302,17 @@ function handleFileChange(
     // 4) Write updated state (mark as own write so we don't loop)
     markOwnWrite(stateFilePath);
     writeFileSync(stateFilePath, JSON.stringify(state, null, 2), 'utf-8');
-    console.log(`[file-watcher]    ✅ State updated, pushing to browser…`);
+    const patchCount = Object.values(patches).reduce(
+      (n, p) => n + Object.keys(p).length, 0,
+    );
+    console.log(`[file-watcher]    ✅ State updated (${patchCount} property changes), pushing patches…`);
 
-    // 5) Push to browser via Vite's WebSocket
+    // 5) Push granular patches to browser via Vite WebSocket
+    //    Browser patches Zustand store directly — no full page reload.
     server.ws.send({
       type: 'custom',
       event: 'dbms:file-changed',
-      data: { source, file: `${stem}${ext}`, database: dbId },
+      data: { source, file: `${stem}${ext}`, database: dbId, patches },
     });
   } catch (err) {
     console.error(`[file-watcher] ❌ Error processing ${stem}${ext}:`, err);

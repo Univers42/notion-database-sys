@@ -3,7 +3,7 @@
     "db-tasks": {
       "id": "db-tasks",
       "name": "Tasks & Projects",
-      "icon": "\ud83d\udccb",
+      "icon": "📋",
       "titlePropertyId": "prop-title",
       "properties": {
         "prop-title": {
@@ -177,7 +177,7 @@
     "db-crm": {
       "id": "db-crm",
       "name": "CRM / Contacts",
-      "icon": "\ud83d\udc65",
+      "icon": "👥",
       "titlePropertyId": "prop-name",
       "properties": {
         "prop-name": {
@@ -289,7 +289,7 @@
     "db-content": {
       "id": "db-content",
       "name": "Content Calendar",
-      "icon": "\ud83d\udcdd",
+      "icon": "📝",
       "titlePropertyId": "prop-title",
       "properties": {
         "prop-title": {
@@ -386,7 +386,7 @@
     "db-inventory": {
       "id": "db-inventory",
       "name": "Asset Inventory",
-      "icon": "\ud83d\udce6",
+      "icon": "📦",
       "titlePropertyId": "prop-name",
       "properties": {
         "prop-name": {
@@ -468,7 +468,7 @@
     "db-products": {
       "id": "db-products",
       "name": "Product Catalog",
-      "icon": "\ud83d\udecd\ufe0f",
+      "icon": "🛍️",
       "titlePropertyId": "pp-name",
       "properties": {
         "pp-name": {
@@ -592,27 +592,27 @@
           "options": [
             {
               "id": "prt-5",
-              "value": "\u2605\u2605\u2605\u2605\u2605 (5.0)",
+              "value": "★★★★★ (5.0)",
               "color": "bg-warning-surface-muted text-warning-text-tag"
             },
             {
               "id": "prt-4",
-              "value": "\u2605\u2605\u2605\u2605\u2606 (4.0)",
+              "value": "★★★★☆ (4.0)",
               "color": "bg-warning-surface text-warning-text-bold"
             },
             {
               "id": "prt-3",
-              "value": "\u2605\u2605\u2605\u2606\u2606 (3.0)",
+              "value": "★★★☆☆ (3.0)",
               "color": "bg-orange-surface text-orange-text-bold"
             },
             {
               "id": "prt-2",
-              "value": "\u2605\u2605\u2606\u2606\u2606 (2.0)",
+              "value": "★★☆☆☆ (2.0)",
               "color": "bg-danger-surface text-danger-text-bold"
             },
             {
               "id": "prt-1",
-              "value": "\u2605\u2606\u2606\u2606\u2606 (1.0)",
+              "value": "★☆☆☆☆ (1.0)",
               "color": "bg-danger-surface-muted text-danger-text-tag"
             }
           ]
@@ -942,7 +942,7 @@
           "name": "Deal Tag",
           "type": "formula",
           "formulaConfig": {
-            "expression": "ifs(and(prop(\"Price ($)\") < 20, prop(\"Returnable\")), \"\ud83d\udd25 Hot Deal\", and(prop(\"Price ($)\") < 50, not(prop(\"Featured\"))), \"\ud83d\udcb0 Value Pick\", prop(\"Featured\"), \"\u2b50 Featured\", \"\ud83d\udce6 Standard\")"
+            "expression": "ifs(and(prop(\"Price ($)\") < 20, prop(\"Returnable\")), \"🔥 Hot Deal\", and(prop(\"Price ($)\") < 50, not(prop(\"Featured\"))), \"💰 Value Pick\", prop(\"Featured\"), \"⭐ Featured\", \"📦 Standard\")"
           }
         },
         "pp-asset-count": {
@@ -1025,7 +1025,7 @@
     "db-projects": {
       "id": "db-projects",
       "name": "Projects & Sprints",
-      "icon": "\ud83d\ude80",
+      "icon": "🚀",
       "description": "Cross-database relation & rollup showcase",
       "titlePropertyId": "proj-title",
       "properties": {
@@ -1386,7 +1386,7 @@
     "t1": {
       "id": "t1",
       "databaseId": "db-tasks",
-      "icon": "\ud83c\udfa8",
+      "icon": "🎨",
       "properties": {
         "prop-title": "CSV Persistence Works!fsadfsdfaffsafsf1654513",
         "prop-status": "opt-done",
@@ -1419,7 +1419,7 @@
     "t2": {
       "id": "t2",
       "databaseId": "db-tasks",
-      "icon": "\u2699\ufe0f",
+      "icon": "⚙️",
       "properties": {
         "prop-title": "Implement View Engine",
         "prop-status": "opt-in-progress",
@@ -1452,7 +1452,7 @@
     "t3": {
       "id": "t3",
       "databaseId": "db-tasks",
-      "icon": "\ud83d\udc1b",
+      "icon": "🐛",
       "properties": {
         "prop-title": "Fix Drag-and-Drop Bug",
         "prop-status": "opt-todo",
@@ -1479,7 +1479,7 @@
     "t4": {
       "id": "t4",
       "databaseId": "db-tasks",
-      "icon": "\ud83d\udcd6",
+      "icon": "📖",
       "properties": {
         "prop-title": "Write API Documentation",
         "prop-status": "opt-todo",
@@ -1506,7 +1506,7 @@
     "t5": {
       "id": "t5",
       "databaseId": "db-tasks",
-      "icon": "\ud83d\ude80",
+      "icon": "🚀",
       "properties": {
         "prop-title": "Deploy to Production",
         "prop-status": "opt-blocked",
@@ -1532,7 +1532,7 @@
     "t6": {
       "id": "t6",
       "databaseId": "db-tasks",
-      "icon": "\ud83e\uddea",
+      "icon": "🧪",
       "properties": {
         "prop-title": "Write Integration Tests",
         "prop-status": "opt-review",
@@ -1560,7 +1560,7 @@
     "t7": {
       "id": "t7",
       "databaseId": "db-tasks",
-      "icon": "\ud83c\udfaf",
+      "icon": "🎯",
       "properties": {
         "prop-title": "Performance Optimization",
         "prop-status": "opt-in-progress",
@@ -1587,7 +1587,7 @@
     "t8": {
       "id": "t8",
       "databaseId": "db-tasks",
-      "icon": "\ud83d\udc85",
+      "icon": "💅",
       "properties": {
         "prop-title": "UI Polish Pass",
         "prop-status": "opt-todo",
@@ -1614,7 +1614,7 @@
     "c1": {
       "id": "c1",
       "databaseId": "db-crm",
-      "icon": "\ud83c\udfe2",
+      "icon": "🏢",
       "properties": {
         "prop-name": "Acme Corporation1156151131",
         "prop-company": "Acme Inc",
@@ -1639,7 +1639,7 @@
     "c2": {
       "id": "c2",
       "databaseId": "db-crm",
-      "icon": "\ud83c\udf10",
+      "icon": "🌐",
       "properties": {
         "prop-name": "Acme Corporation1156151131",
         "prop-company": "Globex Corp",
@@ -1709,7 +1709,7 @@
     "c5": {
       "id": "c5",
       "databaseId": "db-crm",
-      "icon": "\u2b50",
+      "icon": "⭐",
       "properties": {
         "prop-name": "Acme Corporation11fasfddsa56151131",
         "prop-company": "Umbrella Corp",
@@ -1756,7 +1756,7 @@
     "ct1": {
       "id": "ct1",
       "databaseId": "db-content",
-      "icon": "\u270d\ufe0f",
+      "icon": "✍️",
       "properties": {
         "prop-title": "10 Tips for React Performance",
         "prop-platform": [
@@ -1822,7 +1822,7 @@
     "ct4": {
       "id": "ct4",
       "databaseId": "db-content",
-      "icon": "\ud83d\udce7",
+      "icon": "📧",
       "properties": {
         "prop-title": "Monthly Product Update",
         "prop-platform": [
@@ -1862,7 +1862,7 @@
     "i1": {
       "id": "i1",
       "databaseId": "db-inventory",
-      "icon": "\ud83d\udcbb",
+      "icon": "💻",
       "properties": {
         "prop-name": "MacBook Pro M3",
         "prop-category": "cat-hw",
@@ -1871,7 +1871,7 @@
         "prop-purchase": "2026-01-02T15:22:50.751Z",
         "prop-active": true,
         "prop-location": {
-          "address": "Office A \u2014 Building 1, Floor 2"
+          "address": "Office A — Building 1, Floor 2"
         },
         "prop-inv-id": "INV-1",
         "prop-project-inv": [
@@ -1888,7 +1888,7 @@
     "i2": {
       "id": "i2",
       "databaseId": "db-inventory",
-      "icon": "\ud83c\udfa8",
+      "icon": "🎨",
       "properties": {
         "prop-name": "Figma Enterprise",
         "prop-category": "cat-sw",
@@ -1914,7 +1914,7 @@
     "i3": {
       "id": "i3",
       "databaseId": "db-inventory",
-      "icon": "\ud83e\ude91",
+      "icon": "🪑",
       "properties": {
         "prop-name": "Herman Miller Aeron",
         "prop-category": "cat-furn",
@@ -1923,7 +1923,7 @@
         "prop-purchase": "2025-09-14T14:22:50.751Z",
         "prop-active": true,
         "prop-location": {
-          "address": "Office B \u2014 Building 2, Floor 1"
+          "address": "Office B — Building 2, Floor 1"
         },
         "prop-inv-id": "INV-3",
         "prop-project-inv": [
@@ -1940,7 +1940,7 @@
     "i4": {
       "id": "i4",
       "databaseId": "db-inventory",
-      "icon": "\ud83d\udda5\ufe0f",
+      "icon": "🖥️",
       "properties": {
         "prop-name": "Dell UltraSharp 32\"",
         "prop-category": "cat-hw",
@@ -1949,7 +1949,7 @@
         "prop-purchase": "2025-12-03T15:22:50.751Z",
         "prop-active": true,
         "prop-location": {
-          "address": "Office A \u2014 Building 1, Floor 2"
+          "address": "Office A — Building 1, Floor 2"
         },
         "prop-inv-id": "INV-4",
         "prop-project-inv": [
@@ -2118,7 +2118,7 @@
       "properties": {
         "pp-name": "Ultra HD 4K Monitor 27\"",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 329.98,
         "pp-cost": 125.39,
         "pp-weight": 0.55,
@@ -2179,7 +2179,7 @@
       "properties": {
         "pp-name": "Mechanical Gaming Keyboard",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 119.99,
         "pp-cost": 46.8,
         "pp-weight": 0.7,
@@ -2384,7 +2384,7 @@
         "pp-email": "vendor1@techsupply.com",
         "pp-phone": "+1-555-2007",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -2472,7 +2472,7 @@
       "properties": {
         "pp-name": "Smart Fitness Watch",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 164.99,
         "pp-cost": 72.6,
         "pp-weight": 1.45,
@@ -2697,7 +2697,7 @@
       "properties": {
         "pp-name": "Qi Wireless Charging Pad",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 60,
         "pp-cost": 28.8,
         "pp-weight": 2.05,
@@ -2753,7 +2753,7 @@
       "properties": {
         "pp-name": "HDMI to USB-C Adapter",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 179.99,
         "pp-cost": 88.2,
         "pp-weight": 2.2,
@@ -3034,7 +3034,7 @@
       "properties": {
         "pp-name": "Mini Projector 1080p",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 112.49,
         "pp-cost": 60.74,
         "pp-weight": 2.95,
@@ -3232,7 +3232,7 @@
         "pp-email": "vendor1@techsupply.com",
         "pp-phone": "+1-555-2022",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -3262,7 +3262,7 @@
       "properties": {
         "pp-name": "Solar Powered Charger 15W",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 127.49,
         "pp-cost": 73.94,
         "pp-weight": 3.55,
@@ -3318,7 +3318,7 @@
       "properties": {
         "pp-name": "Digital Voice Recorder",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 172.49,
         "pp-cost": 101.77,
         "pp-weight": 3.7,
@@ -3598,7 +3598,7 @@
       "properties": {
         "pp-name": "Smart Doorbell Camera",
         "pp-desc": "High-performance electronic device with premium build quality and cutting-edge technology.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 157.49,
         "pp-cost": 100.79,
         "pp-weight": 4.45,
@@ -3825,7 +3825,7 @@
       "properties": {
         "pp-name": "Lightweight Running Shoes",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 131.98,
         "pp-cost": 50.15,
         "pp-weight": 5.05,
@@ -3880,7 +3880,7 @@
       "properties": {
         "pp-name": "Premium Cotton Hoodie",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 47.99,
         "pp-cost": 18.72,
         "pp-weight": 5.2,
@@ -4076,7 +4076,7 @@
         "pp-email": "vendor2@fabricworld.com",
         "pp-phone": "+1-555-2037",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -4162,7 +4162,7 @@
       "properties": {
         "pp-name": "Waterproof Rain Jacket",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 65.99,
         "pp-cost": 29.04,
         "pp-weight": 5.95,
@@ -4389,7 +4389,7 @@
       "properties": {
         "pp-name": "Down-Filled Winter Coat",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 24,
         "pp-cost": 11.52,
         "pp-weight": 6.55,
@@ -4445,7 +4445,7 @@
       "properties": {
         "pp-name": "Relaxed Linen Shirt",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 71.99,
         "pp-cost": 35.28,
         "pp-weight": 6.7,
@@ -4724,7 +4724,7 @@
       "properties": {
         "pp-name": "Formal Oxford Dress Shoes",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 44.99,
         "pp-cost": 24.29,
         "pp-weight": 7.45,
@@ -4922,7 +4922,7 @@
         "pp-email": "vendor2@fabricworld.com",
         "pp-phone": "+1-555-2052",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -4952,7 +4952,7 @@
       "properties": {
         "pp-name": "Packable Travel Jacket",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 50.99,
         "pp-cost": 29.57,
         "pp-weight": 0.55,
@@ -5008,7 +5008,7 @@
       "properties": {
         "pp-name": "Graphic Print Sweatshirt",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 68.99,
         "pp-cost": 40.7,
         "pp-weight": 0.7,
@@ -5289,7 +5289,7 @@
       "properties": {
         "pp-name": "Thermal Base Layer Set",
         "pp-desc": "Stylish and comfortable apparel crafted from premium materials for everyday wear.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 62.99,
         "pp-cost": 40.31,
         "pp-weight": 1.45,
@@ -5516,7 +5516,7 @@
       "properties": {
         "pp-name": "Bamboo Cutting Board Set",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 87.98,
         "pp-cost": 33.43,
         "pp-weight": 2.05,
@@ -5573,7 +5573,7 @@
       "properties": {
         "pp-name": "Digital Kitchen Scale",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 31.99,
         "pp-cost": 12.48,
         "pp-weight": 2.2,
@@ -5767,7 +5767,7 @@
         "pp-email": "vendor3@homegoods.co",
         "pp-phone": "+1-555-2067",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -5853,7 +5853,7 @@
       "properties": {
         "pp-name": "Compact Air Purifier",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 43.99,
         "pp-cost": 19.36,
         "pp-weight": 2.95,
@@ -6079,7 +6079,7 @@
       "properties": {
         "pp-name": "Pour-Over Coffee Dripper",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 16,
         "pp-cost": 7.68,
         "pp-weight": 3.55,
@@ -6135,7 +6135,7 @@
       "properties": {
         "pp-name": "Glass Meal Prep Containers",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 47.99,
         "pp-cost": 23.52,
         "pp-weight": 3.7,
@@ -6417,7 +6417,7 @@
       "properties": {
         "pp-name": "Magnetic Knife Strip Walnut",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 29.99,
         "pp-cost": 16.19,
         "pp-weight": 4.45,
@@ -6613,7 +6613,7 @@
         "pp-email": "vendor3@homegoods.co",
         "pp-phone": "+1-555-2082",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -6643,7 +6643,7 @@
       "properties": {
         "pp-name": "Ceramic Dinnerware Set 16pc",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 33.99,
         "pp-cost": 19.71,
         "pp-weight": 5.05,
@@ -6699,7 +6699,7 @@
       "properties": {
         "pp-name": "Cold Brew Maker 1.5L",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 45.99,
         "pp-cost": 27.13,
         "pp-weight": 5.2,
@@ -6979,7 +6979,7 @@
       "properties": {
         "pp-name": "Electric Pepper Mill Set",
         "pp-desc": "Essential kitchen & home item designed for durability and modern aesthetics.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 41.99,
         "pp-cost": 26.87,
         "pp-weight": 5.95,
@@ -7209,7 +7209,7 @@
       "properties": {
         "pp-name": "Creative Writing Masterclass",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 54.98,
         "pp-cost": 20.89,
         "pp-weight": 6.55,
@@ -7264,7 +7264,7 @@
       "properties": {
         "pp-name": "Machine Learning Handbook",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 19.99,
         "pp-cost": 7.8,
         "pp-weight": 6.7,
@@ -7457,7 +7457,7 @@
         "pp-email": "vendor4@bookdist.com",
         "pp-phone": "+1-555-2097",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -7545,7 +7545,7 @@
       "properties": {
         "pp-name": "Cooking Science Explained",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 27.49,
         "pp-cost": 12.1,
         "pp-weight": 7.45,
@@ -7770,7 +7770,7 @@
       "properties": {
         "pp-name": "Digital Marketing Essentials",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 10,
         "pp-cost": 4.8,
         "pp-weight": 0.55,
@@ -7826,7 +7826,7 @@
       "properties": {
         "pp-name": "Quantum Physics for Beginners",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 29.99,
         "pp-cost": 14.7,
         "pp-weight": 0.7,
@@ -8108,7 +8108,7 @@
       "properties": {
         "pp-name": "Astronomy Visual Encyclopedia",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 18.74,
         "pp-cost": 10.12,
         "pp-weight": 1.45,
@@ -8305,7 +8305,7 @@
         "pp-email": "vendor4@bookdist.com",
         "pp-phone": "+1-555-2112",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -8337,7 +8337,7 @@
       "properties": {
         "pp-name": "Watercolor Painting Basics",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 21.24,
         "pp-cost": 12.32,
         "pp-weight": 2.05,
@@ -8393,7 +8393,7 @@
       "properties": {
         "pp-name": "Music Theory Companion",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 28.74,
         "pp-cost": 16.96,
         "pp-weight": 2.2,
@@ -8671,7 +8671,7 @@
       "properties": {
         "pp-name": "The Science of Sleep",
         "pp-desc": "Insightful reading material covering key topics with clear and engaging prose.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 26.24,
         "pp-cost": 16.79,
         "pp-weight": 2.95,
@@ -8900,7 +8900,7 @@
       "properties": {
         "pp-name": "Resistance Band Kit 5-Pack",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 98.98,
         "pp-cost": 37.61,
         "pp-weight": 3.55,
@@ -8955,7 +8955,7 @@
       "properties": {
         "pp-name": "Insulated Water Bottle 32oz",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 35.99,
         "pp-cost": 14.04,
         "pp-weight": 3.7,
@@ -9150,7 +9150,7 @@
         "pp-email": "vendor5@sportsgear.io",
         "pp-phone": "+1-555-2127",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -9236,7 +9236,7 @@
       "properties": {
         "pp-name": "Jump Rope Speed Wire",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 49.49,
         "pp-cost": 21.78,
         "pp-weight": 4.45,
@@ -9462,7 +9462,7 @@
       "properties": {
         "pp-name": "Basketball Indoor/Outdoor",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 18,
         "pp-cost": 8.64,
         "pp-weight": 5.05,
@@ -9520,7 +9520,7 @@
       "properties": {
         "pp-name": "Fishing Tackle Box Compact",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 53.99,
         "pp-cost": 26.46,
         "pp-weight": 5.2,
@@ -9799,7 +9799,7 @@
       "properties": {
         "pp-name": "Boxing Gloves 12oz",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 33.74,
         "pp-cost": 18.22,
         "pp-weight": 5.95,
@@ -9996,7 +9996,7 @@
         "pp-email": "vendor5@sportsgear.io",
         "pp-phone": "+1-555-2142",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -10026,7 +10026,7 @@
       "properties": {
         "pp-name": "Roller Skates Adult",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 38.24,
         "pp-cost": 22.18,
         "pp-weight": 6.55,
@@ -10083,7 +10083,7 @@
       "properties": {
         "pp-name": "Surfboard Shortboard 6'2\"",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 51.74,
         "pp-cost": 30.53,
         "pp-weight": 6.7,
@@ -10363,7 +10363,7 @@
       "properties": {
         "pp-name": "Snowshoes Aluminum",
         "pp-desc": "Professional-grade sports equipment for training, competition, and outdoor adventures.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 47.24,
         "pp-cost": 30.23,
         "pp-weight": 7.45,
@@ -10590,7 +10590,7 @@
       "properties": {
         "pp-name": "Organic Shampoo Bar",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 65.98,
         "pp-cost": 25.07,
         "pp-weight": 0.55,
@@ -10645,7 +10645,7 @@
       "properties": {
         "pp-name": "SPF 50 Mineral Sunscreen",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 23.99,
         "pp-cost": 9.36,
         "pp-weight": 0.7,
@@ -10842,7 +10842,7 @@
         "pp-email": "vendor6@beautyline.co",
         "pp-phone": "+1-555-2157",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -10928,7 +10928,7 @@
       "properties": {
         "pp-name": "Collagen Peptides Powder",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 32.99,
         "pp-cost": 14.52,
         "pp-weight": 1.45,
@@ -11155,7 +11155,7 @@
       "properties": {
         "pp-name": "Aloe Vera Gel 250ml",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 12,
         "pp-cost": 5.76,
         "pp-weight": 2.05,
@@ -11211,7 +11211,7 @@
       "properties": {
         "pp-name": "Scalp Massager Brush",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 35.99,
         "pp-cost": 17.64,
         "pp-weight": 2.2,
@@ -11495,7 +11495,7 @@
       "properties": {
         "pp-name": "Retinol Night Cream 50ml",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 22.49,
         "pp-cost": 12.14,
         "pp-weight": 2.95,
@@ -11691,7 +11691,7 @@
         "pp-email": "vendor6@beautyline.co",
         "pp-phone": "+1-555-2172",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -11721,7 +11721,7 @@
       "properties": {
         "pp-name": "Probiotic Skincare Mist",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 25.49,
         "pp-cost": 14.78,
         "pp-weight": 3.55,
@@ -11777,7 +11777,7 @@
       "properties": {
         "pp-name": "Dry Body Brush Cedar",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 34.49,
         "pp-cost": 20.35,
         "pp-weight": 3.7,
@@ -12058,7 +12058,7 @@
       "properties": {
         "pp-name": "Eyelash Growth Serum",
         "pp-desc": "Premium beauty and wellness product made with natural, skin-friendly ingredients.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 31.49,
         "pp-cost": 20.15,
         "pp-weight": 4.45,
@@ -12173,7 +12173,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Organic Dark Chocolate 85%",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Top performer in monthly sales report. Consider expanding SKUs.",
         "pp-price": 12.99,
         "pp-cost": 4.68,
@@ -12229,7 +12229,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Cold Brew Coffee Concentrate",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Quality inspection passed. Minor packaging update planned.",
         "pp-price": 7.79,
         "pp-cost": 2.88,
@@ -12288,8 +12288,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Mixed Nut Trail Mix 1lb",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 28.58,
         "pp-cost": 10.86,
         "pp-weight": 5.05,
@@ -12343,8 +12343,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Extra Virgin Olive Oil 500ml",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 10.39,
         "pp-cost": 4.05,
         "pp-weight": 5.2,
@@ -12399,7 +12399,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Matcha Green Tea Powder",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "New supplier evaluated. Cost reduction potential ~15%.",
         "pp-price": 6.5,
         "pp-cost": 2.6,
@@ -12455,7 +12455,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Raw Wildflower Honey 16oz",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Warranty claim rate under 2%. Excellent durability metrics.",
         "pp-price": 18.19,
         "pp-cost": 7.46,
@@ -12510,7 +12510,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Dried Mango Slices Unsweetened",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Cross-sell opportunity with related accessories.",
         "pp-price": 3.9,
         "pp-cost": 1.64,
@@ -12537,7 +12537,7 @@
         "pp-email": "vendor7@freshfoods.com",
         "pp-phone": "+1-555-2187",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -12566,7 +12566,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Coconut Flour 2lb",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Photography needed for updated product listing.",
         "pp-price": 23.38,
         "pp-cost": 10.05,
@@ -12622,8 +12622,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Sriracha Hot Sauce 17oz",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 14.29,
         "pp-cost": 6.29,
         "pp-weight": 5.95,
@@ -12680,7 +12680,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Himalayan Pink Salt Grinder",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Restock by Q2. Supplier confirmed pricing for next batch.",
         "pp-price": 9.09,
         "pp-cost": 4.09,
@@ -12739,7 +12739,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Chia Seed Pudding Mix",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Top performer in monthly sales report. Consider expanding SKUs.",
         "pp-price": 11.69,
         "pp-cost": 5.38,
@@ -12795,7 +12795,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Oat Milk Barista Blend 32oz",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Quality inspection passed. Minor packaging update planned.",
         "pp-price": 19.49,
         "pp-cost": 9.16,
@@ -12851,8 +12851,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Protein Bar Variety 12-Pack",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 5.2,
         "pp-cost": 2.5,
         "pp-weight": 6.55,
@@ -12907,8 +12907,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Apple Cider Vinegar Raw",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 15.59,
         "pp-cost": 7.64,
         "pp-weight": 6.7,
@@ -12963,7 +12963,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Freeze-Dried Strawberries",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "New supplier evaluated. Cost reduction potential ~15%.",
         "pp-price": 8.44,
         "pp-cost": 4.22,
@@ -13021,7 +13021,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Sourdough Bread Mix Kit",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Warranty claim rate under 2%. Excellent durability metrics.",
         "pp-price": 16.89,
         "pp-cost": 8.61,
@@ -13080,7 +13080,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Truffle Infused Olive Oil",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Cross-sell opportunity with related accessories.",
         "pp-price": 7.14,
         "pp-cost": 3.71,
@@ -13136,7 +13136,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Quinoa Grain 3lb Bag",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Photography needed for updated product listing.",
         "pp-price": 25.98,
         "pp-cost": 13.77,
@@ -13192,8 +13192,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Japanese Sencha Tea Bags 50ct",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 9.74,
         "pp-cost": 5.26,
         "pp-weight": 7.45,
@@ -13248,7 +13248,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Almond Butter Smooth 16oz",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Restock by Q2. Supplier confirmed pricing for next batch.",
         "pp-price": 20.78,
         "pp-cost": 11.43,
@@ -13308,7 +13308,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Maple Syrup Grade A 12oz",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Top performer in monthly sales report. Consider expanding SKUs.",
         "pp-price": 5.85,
         "pp-cost": 3.28,
@@ -13363,7 +13363,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Smoked Paprika Organic",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Quality inspection passed. Minor packaging update planned.",
         "pp-price": 22.08,
         "pp-cost": 12.59,
@@ -13390,7 +13390,7 @@
         "pp-email": "vendor7@freshfoods.com",
         "pp-phone": "+1-555-2202",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -13419,8 +13419,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Espresso Coffee Beans 1kg",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 11.04,
         "pp-cost": 6.4,
         "pp-weight": 0.55,
@@ -13477,8 +13477,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Vegan Jerky Sampler 6-Pack",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 14.94,
         "pp-cost": 8.81,
         "pp-weight": 0.7,
@@ -13533,7 +13533,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Tahini Paste Organic",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "New supplier evaluated. Cost reduction potential ~15%.",
         "pp-price": 4.55,
         "pp-cost": 2.73,
@@ -13589,7 +13589,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Black Garlic Bulbs 3-Pack",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Warranty claim rate under 2%. Excellent durability metrics.",
         "pp-price": 24.68,
         "pp-cost": 15.05,
@@ -13645,7 +13645,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Miso Paste White 500g",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Cross-sell opportunity with related accessories.",
         "pp-price": 12.34,
         "pp-cost": 7.65,
@@ -13700,7 +13700,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Kombucha Starter Kit",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Photography needed for updated product listing.",
         "pp-price": 6.5,
         "pp-cost": 4.1,
@@ -13757,8 +13757,8 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Dried Porcini Mushrooms 2oz",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 13.64,
         "pp-cost": 8.73,
         "pp-weight": 1.45,
@@ -13813,7 +13813,7 @@
       "databaseId": "db-products",
       "properties": {
         "pp-name": "Artisan Pasta Variety Box",
-        "pp-desc": "Carefully sourced gourmet food item \u2014 fresh, flavorful, and sustainably produced.",
+        "pp-desc": "Carefully sourced gourmet food item — fresh, flavorful, and sustainably produced.",
         "pp-notes": "Restock by Q2. Supplier confirmed pricing for next batch.",
         "pp-price": 9.35,
         "pp-cost": 3.27,
@@ -13987,7 +13987,7 @@
       "properties": {
         "pp-name": "STEM Robot Coding Kit",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 76.98,
         "pp-cost": 29.25,
         "pp-weight": 2.05,
@@ -14042,7 +14042,7 @@
       "properties": {
         "pp-name": "Strategy Board Game Classic",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 27.99,
         "pp-cost": 10.92,
         "pp-weight": 2.2,
@@ -14235,7 +14235,7 @@
         "pp-email": "vendor8@toyland.co",
         "pp-phone": "+1-555-2217",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -14323,7 +14323,7 @@
       "properties": {
         "pp-name": "Plush Teddy Bear Large",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 38.49,
         "pp-cost": 16.94,
         "pp-weight": 2.95,
@@ -14549,7 +14549,7 @@
       "properties": {
         "pp-name": "Outdoor Kite Diamond 48\"",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 14,
         "pp-cost": 6.72,
         "pp-weight": 3.55,
@@ -14605,7 +14605,7 @@
       "properties": {
         "pp-name": "Marble Run Tower 120pc",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 41.99,
         "pp-cost": 20.58,
         "pp-weight": 3.7,
@@ -14886,7 +14886,7 @@
       "properties": {
         "pp-name": "Train Set Wooden 80pc",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 26.24,
         "pp-cost": 14.17,
         "pp-weight": 4.45,
@@ -15085,7 +15085,7 @@
         "pp-email": "vendor8@toyland.co",
         "pp-phone": "+1-555-2232",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -15115,7 +15115,7 @@
       "properties": {
         "pp-name": "Balance Bike Toddler",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 29.74,
         "pp-cost": 17.25,
         "pp-weight": 5.05,
@@ -15171,7 +15171,7 @@
       "properties": {
         "pp-name": "Rubik's Speed Cube",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 40.24,
         "pp-cost": 23.74,
         "pp-weight": 5.2,
@@ -15452,7 +15452,7 @@
       "properties": {
         "pp-name": "Telescope Starter Kids",
         "pp-desc": "Fun and educational toy that sparks creativity and keeps the whole family entertained.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 36.74,
         "pp-cost": 23.51,
         "pp-weight": 5.95,
@@ -15681,7 +15681,7 @@
       "properties": {
         "pp-name": "Socket Wrench Set 40pc",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 131.98,
         "pp-cost": 50.15,
         "pp-weight": 6.55,
@@ -15736,7 +15736,7 @@
       "properties": {
         "pp-name": "Laser Level Self-Leveling",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 47.99,
         "pp-cost": 18.72,
         "pp-weight": 6.7,
@@ -15934,7 +15934,7 @@
         "pp-email": "vendor9@toolpro.com",
         "pp-phone": "+1-555-2247",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -16020,7 +16020,7 @@
       "properties": {
         "pp-name": "Digital Caliper 6\"",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 65.99,
         "pp-cost": 29.04,
         "pp-weight": 7.45,
@@ -16249,7 +16249,7 @@
       "properties": {
         "pp-name": "Hex Key Allen Set Metric",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 24,
         "pp-cost": 11.52,
         "pp-weight": 0.55,
@@ -16306,7 +16306,7 @@
       "properties": {
         "pp-name": "Wire Stripper Multi-Tool",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 71.99,
         "pp-cost": 35.28,
         "pp-weight": 0.7,
@@ -16586,7 +16586,7 @@
       "properties": {
         "pp-name": "Router Table Portable",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 44.99,
         "pp-cost": 24.29,
         "pp-weight": 1.45,
@@ -16787,7 +16787,7 @@
         "pp-email": "vendor9@toolpro.com",
         "pp-phone": "+1-555-2262",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -16817,7 +16817,7 @@
       "properties": {
         "pp-name": "Workshop Dust Collector",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 50.99,
         "pp-cost": 29.57,
         "pp-weight": 2.05,
@@ -16873,7 +16873,7 @@
       "properties": {
         "pp-name": "Scroll Saw Variable Speed",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 68.99,
         "pp-cost": 40.7,
         "pp-weight": 2.2,
@@ -17156,7 +17156,7 @@
       "properties": {
         "pp-name": "Dremel Rotary Tool Kit",
         "pp-desc": "Durable professional-grade tool built for precision and reliability on every job.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 62.99,
         "pp-cost": 40.31,
         "pp-weight": 2.95,
@@ -17385,7 +17385,7 @@
       "properties": {
         "pp-name": "Garden Tool Set 5-Piece",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 109.98,
         "pp-cost": 41.79,
         "pp-weight": 3.55,
@@ -17445,7 +17445,7 @@
       "properties": {
         "pp-name": "Compost Bin Tumbler 45gal",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 39.99,
         "pp-cost": 15.6,
         "pp-weight": 3.7,
@@ -17642,7 +17642,7 @@
         "pp-email": "vendor10@greengarden.co",
         "pp-phone": "+1-555-2277",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 7",
+          "address": "São Paulo, Brazil, Aisle 7",
           "lat": -23.572499999999998,
           "lng": -46.6593
         },
@@ -17728,7 +17728,7 @@
       "properties": {
         "pp-name": "Garden Kneeling Pad",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 54.99,
         "pp-cost": 24.2,
         "pp-weight": 4.45,
@@ -17958,7 +17958,7 @@
       "properties": {
         "pp-name": "Greenhouse Mini Portable",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 20,
         "pp-cost": 9.6,
         "pp-weight": 5.05,
@@ -18014,7 +18014,7 @@
       "properties": {
         "pp-name": "Hammock Stand Steel Frame",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 59.99,
         "pp-cost": 29.4,
         "pp-weight": 5.2,
@@ -18303,7 +18303,7 @@
       "properties": {
         "pp-name": "Leaf Blower Cordless",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 37.49,
         "pp-cost": 20.24,
         "pp-weight": 5.95,
@@ -18502,7 +18502,7 @@
         "pp-email": "vendor10@greengarden.co",
         "pp-phone": "+1-555-2292",
         "pp-warehouse": {
-          "address": "S\u00e3o Paulo, Brazil, Aisle 6",
+          "address": "São Paulo, Brazil, Aisle 6",
           "lat": -23.5275,
           "lng": -46.5993
         },
@@ -18532,7 +18532,7 @@
       "properties": {
         "pp-name": "Wheelbarrow Steel 6 Cu Ft",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Customer feedback positive \u2014 4.5+ avg rating on storefront.",
+        "pp-notes": "Customer feedback positive — 4.5+ avg rating on storefront.",
         "pp-price": 42.49,
         "pp-cost": 24.64,
         "pp-weight": 6.55,
@@ -18588,7 +18588,7 @@
       "properties": {
         "pp-name": "Chainsaw Battery 14\"",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Seasonal item \u2014 plan markdowns after peak season.",
+        "pp-notes": "Seasonal item — plan markdowns after peak season.",
         "pp-price": 57.49,
         "pp-cost": 33.92,
         "pp-weight": 6.7,
@@ -18874,7 +18874,7 @@
       "properties": {
         "pp-name": "Outdoor Storage Box 120gal",
         "pp-desc": "Beautiful outdoor & garden essential for transforming your green spaces.",
-        "pp-notes": "Competitor analysis complete \u2014 pricing is competitive.",
+        "pp-notes": "Competitor analysis complete — pricing is competitive.",
         "pp-price": 52.49,
         "pp-cost": 33.59,
         "pp-weight": 7.45,
@@ -18990,7 +18990,7 @@
     "pj1": {
       "id": "pj1",
       "databaseId": "db-projects",
-      "icon": "\ud83c\udfd7\ufe0f",
+      "icon": "🏗️",
       "properties": {
         "proj-title": "Database System Redesign",
         "proj-status": "ps-active",
@@ -19039,7 +19039,7 @@
     "pj2": {
       "id": "pj2",
       "databaseId": "db-projects",
-      "icon": "\ud83d\udce2",
+      "icon": "📢",
       "properties": {
         "proj-title": "Content Marketing Q1",
         "proj-status": "ps-active",
@@ -19073,7 +19073,7 @@
     "pj3": {
       "id": "pj3",
       "databaseId": "db-projects",
-      "icon": "\ud83d\udd27",
+      "icon": "🔧",
       "properties": {
         "proj-title": "Infrastructure Upgrade",
         "proj-status": "ps-planning",
@@ -19104,7 +19104,7 @@
     "pj4": {
       "id": "pj4",
       "databaseId": "db-projects",
-      "icon": "\u2705",
+      "icon": "✅",
       "properties": {
         "proj-title": "Client Onboarding Portal",
         "proj-status": "ps-completed",
@@ -19138,7 +19138,7 @@
     "pj5": {
       "id": "pj5",
       "databaseId": "db-projects",
-      "icon": "\ud83d\udcf1",
+      "icon": "📱",
       "properties": {
         "proj-title": "Mobile App MVP",
         "proj-status": "ps-hold",
@@ -19172,7 +19172,7 @@
     "pj6": {
       "id": "pj6",
       "databaseId": "db-projects",
-      "icon": "\ud83d\udcca",
+      "icon": "📊",
       "properties": {
         "proj-title": "Analytics Dashboard",
         "proj-status": "ps-active",
@@ -19205,7 +19205,7 @@
     "pj7": {
       "id": "pj7",
       "databaseId": "db-projects",
-      "icon": "\ud83d\udeab",
+      "icon": "🚫",
       "properties": {
         "proj-title": "Legacy Migration (Cancelled)",
         "proj-status": "ps-cancelled",
@@ -19231,7 +19231,7 @@
     "pj8": {
       "id": "pj8",
       "databaseId": "db-projects",
-      "icon": "\ud83e\uddea",
+      "icon": "🧪",
       "properties": {
         "proj-title": "R&D Exploration",
         "proj-status": "ps-planning",
@@ -19969,7 +19969,7 @@
           {
             "id": "wa8b",
             "type": "chart",
-            "title": "Stock \u00d7 Category Over Time",
+            "title": "Stock × Category Over Time",
             "propertyId": "pp-stock",
             "chartStyle": "multi_line",
             "aggregation": "count",
