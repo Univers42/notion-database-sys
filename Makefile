@@ -27,13 +27,15 @@ restart: down up
 
 re:
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
-	@echo "1/4  Pulling latest images..."
+	@echo "1/5  Restoring clean state files..."
+	@git checkout -- src/store/dbms/ 2>/dev/null || true
+	@echo "2/5  Pulling latest images..."
 	@docker compose pull --quiet
-	@echo "2/4  Wiping volumes and stopping containers..."
+	@echo "3/5  Wiping volumes and stopping containers..."
 	@docker compose down -v
-	@echo "3/4  Starting fresh containers..."
+	@echo "4/5  Starting fresh containers..."
 	@docker compose up -d
-	@echo "4/4  Seeding databases..."
+	@echo "5/5  Seeding databases..."
 	@sleep 4
 	@$(MAKE) seed-all --no-print-directory
 	@echo -e "$(GREEN)══ Full restart complete — both DBs seeded and ready ══$(RESET)"
