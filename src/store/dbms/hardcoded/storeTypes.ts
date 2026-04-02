@@ -68,6 +68,7 @@ export interface DatabaseState {
   removeFilter: (viewId: string, filterId: string) => void;
   clearFilters: (viewId: string) => void;
   addSort: (viewId: string, sort: Omit<Sort, 'id'>) => void;
+  setSort: (viewId: string, sort: Omit<Sort, 'id'>) => void;
   updateSort: (viewId: string, sortId: string, updates: Partial<Sort>) => void;
   removeSort: (viewId: string, sortId: string) => void;
   clearSorts: (viewId: string) => void;

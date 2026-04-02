@@ -30,6 +30,7 @@ export interface ViewSliceActions {
   removeFilter: (viewId: string, filterId: string) => void;
   clearFilters: (viewId: string) => void;
   addSort: (viewId: string, sort: Omit<Sort, 'id'>) => void;
+  setSort: (viewId: string, sort: Omit<Sort, 'id'>) => void;
   updateSort: (viewId: string, sortId: string, updates: Partial<Sort>) => void;
   removeSort: (viewId: string, sortId: string) => void;
   clearSorts: (viewId: string) => void;
@@ -137,6 +138,18 @@ export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions 
         views: {
           ...state.views,
           [viewId]: { ...view, sorts: [...view.sorts, { ...sort, id: crypto.randomUUID() }] },
+        },
+      };
+    }),
+
+    // Replace ALL sorts with a single one (used by column-header quick-sort)
+    setSort: (viewId, sort) => set((state: DatabaseState) => {
+      const view = state.views[viewId];
+      if (!view) return state;
+      return {
+        views: {
+          ...state.views,
+          [viewId]: { ...view, sorts: [{ ...sort, id: crypto.randomUUID() }] },
         },
       };
     }),

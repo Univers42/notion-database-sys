@@ -19,3 +19,5 @@ export { FilterPropertyPicker } from './FilterPropertyPicker';
 export { AdvancedFilterGrid } from './AdvancedFilterGrid';
 export { FilterBar } from './FilterBar';
 export { FilterSettingsSubpanel } from './FilterSettingsSubpanel';
+export { SortSettingsSubpanel } from './SortSettingsSubpanel';
+export { SortPropertyPicker } from './SortPropertyPicker';

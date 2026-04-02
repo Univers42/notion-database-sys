@@ -33,7 +33,7 @@ interface PropertyConfigPanelProps {
 export function PropertyConfigPanel({ property, databaseId, viewId, position, onClose }: Readonly<PropertyConfigPanelProps>) {
   const {
     updateProperty, deleteProperty, togglePropertyVisibility,
-    addSort, addFilter, setGrouping, insertPropertyAt, views,
+    setSort, addFilter, setGrouping, insertPropertyAt, views,
   } = useDatabaseStore();
 
   const [propName, setPropName] = useState(property.name);
@@ -143,9 +143,9 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
         <ActionButton icon={<Filter className="w-3.5 h-3.5" />} label="Filter by this property"
           onClick={() => { addFilter(viewId, { propertyId: property.id, operator: 'is_not_empty', value: '' }); onClose(); }} />
         <ActionButton icon={<ArrowUp className="w-3.5 h-3.5" />} label="Sort ascending"
-          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'asc' }); onClose(); }} />
+          onClick={() => { setSort(viewId, { propertyId: property.id, direction: 'asc' }); onClose(); }} />
         <ActionButton icon={<ArrowDown className="w-3.5 h-3.5" />} label="Sort descending"
-          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'desc' }); onClose(); }} />
+          onClick={() => { setSort(viewId, { propertyId: property.id, direction: 'desc' }); onClose(); }} />
         {(property.type === 'select' || property.type === 'status' || property.type === 'multi_select' || property.type === 'checkbox' || property.type === 'person' || property.type === 'user') && (
           <ActionButton icon={<Group className="w-3.5 h-3.5" />} label="Group by this property"
             onClick={() => { setGrouping(viewId, { propertyId: property.id }); onClose(); }} />

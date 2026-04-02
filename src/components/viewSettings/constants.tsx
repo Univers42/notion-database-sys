@@ -25,6 +25,7 @@ import type { ViewType, PropertyType } from '../../types/database';
 
 export type PanelScreen =
   | 'main' | 'layout' | 'propertyVisibility' | 'filter' | 'addFilter'
+  | 'sort' | 'addSort'
   | 'loadLimit' | 'cardPreview' | 'cardSize' | 'showCalendarBy'
   | 'showCalendarAs' | 'showTimelineBy' | 'openPagesIn' | 'groupBy'
   | 'mapBy' | 'editChart' | 'chartType' | 'xAxisWhat' | 'xAxisSort'

@@ -23,6 +23,7 @@ import {
 import { ListIcon } from './ui/Icons';
 import {
   FilterSettingsSubpanel, FilterPropertyPicker, getOperatorsForType,
+  SortSettingsSubpanel,
 } from './FilterComponents';
 import {
   VIEW_META, ViewIdentityRow, LayoutScreen,
@@ -111,6 +112,18 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     );
   }
 
+  // ─── Sort screen ────────────────────────────────────────────────────
+  if (screen === 'sort') {
+    return (
+      <div className="flex flex-col h-full" style={{ minWidth: 290, maxWidth: 290 }}>
+        <SortSettingsSubpanel
+          viewId={view.id} properties={database.properties}
+          sorts={view.sorts || []} onBack={() => setScreen('main')} onClose={onClose}
+        />
+      </div>
+    );
+  }
+
   // ─── Add filter screen ──────────────────────────────────────────────
   if (screen === 'addFilter') {
     const props = Object.values(database.properties) as import('../types/database').SchemaProperty[];
@@ -169,7 +182,7 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
             <SettingsRow icon={currentViewMeta.svgIcon} label="Layout" value={currentViewMeta.label} onClick={() => setScreen('layout')} />
             <SettingsRow icon={<EyeIcon />} label="Property visibility" value={String(visibleCount)} onClick={() => setScreen('propertyVisibility')} />
             <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
-            <SettingsRow icon={<SortIcon />} label="Sort" onClick={() => {}} />
+            <SettingsRow icon={<SortIcon />} label="Sort" value={view.sorts.length > 0 ? String(view.sorts.length) : undefined} onClick={() => setScreen('sort')} />
             <SettingsRow icon={<ConditionalColorIcon />} label="Conditional color" onClick={() => {}} />
             <SettingsRow icon={<CopyLinkIcon className="w-5 h-5" />} label="Copy link to view" showChevron={false} onClick={() => {}} />
           </div>
