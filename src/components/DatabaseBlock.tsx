@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useMemo } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { DatabaseScopeProvider } from '../hooks/useDatabaseScope';
 import { TopBar } from './TopBar';
 import { DatabaseView } from './DatabaseView';

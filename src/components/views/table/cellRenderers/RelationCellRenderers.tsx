@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import type { CellRendererProps } from '../CellRenderer';
 import type { PropertyValue } from '../../../../types/database';
 import { RelationCellEditor } from '../../../cellEditors';

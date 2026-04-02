@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   viewSlice.ts                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:39:19 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ─── viewSlice — view CRUD, filter, sort, grouping, and property visibility ─
 import type { ViewConfig, ViewSettings, Filter, Sort, Grouping } from '../../types/database';
-import type { StoreSet, StoreGet, DatabaseState } from '../storeTypes';
+import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 
 export interface ViewSliceState {
   views: Record<string, ViewConfig>;

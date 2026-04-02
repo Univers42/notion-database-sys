@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   iconRegistryB.ts                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:37:19 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 14:37:20 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Icon Registry Part B — entries alphabetical: circle-outline through cursor/*
 
 export const ICON_REGISTRY_B: Record<string, { d: string; viewBox?: string }> = {

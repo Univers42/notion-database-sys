@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:44:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import { ViewSettingsPanel } from './ViewSettingsPanel';
 import { CURSORS } from './ui/cursors';
@@ -23,6 +23,7 @@ import { ThemeToggle } from './ui/ThemeToggle';
 import { Dropdown, ExtraActionsMenu } from './topBar';
 import { ViewTabsRow } from './topBar/ViewTabsRow';
 import { FilterSortPanels } from './topBar/FilterSortPanels';
+import { DbSourceDropdown } from './DbSourceDropdown';
 
 export interface TopBarProps {
   onViewChange?: (viewId: string) => void;
@@ -166,6 +167,7 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
               <Settings2 className="w-4 h-4" />
             </button>
             <ExtraActionsMenu show={showExtraActions} onToggle={() => setShowExtraActions(!showExtraActions)} onClose={() => setShowExtraActions(false)} />
+            <DbSourceDropdown />
             <ThemeToggle />
             <div className="w-px h-5 bg-surface-muted mx-1" />
             <button onClick={() => { const id = addPage(database.id); store.openPage(id); }}

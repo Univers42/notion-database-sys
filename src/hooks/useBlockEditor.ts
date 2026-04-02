@@ -1,7 +1,7 @@
 // useBlockEditor — encapsulates block-editing logic for PageContentEditor
 
 import React, { useState, useRef, useCallback } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { detectBlockType } from '../lib/markdown';
 import type { Block } from '../types/database';
 import { useSlashSelect, repositionCursor } from './useSlashSelect';

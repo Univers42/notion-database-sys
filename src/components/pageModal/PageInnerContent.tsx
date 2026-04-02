@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 17:03:34 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { X, Copy, Trash2, ChevronRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { PropertyRow } from '../PropertyRow';
 import { PageContentEditor } from '../PageContentEditor';
 import type { Page, DatabaseSchema, SchemaProperty } from '../../types/database';
@@ -75,7 +75,13 @@ export function PageInnerContent({ page, database, pageId, hPad }: {
   hPad: string;
 }) {
   const { updatePageProperty } = useDatabaseStore.getState();
-  const title = (page.properties[database.titlePropertyId] as string) || '';
+  const titleValue = (page.properties[database.titlePropertyId] as string) || '';
+  const [localTitle, setLocalTitle] = useState(titleValue);
+  const commitTitle = useCallback(() => {
+    if (localTitle !== titleValue) {
+      updatePageProperty(pageId, database.titlePropertyId, localTitle);
+    }
+  }, [localTitle, titleValue, pageId, database.titlePropertyId, updatePageProperty]);
   const nonTitleProps = Object.values(database.properties).filter(p => p.id !== database.titlePropertyId);
 
   return (
@@ -87,8 +93,10 @@ export function PageInnerContent({ page, database, pageId, hPad }: {
         </div>
         <input
           type="text"
-          value={title}
-          onChange={e => updatePageProperty(pageId, database.titlePropertyId, e.target.value)}
+          value={localTitle}
+          onChange={e => setLocalTitle(e.target.value)}
+          onBlur={commitTitle}
+          onKeyDown={e => { if (e.key === 'Enter') commitTitle(); }}
           className="w-full text-3xl font-bold text-ink placeholder:text-ink-disabled outline-none border-none"
           placeholder="Untitled"
         />

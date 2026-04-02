@@ -1,0 +1,7 @@
+id,name,company,stage,deal_value,email,phone,last_contact,vip,source,icon,created_at,updated_at,created_by,last_edited_by
+c1,Acme Corporation1156151131,Acme Inc,crm-customer,50000,contact@acme.com,+1-555-0100,2026-03-31T14:22:50.751Z,true,src-ref,🏢,2026-03-03T00:00:00Z,2026-03-31T00:00:00Z,Alice,Alice
+c2,Acme Corporation1156151131,Globex Corp,crm-lead,120000,sales@globex.com,+1-555-0200,2026-04-01T14:22:50.751Z,false,src-web,🌐,2026-03-19T00:00:00Z,2026-04-01T00:00:00Z,Bob,Bob
+c3,Acme Corporation1fsfds156151131,Initech LLC,crm-proposal,15000,info@initech.com,+1-555-0300,2026-03-28T15:22:50.751Z,true,src-cold,,2026-03-13T00:00:00Z,2026-03-28T00:00:00Z,Charlie,Charlie
+c4,Acmefjkldsajkfdsadfaskdfhk,Soylent Corp,crm-lost,80000,hello@soylent.com,+1-555-0400,2026-02-21T15:22:50.751Z,true,src-ref,,2026-02-01T00:00:00Z,2026-02-21T00:00:00Z,Alice,Alice
+c5,Acme Corporation11fasfddsa56151131,Umbrella Corp,crm-negotiation,250000,deals@umbrella.com,+1-555-0500,2026-04-02T14:22:50.751Z,true,src-web,⭐,2026-03-26T00:00:00Z,2026-04-02T00:00:00Z,Bob,Bob
+c6,Acme Corporation1156151131,Cyberdyne,crm-qualified,45000,sales@cyberdyne.io,,2026-03-30T14:22:50.751Z,true,src-web,,2026-03-23T00:00:00Z,2026-03-30T00:00:00Z,Diana,Diana

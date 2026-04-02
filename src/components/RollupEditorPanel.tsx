@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { GitBranch } from 'lucide-react';
 import type { RollupFunction, RollupDisplayAs } from '../types/database';
 import {

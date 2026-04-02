@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useMemo } from 'react';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import type { DashboardWidget, SchemaProperty } from '../../types/database';
 import { Hash, TrendingUp, Users, CheckCircle, Clock, BarChart3 } from 'lucide-react';

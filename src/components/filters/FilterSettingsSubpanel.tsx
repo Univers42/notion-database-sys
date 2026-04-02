@@ -13,7 +13,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, Plus, GripVertical, X } from 'lucide-react';
 import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { getOperatorsForType } from './constants';
 import { PropertyTypeIcon } from './PropertyTypeIcon';
 import { FilterPropertyPicker } from './FilterPropertyPicker';

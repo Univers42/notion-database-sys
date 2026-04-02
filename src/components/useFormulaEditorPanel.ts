@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:22 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 02:10:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import type { SchemaProperty, Page } from '../types/database';
 import { FORMULA_FUNCTIONS, FUNCTION_CATEGORIES } from './formulaEditor';

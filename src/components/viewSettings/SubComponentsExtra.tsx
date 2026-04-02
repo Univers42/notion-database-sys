@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   SubComponentsExtra.tsx                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:38:39 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 14:38:40 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useRef } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Icon } from '../ui/Icon';

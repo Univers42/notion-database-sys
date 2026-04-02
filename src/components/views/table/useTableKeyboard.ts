@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:59 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 02:10:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useCallback } from 'react';
-import { useDatabaseStore } from '../../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
 
 const CLEAR_VALUE_BY_TYPE: Record<string, unknown> = {

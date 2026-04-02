@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   IconPickerPopover.tsx                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:37:12 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 14:37:13 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { IconPicker as IconPickerPanel } from './IconPicker';

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:49 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 import React, { useCallback, useMemo } from 'react';
 import type { Block } from '../../types/database';
 import { BlockRenderer } from './BlockRenderer';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { Plus } from 'lucide-react';
 import { ColumnResizeHandle } from './ColumnResizeHandle';
 

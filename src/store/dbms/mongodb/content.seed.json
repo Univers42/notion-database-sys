@@ -1,0 +1,89 @@
+[
+  {
+    "_id": "ct1",
+    "title": "10 Tips for React Performance",
+    "platforms": [
+      "Twitter",
+      "LinkedIn"
+    ],
+    "status": "Published",
+    "publish_date": "2026-03-25T00:00:00Z",
+    "author": "Alice",
+    "approved": true,
+    "url": "https://blog.example.com/react-tips",
+    "icon": "✍️",
+    "created_at": "2026-03-18T00:00:00Z",
+    "updated_at": "2026-03-25T00:00:00Z",
+    "created_by": "Alice",
+    "last_edited_by": "Alice"
+  },
+  {
+    "_id": "ct2",
+    "title": "State Management in 2026",
+    "platforms": [
+      "Blog"
+    ],
+    "status": "Drafting",
+    "publish_date": "2026-04-05T00:00:00Z",
+    "author": "Bob",
+    "approved": false,
+    "url": "",
+    "icon": "",
+    "created_at": "2026-03-28T00:00:00Z",
+    "updated_at": "2026-04-01T00:00:00Z",
+    "created_by": "Bob",
+    "last_edited_by": "Bob"
+  },
+  {
+    "_id": "ct3",
+    "title": "Vite vs Webpack Deep Dive",
+    "platforms": [
+      "YouTube"
+    ],
+    "status": "Idea",
+    "publish_date": "2026-04-17T00:00:00Z",
+    "author": "Charlie",
+    "approved": false,
+    "url": "",
+    "icon": "",
+    "created_at": "2026-03-31T00:00:00Z",
+    "updated_at": "2026-03-31T00:00:00Z",
+    "created_by": "Charlie",
+    "last_edited_by": "Charlie"
+  },
+  {
+    "_id": "ct4",
+    "title": "Monthly Product Update",
+    "platforms": [
+      "Newsletter"
+    ],
+    "status": "In Review",
+    "publish_date": "2026-04-03T00:00:00Z",
+    "author": "Diana",
+    "approved": false,
+    "url": "",
+    "icon": "📧",
+    "created_at": "2026-03-30T00:00:00Z",
+    "updated_at": "2026-04-02T00:00:00Z",
+    "created_by": "Diana",
+    "last_edited_by": "Diana"
+  },
+  {
+    "_id": "ct5",
+    "title": "TypeScript 6.0 First Look",
+    "platforms": [
+      "Blog",
+      "Twitter"
+    ],
+    "status": "Scheduled",
+    "publish_date": "2026-04-07T00:00:00Z",
+    "author": "Alice",
+    "approved": true,
+    "url": "",
+    "icon": "",
+    "created_at": "2026-04-01T00:00:00Z",
+    "updated_at": "2026-04-01T00:00:00Z",
+    "created_by": "Alice",
+    "last_edited_by": "Alice"
+  }
+]

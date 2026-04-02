@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   iconRegistryA.ts                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:37:16 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 14:37:17 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Icon Registry Part A — entries alphabetical: 123 through cigarette
 
 export const ICON_REGISTRY_A: Record<string, { d: string; viewBox?: string }> = {

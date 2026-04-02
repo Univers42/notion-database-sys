@@ -10,22 +10,40 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import type { SchemaProperty, Page, PropertyValue } from '../../../../types/database';
 import { ArrowUpRight, CheckCircle2, MapPin } from 'lucide-react';
 
 // ─── Inline input shared by text, number, date, person, email/url/phone, place ──
+// Buffers locally while the user types. Only commits via onChange on blur / Enter.
 export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, className = '', placeholder = 'Empty', step }: Readonly<{
   type?: string; value: PropertyValue; onChange: (v: PropertyValue) => void; onStop: () => void;
   tableRef: React.RefObject<HTMLDivElement | null>; className?: string; placeholder?: string; step?: string;
 }>) {
+  const [local, setLocal] = useState<string>(String(value ?? ''));
+  const committed = useRef(false);
+
+  // Sync from parent if value changes while NOT focused (e.g., undo/redo)
+  useEffect(() => { setLocal(String(value ?? '')); }, [value]);
+
+  const commit = useCallback(() => {
+    if (committed.current) return;
+    committed.current = true;
+    const out = type === 'number' ? (local ? Number(local) : null) : local;
+    onChange(out);
+    onStop();
+  }, [local, type, onChange, onStop]);
+
   return (
     <input
-      autoFocus type={type} value={value ?? ''} step={step}
-      onChange={e => onChange(e.target.value)}
-      onBlur={onStop}
-      onKeyDown={e => { if (e.key === 'Enter') { onStop(); tableRef.current?.focus(); } }}
+      autoFocus type={type} value={local} step={step}
+      onChange={e => { committed.current = false; setLocal(e.target.value); }}
+      onBlur={commit}
+      onKeyDown={e => {
+        if (e.key === 'Enter') { commit(); tableRef.current?.focus(); }
+        if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
+      }}
       className={`w-full bg-transparent outline-none text-sm ${className}`}
       placeholder={placeholder}
     />
@@ -57,7 +75,7 @@ export function renderNumber(p: CellRendererProps): React.ReactNode {
   if (isEditing) {
     return (
       <InlineInput type="number" value={value ?? ''}
-        onChange={v => onUpdate(page.id, prop.id, v ? Number(v) : null)}
+        onChange={v => onUpdate(page.id, prop.id, v)}
         onStop={onStopEditing} tableRef={tableRef} className="tabular-nums text-ink" />
     );
   }

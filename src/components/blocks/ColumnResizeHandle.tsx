@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import type { Block } from '../../types/database';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 
 export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _columns }: Readonly<{
   pageId: string;

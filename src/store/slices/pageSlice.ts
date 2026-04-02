@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pageSlice.ts                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:39:14 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ─── pageSlice — page CRUD and block mutation actions ────────────────────────
 import type { Page, Block, DatabaseSchema, SchemaProperty } from '../../types/database';
-import type { StoreSet, StoreGet, DatabaseState } from '../storeTypes';
+import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 
 export interface PageSliceState {
   pages: Record<string, Page>;

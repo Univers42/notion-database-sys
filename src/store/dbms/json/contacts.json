@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "name": "contacts",
+    "version": "1.0.0",
+    "fields": [
+      { "name": "id", "type": "string", "required": true },
+      { "name": "name", "type": "string", "required": true },
+      { "name": "company", "type": "string", "required": false },
+      { "name": "stage", "type": "string", "required": false },
+      { "name": "deal_value", "type": "number", "required": false },
+      { "name": "email", "type": "string", "required": false },
+      { "name": "phone", "type": "string", "required": false },
+      { "name": "last_contact", "type": "date", "required": false },
+      { "name": "vip", "type": "boolean", "required": false },
+      { "name": "source", "type": "string", "required": false },
+      { "name": "icon", "type": "string", "required": false },
+      { "name": "created_at", "type": "date", "required": false },
+      { "name": "updated_at", "type": "date", "required": false },
+      { "name": "created_by", "type": "string", "required": false },
+      { "name": "last_edited_by", "type": "string", "required": false }
+    ]
+  },
+  "records": [
+    { "id": "c1", "name": "Acme Corporation", "company": "Acme Inc", "stage": "Customer", "deal_value": 50000, "email": "contact@acme.com", "phone": "+1-555-0100", "last_contact": "2026-03-31T00:00:00Z", "vip": true, "source": "Referral", "icon": "🏢", "created_at": "2026-03-03T00:00:00Z", "updated_at": "2026-03-31T00:00:00Z", "created_by": "Alice", "last_edited_by": "Alice" },
+    { "id": "c2", "name": "Globex Industries", "company": "Globex Corp", "stage": "Lead", "deal_value": 120000, "email": "sales@globex.com", "phone": "+1-555-0200", "last_contact": "2026-04-01T00:00:00Z", "vip": false, "source": "Website", "icon": "🌐", "created_at": "2026-03-19T00:00:00Z", "updated_at": "2026-04-01T00:00:00Z", "created_by": "Bob", "last_edited_by": "Bob" },
+    { "id": "c3", "name": "Initech Systems", "company": "Initech LLC", "stage": "Proposal", "deal_value": 15000, "email": "info@initech.com", "phone": "+1-555-0300", "last_contact": "2026-03-28T00:00:00Z", "vip": false, "source": "Cold Outreach", "icon": "", "created_at": "2026-03-13T00:00:00Z", "updated_at": "2026-03-28T00:00:00Z", "created_by": "Charlie", "last_edited_by": "Charlie" },
+    { "id": "c4", "name": "Soylent Corp", "company": "Soylent Corp", "stage": "Lost", "deal_value": 80000, "email": "hello@soylent.com", "phone": "+1-555-0400", "last_contact": "2026-02-21T00:00:00Z", "vip": false, "source": "Referral", "icon": "", "created_at": "2026-02-01T00:00:00Z", "updated_at": "2026-02-21T00:00:00Z", "created_by": "Alice", "last_edited_by": "Alice" },
+    { "id": "c5", "name": "Umbrella Corp", "company": "Umbrella Corp", "stage": "Negotiation", "deal_value": 250000, "email": "deals@umbrella.com", "phone": "+1-555-0500", "last_contact": "2026-04-02T00:00:00Z", "vip": true, "source": "Website", "icon": "⭐", "created_at": "2026-03-26T00:00:00Z", "updated_at": "2026-04-02T00:00:00Z", "created_by": "Bob", "last_edited_by": "Bob" },
+    { "id": "c6", "name": "Cyberdyne Tech", "company": "Cyberdyne", "stage": "Qualified", "deal_value": 45000, "email": "sales@cyberdyne.io", "phone": "", "last_contact": "2026-03-30T00:00:00Z", "vip": false, "source": "Website", "icon": "", "created_at": "2026-03-23T00:00:00Z", "updated_at": "2026-03-30T00:00:00Z", "created_by": "Diana", "last_edited_by": "Diana" }
+  ]
+}

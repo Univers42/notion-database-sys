@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   RollupCellEditorSections.tsx                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:36:05 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 14:36:06 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import type { SchemaProperty, RollupFunction, DatabaseSchema } from '../../types/database';
 import { ExternalLink, Hash, BarChart2, ChevronDown, ChevronRight, CheckCircle2 } from 'lucide-react';

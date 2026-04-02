@@ -1,0 +1,6 @@
+id,name,category,serial_number,price,purchase_date,in_service,location,icon,created_at,updated_at,created_by,last_edited_by
+i1,MacBook Pro M3,Hardware,C02X12345,2499,2026-01-02T00:00:00Z,true,"Office A — Building 1, Floor 2",💻,2026-01-02T00:00:00Z,2026-01-02T00:00:00Z,Alice,Alice
+i2,Figma Enterprise,Software,LIC-998877,540,2026-02-01T00:00:00Z,true,Cloud,🎨,2026-02-01T00:00:00Z,2026-02-01T00:00:00Z,Alice,Alice
+i3,Herman Miller Aeron,Furniture,HM-445566,1200,2025-09-14T00:00:00Z,true,"Office B — Building 2, Floor 1",🪑,2025-09-14T00:00:00Z,2025-09-14T00:00:00Z,Bob,Bob
+i4,"Dell UltraSharp 32""",Hardware,DL-112233,899,2025-12-03T00:00:00Z,true,"Office A — Building 1, Floor 2",🖥️,2025-12-03T00:00:00Z,2025-12-03T00:00:00Z,Charlie,Charlie
+i5,Standing Desk Frame,Furniture,SD-778899,450,2025-10-04T00:00:00Z,false,Storage B-3,,2025-10-04T00:00:00Z,2026-03-03T00:00:00Z,Diana,Diana

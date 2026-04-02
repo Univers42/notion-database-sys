@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 02:01:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { Plus, Image, MoreHorizontal, ArrowUpRight } from 'lucide-react';
 import type { Page, Block } from '../../types/database';

@@ -6,12 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:43:59 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 16:34:07 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useDatabaseStore } from './store/useDatabaseStore';
+import { useDbSource } from './hooks/useDbSource';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { DatabaseBlock } from './components/DatabaseBlock';
 import { BlockHandle } from './components/ui/BlockHandle';
@@ -25,14 +26,35 @@ import {
 } from './components/ui/Icons';
 import { format } from 'date-fns';
 
+/** DBMS source → accent color for the loading screen. */
+const SOURCE_COLORS: Record<string, string> = {
+  json: '#3b82f6',
+  csv: '#f59e0b',
+  mongodb: '#22c55e',
+  postgresql: '#8b5cf6',
+};
+
 function App() {
   const activeViewId = useDatabaseStore(s => s.activeViewId);
   const views = useDatabaseStore(s => s.views);
   const openPageId = useDatabaseStore(s => s.openPageId);
   const databases = useDatabaseStore(s => s.databases);
-  const { openPage } = useDatabaseStore.getState();
+  const dbmsLoading = useDatabaseStore(s => s.dbmsLoading);
+  const dbmsError = useDatabaseStore(s => s.dbmsError);
+  const { openPage, loadFromSource } = useDatabaseStore.getState();
+  const activeSource = useDbSource(s => s.activeSource);
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+
+  // ── Load data from DBMS on mount ───────────────────────
+  useEffect(() => {
+    loadFromSource();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Apply data-dbms-source attribute for theming ───────
+  useEffect(() => {
+    document.documentElement.setAttribute('data-dbms-source', activeSource);
+  }, [activeSource]);
 
   const [lockViews, setLockViews] = useState(false);
 
@@ -85,6 +107,47 @@ function App() {
       },
     ];
   }, [view, database, lockViews]);
+
+  // ── Loading / error states ──────────────────────────────
+  if (dbmsLoading) {
+    const accentColor = SOURCE_COLORS[activeSource] ?? '#3b82f6';
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-surface-primary">
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent"
+            style={{ color: accentColor }}
+          />
+          <p className="text-sm text-ink-muted">
+            Loading from <span className="font-semibold" style={{ color: accentColor }}>
+              {activeSource.toUpperCase()}
+            </span> source…
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dbmsError) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-surface-primary">
+        <div className="flex flex-col items-center gap-3 max-w-md text-center">
+          <div className="text-4xl">⚠️</div>
+          <p className="text-sm font-medium text-ink-strong">
+            Failed to load from {activeSource.toUpperCase()} source
+          </p>
+          <p className="text-xs text-ink-muted">{dbmsError}</p>
+          <button
+            onClick={() => loadFromSource()}
+            className="mt-2 px-4 py-1.5 text-xs font-medium rounded-md
+                       bg-accent text-white hover:bg-accent-bold transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-screen bg-surface-primary overflow-hidden">

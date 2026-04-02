@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // ─── databaseSlice — database schema CRUD actions ───────────────────────────
 
 import type { DatabaseSchema, SchemaProperty, PropertyType, SelectOption } from '../../types/database';
-import type { StoreSet, StoreGet, DatabaseState } from '../storeTypes';
+import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 
 export interface DatabaseSliceState {
   databases: Record<string, DatabaseSchema>;
