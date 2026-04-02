@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 16:34:07 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 22:53:51 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useDatabaseStore } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
+import type { DbSourceType } from './services/dbms/types';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { DatabaseBlock } from './components/DatabaseBlock';
 import { BlockHandle } from './components/ui/BlockHandle';
@@ -43,12 +44,20 @@ function App() {
   const dbmsError = useDatabaseStore(s => s.dbmsError);
   const { openPage, loadFromSource } = useDatabaseStore.getState();
   const activeSource = useDbSource(s => s.activeSource);
+  const setActiveSource = useDbSource(s => s.setActiveSource);
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
   // ── Load data from DBMS on mount ───────────────────────
+  // Always switch to the hash source so server + frontend stay in sync
   useEffect(() => {
-    loadFromSource();
+    loadFromSource(activeSource).then(() => {
+      // Sync useDbSource with whatever the database store settled on
+      const storeSource = useDatabaseStore.getState().activeDbmsSource;
+      if (storeSource !== activeSource) {
+        setActiveSource(storeSource as DbSourceType);
+      }
+    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Apply data-dbms-source attribute for theming ───────

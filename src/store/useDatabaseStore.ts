@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 22:42:19 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 22:53:51 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,18 @@ import { createViewSlice } from './slices/viewSlice';
 import { createSelectionSlice } from './slices/selectionSlice';
 import { createComputedSlice } from './slices/computedSlice';
 import { validatePropertyValue } from './validation';
+import { readViewFromHash, writeHash } from '../hooks/useDbSource';
+
+// Read initial source from URL hash (same logic as useDbSource)
+const VALID_SOURCES = new Set(['json', 'csv', 'mongodb', 'postgresql']);
+function getInitialSource(): string {
+  try {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const src = params.get('source');
+    if (src && VALID_SOURCES.has(src)) return src;
+  } catch { /* SSR-safe */ }
+  return 'json';
+}
 
 /** Extended state with DBMS loading capabilities. */
 interface DbmsExtras {
@@ -85,13 +97,14 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   // DBMS loading state
   dbmsLoading: true,
   dbmsError: null,
-  activeDbmsSource: 'json',
+  activeDbmsSource: getInitialSource(),
 
   loadFromSource: async (source?: string, opts?: { silent?: boolean }) => {
     const silent = opts?.silent ?? false;
     if (!silent) set({ dbmsLoading: true, dbmsError: null });
     try {
       if (source) {
+        // Explicit source switch — tell the server + load fresh data
         const switchRes = await fetch('/api/dbms/source', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -99,28 +112,44 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
         });
         if (!switchRes.ok) throw new Error(`Switch failed: ${switchRes.statusText}`);
         const switched = await switchRes.json();
+        const hashView = readViewFromHash();
         const firstView = Object.keys(switched.views)[0] ?? null;
+        // Restore the view from hash if it belongs to this source, else pick first
+        const viewId = (hashView && switched.views[hashView]) ? hashView : firstView;
         set({
           databases: switched.databases,
           pages: switched.pages,
           views: switched.views,
-          activeViewId: firstView,
+          activeViewId: viewId,
           activeDbmsSource: source,
           dbmsLoading: false,
         });
+        writeHash(source, viewId);
         return;
       }
+      // Initial load (no source arg) — ask the server for its current state
       const res = await fetch('/api/dbms/state');
       if (!res.ok) throw new Error(`Load failed: ${res.statusText}`);
       const state = await res.json();
+      const serverSource = state._source as string | undefined;
+      const hashView = readViewFromHash();
       const firstView = Object.keys(state.views)[0] ?? null;
+      const currentView = get().activeViewId;
+      // Prefer: current view > hash view > first view
+      const viewId = (currentView && state.views[currentView])
+        ? currentView
+        : (hashView && state.views[hashView])
+          ? hashView
+          : firstView;
       set({
         databases: state.databases,
         pages: state.pages,
         views: state.views,
-        activeViewId: get().activeViewId ?? firstView,
+        activeViewId: viewId,
+        activeDbmsSource: serverSource ?? get().activeDbmsSource,
         dbmsLoading: false,
       });
+      if (serverSource) writeHash(serverSource, viewId);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[dbms] Load error:', message);
@@ -321,6 +350,15 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     return { databaseId: dbId, viewId };
   },
 }));
+
+// ─── URL hash sync: keep hash in sync when activeViewId or source changes ───
+useDatabaseStore.subscribe(
+  (state, prev) => {
+    if (state.activeViewId !== prev.activeViewId || state.activeDbmsSource !== prev.activeDbmsSource) {
+      writeHash(state.activeDbmsSource, state.activeViewId);
+    }
+  },
+);
 
 // Re-export the state type for consumers
 export type { DatabaseState } from './dbms/hardcoded/storeTypes';

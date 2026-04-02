@@ -352,7 +352,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         if (isLiveDbSource(activeSource)) invalidateLiveCache();
         const state = await getEffectiveState(activeSource);
         res.writeHead(200);
-        res.end(JSON.stringify(state));
+        res.end(JSON.stringify({ ...state, _source: activeSource }));
         return;
       }
 

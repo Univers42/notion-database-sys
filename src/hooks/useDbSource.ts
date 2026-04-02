@@ -1,8 +1,40 @@
 // ─── useDbSource — Zustand store for active DB source ────────────────────────
 // Tracks which database source backend the app is using.
+// Persists the active source in the URL hash so page refreshes restore it.
 
 import { create } from 'zustand';
 import type { DbSourceType } from '../services/dbms/types.ts';
+
+const VALID_SOURCES = new Set<string>(['json', 'csv', 'mongodb', 'postgresql']);
+
+/** Read the source from the URL hash (e.g. #source=postgresql&view=v-tasks-table). */
+function readSourceFromHash(): DbSourceType {
+  try {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const src = params.get('source');
+    if (src && VALID_SOURCES.has(src)) return src as DbSourceType;
+  } catch { /* ignore */ }
+  return 'json';
+}
+
+/** Read the view ID from the URL hash. */
+export function readViewFromHash(): string | null {
+  try {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    return params.get('view') || null;
+  } catch { return null; }
+}
+
+/** Write source + view to the URL hash (replaceState — no history entry). */
+export function writeHash(source: string, viewId?: string | null): void {
+  const params = new URLSearchParams();
+  params.set('source', source);
+  if (viewId) params.set('view', viewId);
+  const hash = `#${params.toString()}`;
+  if (window.location.hash !== hash) {
+    history.replaceState(null, '', hash);
+  }
+}
 
 /** All available source options with metadata. */
 export const DB_SOURCE_OPTIONS: ReadonlyArray<{
@@ -33,7 +65,7 @@ interface DbSourceState {
 }
 
 export const useDbSource = create<DbSourceState>((set) => ({
-  activeSource: 'json',
+  activeSource: readSourceFromHash(),
   switching: false,
   lastError: null,
 
