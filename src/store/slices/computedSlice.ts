@@ -90,8 +90,16 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
             );
             if (cmp !== 0) return cmp;
           }
-          return 0;
+          // Stable tiebreaker: creation order prevents shuffling
+          // when all user-sort columns have equal values.
+          return (a.createdAt || '').localeCompare(b.createdAt || '');
         });
+      } else {
+        // No user sorts → preserve stable creation order so rows never
+        // shuffle when a cell value changes or the view re-renders.
+        result.sort((a, b) =>
+          (a.createdAt || '').localeCompare(b.createdAt || ''),
+        );
       }
 
       pagesForViewCache.results.set(viewId, result);
