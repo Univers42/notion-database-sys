@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ import React from 'react';
 import type { PropertyType } from '../types/database';
 import {
   Type, Hash, Calendar, CheckSquare, User, Link, Mail, Phone, Tag, List,
-  Clock, GitBranch, Sigma, CircleDot, MapPin, FileText, MousePointerClick,
+  Clock, Sigma, CircleDot, MapPin, FileText, MousePointerClick,
   Fingerprint, Users, ChevronRight, Calculator,
 } from 'lucide-react';
 
