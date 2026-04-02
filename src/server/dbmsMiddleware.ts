@@ -513,15 +513,80 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         res.end(JSON.stringify({ ok: true }));
         return;
       }
+      // ── POST /api/dbms/ops — ops-only dispatch (no state modification) ──
+      if (url === '/api/dbms/ops' && req.method === 'POST') {
+        const body = await parseBody(req);
+        const action = body.action as string;
+        const databaseId = body.databaseId as string;
 
-      // ── PATCH /api/dbms/state — bulk partial update ──
+        const allFieldMaps = readFieldMap(activeSource);
+        const fieldMap = allFieldMaps[databaseId] ?? {};
+
+        let result: ReturnType<typeof dispatchInsert> = null;
+
+        switch (action) {
+          case 'insert': {
+            const properties = (body.properties ?? {}) as Record<string, unknown>;
+            const pageId = body.pageId as string;
+            const flatRecord: Record<string, unknown> = {};
+            for (const [propId, fieldName] of Object.entries(fieldMap)) {
+              flatRecord[fieldName === 'id' ? 'id' : fieldName] =
+                fieldName === 'id' ? (properties[propId] ?? pageId) : (properties[propId] ?? null);
+            }
+            if (!flatRecord.id) flatRecord.id = pageId;
+            result = dispatchInsert(activeSource, databaseId, flatRecord, fieldMap);
+            break;
+          }
+          case 'delete': {
+            const pageId = body.pageId as string;
+            // Try to resolve flat ID from current state
+            try {
+              const state = readState(activeSource);
+              const page = state.pages[pageId] as PageLike | undefined;
+              const flatId = page ? resolveFlatId(page, fieldMap) : pageId;
+              result = dispatchDelete(activeSource, databaseId, flatId, fieldMap);
+            } catch {
+              result = dispatchDelete(activeSource, databaseId, pageId, fieldMap);
+            }
+            break;
+          }
+          case 'addColumn': {
+            const columnName = body.columnName as string;
+            const propType = (body.propType as string) ?? 'text';
+            result = dispatchAddColumn(activeSource, databaseId, columnName, propType);
+            break;
+          }
+          case 'dropColumn': {
+            const columnName = body.columnName as string;
+            result = dispatchDropColumn(activeSource, databaseId, columnName);
+            break;
+          }
+          case 'changeType': {
+            const columnName = body.columnName as string;
+            const oldType = body.oldType as string;
+            const newType = body.newType as string;
+            result = dispatchChangeType(activeSource, databaseId, columnName, oldType, newType);
+            break;
+          }
+          default:
+            res.writeHead(400);
+            res.end(JSON.stringify({ error: `Unknown ops action: ${action}` }));
+            return;
+        }
+
+        res.writeHead(200);
+        res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
+        return;
+      }
+      // ── PATCH /api/dbms/state — full state replacement ──
       if (url === '/api/dbms/state' && req.method === 'PATCH') {
         const body = await parseBody(req);
         const state = readState(activeSource);
 
-        if (body.databases) Object.assign(state.databases, body.databases);
-        if (body.pages) Object.assign(state.pages, body.pages);
-        if (body.views) Object.assign(state.views, body.views);
+        // Full replacement — critical so deletions propagate correctly
+        if (body.databases) state.databases = body.databases as Record<string, unknown>;
+        if (body.pages) state.pages = body.pages as Record<string, unknown>;
+        if (body.views) state.views = body.views as Record<string, unknown>;
 
         writeState(activeSource, state);
         res.writeHead(200);

@@ -1,8 +1,8 @@
-version: '3.9'
-
 services:
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: ./src/services/postgresql
+      dockerfile: Dockerfile
     container_name: notion_postgres
     restart: unless-stopped
     environment:
@@ -15,13 +15,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./src/store/dbms/relational:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-notion_user}"]
+      test: ["CMD-SHELL", "/usr/local/bin/healthcheck.sh"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   mongodb:
-    image: mongo:7.0
+    build:
+      context: ./src/services/mongodb
+      dockerfile: Dockerfile
     container_name: notion_mongodb
     restart: unless-stopped
     environment:
@@ -32,8 +34,9 @@ services:
       - "${MONGO_PORT:-27017}:27017"
     volumes:
       - mongo_data:/data/db
+      - ./src/store/dbms/mongodb:/seed:ro
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD-SHELL", "/usr/local/bin/healthcheck.sh"]
       interval: 5s
       timeout: 5s
       retries: 5

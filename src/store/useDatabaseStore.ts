@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 17:19:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/02 18:20:47 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,19 +39,25 @@ interface DbmsExtras {
 
 export type ExtendedDatabaseState = DatabaseState & DbmsExtras;
 
-// ─── Helper: Debounced full-state persist for schema changes ────────────────
+// ─── Helper: Flush full state to server immediately (no debounce) ───────────
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
-function persistState(get: () => ExtendedDatabaseState): void {
-  if (persistTimer) clearTimeout(persistTimer);
-  persistTimer = setTimeout(() => {
-    persistTimer = null;
-    const { databases, pages, views } = get();
-    fetch('/api/dbms/state', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ databases, pages, views }),
-    }).catch((err) => console.error('[dbms] State persist error:', err));
-  }, 800);
+function flushState(get: () => ExtendedDatabaseState): void {
+  if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
+  const { databases, pages, views } = get();
+  fetch('/api/dbms/state', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ databases, pages, views }),
+  }).catch((err) => console.error('[dbms] State flush error:', err));
+}
+
+// ─── Helper: Fire ops dispatch (query generation only, no state mod) ────────
+function dispatchOps(action: string, payload: Record<string, unknown>): void {
+  fetch('/api/dbms/ops', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...payload }),
+  }).catch(() => { /* ops dispatch is best-effort */ });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -173,86 +179,68 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     get().persistPageProperty(pageId, propertyId, value);
   },
 
-  // ─── Override addPage to persist new record to DBMS ──
+  // ─── Override addPage: flush state + dispatch ops ──
   addPage: (databaseId: string, properties: Record<string, unknown> = {}) => {
-    // 1) Delegate to the slice for state update
     const sliceActions = createPageSlice(set, get);
     const pageId = sliceActions.addPage(databaseId, properties);
-    // 2) Fire-and-forget persist to DBMS
+    // Persist full state immediately (includes new page + autoIncrement)
+    flushState(get);
+    // Dispatch ops (query generation only — fire-and-forget)
     const page = get().pages[pageId];
     if (page) {
-      fetch('/api/dbms/records', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ databaseId, properties: page.properties, pageId }),
-      }).catch((err) => console.error('[dbms] addPage persist error:', err));
+      dispatchOps('insert', { databaseId, pageId, properties: page.properties });
     }
     return pageId;
   },
 
-  // ─── Override deletePage to persist removal to DBMS ──
+  // ─── Override deletePage: flush state + dispatch ops ──
   deletePage: (pageId: string) => {
-    // 1) Delegate to slice for state update
+    const page = get().pages[pageId];
     const sliceActions = createPageSlice(set, get);
     sliceActions.deletePage(pageId);
-    // 2) Fire-and-forget persist to DBMS
-    fetch(`/api/dbms/records/${encodeURIComponent(pageId)}`, {
-      method: 'DELETE',
-    }).catch((err) => console.error('[dbms] deletePage persist error:', err));
+    // Persist full state immediately (page removed from state)
+    flushState(get);
+    if (page) {
+      dispatchOps('delete', {
+        databaseId: page.databaseId,
+        pageId,
+      });
+    }
   },
 
-  // ─── Override addProperty to persist new column to DBMS ──
+  // ─── Override addProperty: flush state + dispatch ops ──
   addProperty: (databaseId: string, name: string, type: string) => {
-    // 1) Delegate to slice
     const sliceActions = createDatabaseSlice(set, get);
     sliceActions.addProperty(databaseId, name, type as never);
-    // 2) Get the new propId and persist
-    const db = get().databases[databaseId];
-    if (db) {
-      const newProp = Object.values(db.properties).find(
-        (p) => p.name === name && p.type === type,
-      );
-      if (newProp) {
-        fetch('/api/dbms/columns', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            databaseId, columnName: name, propType: type, propId: newProp.id,
-          }),
-        }).catch((err) => console.error('[dbms] addProperty persist error:', err));
-      }
-    }
-    // Persist full state for schema changes
-    persistState(get);
+    flushState(get);
+    dispatchOps('addColumn', { databaseId, columnName: name, propType: type });
   },
 
-  // ─── Override deleteProperty to persist column removal to DBMS ──
+  // ─── Override deleteProperty: flush state + dispatch ops ──
   deleteProperty: (databaseId: string, propertyId: string) => {
-    // 1) Delegate to slice
+    const db = get().databases[databaseId];
+    const propName = db?.properties[propertyId]?.name;
     const sliceActions = createDatabaseSlice(set, get);
     sliceActions.deleteProperty(databaseId, propertyId);
-    // 2) Persist
-    fetch(`/api/dbms/columns/${encodeURIComponent(databaseId)}/${encodeURIComponent(propertyId)}`, {
-      method: 'DELETE',
-    }).catch((err) => console.error('[dbms] deleteProperty persist error:', err));
-    persistState(get);
+    flushState(get);
+    if (propName) {
+      dispatchOps('dropColumn', { databaseId, columnName: propName });
+    }
   },
 
-  // ─── Override updateProperty to detect type changes → DBMS ──
+  // ─── Override updateProperty: flush state + dispatch type changes ──
   updateProperty: (databaseId: string, propertyId: string, updates: Partial<{ name: string; type: string }>) => {
     const oldProp = get().databases[databaseId]?.properties[propertyId];
-    // 1) Delegate to slice
     const sliceActions = createDatabaseSlice(set, get);
     sliceActions.updateProperty(databaseId, propertyId, updates as never);
-    // 2) If type changed, dispatch change-type to DBMS
+    flushState(get);
     if (updates.type && oldProp && oldProp.type !== updates.type) {
-      fetch(`/api/dbms/columns/${encodeURIComponent(databaseId)}/${encodeURIComponent(propertyId)}/type`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ oldType: oldProp.type, newType: updates.type }),
-      }).catch((err) => console.error('[dbms] changeType persist error:', err));
+      const fieldName = oldProp.name.toLowerCase().replace(/\s+/g, '_');
+      dispatchOps('changeType', {
+        databaseId, columnName: fieldName,
+        oldType: oldProp.type, newType: updates.type,
+      });
     }
-    persistState(get);
   },
 
   // ─── Inline Database Creation ──────────────────────────────

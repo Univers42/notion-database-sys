@@ -348,8 +348,3 @@ INSERT INTO products (id, name, description, price, cost, weight_kg, category, c
 INSERT INTO products (id, name, description, price, cost, weight_kg, category, condition, rating, shipping, tags, brand_tier, stock_status, release_date, warranty_expires, featured, returnable, manager, reviewer, product_url, manual_url, vendor_email, vendor_phone, warehouse, origin_country, sku, stock_qty, created_at, updated_at, created_by, last_edited_by) VALUES ('pd300', 'Potting Bench Wood', 'Beautiful outdoor & garden essential for transforming your green spaces.', 35.99, 12.6, 0.1, 'Garden & Outdoor', 'Refurbished', '4.0', 'Overnight', ARRAY['Premium', 'Organic', 'New Arrival', 'Eco-Friendly'], ARRAY['Luxury', 'Independent'], 'In Stock', '2026-04-02T00:00:00Z', '2027-04-02T00:00:00Z', TRUE, FALSE, 'Eve', 'Henry', 'https://shop.example.com/product/300', 'https://docs.example.com/manual/300', 'vendor10@example.com', '+1-555-2300', 'Sacramento, CA, USA', 'Shenzhen, China', 'SKU-300', 224, '2026-03-23T00:00:00Z', '2026-04-03T00:00:00Z', 'Eve', 'Henry') ON CONFLICT (id) DO NOTHING;
 
 COMMIT;
-
-INSERT INTO "tasks" ("title", "status", "priority", "tags", "assignee", "due_date", "completed", "story_points", "created_at", "id", "project")
-VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'pg-test-001', NULL);
-
-DELETE FROM "tasks" WHERE "id" = 'pg-test-001';

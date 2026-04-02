@@ -1,5 +1,6 @@
 // ─── MongoDB query generator ─────────────────────────────────────────────────
-// Generates MongoDB shell-style commands and updates the seed files.
+// Generates MongoDB shell-style commands, updates seed files, and
+// executes against the live Docker container when available.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -8,6 +9,7 @@ import type { DbmsAdapter, QueryResult } from './types';
 import { PROP_TO_BSON } from './types';
 import { mongoLit } from './helpers';
 import { logQuery } from './queryLog';
+import { mongoInsert, mongoDelete, mongoUpdate } from '../db/mongoClient';
 
 const DIR = join(resolve(process.cwd()), 'src', 'store', 'dbms', 'mongodb');
 
@@ -44,6 +46,8 @@ export class MongoOps implements DbmsAdapter {
     const docStr = JSON.stringify(doc, null, 2);
     const query = `db.${table}.insertOne(${docStr})`;
     logQuery('mongodb', 'INSERT', table, query, 1);
+    // Execute against live Docker MongoDB (fire-and-forget)
+    mongoInsert(table, doc).catch(() => {});
     return { query, executed: true, affected: 1 };
   }
 
@@ -55,6 +59,7 @@ export class MongoOps implements DbmsAdapter {
     const affected = before - filtered.length;
     const query = `db.${table}.deleteOne({ _id: ${mongoLit(flatId)} })`;
     logQuery('mongodb', 'DELETE', table, query, affected);
+    mongoDelete(table, flatId).catch(() => {});
     return { query, executed: true, affected };
   }
 
@@ -79,6 +84,7 @@ export class MongoOps implements DbmsAdapter {
       `)`,
     ].join('\n');
     logQuery('mongodb', 'UPDATE', table, query, affected);
+    mongoUpdate(table, flatId, { [fieldName]: value }).catch(() => {});
     return { query, executed: true, affected };
   }
 

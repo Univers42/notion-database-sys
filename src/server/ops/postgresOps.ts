@@ -1,7 +1,6 @@
 // ─── PostgreSQL query generator ──────────────────────────────────────────────
 // Generates real SQL queries and applies them to the seed files.
-// When a live PG connection is available, these queries could be executed;
-// for now they update the SQL seed files and _notion_state.json.
+// When the Docker PG container is running, queries are also executed live.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -10,6 +9,7 @@ import type { DbmsAdapter, QueryResult } from './types';
 import { PROP_TO_SQL } from './types';
 import { sqlId, sqlLit } from './helpers';
 import { logQuery } from './queryLog';
+import { pgQuery } from '../db/pgPool';
 
 const DIR = join(resolve(process.cwd()), 'src', 'store', 'dbms', 'relational');
 const SEED_FILE = join(DIR, '002_seed.sql');
@@ -45,6 +45,10 @@ export class PostgresOps implements DbmsAdapter {
     const query = `INSERT INTO ${sqlId(table)} (${cols.map(sqlId).join(', ')})\nVALUES (${vals.map(sqlLit).join(', ')});`;
     appendToSeed(query);
     logQuery('postgresql', 'INSERT', table, query, 1);
+    // Execute against live Docker PG (fire-and-forget)
+    const placeholders = vals.map((_, i) => `$${i + 1}`).join(', ');
+    const liveSQL = `INSERT INTO ${sqlId(table)} (${cols.map(sqlId).join(', ')}) VALUES (${placeholders}) ON CONFLICT (id) DO NOTHING`;
+    pgQuery(liveSQL, vals).catch(() => {});
     return { query, executed: true, affected: 1 };
   }
 
@@ -52,6 +56,7 @@ export class PostgresOps implements DbmsAdapter {
     const query = `DELETE FROM ${sqlId(table)} WHERE ${sqlId('id')} = ${sqlLit(flatId)};`;
     appendToSeed(query);
     logQuery('postgresql', 'DELETE', table, query, 1);
+    pgQuery(`DELETE FROM ${sqlId(table)} WHERE id = $1`, [flatId]).catch(() => {});
     return { query, executed: true, affected: 1 };
   }
 
@@ -65,6 +70,10 @@ export class PostgresOps implements DbmsAdapter {
     ].join('\n');
     appendToSeed(query);
     logQuery('postgresql', 'UPDATE', table, query, 1);
+    pgQuery(
+      `UPDATE ${sqlId(table)} SET ${sqlId(fieldName)} = $1, updated_at = NOW(), last_edited_by = 'app' WHERE id = $2`,
+      [value, flatId],
+    ).catch(() => {});
     return { query, executed: true, affected: 1 };
   }
 
@@ -73,6 +82,7 @@ export class PostgresOps implements DbmsAdapter {
     const query = `ALTER TABLE ${sqlId(table)} ADD COLUMN ${sqlId(columnName)} ${sqlType};`;
     appendToSchema(query);
     logQuery('postgresql', 'ADD_COLUMN', table, query, 0);
+    pgQuery(`ALTER TABLE ${sqlId(table)} ADD COLUMN IF NOT EXISTS ${sqlId(columnName)} ${sqlType}`).catch(() => {});
     return { query, executed: true, affected: 0 };
   }
 
@@ -80,12 +90,12 @@ export class PostgresOps implements DbmsAdapter {
     const query = `ALTER TABLE ${sqlId(table)} DROP COLUMN IF EXISTS ${sqlId(columnName)};`;
     appendToSchema(query);
     logQuery('postgresql', 'DROP_COLUMN', table, query, 0);
+    pgQuery(`ALTER TABLE ${sqlId(table)} DROP COLUMN IF EXISTS ${sqlId(columnName)}`).catch(() => {});
     return { query, executed: true, affected: 0 };
   }
 
   changeColumnType(table: string, columnName: string, _old: string, newType: string): QueryResult {
     const sqlType = PROP_TO_SQL[newType] ?? 'TEXT';
-    // Strip default clause for ALTER TYPE
     const pureType = sqlType.replace(/\s+DEFAULT\s+.*/i, '');
     const query = [
       `ALTER TABLE ${sqlId(table)}`,
@@ -94,6 +104,7 @@ export class PostgresOps implements DbmsAdapter {
     ].join('\n');
     appendToSchema(query);
     logQuery('postgresql', 'ALTER_TYPE', table, query, 0);
+    pgQuery(`ALTER TABLE ${sqlId(table)} ALTER COLUMN ${sqlId(columnName)} TYPE ${pureType} USING ${sqlId(columnName)}::${pureType}`).catch(() => {});
     return { query, executed: true, affected: 0 };
   }
 }

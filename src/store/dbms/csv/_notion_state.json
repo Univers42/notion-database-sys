@@ -19259,6 +19259,220 @@
       "updatedAt": "2026-04-01T14:22:50.754Z",
       "createdBy": "Diana",
       "lastEditedBy": "Diana"
+    },
+    "65564e39-ddae-4726-8e83-4247adb1bff4": {
+      "id": "65564e39-ddae-4726-8e83-4247adb1bff4",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "fasdfsa",
+        "prop-task-id": "TASK-9",
+        "prop-status": "opt-review"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:46:41.890Z",
+      "updatedAt": "2026-04-02T15:51:20.542Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "01f65ed1-f2ff-4aef-ba5d-f0126e507614": {
+      "id": "01f65ed1-f2ff-4aef-ba5d-f0126e507614",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-10"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:47:46.506Z",
+      "updatedAt": "2026-04-02T15:51:19.282Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670": {
+      "id": "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "afssdfsadf",
+        "prop-task-id": "TASK-11"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:47:47.178Z",
+      "updatedAt": "2026-04-02T15:50:25.909Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "a5bb379f-8410-4cb8-8c0f-c8e22b673cd5": {
+      "id": "a5bb379f-8410-4cb8-8c0f-c8e22b673cd5",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "fsafsadfsa",
+        "prop-task-id": "TASK-12"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:47:47.793Z",
+      "updatedAt": "2026-04-02T15:50:28.496Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "d493060f-9f13-4494-9f7a-70d37c96e707": {
+      "id": "d493060f-9f13-4494-9f7a-70d37c96e707",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-13"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:47:48.611Z",
+      "updatedAt": "2026-04-02T15:50:52.468Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "2c33ad1f-d893-4f90-adfe-99d98edd78ea": {
+      "id": "2c33ad1f-d893-4f90-adfe-99d98edd78ea",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "fafdsaf",
+        "prop-task-id": "TASK-9"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:49:32.361Z",
+      "updatedAt": "2026-04-02T15:50:21.334Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "f660b0d7-5b77-4c46-9f9c-43049acb10c7": {
+      "id": "f660b0d7-5b77-4c46-9f9c-43049acb10c7",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "fasfasdfs",
+        "prop-task-id": "TASK-10"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:49:42.331Z",
+      "updatedAt": "2026-04-02T15:50:19.606Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "fc46c1d5-c647-4998-b7b7-cfbd6947a611": {
+      "id": "fc46c1d5-c647-4998-b7b7-cfbd6947a611",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "fasdfasdfds",
+        "prop-task-id": "TASK-11"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:49:58.546Z",
+      "updatedAt": "2026-04-02T15:50:17.261Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "5ca32fcc-1f35-4da0-901c-57c754c5d907": {
+      "id": "5ca32fcc-1f35-4da0-901c-57c754c5d907",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "fssdfsadf",
+        "prop-task-id": "TASK-12"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:49:59.197Z",
+      "updatedAt": "2026-04-02T15:50:12.942Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "fe6a0e4f-a952-48df-8068-d86a55b5dc04": {
+      "id": "fe6a0e4f-a952-48df-8068-d86a55b5dc04",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "gdfdffsdafs",
+        "prop-task-id": "TASK-13"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:49:59.759Z",
+      "updatedAt": "2026-04-02T15:50:11.368Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "d05ada26-d2e1-4bdd-9215-554c9eec0ffa": {
+      "id": "d05ada26-d2e1-4bdd-9215-554c9eec0ffa",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-14"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:50:51.957Z",
+      "updatedAt": "2026-04-02T15:50:51.957Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "f0e90c98-e4f6-4642-a52e-1c5932bdca25": {
+      "id": "f0e90c98-e4f6-4642-a52e-1c5932bdca25",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-15"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:50:54.705Z",
+      "updatedAt": "2026-04-02T15:50:54.705Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "38acf83c-1f05-44a1-aa3c-0fb8ca72ab01": {
+      "id": "38acf83c-1f05-44a1-aa3c-0fb8ca72ab01",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-9"
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:51:14.702Z",
+      "updatedAt": "2026-04-02T15:51:14.702Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "4e293fa0-9820-4cd7-9383-f5fc6d8e7955": {
+      "id": "4e293fa0-9820-4cd7-9383-f5fc6d8e7955",
+      "databaseId": "db-crm",
+      "properties": {
+        "prop-name": "fjsalfjsalkdfj",
+        "prop-company": "fjkaskljf",
+        "prop-stage": "Lead",
+        "prop-value": "",
+        "prop-email": "",
+        "prop-phone": "",
+        "prop-last-contact": "",
+        "prop-vip": "",
+        "prop-source": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:51:26.189Z",
+      "updatedAt": "2026-04-02T15:52:01.133Z",
+      "createdBy": "You",
+      "lastEditedBy": "External"
+    },
+    "41c09eec-95ab-42c7-b9ea-3b44db60833d": {
+      "id": "41c09eec-95ab-42c7-b9ea-3b44db60833d",
+      "databaseId": "db-crm",
+      "properties": {
+        "prop-name": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:52:12.260Z",
+      "updatedAt": "2026-04-02T15:52:12.260Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "9540faa3-a3a7-4133-9e33-fc8affa26e84": {
+      "id": "9540faa3-a3a7-4133-9e33-fc8affa26e84",
+      "databaseId": "db-crm",
+      "properties": {
+        "prop-name": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-02T15:52:12.905Z",
+      "updatedAt": "2026-04-02T15:52:12.905Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
     }
   },
   "views": {
