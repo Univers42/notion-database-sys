@@ -1,4 +1,14 @@
-// ─── ViewService — view CRUD + user override merging ────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   view.service.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:06:12 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { ViewConfigModel } from '../models/view.model';
 import { UserViewOverrideModel } from '../models/userViewOverride.model';
@@ -8,7 +18,7 @@ export class ViewService {
   /**
    * Create a new shared view for a database.
    */
-  async create(data: Omit<ViewConfig, '_id' | 'createdAt' | 'updatedAt'>): Promise<any> {
+  async create(data: Omit<ViewConfig, '_id' | 'createdAt' | 'updatedAt'>): Promise<unknown> {
     const view = await ViewConfigModel.create(data);
     return view.toObject();
   }
@@ -16,14 +26,14 @@ export class ViewService {
   /**
    * List all views for a database.
    */
-  async listByDatabase(databaseId: ObjectId, workspaceId: ObjectId): Promise<any[]> {
+  async listByDatabase(databaseId: ObjectId, workspaceId: ObjectId): Promise<unknown[]> {
     return ViewConfigModel.find({ databaseId, workspaceId }).lean();
   }
 
   /**
    * Get the effective view for a user — base view merged with user overrides.
    */
-  async getEffective(viewId: ObjectId, userId: ObjectId): Promise<any> {
+  async getEffective(viewId: ObjectId, userId: ObjectId): Promise<unknown> {
     const [base, override] = await Promise.all([
       ViewConfigModel.findById(viewId).lean(),
       UserViewOverrideModel.findOne({ viewId, userId }).lean(),
@@ -32,7 +42,7 @@ export class ViewService {
     if (!base) throw new Error(`View ${viewId} not found`);
     if (!override) return base;
 
-    return this.mergeOverride(base, override);
+    return this.mergeOverride(base as unknown as ViewConfig, override as unknown as UserViewOverride);
   }
 
   /**
@@ -62,8 +72,8 @@ export class ViewService {
    * Merge user overrides on top of the base view.
    * Strategy: shallow merge at each field level. Override replaces base.
    */
-  private mergeOverride(base: any, override: any): any {
-    const merged = { ...base };
+  private mergeOverride(base: ViewConfig, override: UserViewOverride): ViewConfig {
+    const merged = { ...base } as Record<string, unknown>;
     const ov = override.overrides;
 
     if (ov.filterTree !== undefined) merged.filterTree = ov.filterTree;
@@ -76,6 +86,6 @@ export class ViewService {
     if (ov.fieldConfigs !== undefined) merged.fieldConfigs = ov.fieldConfigs;
     if (ov.settings !== undefined) merged.settings = { ...base.settings, ...ov.settings };
 
-    return merged;
+    return merged as unknown as ViewConfig;
   }
 }

@@ -1,14 +1,24 @@
-// ─── WorkspaceService — workspace CRUD + member management ──────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   workspace.service.ts                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:06:21 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:22 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { WorkspaceModel } from '../models/workspace.model';
 import { WorkspaceMemberModel } from '../models/member.model';
-import type { ObjectId, Workspace, WorkspaceRole } from '@notion-db/types';
+import type { ObjectId, WorkspaceRole } from '@notion-db/types';
 
 export class WorkspaceService {
   /**
    * Create a new workspace and add the creator as owner.
    */
-  async create(name: string, ownerId: ObjectId): Promise<any> {
+  async create(name: string, ownerId: ObjectId): Promise<unknown> {
     const workspace = await WorkspaceModel.create({ name, ownerId });
 
     // Auto-add creator as owner member
@@ -25,14 +35,14 @@ export class WorkspaceService {
   /**
    * Get workspace by ID.
    */
-  async getById(workspaceId: ObjectId): Promise<any> {
+  async getById(workspaceId: ObjectId): Promise<unknown> {
     return WorkspaceModel.findById(workspaceId).lean();
   }
 
   /**
    * List all workspaces a user belongs to.
    */
-  async listForUser(userId: ObjectId): Promise<any[]> {
+  async listForUser(userId: ObjectId): Promise<unknown[]> {
     const memberships = await WorkspaceMemberModel.find({ userId })
       .select('workspaceId')
       .lean();

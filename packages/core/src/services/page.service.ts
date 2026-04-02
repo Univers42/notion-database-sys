@@ -1,7 +1,17 @@
-// ─── PageService — page CRUD within a workspace/database ────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   page.service.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:06:05 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:07 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { PageModel } from '../models/page.model';
-import type { ObjectId, Page, PropertyValue } from '@notion-db/types';
+import type { ObjectId, PropertyValue } from '@notion-db/types';
 
 export class PageService {
   /**
@@ -17,7 +27,7 @@ export class PageService {
     cover?: string;
     title?: string;
     content?: unknown[];
-  }): Promise<any> {
+  }): Promise<unknown> {
     const page = await PageModel.create({
       ...data,
       lastEditedBy: data.createdBy,
@@ -29,14 +39,14 @@ export class PageService {
   /**
    * Get a page by ID.
    */
-  async getById(pageId: ObjectId): Promise<any> {
+  async getById(pageId: ObjectId): Promise<unknown> {
     return PageModel.findById(pageId).lean();
   }
 
   /**
    * List pages in a database within a workspace.
    */
-  async listByDatabase(workspaceId: ObjectId, databaseId: ObjectId): Promise<any[]> {
+  async listByDatabase(workspaceId: ObjectId, databaseId: ObjectId): Promise<unknown[]> {
     return PageModel.find({
       workspaceId,
       databaseId,
@@ -47,7 +57,7 @@ export class PageService {
   /**
    * List top-level pages in a workspace (no parent database).
    */
-  async listRootPages(workspaceId: ObjectId): Promise<any[]> {
+  async listRootPages(workspaceId: ObjectId): Promise<unknown[]> {
     return PageModel.find({
       workspaceId,
       databaseId: null,
@@ -63,7 +73,7 @@ export class PageService {
     pageId: ObjectId,
     properties: Record<string, PropertyValue>,
     editedBy: ObjectId,
-  ): Promise<any> {
+  ): Promise<unknown> {
     const update: Record<string, unknown> = { lastEditedBy: editedBy };
     for (const [key, val] of Object.entries(properties)) {
       update[`properties.${key}`] = val;
@@ -78,7 +88,7 @@ export class PageService {
     pageId: ObjectId,
     data: { title?: string; icon?: string; cover?: string; content?: unknown[]; parentPageId?: string | null },
     editedBy: ObjectId,
-  ): Promise<any> {
+  ): Promise<unknown> {
     const update: Record<string, unknown> = { lastEditedBy: editedBy };
     if (data.title !== undefined)        update.title        = data.title;
     if (data.icon !== undefined)         update.icon         = data.icon;
@@ -91,7 +101,7 @@ export class PageService {
   /**
    * List ALL pages in a workspace (root + children, for sidebar tree).
    */
-  async listAllPages(workspaceId: ObjectId): Promise<any[]> {
+  async listAllPages(workspaceId: ObjectId): Promise<unknown[]> {
     return PageModel.find({
       workspaceId,
       databaseId: null,

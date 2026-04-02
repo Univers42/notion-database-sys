@@ -1,4 +1,14 @@
-// ─── BlockService — block CRUD (standalone collection) ──────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   block.service.ts                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:05:55 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:05:57 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { BlockModel } from '../models/block.model';
 import type { ObjectId, Block, BlockType } from '@notion-db/types';
@@ -14,7 +24,7 @@ export class BlockService {
     type: BlockType;
     content?: string;
     order: string;
-  }): Promise<any> {
+  }): Promise<unknown> {
     const block = await BlockModel.create({
       ...data,
       content: data.content ?? '',
@@ -25,7 +35,7 @@ export class BlockService {
   /**
    * Get all blocks for a page, ordered.
    */
-  async listByPage(pageId: ObjectId): Promise<any[]> {
+  async listByPage(pageId: ObjectId): Promise<unknown[]> {
     return BlockModel.find({
       pageId,
       archived: { $ne: true },
@@ -37,7 +47,7 @@ export class BlockService {
   /**
    * Get child blocks of a parent block.
    */
-  async listChildren(parentBlockId: ObjectId): Promise<any[]> {
+  async listChildren(parentBlockId: ObjectId): Promise<unknown[]> {
     return BlockModel.find({
       parentBlockId,
       archived: { $ne: true },
@@ -49,8 +59,8 @@ export class BlockService {
   /**
    * Update a block's content and/or type-specific fields.
    */
-  async update(blockId: ObjectId, data: Partial<Block>): Promise<any> {
-    const { _id, pageId, workspaceId, ...updateData } = data as any;
+  async update(blockId: ObjectId, data: Partial<Block>): Promise<unknown> {
+    const { _id, _pageId, _workspaceId, ...updateData } = data as Record<string, unknown>;
     return BlockModel.findByIdAndUpdate(blockId, { $set: updateData }, { new: true }).lean();
   }
 
