@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   HeadingBlock.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:16 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:17 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
@@ -20,7 +32,7 @@ const HEADING_PLACEHOLDERS: Record<string, string> = {
   heading_6: 'Heading 6',
 };
 
-export function HeadingBlock({ block, onChange, onKeyDown }: BlockRendererProps) {
+export function HeadingBlock({ block, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   return (
     <EditableContent
       content={block.content}

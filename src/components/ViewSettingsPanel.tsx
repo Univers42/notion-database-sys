@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ViewSettingsPanel.tsx                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:48 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 23:20:52 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import {
-  ChartIcon, EyeIcon, FilterIcon, SortIcon, ConditionalColorIcon,
+  EyeIcon, FilterIcon, SortIcon, ConditionalColorIcon,
   CopyLinkIcon, SourceIcon, LightningIcon, CollectionIcon, LockIcon,
 } from './ui/Icons';
 import {
@@ -11,18 +23,15 @@ import {
 import { ListIcon } from './ui/Icons';
 import {
   FilterSettingsSubpanel, FilterPropertyPicker, getOperatorsForType,
+  SortSettingsSubpanel,
 } from './FilterComponents';
-
-// ─── Extracted view-settings modules ─────────────────────────────────────────
 import {
-  VIEW_META, DEFAULT_PROPERTY_ICONS,
-  SubPanelHeader, OptionList, PropertyOptionList,
-  ViewIdentityRow, PropertyVisibilityRow,
-  LayoutScreen,
+  VIEW_META, ViewIdentityRow, LayoutScreen,
   EditChartScreen, ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen,
   YAxisWhatScreen, YAxisGroupByScreen, YAxisRangeScreen, YAxisReferenceLineScreen,
   ColorPaletteScreen, MoreStyleScreen,
 } from './viewSettings';
+import { renderPropertyScreen } from './viewSettings/PropertyScreens';
 import type { PanelScreen, ChartScreensProps } from './viewSettings';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -43,57 +52,10 @@ const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> =
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SIMPLE SUB-SCREEN CONFIGS (data-driven option lists)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-interface OptionScreenCfg {
-  title: string;
-  back: PanelScreen;
-  options: { id: string; label: string }[];
-  activeKey: string;
-  defaultVal: string;
-  transform?: (id: string) => any;
-}
-
-const OPTION_SCREENS: Record<string, (s: Record<string, any>) => OptionScreenCfg> = {
-  loadLimit: (s) => ({
-    title: 'Load limit', back: 'layout',
-    options: [5, 10, 25, 50, 75, 100, 150].map(n => ({ id: String(n), label: n + ' pages' })),
-    activeKey: 'loadLimit', defaultVal: '50', transform: id => Number(id),
-  }),
-  cardPreview: (s) => ({
-    title: 'Card preview', back: 'layout',
-    options: [
-      { id: 'none', label: 'None' }, { id: 'page_cover', label: 'Page cover' },
-      { id: 'page_properties', label: 'Page properties' }, { id: 'page_content', label: 'Page content' },
-    ],
-    activeKey: 'cardPreview', defaultVal: 'none',
-  }),
-  cardSize: (s) => ({
-    title: 'Card size', back: 'layout',
-    options: [{ id: 'small', label: 'Small' }, { id: 'medium', label: 'Medium' }, { id: 'large', label: 'Large' }],
-    activeKey: 'cardSize', defaultVal: 'medium',
-  }),
-  showCalendarAs: (s) => ({
-    title: 'Show calendar as', back: 'layout',
-    options: [{ id: 'month', label: 'Month' }, { id: 'week', label: 'Week' }],
-    activeKey: 'calendarMode', defaultVal: 'month',
-  }),
-  openPagesIn: (s) => ({
-    title: 'Open pages in', back: 'layout',
-    options: [
-      { id: 'side_peek', label: 'Side peek' }, { id: 'center_peek', label: 'Center peek' },
-      { id: 'full_page', label: 'Full page' },
-    ],
-    activeKey: 'openPagesIn', defaultVal: 'side_peek',
-  }),
-};
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN EXPORT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
+export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>) {
   const activeViewId = useActiveViewId();
   const {
     views, databases, updateViewSettings, updateView,
@@ -115,6 +77,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
     ['select', 'multi_select', 'status', 'checkbox', 'user', 'person', 'assigned_to', 'due_date'].includes(p.type));
   const placeProps = allProps.filter(p => p.type === 'place' || p.type === 'text');
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateSetting = (key: string, val: any) => updateViewSettings(view.id, { [key]: val });
   const goHome = () => setScreen(view.type === 'chart' ? 'editChart' : 'main');
 
@@ -144,6 +107,18 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
           viewId={view.id} properties={database.properties}
           filters={view.filters || []} conjunction={view.filterConjunction || 'and'}
           onBack={() => setScreen('main')} onClose={onClose}
+        />
+      </div>
+    );
+  }
+
+  // ─── Sort screen ────────────────────────────────────────────────────
+  if (screen === 'sort') {
+    return (
+      <div className="flex flex-col h-full" style={{ minWidth: 290, maxWidth: 290 }}>
+        <SortSettingsSubpanel
+          viewId={view.id} properties={database.properties}
+          sorts={view.sorts || []} onBack={() => setScreen('main')} onClose={onClose}
         />
       </div>
     );
@@ -181,93 +156,15 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
     );
   }
 
-  // ─── Data-driven option sub-screens ─────────────────────────────────
-  const optionCfgFactory = OPTION_SCREENS[screen];
-  if (optionCfgFactory) {
-    const cfg = optionCfgFactory(settings);
-    return (
-      <div className="flex flex-col h-full">
-        <SubPanelHeader title={cfg.title} onBack={() => setScreen(cfg.back)} onClose={onClose} />
-        <OptionList
-          options={cfg.options}
-          activeId={String(settings[cfg.activeKey] ?? cfg.defaultVal)}
-          onSelect={id => { updateSetting(cfg.activeKey, cfg.transform ? cfg.transform(id) : id); setScreen(cfg.back); }}
-        />
-      </div>
-    );
-  }
-
-  // ─── Property-picker sub-screens ────────────────────────────────────
-  if (screen === 'showCalendarBy') {
-    return (
-      <div className="flex flex-col h-full">
-        <SubPanelHeader title="Show calendar by" onBack={() => setScreen('layout')} onClose={onClose} />
-        <PropertyOptionList properties={dateProps} activeId={settings.showCalendarBy || ''}
-          onSelect={id => { updateSetting('showCalendarBy', id); setScreen('layout'); }} noneLabel="Auto (first date)" />
-      </div>
-    );
-  }
-  if (screen === 'showTimelineBy') {
-    return (
-      <div className="flex flex-col h-full">
-        <SubPanelHeader title="Show timeline by" onBack={() => setScreen('layout')} onClose={onClose} />
-        <PropertyOptionList properties={dateProps} activeId={settings.showTimelineBy || ''}
-          onSelect={id => { updateSetting('showTimelineBy', id); setScreen('layout'); }} noneLabel="Auto" />
-      </div>
-    );
-  }
-  if (screen === 'mapBy') {
-    return (
-      <div className="flex flex-col h-full">
-        <SubPanelHeader title="Map by" onBack={() => setScreen('layout')} onClose={onClose} />
-        <PropertyOptionList properties={placeProps} activeId={settings.mapBy || ''}
-          onSelect={id => { updateSetting('mapBy', id); setScreen('layout'); }} />
-      </div>
-    );
-  }
-
-  // ─── Group by ───────────────────────────────────────────────────────
-  if (screen === 'groupBy') {
-    return (
-      <div className="flex flex-col h-full">
-        <SubPanelHeader title="Group by" onBack={() => setScreen('layout')} onClose={onClose} />
-        <div className="p-4 flex flex-col gap-1">
-          <button onClick={() => { setGrouping(view.id, undefined); setScreen('layout'); }}
-            className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
-              !view.grouping ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
-            }`}>None</button>
-          {groupableProps.map(p => (
-            <button key={p.id} onClick={() => { setGrouping(view.id, { propertyId: p.id }); setScreen('layout'); }}
-              className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
-                view.grouping?.propertyId === p.id
-                  ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
-              }`}>{p.name}</button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ─── Property visibility ────────────────────────────────────────────
-  if (screen === 'propertyVisibility') {
-    return (
-      <div className="flex flex-col h-full">
-        <SubPanelHeader title="Property visibility" onBack={() => setScreen('main')} onClose={onClose} />
-        <div className="flex-1 overflow-auto p-2 flex flex-col gap-0.5">
-          {allProps.map(prop => {
-            const visible = view.visibleProperties.includes(prop.id);
-            const iconName = prop.icon || DEFAULT_PROPERTY_ICONS[prop.type] || 'document';
-            return (
-              <PropertyVisibilityRow key={prop.id} propId={prop.id} propName={prop.name}
-                iconName={iconName} visible={visible} databaseId={view.databaseId}
-                onToggle={() => togglePropertyVisibility(view.id, prop.id)}
-                onIconChange={name => updateProperty(view.databaseId, prop.id, { icon: name })} />
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
+  // ─── Property / option / group-by / visibility sub-screens ──────────
+  const propertyNode = renderPropertyScreen(screen, {
+    settings, updateSetting, setScreen, onClose,
+    dateProps, placeProps, groupableProps, allProps,
+    viewId: view.id, grouping: view.grouping, setGrouping,
+    visibleProperties: view.visibleProperties, databaseId: view.databaseId,
+    togglePropertyVisibility, updateProperty,
+  });
+  if (propertyNode) return <>{propertyNode}</>;
 
   // ═══════════════════════════════════════════════════════════════════════
   // MAIN SCREEN
@@ -285,7 +182,7 @@ export function ViewSettingsPanel({ onClose }: { onClose: () => void }) {
             <SettingsRow icon={currentViewMeta.svgIcon} label="Layout" value={currentViewMeta.label} onClick={() => setScreen('layout')} />
             <SettingsRow icon={<EyeIcon />} label="Property visibility" value={String(visibleCount)} onClick={() => setScreen('propertyVisibility')} />
             <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
-            <SettingsRow icon={<SortIcon />} label="Sort" onClick={() => {}} />
+            <SettingsRow icon={<SortIcon />} label="Sort" value={view.sorts.length > 0 ? String(view.sorts.length) : undefined} onClick={() => setScreen('sort')} />
             <SettingsRow icon={<ConditionalColorIcon />} label="Conditional color" onClick={() => {}} />
             <SettingsRow icon={<CopyLinkIcon className="w-5 h-5" />} label="Copy link to view" showChevron={false} onClick={() => {}} />
           </div>

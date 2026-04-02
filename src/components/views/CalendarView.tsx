@@ -1,8 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   CalendarView.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:38:04 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState } from 'react';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, addMonths, subMonths, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+
+function getDayNumberStyle(dayIsToday: boolean, isCurrentMonth: boolean): string {
+  if (dayIsToday) return 'bg-accent text-ink-inverse';
+  if (isCurrentMonth) return 'text-ink-body';
+  return 'text-ink-muted';
+}
 
 export function CalendarView() {
   const activeViewId = useActiveViewId();
@@ -10,7 +28,7 @@ export function CalendarView() {
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [, setDragPageId] = useState<string | null>(null);
+  const [_dragPageId, setDragPageId] = useState<string | null>(null);
   const [dragOverDay, setDragOverDay] = useState<string | null>(null);
 
   if (!view || !database) return null;
@@ -99,7 +117,7 @@ export function CalendarView() {
 
         {/* Day cells */}
         <div className="flex-1 grid auto-rows-fr" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-          {days.map((day, i) => {
+          {days.map((day, _i) => {
             const dayKey = day.toISOString();
             const dayPages = pages.filter(page => {
               const val = page.properties[dateProperty.id];
@@ -120,7 +138,7 @@ export function CalendarView() {
 
                 <div className="flex items-center justify-between px-1 mb-1">
                   <span className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${
-                    isToday(day) ? 'bg-accent text-ink-inverse' : isCurrentMonth ? 'text-ink-body' : 'text-ink-muted'
+                    getDayNumberStyle(isToday(day), isCurrentMonth)
                   }`}>
                     {format(day, 'd')}
                   </span>

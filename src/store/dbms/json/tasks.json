@@ -1,0 +1,326 @@
+{
+  "schema": {
+    "name": "tasks",
+    "version": "1.0.0",
+    "fields": [
+      {
+        "name": "id",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "priority",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "tags",
+        "type": "array",
+        "required": false
+      },
+      {
+        "name": "assignee",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "due_date",
+        "type": "date",
+        "required": false
+      },
+      {
+        "name": "completed",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "story_points",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "icon",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "created_at",
+        "type": "date",
+        "required": false
+      },
+      {
+        "name": "updated_at",
+        "type": "date",
+        "required": false
+      },
+      {
+        "name": "created_by",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "last_edited_by",
+        "type": "string",
+        "required": false
+      }
+    ]
+  },
+  "records": [
+    {
+      "id": "TASK-1",
+      "title": "Launch new campaign",
+      "status": "opt-done",
+      "priority": "pri-high",
+      "tags": [
+        "tag-design"
+      ],
+      "assignee": "Alice",
+      "due_date": "2026-03-29T14:22:50.751Z",
+      "completed": true,
+      "story_points": 15,
+      "icon": "🎨",
+      "created_at": "2026-03-23T00:00:00Z",
+      "updated_at": "2026-04-01T00:00:00Z",
+      "created_by": "Alice",
+      "last_edited_by": "Alice",
+      "project": [
+        "pj1",
+        "pj4"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "id": "t2",
+      "title": "Implement View Engine",
+      "status": "opt-in-progress",
+      "priority": "pri-urgent",
+      "tags": [
+        "tag-feature"
+      ],
+      "assignee": "Bob",
+      "due_date": "2026-04-04T14:22:50.751Z",
+      "completed": true,
+      "story_points": 13,
+      "icon": "⚙️",
+      "created_at": "2026-03-26T00:00:00Z",
+      "updated_at": "2026-04-02T00:00:00Z",
+      "created_by": "Bob",
+      "last_edited_by": "Bob",
+      "project": [
+        "pj1",
+        "pj6"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "id": "t3",
+      "title": "Fix Drag-and-Drop Bug",
+      "status": "opt-todo",
+      "priority": "pri-med",
+      "tags": [
+        "tag-bug"
+      ],
+      "assignee": "Charlie",
+      "due_date": "2026-04-07T14:22:50.751Z",
+      "completed": false,
+      "story_points": 3,
+      "icon": "🐛",
+      "created_at": "2026-03-30T00:00:00Z",
+      "updated_at": "2026-03-30T00:00:00Z",
+      "created_by": "Charlie",
+      "last_edited_by": "Charlie",
+      "project": [
+        "pj4",
+        "pj5"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "id": "t4",
+      "title": "Write API Documentation",
+      "status": "opt-todo",
+      "priority": "pri-low",
+      "tags": [
+        "tag-docs"
+      ],
+      "assignee": "Alice",
+      "due_date": "2026-04-12T14:22:50.751Z",
+      "completed": false,
+      "story_points": 2,
+      "icon": "📖",
+      "created_at": "2026-03-31T00:00:00Z",
+      "updated_at": "2026-03-31T00:00:00Z",
+      "created_by": "Alice",
+      "last_edited_by": "Alice",
+      "project": [
+        "pj2",
+        "pj5"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "id": "t5",
+      "title": "Deploy to Production",
+      "status": "opt-blocked",
+      "priority": "pri-high",
+      "tags": [
+        "tag-infra"
+      ],
+      "assignee": "Bob",
+      "due_date": "2026-04-09T14:22:50.751Z",
+      "completed": true,
+      "story_points": 8,
+      "icon": "🚀",
+      "created_at": "2026-04-01T00:00:00Z",
+      "updated_at": "2026-04-01T00:00:00Z",
+      "created_by": "Bob",
+      "last_edited_by": "Bob",
+      "project": [
+        "pj3"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "id": "t6",
+      "title": "Write Integration Tests",
+      "status": "opt-review",
+      "priority": "pri-med",
+      "tags": [
+        "tag-feature",
+        "tag-infra"
+      ],
+      "assignee": "Diana",
+      "due_date": "2026-04-05T14:22:50.751Z",
+      "completed": false,
+      "story_points": 5,
+      "icon": "🧪",
+      "created_at": "2026-03-28T00:00:00Z",
+      "updated_at": "2026-04-02T00:00:00Z",
+      "created_by": "Diana",
+      "last_edited_by": "Diana",
+      "project": [
+        "pj3",
+        "pj8"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "id": "t7",
+      "title": "Performance Optimization",
+      "status": "opt-in-progress",
+      "priority": "pri-high",
+      "tags": [
+        "tag-infra"
+      ],
+      "assignee": "Eve",
+      "due_date": "2026-04-06T14:22:50.751Z",
+      "completed": false,
+      "story_points": 8,
+      "icon": "🎯",
+      "created_at": "2026-03-29T00:00:00Z",
+      "updated_at": "2026-04-02T00:00:00Z",
+      "created_by": "Eve",
+      "last_edited_by": "Eve",
+      "project": [
+        "pj1",
+        "pj6"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "id": "t8",
+      "title": "UI Polish Pass",
+      "status": "opt-todo",
+      "priority": "pri-med",
+      "tags": [
+        "tag-design",
+        "tag-feature",
+        "tag-docs",
+        "tag-infra",
+        "tag-bug"
+      ],
+      "assignee": "Alice",
+      "due_date": "2026-04-10T14:22:50.751Z",
+      "completed": false,
+      "story_points": 3,
+      "icon": "💅",
+      "created_at": "2026-04-01T00:00:00Z",
+      "updated_at": "2026-04-01T00:00:00Z",
+      "created_by": "Alice",
+      "last_edited_by": "Alice",
+      "project": [
+        "pj2",
+        "pj4"
+      ],
+      "test_priority_score": null
+    },
+    {
+      "title": "fasdfsaf",
+      "status": null,
+      "priority": null,
+      "tags": null,
+      "assignee": null,
+      "due_date": null,
+      "completed": null,
+      "story_points": null,
+      "created_at": null,
+      "id": "TASK-9",
+      "project": null
+    },
+    {
+      "title": "fdfdsdf",
+      "status": "opt-todo",
+      "priority": null,
+      "tags": [
+        "tag-feature"
+      ],
+      "assignee": null,
+      "due_date": null,
+      "completed": false,
+      "story_points": null,
+      "created_at": null,
+      "id": "TASK-10",
+      "project": null
+    },
+    {
+      "title": "fdfdsdf",
+      "status": "opt-todo",
+      "priority": null,
+      "tags": null,
+      "assignee": null,
+      "due_date": null,
+      "completed": null,
+      "story_points": null,
+      "created_at": null,
+      "id": "TASK-11",
+      "project": [
+        "pj1",
+        "pj2",
+        "pj4"
+      ]
+    },
+    {
+      "title": "",
+      "status": null,
+      "priority": null,
+      "tags": null,
+      "assignee": null,
+      "due_date": null,
+      "completed": null,
+      "story_points": null,
+      "created_at": null,
+      "id": "TASK-9",
+      "project": null
+    }
+  ]
+}

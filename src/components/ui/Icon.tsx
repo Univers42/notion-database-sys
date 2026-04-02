@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Icon.tsx                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:37:09 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:37:10 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import { ICON_REGISTRY } from './iconRegistry';
 
@@ -15,7 +27,7 @@ interface IconProps {
   fill?: string;
 }
 
-export function Icon({ name, className = 'w-5 h-5', style, fill = 'currentColor' }: IconProps) {
+export function Icon({ name, className = 'w-5 h-5', style, fill = 'currentColor' }: Readonly<IconProps>) {
   const entry = ICON_REGISTRY[name];
   if (!entry) {
     // Fallback: render a placeholder square

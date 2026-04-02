@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   constants.tsx                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 23:20:52 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // View settings — constants & metadata
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -13,6 +25,7 @@ import type { ViewType, PropertyType } from '../../types/database';
 
 export type PanelScreen =
   | 'main' | 'layout' | 'propertyVisibility' | 'filter' | 'addFilter'
+  | 'sort' | 'addSort'
   | 'loadLimit' | 'cardPreview' | 'cardSize' | 'showCalendarBy'
   | 'showCalendarAs' | 'showTimelineBy' | 'openPagesIn' | 'groupBy'
   | 'mapBy' | 'editChart' | 'chartType' | 'xAxisWhat' | 'xAxisSort'

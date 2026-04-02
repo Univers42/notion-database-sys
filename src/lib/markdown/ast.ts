@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast.ts                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:40:43 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Markdown AST — pure data types, zero dependencies
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -80,6 +92,7 @@ export interface DefinitionItem {
 
 // ─── Convenience type guard helpers ───────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isInlineNode(node: any): node is InlineNode {
   return node && typeof node.type === 'string' && [
     'text', 'bold', 'italic', 'bold_italic', 'strikethrough', 'underline',
@@ -88,6 +101,7 @@ export function isInlineNode(node: any): node is InlineNode {
   ].includes(node.type);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isBlockNode(node: any): node is BlockNode {
   return node && typeof node.type === 'string' && [
     'document', 'paragraph', 'heading', 'blockquote', 'code_block',

@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   QuoteBlock.tsx                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:32 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:33 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 
-export function QuoteBlock({ block, onChange, onKeyDown }: BlockRendererProps) {
+export function QuoteBlock({ block, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   return (
     <div className="flex my-0.5">
       <div className="w-1 bg-surface-inverse rounded-full shrink-0 mr-3" />

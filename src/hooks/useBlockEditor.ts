@@ -1,11 +1,10 @@
-// ═══════════════════════════════════════════════════════════════════════════════
 // useBlockEditor — encapsulates block-editing logic for PageContentEditor
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useCallback } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { detectBlockType } from '../lib/markdown';
-import type { Block, BlockType } from '../types/database';
+import type { Block } from '../types/database';
+import { useSlashSelect, repositionCursor } from './useSlashSelect';
 
 interface SlashMenuState {
   blockId: string;
@@ -57,7 +56,7 @@ export function useBlockEditor(pageId: string) {
   }, []);
 
   /** Handle content change — detects '/' trigger and markdown shortcuts. */
-  const handleBlockChange = useCallback((blockId: string, text: string, content: Block[]) => {
+  const handleBlockChange = useCallback((blockId: string, text: string, _content: Block[]) => {
     // Always persist the content first
     updateBlock(pageId, blockId, { content: text });
 
@@ -143,67 +142,10 @@ export function useBlockEditor(pageId: string) {
   }, [pageId, slashMenu, insertBlock, deleteBlock, focusBlock]);
 
   /** Handle slash-command selection. */
-  const handleSlashSelect = useCallback((type: BlockType, content: Block[]) => {
-    if (!slashMenu) return;
-    const { blockId } = slashMenu;
-    setSlashMenu(null);
-
-    const block = content.find(b => b.id === blockId);
-    if (block) {
-      const slashIdx = block.content.lastIndexOf('/');
-      const cleanContent = slashIdx >= 0 ? block.content.slice(0, slashIdx) : block.content;
-      updateBlock(pageId, blockId, { content: cleanContent });
-    }
-
-    if (type === 'database_inline' || type === 'database_full_page') {
-      const { databaseId, viewId } = createInlineDatabase(type === 'database_full_page' ? 'Untitled' : undefined);
-      changeBlockType(pageId, blockId, type);
-      updateBlock(pageId, blockId, { content: '', databaseId, viewId });
-      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
-      insertBlock(pageId, blockId, newBlock);
-      focusBlock(newBlock.id);
-    } else if (type === 'table_block') {
-      updateBlock(pageId, blockId, { content: '' });
-      changeBlockType(pageId, blockId, type);
-      updateBlock(pageId, blockId, { tableData: [['', '', ''], ['', '', '']] });
-    } else if (type === 'column') {
-      changeBlockType(pageId, blockId, type);
-      updateBlock(pageId, blockId, {
-        content: '',
-        columns: [
-          [{ id: crypto.randomUUID(), type: 'paragraph', content: '' }],
-          [{ id: crypto.randomUUID(), type: 'paragraph', content: '' }],
-        ],
-        columnRatios: [1, 1],
-      });
-    } else if (type === 'equation') {
-      changeBlockType(pageId, blockId, type);
-      updateBlock(pageId, blockId, { content: '', expression: '' });
-    } else if (type === 'spacer') {
-      changeBlockType(pageId, blockId, type);
-      updateBlock(pageId, blockId, { content: '', spacerHeight: 40 });
-      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
-      insertBlock(pageId, blockId, newBlock);
-      focusBlock(newBlock.id);
-    } else if (type === 'embed') {
-      changeBlockType(pageId, blockId, type);
-      updateBlock(pageId, blockId, { content: '' });
-    } else if (type === 'table_of_contents' || type === 'breadcrumb') {
-      changeBlockType(pageId, blockId, type);
-      updateBlock(pageId, blockId, { content: '' });
-      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
-      insertBlock(pageId, blockId, newBlock);
-      focusBlock(newBlock.id);
-    } else if (type === 'divider') {
-      changeBlockType(pageId, blockId, type);
-      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
-      insertBlock(pageId, blockId, newBlock);
-      focusBlock(newBlock.id);
-    } else {
-      changeBlockType(pageId, blockId, type);
-      focusBlock(blockId);
-    }
-  }, [pageId, slashMenu, updateBlock, changeBlockType, insertBlock, createInlineDatabase, focusBlock]);
+  const handleSlashSelect = useSlashSelect({
+    pageId, slashMenu, setSlashMenu,
+    updateBlock, changeBlockType, insertBlock, createInlineDatabase, focusBlock,
+  });
 
   /** Add a new blank paragraph at the end. */
   const handleAddBlock = useCallback((content: Block[]) => {
@@ -243,21 +185,4 @@ export function useBlockEditor(pageId: string) {
     registerBlockRef,
     focusBlock,
   };
-}
-
-/** Reposition the cursor inside a block element after markdown conversion. */
-function repositionCursor(blockId: string, content: string): void {
-  setTimeout(() => {
-    const el = document.querySelector(`[data-block-id="${blockId}"] [contenteditable]`) as HTMLElement;
-    if (el) {
-      el.textContent = content;
-      el.focus();
-      const sel = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      range.collapse(false);
-      sel?.removeAllRanges();
-      sel?.addRange(range);
-    }
-  }, 30);
 }

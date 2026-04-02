@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   DatabaseBlock.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:12 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // DatabaseBlock — THE single reusable database component
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -13,9 +25,8 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useMemo } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { DatabaseScopeProvider } from '../hooks/useDatabaseScope';
-import { ErrorBoundary } from './ErrorBoundary';
 import { TopBar } from './TopBar';
 import { DatabaseView } from './DatabaseView';
 import { Plus, FileText } from 'lucide-react';
@@ -33,7 +44,7 @@ export function DatabaseBlock({
   databaseId,
   initialViewId,
   mode = 'full',
-}: DatabaseBlockProps) {
+}: Readonly<DatabaseBlockProps>) {
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
   const globalActiveViewId = useDatabaseStore(s => s.activeViewId);
@@ -107,7 +118,7 @@ export function DatabaseBlock({
 
 // ─── Inline footer: + New row, row count ─────────────────────────────────────
 
-function InlineFooter({ databaseId }: { databaseId: string }) {
+function InlineFooter({ databaseId }: Readonly<{ databaseId: string }>) {
   const addPage = useDatabaseStore(s => s.addPage);
   const pages = useDatabaseStore(s => s.pages);
   const count = Object.values(pages).filter(p => p.databaseId === databaseId).length;

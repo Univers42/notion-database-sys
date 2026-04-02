@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   useUndoRedo.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:40:21 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // useUndoRedo — undo/redo history for page block content
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -9,7 +21,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '../types/database';
 
 const MAX_HISTORY = 100;
@@ -23,7 +35,7 @@ export function useUndoRedo(pageId: string) {
   const undoStack = useRef<HistoryEntry[]>([]);
   const redoStack = useRef<HistoryEntry[]>([]);
   const isProgrammatic = useRef(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastSnapshotRef = useRef<string>('');
 
   /** Take a snapshot of the current page content. */

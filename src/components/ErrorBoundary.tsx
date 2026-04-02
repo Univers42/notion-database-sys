@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ErrorBoundary.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:17 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:39:18 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { Component, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 

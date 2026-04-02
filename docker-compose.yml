@@ -1,0 +1,59 @@
+# ─── Zero-build Docker Compose ─────────────────────────────────────────────
+# Uses stock images directly — configs mounted as volumes.
+# Start time: ~3s (vs 90s+ with custom builds).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: notion_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-notion_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notion_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-notion_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/store/dbms/relational:/seed:ro
+      - ./src/services/postgresql/conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./src/services/postgresql/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+    shm_size: 128mb
+
+  mongodb:
+    image: mongo:7.0
+    container_name: notion_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-notion_user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-notion_db}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./src/store/dbms/mongodb:/seed:ro
+      - ./src/services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
+    command: ["mongod", "--bind_ip_all", "--quiet"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  postgres_data:
+  mongo_data:

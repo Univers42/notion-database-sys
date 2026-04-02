@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   PropertyTypeIcon.tsx                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:25 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:36:26 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Property type icon — maps property type to lucide icon
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -9,7 +21,7 @@ import {
   Clock, User, Sigma, GitBranch, ExternalLink, Database,
 } from 'lucide-react';
 
-export function PropertyTypeIcon({ type, className = 'w-4 h-4' }: { type: string; className?: string }) {
+export function PropertyTypeIcon({ type, className = 'w-4 h-4' }: Readonly<{ type: string; className?: string }>) {
   switch (type) {
     case 'title': case 'text': return <Type className={className} />;
     case 'number': return <Hash className={className} />;

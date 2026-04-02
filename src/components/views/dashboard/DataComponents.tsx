@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   DataComponents.tsx                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:37:30 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
@@ -73,8 +85,8 @@ export function RecentList({ pages, openPage, getPageTitle }: {
       {pages.map(page => {
         const title = getPageTitle(page);
         return (
-          <div key={page.id} onClick={() => openPage(page.id)}
-            className="flex items-center justify-between py-2 px-2 hover:bg-hover-surface rounded-lg cursor-pointer group transition-colors">
+          <button type="button" key={page.id} onClick={() => openPage(page.id)}
+            className="flex items-center justify-between py-2 px-2 hover:bg-hover-surface rounded-lg cursor-pointer group transition-colors text-left w-full">
             <div className="flex items-center gap-2 overflow-hidden">
               {page.icon ? <span className="text-sm">{page.icon}</span> : <div className="w-4 h-4 rounded bg-surface-muted" />}
               <span className="text-sm text-ink truncate">{title || 'Untitled'}</span>
@@ -83,7 +95,7 @@ export function RecentList({ pages, openPage, getPageTitle }: {
               <span className="text-xs text-ink-muted shrink-0">{format(parseISO(page.updatedAt), 'MMM d')}</span>
               <ArrowUpRight className="w-3 h-3 text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-          </div>
+          </button>
         );
       })}
       {pages.length === 0 && <p className="text-sm text-ink-muted py-4 text-center">No recent activity</p>}

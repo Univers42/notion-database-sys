@@ -1,5 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   RelationEditorPanel.tsx                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:38 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useRef, useEffect } from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { X, ExternalLink, Hash, ArrowLeftRight, ChevronRight, Database as DbIcon } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -20,7 +32,7 @@ interface RelationEditorPanelProps {
   position?: { top: number; left: number };
 }
 
-export function RelationEditorPanel({ databaseId, propertyId, onClose, position }: RelationEditorPanelProps) {
+export function RelationEditorPanel({ databaseId, propertyId, onClose, position }: Readonly<RelationEditorPanelProps>) {
   const { databases, updateProperty } = useDatabaseStore();
   const db = databases[databaseId];
   const prop = db?.properties[propertyId];

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Dropdown.tsx                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:48 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:36:49 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useEffect, useRef } from 'react';
 
 /** Outside-click handler — closes when clicking outside the ref element */
@@ -17,9 +29,9 @@ export function useOutsideClick(
 }
 
 /** Generic dropdown wrapper with outside-click dismiss */
-export function Dropdown({ children, onClose, className = '' }: {
+export function Dropdown({ children, onClose, className = '' }: Readonly<{
   children: React.ReactNode; onClose: () => void; className?: string;
-}) {
+}>) {
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, true, onClose);
 

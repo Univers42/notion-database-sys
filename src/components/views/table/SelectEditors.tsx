@@ -1,20 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   SelectEditors.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:37:52 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Portal-based Select / MultiSelect editors for table cells
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useDatabaseStore } from '../../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { randomTagColor } from '../../../constants/colors';
-import { SchemaProperty } from '../../../types/database';
+import { SchemaProperty, PropertyValue } from '../../../types/database';
 import { CheckCircle2, Plus } from 'lucide-react';
 
 interface EditorProps {
-  property: SchemaProperty;
-  value: any;
-  onUpdate: (v: any) => void;
-  onClose: () => void;
-  databaseId: string;
+  readonly property: SchemaProperty;
+  readonly value: PropertyValue;
+  readonly onUpdate: (v: PropertyValue) => void;
+  readonly onClose: () => void;
+  readonly databaseId: string;
 }
 
 /** Measures the parent `<td>` rect for portal positioning. */
@@ -31,7 +43,7 @@ function useTdRect(ref: React.RefObject<HTMLDivElement | null>) {
 
 // ─── SELECT EDITOR ───────────────────────────────────────────────────────────
 
-export function SelectEditor({ property, value, onUpdate, onClose, databaseId }: EditorProps) {
+export function SelectEditor({ property, value, onUpdate, onClose, databaseId }: Readonly<EditorProps>) {
   const [input, setInput] = useState('');
   const measureRef = useRef<HTMLDivElement>(null);
   const rect = useTdRect(measureRef);
@@ -52,7 +64,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') exact ? handleSelect(exact.id) : input.trim() && handleCreate();
+    if (e.key === 'Enter') { if (exact) handleSelect(exact.id); else if (input.trim()) handleCreate(); }
     if (e.key === 'Escape') onClose();
   };
 
@@ -61,7 +73,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
       <div ref={measureRef} className="w-full h-0" />
       {rect && createPortal(
         <>
-          <div className="fixed inset-0 z-[9998]" onClick={e => { e.stopPropagation(); onClose(); }} />
+          <button type="button" className="fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default" onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
           <div className="fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden"
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
             onClick={e => e.stopPropagation()}>
@@ -99,7 +111,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
 
 // ─── MULTI-SELECT EDITOR ─────────────────────────────────────────────────────
 
-export function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: EditorProps) {
+export function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: Readonly<EditorProps>) {
   const [input, setInput] = useState('');
   const measureRef = useRef<HTMLDivElement>(null);
   const rect = useTdRect(measureRef);
@@ -126,7 +138,7 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') exact ? toggle(exact.id) : input.trim() && handleCreate();
+    if (e.key === 'Enter') { if (exact) toggle(exact.id); else if (input.trim()) handleCreate(); }
     if (e.key === 'Escape') onClose();
     if (e.key === 'Backspace' && !input && selectedIds.length) onUpdate(selectedIds.slice(0, -1));
   };
@@ -136,7 +148,7 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
       <div ref={measureRef} className="w-full h-0" />
       {rect && createPortal(
         <>
-          <div className="fixed inset-0 z-[9998]" onClick={e => { e.stopPropagation(); onClose(); }} />
+          <button type="button" className="fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default" onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
           <div className="fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden"
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
             onClick={e => e.stopPropagation()}>

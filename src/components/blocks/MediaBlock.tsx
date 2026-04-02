@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   MediaBlock.tsx                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:28 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useCallback } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { Image, Film, Music, Paperclip, Bookmark, Upload } from 'lucide-react';
 
 const MEDIA_CONFIG: Record<string, { icon: typeof Image; label: string; accept?: string }> = {
@@ -11,7 +23,7 @@ const MEDIA_CONFIG: Record<string, { icon: typeof Image; label: string; accept?:
   bookmark: { icon: Bookmark, label: 'web bookmark' },
 };
 
-export function MediaBlock({ block, pageId }: BlockRendererProps) {
+export function MediaBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const config = MEDIA_CONFIG[block.type] || MEDIA_CONFIG.file;
   const Icon = config.icon;

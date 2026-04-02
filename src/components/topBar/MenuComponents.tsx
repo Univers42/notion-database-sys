@@ -1,4 +1,16 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   MenuComponents.tsx                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:53 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+import React, { useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Trash2, MoreHorizontal, Download, Upload, Printer, ChevronDown,
@@ -12,9 +24,9 @@ import { useOutsideClick } from './Dropdown';
 
 // ─── Extra actions menu (··· in top-right) ───────────────────────────────────
 
-export function ExtraActionsMenu({ show, onToggle, onClose }: {
+export function ExtraActionsMenu({ show, onToggle, onClose }: Readonly<{
   show: boolean; onToggle: () => void; onClose: () => void;
-}) {
+}>) {
   const ref = useRef<HTMLDivElement>(null);
   useOutsideClick(ref, show, onClose);
 
@@ -55,13 +67,13 @@ export function ExtraActionsMenu({ show, onToggle, onClose }: {
 
 export function ViewDotsMenu({
   show, onToggle, onClose, containerRef,
-  onDuplicate, onEditTitle, onEditLayout, isHoverVisible,
-}: {
+  onDuplicate, onEditTitle, onEditLayout, isHoverVisible: _isHoverVisible,
+}: Readonly<{
   show: boolean; onToggle: () => void; onClose: () => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
   onDuplicate: () => void; onEditTitle: () => void; onEditLayout: () => void;
   isHoverVisible: boolean;
-}) {
+}>) {
   const sections: PanelSection[] = useMemo(() => [
     {
       items: [
@@ -124,7 +136,7 @@ export function ActiveViewMenu({
 
   return createPortal(
     <>
-      <div className="fixed inset-0 z-[9998]" onClick={onClose} />
+      <button type="button" className="fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default" onClick={onClose} tabIndex={-1} aria-label="Close menu" />
       <div ref={menuRef}
         className="fixed z-[9999] w-[220px] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
         style={{ top: btnRect.bottom + 4, left: btnRect.left }}>
@@ -147,7 +159,7 @@ export function ActiveViewMenu({
           </div>
           <div className="mx-3 h-px bg-surface-tertiary" />
           <div className="p-1 flex flex-col gap-px">
-            <button onClick={() => { navigator.clipboard?.writeText(window.location.href + '?view=' + view.id); onClose(); }}
+            <button onClick={() => { navigator.clipboard?.writeText(globalThis.location.href + '?view=' + view.id); onClose(); }}
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
               <CopyLinkIcon className="w-4 h-4" /> Copy link to view
             </button>

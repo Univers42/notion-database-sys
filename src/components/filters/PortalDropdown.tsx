@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   PortalDropdown.tsx                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:20 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:36:22 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Portal dropdown — renders content at body level to avoid z-index clipping
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -5,13 +17,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-export function PortalDropdown({ anchorRef, children, onClose, width, align = 'left' }: {
+export function PortalDropdown({ anchorRef, children, onClose, width, align = 'left' }: Readonly<{
   anchorRef: React.RefObject<HTMLElement | null>;
   children: React.ReactNode;
   onClose: () => void;
   width?: number;
   align?: 'left' | 'right';
-}) {
+}>) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 

@@ -1,19 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   RelationCellEditor.tsx                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:03 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState, useMemo } from 'react';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
-import type { SchemaProperty } from '../../types/database';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import type { SchemaProperty, PropertyValue } from '../../types/database';
 import { X, Search, ArrowUpRight, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { CellPortal } from './CellPortal';
 
 interface RelationCellEditorProps {
   property: SchemaProperty;
-  value: any;
+  value: PropertyValue;
   pageId: string;
   databaseId: string;
-  onUpdate: (v: any) => void;
+  onUpdate: (v: PropertyValue) => void;
   onClose: () => void;
 }
 
-export function RelationCellEditor({ property, value, pageId, databaseId, onUpdate, onClose }: RelationCellEditorProps) {
+export function RelationCellEditor({ property, value, pageId, databaseId: _databaseId, onUpdate, onClose }: Readonly<RelationCellEditorProps>) {
   const [search, setSearch] = useState('');
   const databases = useDatabaseStore(s => s.databases);
   const pages = useDatabaseStore(s => s.pages);
@@ -72,9 +84,9 @@ function UnconfiguredRelation() {
   );
 }
 
-function SearchBar({ search, setSearch, onClose, targetDb }: {
+function SearchBar({ search, setSearch, onClose, targetDb }: Readonly<{
   search: string; setSearch: (s: string) => void; onClose: () => void; targetDb: { icon?: string; name: string };
-}) {
+}>) {
   return (
     <div className="flex items-center gap-2 px-3 py-2 border-b border-line-light bg-surface-secondary-soft">
       <Search className="w-4 h-4 text-ink-muted shrink-0" />
@@ -92,9 +104,9 @@ function SearchBar({ search, setSearch, onClose, targetDb }: {
   );
 }
 
-function SelectedChips({ selectedIds, targetPages, onRemove }: {
+function SelectedChips({ selectedIds, targetPages, onRemove }: Readonly<{
   selectedIds: string[]; targetPages: { id: string; title: string }[]; onRemove: (rid: string) => void;
-}) {
+}>) {
   if (selectedIds.length === 0) return null;
   return (
     <div className="flex flex-wrap gap-1 px-3 py-2 border-b border-line-light">
@@ -112,9 +124,9 @@ function SelectedChips({ selectedIds, targetPages, onRemove }: {
   );
 }
 
-function PageList({ filteredPages, selectedIds, search, onToggle }: {
+function PageList({ filteredPages, selectedIds, search, onToggle }: Readonly<{
   filteredPages: { id: string; title: string }[]; selectedIds: string[]; search: string; onToggle: (id: string) => void;
-}) {
+}>) {
   return (
     <div className="max-h-[300px] overflow-y-auto">
       {filteredPages.length === 0 ? (

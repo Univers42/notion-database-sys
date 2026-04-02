@@ -1,0 +1,147 @@
+[
+  {
+    "_id": "t1",
+    "title": "Design Database Schema",
+    "status": "Done",
+    "priority": "High",
+    "tags": [
+      "Design"
+    ],
+    "assignee": "Alice",
+    "due_date": "2026-03-29T00:00:00Z",
+    "completed": true,
+    "story_points": 5,
+    "icon": "🎨",
+    "created_at": "2026-03-23T00:00:00Z",
+    "updated_at": "2026-04-01T00:00:00Z",
+    "created_by": "Alice",
+    "last_edited_by": "Alice"
+  },
+  {
+    "_id": "t2",
+    "title": "Implement View Engine",
+    "status": "In Progress",
+    "priority": "Urgent",
+    "tags": [
+      "Feature"
+    ],
+    "assignee": "Bob",
+    "due_date": "2026-04-04T00:00:00Z",
+    "completed": false,
+    "story_points": 13,
+    "icon": "⚙️",
+    "created_at": "2026-03-26T00:00:00Z",
+    "updated_at": "2026-04-02T00:00:00Z",
+    "created_by": "Bob",
+    "last_edited_by": "Bob"
+  },
+  {
+    "_id": "t3",
+    "title": "Fix Drag-and-Drop Bug",
+    "status": "To Do",
+    "priority": "Medium",
+    "tags": [
+      "Bug"
+    ],
+    "assignee": "Charlie",
+    "due_date": "2026-04-07T00:00:00Z",
+    "completed": false,
+    "story_points": 3,
+    "icon": "🐛",
+    "created_at": "2026-03-30T00:00:00Z",
+    "updated_at": "2026-03-30T00:00:00Z",
+    "created_by": "Charlie",
+    "last_edited_by": "Charlie"
+  },
+  {
+    "_id": "t4",
+    "title": "Write API Documentation",
+    "status": "To Do",
+    "priority": "Low",
+    "tags": [
+      "Documentation"
+    ],
+    "assignee": "Alice",
+    "due_date": "2026-04-12T00:00:00Z",
+    "completed": false,
+    "story_points": 2,
+    "icon": "📖",
+    "created_at": "2026-03-31T00:00:00Z",
+    "updated_at": "2026-03-31T00:00:00Z",
+    "created_by": "Alice",
+    "last_edited_by": "Alice"
+  },
+  {
+    "_id": "t5",
+    "title": "Deploy to Production",
+    "status": "Blocked",
+    "priority": "High",
+    "tags": [
+      "Infrastructure"
+    ],
+    "assignee": "Bob",
+    "due_date": "2026-04-09T00:00:00Z",
+    "completed": false,
+    "story_points": 8,
+    "icon": "🚀",
+    "created_at": "2026-04-01T00:00:00Z",
+    "updated_at": "2026-04-01T00:00:00Z",
+    "created_by": "Bob",
+    "last_edited_by": "Bob"
+  },
+  {
+    "_id": "t6",
+    "title": "Write Integration Tests",
+    "status": "In Review",
+    "priority": "Medium",
+    "tags": [
+      "Feature",
+      "Infrastructure"
+    ],
+    "assignee": "Diana",
+    "due_date": "2026-04-05T00:00:00Z",
+    "completed": false,
+    "story_points": 5,
+    "icon": "🧪",
+    "created_at": "2026-03-28T00:00:00Z",
+    "updated_at": "2026-04-02T00:00:00Z",
+    "created_by": "Diana",
+    "last_edited_by": "Diana"
+  },
+  {
+    "_id": "t7",
+    "title": "Performance Optimization",
+    "status": "In Progress",
+    "priority": "High",
+    "tags": [
+      "Infrastructure"
+    ],
+    "assignee": "Eve",
+    "due_date": "2026-04-06T00:00:00Z",
+    "completed": false,
+    "story_points": 8,
+    "icon": "🎯",
+    "created_at": "2026-03-29T00:00:00Z",
+    "updated_at": "2026-04-02T00:00:00Z",
+    "created_by": "Eve",
+    "last_edited_by": "Eve"
+  },
+  {
+    "_id": "t8",
+    "title": "UI Polish Pass",
+    "status": "To Do",
+    "priority": "Medium",
+    "tags": [
+      "Design"
+    ],
+    "assignee": "Alice",
+    "due_date": "2026-04-10T00:00:00Z",
+    "completed": false,
+    "story_points": 3,
+    "icon": "💅",
+    "created_at": "2026-04-01T00:00:00Z",
+    "updated_at": "2026-04-01T00:00:00Z",
+    "created_by": "Alice",
+    "last_edited_by": "Alice"
+  }
+]

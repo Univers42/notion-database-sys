@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Sidebar.tsx                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:40 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:36:41 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import { ChevronRight, ArrowUpRight } from 'lucide-react';
 import type { SchemaProperty } from '../../types/database';
@@ -20,7 +32,7 @@ interface SidebarProps {
 export function Sidebar({
   sidebarSearch, onSearchChange, filteredProperties, filteredFunctions,
   expandedCategories, toggleCategory, insertProperty, insertFunction, onSelectItem,
-}: SidebarProps) {
+}: Readonly<SidebarProps>) {
   return (
     <div className="w-[240px] shrink-0 border-r border-line-light flex flex-col bg-surface-secondary-soft5">
       <div className="p-2 border-b border-line-light">
@@ -68,9 +80,9 @@ export function Sidebar({
   );
 }
 
-function CategorySection({ label, count, expanded, onToggle, children }: {
+function CategorySection({ label, count, expanded, onToggle, children }: Readonly<{
   label: string; count: number; expanded: boolean; onToggle: () => void; children: React.ReactNode;
-}) {
+}>) {
   return (
     <div className="py-1">
       <button onClick={onToggle}

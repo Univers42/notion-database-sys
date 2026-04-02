@@ -1,10 +1,18 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// BreadcrumbBlock — Shows page navigation breadcrumb trail
-// ═══════════════════════════════════════════════════════════════════════════════
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   BreadcrumbBlock.tsx                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:34:34 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { ChevronRight, FileText } from 'lucide-react';
 
 function getCrumbs(pageId: string, pages: Record<string, { title: string; icon?: string }>) {
@@ -13,9 +21,9 @@ function getCrumbs(pageId: string, pages: Record<string, { title: string; icon?:
   return page ? [{ id: pageId, title: page.title || 'Untitled', icon: page.icon }] : [];
 }
 
-export function BreadcrumbBlock({ pageId }: BlockRendererProps) {
+export function BreadcrumbBlock({ pageId }: Readonly<BlockRendererProps>) {
   const pages = useDatabaseStore(s => s.pages);
-  const crumbs = getCrumbs(pageId, pages as Record<string, { title: string; icon?: string }>);
+  const crumbs = getCrumbs(pageId, pages as unknown as Record<string, { title: string; icon?: string }>);
 
   return (
     <nav className="flex items-center gap-1 py-2 text-sm text-ink-secondary select-none">

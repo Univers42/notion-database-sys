@@ -1,8 +1,42 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   TimelineView.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:38:51 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+import React, { useState } from 'react';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../hooks/useDatabaseScope';
-import { format, addDays, startOfWeek, eachDayOfInterval, differenceInDays, startOfMonth, endOfMonth, eachWeekOfInterval, addWeeks, subWeeks } from 'date-fns';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { format, addDays, startOfWeek, eachDayOfInterval } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getTimelineConfig, getBarStyle } from './TimelineViewHelpers';
+
+function getDayHeaderBg(isTodayCol: boolean, isWeekend: boolean): string {
+  if (isTodayCol) return 'bg-accent-soft';
+  if (isWeekend) return 'bg-surface-secondary-soft2';
+  return 'bg-surface-primary';
+}
+
+function getBarColorClass(statusOpt: { color: string } | undefined): string {
+  if (!statusOpt) return 'bg-accent';
+  if (statusOpt.color.includes('green')) return 'bg-success';
+  if (statusOpt.color.includes('blue')) return 'bg-accent';
+  if (statusOpt.color.includes('yellow')) return 'bg-warning';
+  if (statusOpt.color.includes('red')) return 'bg-danger';
+  return 'bg-purple';
+}
+
+function getGridCellBg(isTodayCell: boolean, isWeekend: boolean): string {
+  if (isTodayCell) return 'bg-accent-soft5';
+  if (isWeekend) return 'bg-surface-secondary-soft4';
+  return '';
+}
 
 export function TimelineView() {
   const activeViewId = useActiveViewId();
@@ -27,20 +61,8 @@ export function TimelineView() {
 
   // Calculate timeline range based on zoom level
   const today = new Date();
-  const getTimelineConfig = () => {
-    switch (zoomLevel) {
-      case 'day':
-        return { cellWidth: 60, daysToShow: 21, label: (d: Date) => format(d, 'd'), headerLabel: (d: Date) => format(d, 'MMM d') };
-      case 'week':
-        return { cellWidth: 100, daysToShow: 14, label: (d: Date) => format(d, 'EEE d'), headerLabel: (d: Date) => format(d, 'MMM d') };
-      case 'month':
-        return { cellWidth: 40, daysToShow: 90, label: (d: Date) => format(d, 'd'), headerLabel: (d: Date) => format(d, 'MMM yyyy') };
-      default:
-        return { cellWidth: 100, daysToShow: 14, label: (d: Date) => format(d, 'EEE d'), headerLabel: (d: Date) => format(d, 'MMM d') };
-    }
-  };
 
-  const config = getTimelineConfig();
+  const config = getTimelineConfig(zoomLevel);
   const startDate = addDays(startOfWeek(today, { weekStartsOn: 1 }), offset);
   const endDate = addDays(startDate, config.daysToShow);
   const days = eachDayOfInterval({ start: startDate, end: endDate });
@@ -66,21 +88,6 @@ export function TimelineView() {
     if (pageId) {
       updatePageProperty(pageId, dateProperty.id, days[dayIdx].toISOString());
     }
-  };
-
-  // Calculate bar position for a page
-  const getBarStyle = (page: any) => {
-    const val = page.properties[dateProperty.id];
-    if (!val) return null;
-    const pageDate = new Date(val);
-    const dayIdx = differenceInDays(pageDate, startDate);
-    if (dayIdx < -2 || dayIdx > config.daysToShow + 2) return null;
-    const barWidth = zoomLevel === 'day' ? 2 : zoomLevel === 'week' ? 3 : 5;
-    return {
-      left: Math.max(0, dayIdx) * config.cellWidth,
-      width: barWidth * config.cellWidth,
-      visible: dayIdx >= -barWidth && dayIdx <= config.daysToShow
-    };
   };
 
   return (
@@ -116,11 +123,11 @@ export function TimelineView() {
               {displayedPages.map(page => {
                 const title = getPageTitle(page);
                 return (
-                  <div key={page.id} onClick={() => openPage(page.id)}
-                    className="h-10 border-b border-line-light flex items-center px-3 text-sm text-ink truncate hover:bg-hover-surface2 cursor-pointer">
+                  <button type="button" key={page.id} onClick={() => openPage(page.id)}
+                    className="h-10 border-b border-line-light flex items-center px-3 text-sm text-ink truncate hover:bg-hover-surface2 cursor-pointer text-left w-full">
                     {page.icon && <span className="mr-1.5">{page.icon}</span>}
                     {title || <span className="text-ink-muted">Untitled</span>}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -137,7 +144,7 @@ export function TimelineView() {
               return (
                 <div key={day.toISOString()}
                   className={`shrink-0 border-r border-line flex flex-col items-center justify-end pb-2 text-xs ${
-                    isTodayCol ? 'bg-accent-soft' : isWeekend ? 'bg-surface-secondary-soft2' : 'bg-surface-primary'
+                    getDayHeaderBg(isTodayCol, isWeekend)
                   }`}
                   style={{ width: config.cellWidth }}>
                   <span className="text-ink-muted text-[10px]">{format(day, 'EEE')}</span>
@@ -158,16 +165,14 @@ export function TimelineView() {
             )}
 
             {displayedPages.map(page => {
-              const barStyle = getBarStyle(page);
+              const barStyle = getBarStyle(page, dateProperty.id, startDate, config, zoomLevel);
               const title = getPageTitle(page);
 
               // Get status color
               const statusProp = Object.values(database.properties).find(p => p.type === 'select' && p.name.toLowerCase().includes('status'));
               const statusVal = statusProp ? page.properties[statusProp.id] : null;
               const statusOpt = statusProp?.options?.find(o => o.id === statusVal);
-              const barColor = statusOpt
-                ? statusOpt.color.includes('green') ? 'bg-success' : statusOpt.color.includes('blue') ? 'bg-accent' : statusOpt.color.includes('yellow') ? 'bg-warning' : statusOpt.color.includes('red') ? 'bg-danger' : 'bg-purple'
-                : 'bg-accent';
+              const barColor = getBarColorClass(statusOpt);
 
               return (
                 <div key={page.id} className="h-10 border-b border-line-light flex items-center relative group hover:bg-hover-surface-soft">
@@ -176,7 +181,7 @@ export function TimelineView() {
                     {days.map((day, i) => (
                       <div key={day.toISOString()}
                         className={`shrink-0 border-r border-line-light h-full ${
-                          todayIdx === i ? 'bg-accent-soft5' : (day.getDay() === 0 || day.getDay() === 6) ? 'bg-surface-secondary-soft4' : ''
+                          getGridCellBg(todayIdx === i, day.getDay() === 0 || day.getDay() === 6)
                         }`}
                         style={{ width: config.cellWidth }}
                         onDragOver={e => e.preventDefault()}

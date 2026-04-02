@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   InlineDatabaseBlock.tsx                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:20 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:21 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // InlineDatabaseBlock — inline database embed in page content
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -11,7 +23,7 @@ import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { DatabaseBlock } from '../DatabaseBlock';
 
-export function InlineDatabaseBlock({ block }: BlockRendererProps) {
+export function InlineDatabaseBlock({ block }: Readonly<BlockRendererProps>) {
   return (
     <DatabaseBlock
       databaseId={block.databaseId}

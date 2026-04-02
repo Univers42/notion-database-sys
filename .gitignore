@@ -27,3 +27,6 @@ prom/
 
 # This script (runs once, then is gitignored)
 generate-history.sh
+
+# Rust CLI tools build artifacts
+src/lib/rust/*/target/

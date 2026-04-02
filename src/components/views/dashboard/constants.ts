@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   constants.ts                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:37:27 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import { format } from 'date-fns';
 import type { SchemaProperty } from '../../../types/database';
 
@@ -11,6 +23,11 @@ export const COLORS = [
 export const STAT_COLORS: ('blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan')[] =
   ['blue', 'purple', 'green', 'amber', 'pink', 'cyan'];
 
+function safeString(val: unknown): string {
+  if (val !== null && typeof val === 'object') return JSON.stringify(val);
+  return String(val as string | number | boolean);
+}
+
 export function formatNumber(val: number): string {
   if (Math.abs(val) >= 1_000_000) return `${(val / 1_000_000).toFixed(1)}M`;
   if (Math.abs(val) >= 10_000) return `${(val / 1_000).toFixed(1)}K`;
@@ -22,13 +39,13 @@ export function formatCellValue(val: unknown, prop: SchemaProperty): string {
   if (prop.type === 'number') return Number(val).toLocaleString();
   if (prop.type === 'select' || prop.type === 'status') {
     const opt = prop.options?.find(o => o.id === val);
-    return opt?.value || String(val);
+    return opt?.value || safeString(val);
   }
   if (prop.type === 'date') {
-    try { return format(new Date(val as string), 'MMM d, yyyy'); } catch { return String(val); }
+    try { return format(new Date(val as string), 'MMM d, yyyy'); } catch { return safeString(val); }
   }
   if (prop.type === 'checkbox') return val ? '✓' : '—';
-  return String(val);
+  return safeString(val);
 }
 
 /** Catmull-Rom → cubic bezier smooth curve path builder */

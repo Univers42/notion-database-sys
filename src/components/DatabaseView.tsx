@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   DatabaseView.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:15 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // DatabaseView — unified entry point for rendering any database view
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -14,7 +26,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import { DatabaseScopeProvider } from '../hooks/useDatabaseScope';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -53,7 +65,7 @@ export interface DatabaseViewProps {
   compact?: boolean;
 }
 
-export function DatabaseView({ viewId, compact = false }: DatabaseViewProps) {
+export function DatabaseView({ viewId, compact = false }: Readonly<DatabaseViewProps>) {
   // If a viewId override is provided, scope it via context.
   // Otherwise, use the global activeViewId (from context or store).
   const globalViewId = useActiveViewId();

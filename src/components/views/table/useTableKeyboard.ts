@@ -1,10 +1,27 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   useTableKeyboard.ts                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:37:59 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // useTableKeyboard — keyboard navigation & cell editing shortcuts
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useCallback } from 'react';
-import { useDatabaseStore } from '../../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
+
+const CLEAR_VALUE_BY_TYPE: Record<string, unknown> = {
+  checkbox: false,
+  multi_select: [],
+};
 
 interface KeyboardDeps {
   focusedCell: { pageId: string; propId: string } | null;
@@ -13,7 +30,7 @@ interface KeyboardDeps {
   setEditingCell: (c: { pageId: string; propId: string } | null) => void;
   displayedPages: Page[];
   visibleProps: SchemaProperty[];
-  database: DatabaseSchema;
+  database: DatabaseSchema | null;
   tableRef: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -21,7 +38,7 @@ export function useTableKeyboard(deps: KeyboardDeps) {
   const { focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef } = deps;
 
   return useCallback((e: React.KeyboardEvent) => {
-    if (!focusedCell) return;
+    if (!focusedCell || !database) return;
     const pi = displayedPages.findIndex(p => p.id === focusedCell.pageId);
     const ci = visibleProps.findIndex(p => p.id === focusedCell.propId);
 
@@ -57,7 +74,7 @@ export function useTableKeyboard(deps: KeyboardDeps) {
         const prop = database.properties[focusedCell.propId];
         const readOnlyTypes = new Set(['title', 'id', 'created_time', 'last_edited_time', 'created_by', 'last_edited_by']);
         if (prop && !readOnlyTypes.has(prop.type)) {
-          const clearVal = prop.type === 'checkbox' ? false : prop.type === 'multi_select' ? [] : '';
+          const clearVal = CLEAR_VALUE_BY_TYPE[prop.type] ?? '';
           useDatabaseStore.getState().updatePageProperty(focusedCell.pageId, focusedCell.propId, clearVal);
         }
         break;

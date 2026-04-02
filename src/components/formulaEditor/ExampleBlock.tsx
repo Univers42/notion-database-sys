@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ExampleBlock.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:33 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:36:34 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState } from 'react';
 import { ArrowUpRight, CheckSquare } from 'lucide-react';
 
-export function ExampleBlock({ code, onInsert }: { code: string; onInsert: (text: string) => void }) {
+export function ExampleBlock({ code, onInsert }: Readonly<{ code: string; onInsert: (text: string) => void }>) {
   const [copied, setCopied] = useState(false);
 
   return (

@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   useColumnResize.ts                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:37:54 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // useColumnResize — column resize handle logic
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useCallback } from 'react';
-import { useDatabaseStore } from '../../../store/useDatabaseStore';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 
 export function useColumnResize(viewId: string) {
   const [resizingCol, setResizingCol] = useState<string | null>(null);

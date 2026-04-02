@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ListBlock.tsx                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:25 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:35:26 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 
-export function ListBlock({ block, onChange, onKeyDown, index }: BlockRendererProps) {
+export function ListBlock({ block, onChange, onKeyDown, index }: Readonly<BlockRendererProps>) {
   const isBulleted = block.type === 'bulleted_list';
 
   return (

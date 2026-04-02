@@ -1,0 +1,9 @@
+id,title,status,priority,start_date,end_date,budget,lead,icon,created_at,updated_at,created_by,last_edited_by
+pj1,Database System Redesign,Active,High,2026-03-03T00:00:00Z,2026-05-02T00:00:00Z,120000,Alice,🏗️,2026-03-03T00:00:00Z,2026-04-01T00:00:00Z,Alice,Alice
+pj2,Content Marketing Q1,Active,Medium,2026-03-13T00:00:00Z,2026-04-22T00:00:00Z,25000,Diana,📢,2026-03-13T00:00:00Z,2026-03-30T00:00:00Z,Diana,Diana
+pj3,Infrastructure Upgrade,Planning,High,2026-04-07T00:00:00Z,2026-05-17T00:00:00Z,80000,Bob,🔧,2026-03-28T00:00:00Z,2026-04-01T00:00:00Z,Bob,Bob
+pj4,Client Onboarding Portal,Completed,Medium,2026-02-01T00:00:00Z,2026-03-23T00:00:00Z,35000,Charlie,✅,2026-02-01T00:00:00Z,2026-03-23T00:00:00Z,Charlie,Charlie
+pj5,Mobile App MVP,On Hold,Urgent,2026-03-18T00:00:00Z,2026-06-01T00:00:00Z,200000,Eve,📱,2026-03-18T00:00:00Z,2026-03-31T00:00:00Z,Eve,Eve
+pj6,Analytics Dashboard,Active,High,2026-03-23T00:00:00Z,2026-04-22T00:00:00Z,45000,Alice,📊,2026-03-23T00:00:00Z,2026-04-02T00:00:00Z,Alice,Alice
+pj7,Legacy Migration (Cancelled),Cancelled,Low,2026-01-02T00:00:00Z,2026-02-01T00:00:00Z,10000,Bob,🚫,2026-01-02T00:00:00Z,2026-02-01T00:00:00Z,Bob,Bob
+pj8,R&D Exploration,Planning,Low,2026-04-12T00:00:00Z,2026-07-01T00:00:00Z,15000,Diana,🧪,2026-03-31T00:00:00Z,2026-04-01T00:00:00Z,Diana,Diana

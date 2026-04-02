@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   propertyIcons.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:59 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:40:00 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Property type → icon mapping (shared across TableView, App, PropertyConfig)
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -11,7 +23,7 @@ import {
 } from 'lucide-react';
 
 /** Returns a Lucide icon component for the given property type. */
-export function PropIcon({ type, className = 'w-3.5 h-3.5' }: { type: string; className?: string }): React.ReactElement {
+export function PropIcon({ type, className = 'w-3.5 h-3.5' }: Readonly<{ type: string; className?: string }>): React.ReactElement {
   switch (type) {
     case 'title':
     case 'text':

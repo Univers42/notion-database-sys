@@ -1,20 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   StatusCellEditor.tsx                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:36:07 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useMemo } from 'react';
-import type { SchemaProperty, SelectOption } from '../../types/database';
+import type { SchemaProperty, SelectOption, PropertyValue } from '../../types/database';
 import { CheckCircle2, Settings } from 'lucide-react';
 import { CellPortal } from './CellPortal';
 import { getDotColor } from './constants';
 
 interface StatusCellEditorProps {
   property: SchemaProperty;
-  value: any;
+  value: PropertyValue;
   databaseId: string;
-  onUpdate: (v: any) => void;
+  onUpdate: (v: PropertyValue) => void;
   onClose: () => void;
   onEditProperty?: () => void;
 }
 
-export function StatusCellEditor({ property, value, databaseId, onUpdate, onClose, onEditProperty }: StatusCellEditorProps) {
-  const options = property.options || [];
+export function StatusCellEditor({ property, value, databaseId: _databaseId, onUpdate, onClose, onEditProperty }: Readonly<StatusCellEditorProps>) {
+  const options = useMemo(() => property.options || [], [property.options]);
   const { statusGroups } = property;
 
   const groupedOptions = useMemo(() => {
@@ -22,7 +34,7 @@ export function StatusCellEditor({ property, value, databaseId, onUpdate, onClos
       return statusGroups.map(sg => ({
         label: sg.label,
         color: sg.color,
-        options: sg.optionIds.map(oid => options.find(o => o.id === oid)).filter((o): o is SelectOption => !!o),
+        options: resolveGroupOptions(sg.optionIds, options),
       })).filter(g => g.options.length > 0);
     }
     return buildDefaultGroups(options);
@@ -34,7 +46,10 @@ export function StatusCellEditor({ property, value, databaseId, onUpdate, onClos
     <CellPortal onClose={onClose} minWidth={220}>
       <div className="max-h-[60vh] overflow-y-auto py-1">
         {groupedOptions.map((group, gi) => (
-          <StatusGroup key={gi} group={group} index={gi} value={value} onSelect={handleSelect} />
+          <React.Fragment key={group.label}>
+            {gi > 0 && <div className="h-px bg-surface-tertiary mx-3 my-1" />}
+            <StatusGroup group={group} value={value} onSelect={handleSelect} />
+          </React.Fragment>
         ))}
         {value && <ClearButton onClear={() => { onUpdate(null); onClose(); }} />}
       </div>
@@ -57,12 +72,15 @@ function buildDefaultGroups(options: SelectOption[]) {
   return groups.filter(g => g.options.length > 0);
 }
 
-function StatusGroup({ group, index, value, onSelect }: {
-  group: { label: string; options: SelectOption[] }; index: number; value: any; onSelect: (id: string) => void;
-}) {
+function resolveGroupOptions(optionIds: string[], allOptions: SelectOption[]): SelectOption[] {
+  return optionIds.map(oid => allOptions.find(o => o.id === oid)).filter((o): o is SelectOption => !!o);
+}
+
+function StatusGroup({ group, value, onSelect }: Readonly<{
+  group: { label: string; options: SelectOption[] }; value: PropertyValue; onSelect: (id: string) => void;
+}>) {
   return (
     <div>
-      {index > 0 && <div className="h-px bg-surface-tertiary mx-3 my-1" />}
       <div className="px-3 py-1.5 text-xs font-medium text-ink-muted uppercase tracking-wide">{group.label}</div>
       {group.options.map(opt => {
         const isActive = opt.id === value;
@@ -79,7 +97,7 @@ function StatusGroup({ group, index, value, onSelect }: {
   );
 }
 
-function ClearButton({ onClear }: { onClear: () => void }) {
+function ClearButton({ onClear }: Readonly<{ onClear: () => void }>) {
   return (
     <>
       <div className="h-px bg-surface-tertiary mx-3 my-1" />
@@ -90,7 +108,7 @@ function ClearButton({ onClear }: { onClear: () => void }) {
   );
 }
 
-function EditPropertyButton({ onClick }: { onClick: () => void }) {
+function EditPropertyButton({ onClick }: Readonly<{ onClick: () => void }>) {
   return (
     <>
       <div className="h-px bg-surface-tertiary" />

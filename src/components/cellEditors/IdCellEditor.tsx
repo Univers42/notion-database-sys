@@ -1,18 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   IdCellEditor.tsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:35:58 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useState } from 'react';
-import { useDatabaseStore } from '../../store/useDatabaseStore';
-import type { SchemaProperty } from '../../types/database';
+import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import type { SchemaProperty, PropertyValue } from '../../types/database';
 import { Fingerprint } from 'lucide-react';
 import { CellPortal } from './CellPortal';
 import type { IdFormat } from './constants';
 
 interface IdCellEditorProps {
   property: SchemaProperty;
-  value: any;
+  value: PropertyValue;
   databaseId: string;
   onClose: () => void;
 }
 
-export function IdCellEditor({ property, databaseId, value, onClose }: IdCellEditorProps) {
+export function IdCellEditor({ property, databaseId, value, onClose }: Readonly<IdCellEditorProps>) {
   const updateProperty = useDatabaseStore(s => s.updateProperty);
 
   const currentPrefix = property.prefix || '';
@@ -28,6 +40,7 @@ export function IdCellEditor({ property, databaseId, value, onClose }: IdCellEdi
 
   const handleSave = (newFormat: IdFormat, newPrefix?: string) => {
     const p = newPrefix ?? prefix;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updates: Record<string, any> = {};
     switch (newFormat) {
       case 'auto_increment': Object.assign(updates, { prefix: '', autoIncrement: currentCounter }); break;
@@ -53,7 +66,7 @@ export function IdCellEditor({ property, databaseId, value, onClose }: IdCellEdi
   );
 }
 
-function CurrentValueHeader({ value }: { value: any }) {
+function CurrentValueHeader({ value }: Readonly<{ value: PropertyValue }>) {
   return (
     <div className="px-3 py-2 bg-surface-secondary border-b border-line-light">
       <div className="flex items-center gap-2">
@@ -80,7 +93,7 @@ function getExample(f: IdFormat, prefix: string): string {
   }
 }
 
-function FormatPicker({ format, prefix, onSelect }: { format: IdFormat; prefix: string; onSelect: (f: IdFormat) => void }) {
+function FormatPicker({ format, prefix, onSelect }: Readonly<{ format: IdFormat; prefix: string; onSelect: (f: IdFormat) => void }>) {
   return (
     <div className="py-1">
       <div className="px-3 py-1.5 text-xs font-medium text-ink-muted uppercase tracking-wide">ID Format</div>
@@ -101,14 +114,14 @@ function FormatPicker({ format, prefix, onSelect }: { format: IdFormat; prefix: 
   );
 }
 
-function PrefixInput({ prefix, setPrefix, currentCounter, onSave, onClose }: {
+function PrefixInput({ prefix, setPrefix, currentCounter, onSave, onClose }: Readonly<{
   prefix: string; setPrefix: (s: string) => void; currentCounter: number;
   onSave: (p: string) => void; onClose: () => void;
-}) {
+}>) {
   return (
     <div className="px-3 py-2 border-t border-line-light">
-      <label className="text-xs font-medium text-ink-secondary mb-1 block">Prefix</label>
-      <input autoFocus type="text" value={prefix} onChange={e => setPrefix(e.target.value)}
+      <label htmlFor="id-prefix-input" className="text-xs font-medium text-ink-secondary mb-1 block">Prefix</label>
+      <input id="id-prefix-input" autoFocus type="text" value={prefix} onChange={e => setPrefix(e.target.value)}
         onBlur={() => onSave(prefix)}
         onKeyDown={e => { if (e.key === 'Enter') { onSave(prefix); onClose(); } }}
         className="w-full text-sm px-2.5 py-1.5 rounded-md border border-line bg-surface-secondary-soft outline-none focus:border-focus-border focus:bg-surface-primary transition-colors font-mono"
@@ -120,7 +133,7 @@ function PrefixInput({ prefix, setPrefix, currentCounter, onSave, onClose }: {
   );
 }
 
-function CounterInfo({ currentCounter }: { currentCounter: number }) {
+function CounterInfo({ currentCounter }: Readonly<{ currentCounter: number }>) {
   return (
     <div className="px-3 py-2 border-t border-line-light bg-surface-secondary-soft">
       <div className="text-xs text-ink-muted">

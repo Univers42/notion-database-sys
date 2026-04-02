@@ -1,5 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Sidebar.tsx                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:39:43 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
-import { useDatabaseStore } from '../store/useDatabaseStore';
+import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import {
   Database, ChevronDown, ChevronRight, Plus,
   Table, Kanban, Calendar, Clock, List, LayoutGrid, BarChart3, Rss, Map, LayoutDashboard
@@ -71,7 +83,7 @@ export function Sidebar() {
                       <span className="truncate">{v.name}</span>
                     </button>
                   ))}
-                  <button onClick={() => addView(db.id, 'table', 'New View')}
+                  <button onClick={() => addView({ databaseId: db.id, type: 'table', name: 'New View', filters: [], filterConjunction: 'and', sorts: [], visibleProperties: [], settings: {} })}
                     className="flex items-center gap-2 px-3 py-1 text-xs text-ink-muted hover:text-hover-text hover:bg-hover-surface2 rounded-lg transition-colors">
                     <Plus className="w-3 h-3" /> Add view
                   </button>

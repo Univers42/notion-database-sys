@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   DatabaseViewBlock.tsx                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:34:54 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/01 16:34:55 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { Table, Columns, LayoutGrid, List } from 'lucide-react';
@@ -9,7 +21,7 @@ const VIEW_CONFIG: Record<string, { icon: typeof Table; label: string }> = {
   list_view: { icon: List, label: 'List view' },
 };
 
-export function DatabaseViewBlock({ block }: BlockRendererProps) {
+export function DatabaseViewBlock({ block }: Readonly<BlockRendererProps>) {
   const config = VIEW_CONFIG[block.type] || VIEW_CONFIG.table_view;
   const Icon = config.icon;
 
