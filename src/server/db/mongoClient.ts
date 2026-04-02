@@ -49,6 +49,20 @@ export async function mongoCollection<T extends Document = Document>(
   return d ? d.collection<T>(name) : null;
 }
 
+/** Return all documents from a collection.  Returns null when unreachable. */
+export async function mongoFindAll(
+  collectionName: string,
+): Promise<Record<string, unknown>[] | null> {
+  try {
+    const col = await mongoCollection(collectionName);
+    if (!col) return null;
+    return (await col.find({}).toArray()) as unknown as Record<string, unknown>[];
+  } catch (err) {
+    if (isConnectionError(err)) { markUnavailable(); return null; }
+    throw err;
+  }
+}
+
 /** Insert one document into a collection.  Returns null when container is down. */
 export async function mongoInsert(
   collectionName: string,

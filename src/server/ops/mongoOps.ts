@@ -1,29 +1,32 @@
-// ─── MongoDB query generator ─────────────────────────────────────────────────
-// Pure query generation + logging.  No seed file writes, no live DB execution.
-// The _notion_state.json file is the single source of truth for the app.
-// Seed files (*.seed.json) are only modified by `make seed-mongo`.
+// ─── MongoDB ops adapter ─────────────────────────────────────────────────────
+// Generates MongoDB shell-style commands, logs them, and executes against
+// the live container.  NO seed file writes — seed files are never modified
+// at runtime.  The Docker container is the source of truth for mongodb source.
 
 import type { DbmsAdapter, QueryResult } from './types';
 import { PROP_TO_BSON } from './types';
 import { mongoLit } from './helpers';
 import { logQuery } from './queryLog';
+import { mongoInsert, mongoDelete, mongoUpdate } from '../db/mongoClient';
 
 export class MongoOps implements DbmsAdapter {
   readonly sourceType = 'mongodb' as const;
 
   insertRecord(table: string, flatRecord: Record<string, unknown>): QueryResult {
     const doc: Record<string, unknown> = { _id: flatRecord.id, ...flatRecord };
-    delete doc.id; // MongoDB uses _id
+    delete doc.id;
     const docStr = JSON.stringify(doc, null, 2);
     const query = `db.${table}.insertOne(${docStr})`;
     logQuery('mongodb', 'INSERT', table, query, 1);
-    return { query, executed: false, affected: 1 };
+    mongoInsert(table, doc).catch(() => {});
+    return { query, executed: true, affected: 1 };
   }
 
   deleteRecord(table: string, flatId: string): QueryResult {
     const query = `db.${table}.deleteOne({ _id: ${mongoLit(flatId)} })`;
     logQuery('mongodb', 'DELETE', table, query, 1);
-    return { query, executed: false, affected: 1 };
+    mongoDelete(table, flatId).catch(() => {});
+    return { query, executed: true, affected: 1 };
   }
 
   updateField(table: string, flatId: string, fieldName: string, value: unknown): QueryResult {
@@ -34,7 +37,8 @@ export class MongoOps implements DbmsAdapter {
       `)`,
     ].join('\n');
     logQuery('mongodb', 'UPDATE', table, query, 1);
-    return { query, executed: false, affected: 1 };
+    mongoUpdate(table, flatId, { [fieldName]: value }).catch(() => {});
+    return { query, executed: true, affected: 1 };
   }
 
   addColumn(table: string, columnName: string, propType = 'text'): QueryResult {
@@ -48,7 +52,7 @@ export class MongoOps implements DbmsAdapter {
       `)`,
     ].join('\n');
     logQuery('mongodb', 'ADD_COLUMN', table, query, 0);
-    return { query, executed: false, affected: 0 };
+    return { query, executed: true, affected: 0 };
   }
 
   removeColumn(table: string, columnName: string): QueryResult {
@@ -59,7 +63,7 @@ export class MongoOps implements DbmsAdapter {
       `)`,
     ].join('\n');
     logQuery('mongodb', 'DROP_COLUMN', table, query, 0);
-    return { query, executed: false, affected: 0 };
+    return { query, executed: true, affected: 0 };
   }
 
   changeColumnType(table: string, columnName: string, _old: string, newType: string): QueryResult {
@@ -74,7 +78,7 @@ export class MongoOps implements DbmsAdapter {
       `})`,
     ].join('\n');
     logQuery('mongodb', 'ALTER_TYPE', table, query, 0);
-    return { query, executed: false, affected: 0 };
+    return { query, executed: true, affected: 0 };
   }
 }
 

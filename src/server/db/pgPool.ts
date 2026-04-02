@@ -59,6 +59,30 @@ export async function pgQuery(
   }
 }
 
+/** Execute a SQL query and return the rows.
+ *  Returns `null` when the container is unreachable. */
+export async function pgQueryRows(
+  sql: string,
+  params: unknown[] = [],
+): Promise<Record<string, unknown>[] | null> {
+  const p = getPool();
+  if (!p) return null;
+  try {
+    const res = await p.query(sql, params);
+    unavailable = false;
+    return res.rows as Record<string, unknown>[];
+  } catch (err) {
+    const code = (err as Record<string, string>).code;
+    if (code === 'ECONNREFUSED' || code === 'ENOTFOUND' || code === 'ETIMEDOUT') {
+      unavailable = true;
+      lastAttempt = Date.now();
+      pool = null;
+      return null;
+    }
+    throw err;
+  }
+}
+
 /** Check if PostgreSQL is reachable. */
 export async function pgPing(): Promise<boolean> {
   try {

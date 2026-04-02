@@ -28,6 +28,8 @@ interface DbmsExtras {
   dbmsLoading: boolean;
   /** Error from last DBMS load attempt. */
   dbmsError: string | null;
+  /** Currently active DBMS source (json | csv | postgresql | mongodb). */
+  activeDbmsSource: string;
   /** Load full state from the active DBMS source via API.
    *  Pass `silent: true` for live-reload (no loading spinner). */
   loadFromSource: (source?: string, opts?: { silent?: boolean }) => Promise<void>;
@@ -40,9 +42,14 @@ interface DbmsExtras {
 
 export type ExtendedDatabaseState = DatabaseState & DbmsExtras;
 
+/** Sources backed by a live database container. */
+const LIVE_DB_SOURCES = new Set(['postgresql', 'mongodb']);
+
 // ─── Helper: Flush full state to server immediately (no debounce) ───────────
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
 function flushState(get: () => ExtendedDatabaseState): void {
+  // Live DB sources: container is the source of truth, skip file flush
+  if (LIVE_DB_SOURCES.has(get().activeDbmsSource)) return;
   if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
   const { databases, pages, views } = get();
   fetch('/api/dbms/state', {
@@ -76,6 +83,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   // DBMS loading state
   dbmsLoading: true,
   dbmsError: null,
+  activeDbmsSource: 'json',
 
   loadFromSource: async (source?: string, opts?: { silent?: boolean }) => {
     const silent = opts?.silent ?? false;
@@ -95,6 +103,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
           pages: switched.pages,
           views: switched.views,
           activeViewId: firstView,
+          activeDbmsSource: source,
           dbmsLoading: false,
         });
         return;

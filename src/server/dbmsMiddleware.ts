@@ -26,6 +26,8 @@ import {
   getQueryLog, clearQueryLog,
 } from './ops/index';
 import { validatePropertyValue } from '../store/validation';
+import { pgLoadPages } from './db/pgLoader';
+import { mongoLoadPages } from './db/mongoLoader';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
@@ -55,6 +57,42 @@ let activeSource: DbSourceType = (process.env.ACTIVE_DB_SOURCE as DbSourceType) 
 
 /** Expose a getter for the file watcher. */
 export function getActiveSource(): DbSourceType { return activeSource; }
+
+/** Whether the source is backed by a live database container. */
+function isLiveDbSource(src: DbSourceType): boolean { return src === 'postgresql' || src === 'mongodb'; }
+
+/** Load pages from the live DB, merging with the seed state for schemas/views.
+ *  Falls back to seed state if the container is unreachable. */
+async function loadLiveState(source: DbSourceType): Promise<NotionState> {
+  const seed = readState(source); // always need schemas + views from seed
+  const fieldMaps = readFieldMap(source);
+  let livePages: Record<string, Record<string, unknown>> | null = null;
+
+  if (source === 'postgresql') {
+    livePages = await pgLoadPages(fieldMaps);
+  } else if (source === 'mongodb') {
+    livePages = await mongoLoadPages(fieldMaps);
+  }
+
+  if (livePages) {
+    // Merge: keep seed page metadata (icon, content) but overlay live properties
+    for (const [pageId, livePage] of Object.entries(livePages)) {
+      const seedPage = seed.pages[pageId] as Record<string, unknown> | undefined;
+      if (seedPage) {
+        // Preserve seed metadata that doesn't exist in the DB
+        livePage.icon = livePage.icon ?? seedPage.icon;
+        livePage.content = seedPage.content ?? [];
+        // Merge: live properties override, but keep seed-only props (formula/rollup)
+        const seedProps = (seedPage.properties ?? {}) as Record<string, unknown>;
+        const liveProps = (livePage.properties ?? {}) as Record<string, unknown>;
+        livePage.properties = { ...seedProps, ...liveProps };
+      }
+      livePages[pageId] = livePage;
+    }
+    seed.pages = livePages;
+  }
+  return seed;
+}
 
 function statePath(source: DbSourceType): string {
   return join(SOURCE_DIR[source], STATE_FILE);
@@ -275,7 +313,9 @@ export function dbmsMiddleware(server: ViteDevServer): void {
     try {
       // ── GET /api/dbms/state ──
       if (url === '/api/dbms/state' && req.method === 'GET') {
-        const state = readState(activeSource);
+        const state = isLiveDbSource(activeSource)
+          ? await loadLiveState(activeSource)
+          : readState(activeSource);
         res.writeHead(200);
         res.end(JSON.stringify(state));
         return;
@@ -298,7 +338,9 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           return;
         }
         activeSource = newSource;
-        const state = readState(activeSource);
+        const state = isLiveDbSource(activeSource)
+          ? await loadLiveState(activeSource)
+          : readState(activeSource);
         res.writeHead(200);
         res.end(JSON.stringify(state));
         return;
@@ -335,25 +377,31 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           value = vr.value;
         }
 
-        // Update property
+        // Update property in state object
         (page.properties as Record<string, unknown>)[propertyId] = value;
         (page as Record<string, unknown>).updatedAt = new Date().toISOString();
         (page as Record<string, unknown>).lastEditedBy = 'You';
 
-        // Persist state file
-        writeState(activeSource, state);
-
-        // Sync to flat entity files (JSON/CSV legacy)
         const allFieldMaps = readFieldMap(activeSource);
         const fieldMap = allFieldMaps[dbId] ?? {};
-        syncJsonEntity(activeSource, page, fieldMap);
-        syncCsvEntity(activeSource, page, fieldMap);
 
-        // Dispatch through ops layer for query generation
-        const flatId = resolveFlatId(page, fieldMap);
-        const fieldName = fieldMap[propertyId];
-        if (flatId && fieldName) {
-          dispatchUpdate(activeSource, dbId, flatId, fieldName, value, fieldMap);
+        if (isLiveDbSource(activeSource)) {
+          // Live DB source: execute query directly, do NOT write state file
+          const flatId = resolveFlatId(page, fieldMap);
+          const fieldName = fieldMap[propertyId];
+          if (flatId && fieldName) {
+            dispatchUpdate(activeSource, dbId, flatId, fieldName, value, fieldMap);
+          }
+        } else {
+          // File-based source: persist state + sync flat files
+          writeState(activeSource, state);
+          syncJsonEntity(activeSource, page, fieldMap);
+          syncCsvEntity(activeSource, page, fieldMap);
+          const flatId = resolveFlatId(page, fieldMap);
+          const fieldName = fieldMap[propertyId];
+          if (flatId && fieldName) {
+            dispatchUpdate(activeSource, dbId, flatId, fieldName, value, fieldMap);
+          }
         }
 
         res.writeHead(200);
@@ -394,10 +442,14 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           createdBy: 'You',
           lastEditedBy: 'You',
         };
-        writeState(activeSource, state);
 
-        // Dispatch to ops layer
+        // Dispatch to ops layer (live DB sources execute the query)
         const result = dispatchInsert(activeSource, databaseId, flatRecord, fieldMap);
+
+        // File-based sources: persist state to disk
+        if (!isLiveDbSource(activeSource)) {
+          writeState(activeSource, state);
+        }
 
         res.writeHead(201);
         res.end(JSON.stringify({ ok: true, pageId, query: result?.query ?? null }));
@@ -423,12 +475,16 @@ export function dbmsMiddleware(server: ViteDevServer): void {
 
         // Remove from state
         delete state.pages[pageId];
-        writeState(activeSource, state);
 
-        // Dispatch to ops layer
+        // Dispatch to ops layer (live DB sources execute the query)
         const result = flatId
           ? dispatchDelete(activeSource, dbId, flatId, fieldMap)
           : null;
+
+        // File-based sources: persist state to disk
+        if (!isLiveDbSource(activeSource)) {
+          writeState(activeSource, state);
+        }
 
         res.writeHead(200);
         res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
@@ -444,16 +500,18 @@ export function dbmsMiddleware(server: ViteDevServer): void {
 
         const result = dispatchAddColumn(activeSource, databaseId, columnName, propType);
 
-        // Also persist to state (add empty values for all pages in this DB)
-        const state = readState(activeSource);
-        for (const page of Object.values(state.pages) as PageLike[]) {
-          if (page.databaseId === databaseId) {
-            if (!(body.propId as string in page.properties)) {
-              page.properties[body.propId as string] = null;
+        // File-based sources: persist to state (add empty values for all pages)
+        if (!isLiveDbSource(activeSource)) {
+          const state = readState(activeSource);
+          for (const page of Object.values(state.pages) as PageLike[]) {
+            if (page.databaseId === databaseId) {
+              if (!(body.propId as string in page.properties)) {
+                page.properties[body.propId as string] = null;
+              }
             }
           }
+          writeState(activeSource, state);
         }
-        writeState(activeSource, state);
 
         res.writeHead(201);
         res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
@@ -475,14 +533,16 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           result = dispatchDropColumn(activeSource, databaseId, fieldName);
         }
 
-        // Remove from all pages in state
-        const state = readState(activeSource);
-        for (const page of Object.values(state.pages) as PageLike[]) {
-          if (page.databaseId === databaseId) {
-            delete page.properties[propId];
+        // File-based sources: remove from all pages in state
+        if (!isLiveDbSource(activeSource)) {
+          const state = readState(activeSource);
+          for (const page of Object.values(state.pages) as PageLike[]) {
+            if (page.databaseId === databaseId) {
+              delete page.properties[propId];
+            }
           }
+          writeState(activeSource, state);
         }
-        writeState(activeSource, state);
 
         res.writeHead(200);
         res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
@@ -595,6 +655,12 @@ export function dbmsMiddleware(server: ViteDevServer): void {
       }
       // ── PATCH /api/dbms/state — full state replacement ──
       if (url === '/api/dbms/state' && req.method === 'PATCH') {
+        if (isLiveDbSource(activeSource)) {
+          // Live DB sources: no-op — the container is the source of truth
+          res.writeHead(200);
+          res.end(JSON.stringify({ ok: true, skipped: true }));
+          return;
+        }
         const body = await parseBody(req);
         const state = readState(activeSource);
 
