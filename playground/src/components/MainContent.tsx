@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useCallback, useRef, useEffect } from 'react';
 import { Plus, FileText } from 'lucide-react';
 
 // Reuse production components from src/ via the @src alias
@@ -7,6 +7,7 @@ import { DatabaseBlock }  from '@src/components/DatabaseBlock';
 
 import { usePageStore }  from '../store/usePageStore';
 import { useUserStore }  from '../store/useUserStore';
+import { PlaygroundPageEditor } from './PlaygroundPageEditor';
 
 /**
  * The right-hand content panel.
@@ -14,17 +15,18 @@ import { useUserStore }  from '../store/useUserStore';
  * ┌──────────────────────────────────────────┐
  * │  activePage = null   → Home splash       │
  * │  activePage.kind='database' → DatabaseBlock
- * │  activePage.kind='page'     → Page title + content
+ * │  activePage.kind='page'     → Block-based page view
  * └──────────────────────────────────────────┘
  */
 export const MainContent: React.FC = () => {
   const activePage = usePageStore(s => s.activePage);
   const addPage    = usePageStore(s => s.addPage);
   const openPage   = usePageStore(s => s.openPage);
+  const pageById   = usePageStore(s => s.pageById);
   const session    = useUserStore(s => s.activeSession());
   const persona    = useUserStore(s => s.activePersona());
 
-  const jwt      = session?.accessToken ?? '';
+  const jwt       = session?.accessToken ?? '';
   const firstWsId = session?.privateWorkspaces[0]?._id ?? '';
 
   // ── Home / no-selection splash ──────────────────────────────────────────
@@ -43,14 +45,14 @@ export const MainContent: React.FC = () => {
         </div>
         <button
           type="button"
-          disabled={!firstWsId || !jwt}
+          disabled={!firstWsId}
           className={[
             'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium',
             'bg-[var(--color-accent)] text-white hover:opacity-90 transition-opacity',
             'disabled:opacity-40 disabled:cursor-not-allowed',
           ].join(' ')}
           onClick={async () => {
-            if (!firstWsId || !jwt) return;
+            if (!firstWsId) return;
             const p = await addPage(firstWsId, 'Untitled', jwt);
             if (p) openPage({ id: p._id, workspaceId: firstWsId, kind: 'page', title: p.title });
           }}
@@ -79,34 +81,74 @@ export const MainContent: React.FC = () => {
     );
   }
 
-  // ── Plain page view ─────────────────────────────────────────────────────
+  // ── Page view with editable block editor ─────────────────────────────────
+
+  const fullPage = pageById(activePage.id);
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-auto bg-[var(--color-surface-primary)]">
       {/* Page header */}
       <div className="max-w-3xl w-full mx-auto px-14 pt-20 pb-4">
-        <div className="text-5xl mb-3">{activePage.icon ?? <FileText />}</div>
-        <h1
-          contentEditable
-          suppressContentEditableWarning
-          className={[
-            'text-4xl font-bold text-[var(--color-ink)] outline-none',
-            'empty:before:content-[\'Untitled\'] empty:before:text-[var(--color-ink-faint)]',
-          ].join(' ')}
-        >
-          {activePage.title}
-        </h1>
+        {activePage.icon
+          ? <div className="text-5xl mb-3">{activePage.icon}</div>
+          : <div className="text-5xl mb-3 text-[var(--color-ink-faint)]"><FileText size={48} /></div>
+        }
+        <EditableTitle pageId={activePage.id} title={fullPage?.title ?? activePage.title ?? ''} />
       </div>
 
-      {/* Page body placeholder */}
-      <div
-        className="max-w-3xl w-full mx-auto px-14 pb-20 text-[var(--color-ink-muted)] text-sm"
-        contentEditable
-        suppressContentEditableWarning
-      >
-        <p className="text-[var(--color-ink-faint)] italic">Press '/' for commands…</p>
+      {/* Page body — editable blocks */}
+      <div className="max-w-3xl w-full mx-auto px-14 pb-20">
+        <PlaygroundPageEditor pageId={activePage.id} />
       </div>
     </div>
+  );
+};
+
+// ─── EditableTitle ───────────────────────────────────────────────────────────
+
+const EditableTitle: React.FC<{ pageId: string; title: string }> = ({ pageId, title }) => {
+  const updatePageTitle = usePageStore(s => s.updatePageTitle);
+  const openPage        = usePageStore(s => s.openPage);
+  const activePage      = usePageStore(s => s.activePage);
+  const ref = useRef<HTMLHeadingElement>(null);
+
+  // Sync content once on mount and if title changes externally
+  useEffect(() => {
+    if (ref.current && ref.current.textContent !== title) {
+      ref.current.textContent = title;
+    }
+  }, [title]);
+
+  const handleInput = useCallback(() => {
+    if (!ref.current) return;
+    const newTitle = ref.current.textContent ?? '';
+    updatePageTitle(pageId, newTitle);
+    // Also update the active page title in the top bar
+    if (activePage && activePage.id === pageId) {
+      openPage({ ...activePage, title: newTitle });
+    }
+  }, [pageId, updatePageTitle, activePage, openPage]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Move focus to the first block
+      const firstBlock = document.querySelector('[data-block-id] [contenteditable]') as HTMLElement;
+      firstBlock?.focus();
+    }
+  }, []);
+
+  return (
+    <h1
+      ref={ref}
+      contentEditable
+      suppressContentEditableWarning
+      spellCheck
+      className="text-4xl font-bold text-[var(--color-ink)] outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-[var(--color-ink-faint)]"
+      data-placeholder="Untitled"
+      onInput={handleInput}
+      onKeyDown={handleKeyDown}
+    />
   );
 };
 
