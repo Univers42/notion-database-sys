@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:11:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,7 @@ import { Image, ArrowUpRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { CURSORS } from '../../ui/cursors';
 import type { Page, SchemaProperty, PropertyValue } from '../../../types/database';
-
-export const COVER_COLORS = [
-  'bg-gradient-to-br from-gradient-blue-from to-gradient-blue-to',
-  'bg-gradient-to-br from-gradient-purple-card-from to-gradient-purple-card-to',
-  'bg-gradient-to-br from-gradient-green-from to-gradient-green-to',
-  'bg-gradient-to-br from-gradient-orange-from to-gradient-orange-to',
-  'bg-gradient-to-br from-gradient-pink-from to-gradient-pink-to',
-  'bg-gradient-to-br from-gradient-cyan-from to-gradient-cyan-to',
-];
+import { CARD_COVER_GRADIENTS as COVER_COLORS } from '../../../utils/color';
 
 export function getColumnWidth(cardSize: string) {
   switch (cardSize) {
