@@ -1520,7 +1520,7 @@
         ],
         "prop-assignee": "Charlie",
         "prop-due": "2026-04-07T14:22:50.751Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 3,
         "prop-task-id": "TASK-3",
         "prop-project": [
@@ -1531,9 +1531,9 @@
       },
       "content": [],
       "createdAt": "2026-03-30T14:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-03T13:08:02.308Z",
       "createdBy": "Charlie",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t4": {
       "id": "t4",
@@ -1548,7 +1548,7 @@
         ],
         "prop-assignee": "Alice",
         "prop-due": "2026-04-12T14:22:50.751Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 2,
         "prop-task-id": "TASK-4",
         "prop-project": [
@@ -1560,9 +1560,9 @@
       },
       "content": [],
       "createdAt": "2026-03-31T14:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-03T13:08:03.260Z",
       "createdBy": "Alice",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t5": {
       "id": "t5",
@@ -1588,9 +1588,9 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-03T13:08:03.665Z",
       "createdBy": "Bob",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t6": {
       "id": "t6",
@@ -1606,7 +1606,7 @@
         ],
         "prop-assignee": "Diana",
         "prop-due": "2026-04-02T22:00:00.000Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 5,
         "prop-task-id": "TASK-6",
         "prop-project": [
@@ -1618,9 +1618,9 @@
       },
       "content": [],
       "createdAt": "2026-03-28T15:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-03T13:07:38.646Z",
       "createdBy": "Diana",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t7": {
       "id": "t7",
@@ -1635,7 +1635,7 @@
         ],
         "prop-assignee": "Eve",
         "prop-due": "2026-04-06T14:22:50.751Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 8,
         "prop-task-id": "TASK-7",
         "prop-project": [
@@ -1646,9 +1646,9 @@
       },
       "content": [],
       "createdAt": "2026-03-29T14:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-03T13:07:39.568Z",
       "createdBy": "Eve",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t8": {
       "id": "t8",
@@ -1667,7 +1667,7 @@
         ],
         "prop-assignee": "Alice",
         "prop-due": null,
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 3,
         "prop-task-id": "TASK-8",
         "prop-project": [
@@ -1678,9 +1678,9 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-03T13:08:04.932Z",
       "createdBy": "Alice",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "c1": {
       "id": "c1",
@@ -19333,7 +19333,7 @@
         "prop-tags": null,
         "prop-assignee": null,
         "prop-due": "2026-04-05T22:00:00.000Z",
-        "prop-done": null,
+        "prop-done": true,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null,
@@ -19341,9 +19341,9 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:06.582Z",
-      "updatedAt": "2026-04-03T00:34:59.773Z",
+      "updatedAt": "2026-04-03T13:08:03.958Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "3131ba01-c1b3-45ec-b257-4a620face2d0": {
       "id": "3131ba01-c1b3-45ec-b257-4a620face2d0",
@@ -19356,16 +19356,16 @@
         "prop-tags": null,
         "prop-assignee": null,
         "prop-due": "2026-04-05T22:00:00.000Z",
-        "prop-done": null,
+        "prop-done": true,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:17.316Z",
-      "updatedAt": "2026-04-03T00:34:59.773Z",
+      "updatedAt": "2026-04-03T13:08:04.475Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "44adbb28-347c-4aa8-bdf6-3bce3f1661bb": {
       "id": "44adbb28-347c-4aa8-bdf6-3bce3f1661bb",
@@ -19378,16 +19378,16 @@
         "prop-tags": null,
         "prop-assignee": null,
         "prop-due": "2026-04-07T22:00:00.000Z",
-        "prop-done": null,
+        "prop-done": true,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:18.650Z",
-      "updatedAt": "2026-04-03T00:34:59.773Z",
+      "updatedAt": "2026-04-03T13:08:05.420Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "1a0bbf76-7613-4a3f-a437-938be6ecb7ce": {
       "id": "1a0bbf76-7613-4a3f-a437-938be6ecb7ce",
@@ -19415,11 +19415,12 @@
         "prop-due": "2026-04-05T22:00:00.000Z",
         "prop-title": "",
         "prop-task-id": "TASK-9",
-        "prop-status": "opt-todo"
+        "prop-status": "opt-todo",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T22:58:49.851Z",
-      "updatedAt": "2026-04-02T23:03:02.864Z",
+      "updatedAt": "2026-04-03T13:08:05.938Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19429,11 +19430,12 @@
       "properties": {
         "prop-due": "2026-04-05T22:00:00.000Z",
         "prop-title": "",
-        "prop-task-id": "TASK-10"
+        "prop-task-id": "TASK-10",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T23:52:32.039Z",
-      "updatedAt": "2026-04-02T23:52:32.039Z",
+      "updatedAt": "2026-04-03T13:08:06.267Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19443,11 +19445,12 @@
       "properties": {
         "prop-due": "2026-04-07T22:00:00.000Z",
         "prop-title": "",
-        "prop-task-id": "TASK-11"
+        "prop-task-id": "TASK-11",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T00:25:07.375Z",
-      "updatedAt": "2026-04-03T00:25:07.375Z",
+      "updatedAt": "2026-04-03T13:08:06.569Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },

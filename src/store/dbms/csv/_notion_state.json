@@ -160,7 +160,7 @@
           "name": "Task ID",
           "type": "id",
           "prefix": "TASK-",
-          "autoIncrement": 9
+          "autoIncrement": 23
         },
         "prop-project": {
           "id": "prop-project",
@@ -171,6 +171,11 @@
             "type": "two_way",
             "reversePropertyId": "proj-tasks"
           }
+        },
+        "prop-cdc79fa5": {
+          "id": "prop-cdc79fa5",
+          "name": "End Date",
+          "type": "date"
         }
       }
     },
@@ -1421,11 +1426,9 @@
       "icon": "⚙️",
       "properties": {
         "prop-title": "Implement View Engine",
-        "prop-status": "opt-in-progress",
+        "prop-status": "opt-todo",
         "prop-priority": "pri-urgent",
-        "prop-tags": [
-          "tag-infra"
-        ],
+        "prop-tags": "tag-infra",
         "prop-assignee": "Bob",
         "prop-due": "2026-04-04T14:22:50.751Z",
         "prop-done": false,
@@ -1445,7 +1448,7 @@
         }
       ],
       "createdAt": "2026-03-26T15:22:50.751Z",
-      "updatedAt": "2026-04-02T21:57:10.483Z",
+      "updatedAt": "2026-04-03T10:57:18.802Z",
       "createdBy": "Bob",
       "lastEditedBy": "You"
     },
@@ -1459,7 +1462,7 @@
         "prop-priority": "Medium",
         "prop-tags": "Bug",
         "prop-assignee": "Charlie",
-        "prop-due": "2026-04-07T00:00:00Z",
+        "prop-due": "2026-04-07T22:00:00.000Z",
         "prop-done": false,
         "prop-points": 3,
         "prop-task-id": "TASK-3",
@@ -1467,11 +1470,12 @@
           "pj4",
           "pj5"
         ],
-        "prop-created": "2026-03-30T00:00:00Z"
+        "prop-created": "2026-03-30T00:00:00Z",
+        "prop-cdc79fa5": "2026-05-21T22:00:00.000Z"
       },
       "content": [],
       "createdAt": "2026-03-30T14:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:49.333Z",
+      "updatedAt": "2026-04-03T10:56:00.333Z",
       "createdBy": "Charlie",
       "lastEditedBy": "You"
     },
@@ -1493,11 +1497,12 @@
           "pj2",
           "pj5"
         ],
-        "prop-created": "2026-03-31T00:00:00Z"
+        "prop-created": "2026-03-31T00:00:00Z",
+        "prop-cdc79fa5": "2026-04-23T22:00:00.000Z"
       },
       "content": [],
       "createdAt": "2026-03-31T14:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:49.338Z",
+      "updatedAt": "2026-04-03T10:53:18.734Z",
       "createdBy": "Alice",
       "lastEditedBy": "You"
     },
@@ -1518,11 +1523,12 @@
         "prop-project": [
           "pj3"
         ],
-        "prop-created": "2026-04-01T00:00:00Z"
+        "prop-created": "2026-04-01T00:00:00Z",
+        "prop-cdc79fa5": "2026-04-19T22:00:00.000Z"
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:49.343Z",
+      "updatedAt": "2026-04-03T10:53:20.813Z",
       "createdBy": "Bob",
       "lastEditedBy": "You"
     },
@@ -1532,7 +1538,7 @@
       "icon": "🧪",
       "properties": {
         "prop-title": "Write Integration Tests",
-        "prop-status": "opt-review",
+        "prop-status": "opt-in-progress",
         "prop-priority": "Medium",
         "prop-tags": "Feature|Infrastructure",
         "prop-assignee": "Diana",
@@ -1548,7 +1554,7 @@
       },
       "content": [],
       "createdAt": "2026-03-28T15:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:49.349Z",
+      "updatedAt": "2026-04-03T10:57:19.921Z",
       "createdBy": "Diana",
       "lastEditedBy": "You"
     },
@@ -1562,7 +1568,7 @@
         "prop-priority": "High",
         "prop-tags": "Infrastructure",
         "prop-assignee": "Eve",
-        "prop-due": "2026-04-06T00:00:00Z",
+        "prop-due": "2026-04-10T22:00:00.000Z",
         "prop-done": false,
         "prop-points": 8,
         "prop-task-id": "TASK-7",
@@ -1570,11 +1576,12 @@
           "pj1",
           "pj6"
         ],
-        "prop-created": "2026-03-29T00:00:00Z"
+        "prop-created": "2026-03-29T00:00:00Z",
+        "prop-cdc79fa5": "2026-07-29T22:00:00.000Z"
       },
       "content": [],
       "createdAt": "2026-03-29T14:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:49.354Z",
+      "updatedAt": "2026-04-03T10:56:37.276Z",
       "createdBy": "Eve",
       "lastEditedBy": "You"
     },
@@ -1586,9 +1593,7 @@
         "prop-title": "UI Polish Pass",
         "prop-status": "opt-review",
         "prop-priority": "Medium",
-        "prop-tags": [
-          "tag-feature"
-        ],
+        "prop-tags": "tag-feature",
         "prop-assignee": "Alice",
         "prop-due": "2026-04-10T00:00:00Z",
         "prop-done": false,
@@ -1598,13 +1603,14 @@
           "pj2",
           "pj4"
         ],
-        "prop-created": "2026-04-01T00:00:00Z"
+        "prop-created": "2026-04-01T00:00:00Z",
+        "prop-cdc79fa5": "2026-04-29T22:00:00.000Z"
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-02T21:57:12.653Z",
+      "updatedAt": "2026-04-03T10:55:35.460Z",
       "createdBy": "Alice",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "c1": {
       "id": "c1",
@@ -19265,14 +19271,14 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-due": "",
+        "prop-due": "2026-04-09T22:00:00.000Z",
         "prop-done": "",
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:46:41.890Z",
-      "updatedAt": "2026-04-02T16:40:56.343Z",
+      "updatedAt": "2026-04-03T10:55:58.022Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19284,20 +19290,18 @@
         "prop-task-id": "TASK-10",
         "prop-status": "",
         "prop-priority": "",
-        "prop-tags": [
-          "tag-bug"
-        ],
+        "prop-tags": "",
         "prop-assignee": "",
-        "prop-due": "",
+        "prop-due": "2026-04-09T22:00:00.000Z",
         "prop-done": "",
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:46.506Z",
-      "updatedAt": "2026-04-02T21:57:14.453Z",
+      "updatedAt": "2026-04-03T10:55:58.022Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670": {
       "id": "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670",
@@ -19309,14 +19313,14 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-due": "",
+        "prop-due": "2026-04-08T22:00:00.000Z",
         "prop-done": "",
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:47.178Z",
-      "updatedAt": "2026-04-02T16:40:56.343Z",
+      "updatedAt": "2026-04-03T10:55:58.022Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19330,14 +19334,14 @@
         "prop-status": "",
         "prop-priority": "",
         "prop-tags": "",
-        "prop-due": "",
+        "prop-due": "2026-04-09T22:00:00.000Z",
         "prop-done": "",
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:47.793Z",
-      "updatedAt": "2026-04-02T16:40:56.343Z",
+      "updatedAt": "2026-04-03T10:55:58.022Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19351,14 +19355,14 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-due": "",
+        "prop-due": "2026-04-08T22:00:00.000Z",
         "prop-done": "",
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:48.611Z",
-      "updatedAt": "2026-04-02T16:40:56.344Z",
+      "updatedAt": "2026-04-03T10:55:58.022Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19438,13 +19442,20 @@
       "properties": {
         "prop-title": "",
         "prop-task-id": "TASK-14",
-        "prop-status": "opt-review"
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:50:51.957Z",
-      "updatedAt": "2026-04-02T16:40:39.486Z",
+      "updatedAt": "2026-04-03T10:55:35.460Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "f0e90c98-e4f6-4642-a52e-1c5932bdca25": {
       "id": "f0e90c98-e4f6-4642-a52e-1c5932bdca25",
@@ -19452,13 +19463,20 @@
       "properties": {
         "prop-title": "",
         "prop-task-id": "TASK-15",
-        "prop-status": "opt-review"
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-due": "2026-04-08T22:00:00.000Z",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:50:54.705Z",
-      "updatedAt": "2026-04-02T16:40:39.494Z",
+      "updatedAt": "2026-04-03T10:55:35.460Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "38acf83c-1f05-44a1-aa3c-0fb8ca72ab01": {
       "id": "38acf83c-1f05-44a1-aa3c-0fb8ca72ab01",
@@ -19515,6 +19533,241 @@
       "content": [],
       "createdAt": "2026-04-02T15:52:12.905Z",
       "updatedAt": "2026-04-02T15:52:12.905Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "92be3c8a-58df-49a8-84f4-4aba779309ac": {
+      "id": "92be3c8a-58df-49a8-84f4-4aba779309ac",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-9",
+        "prop-cdc79fa5": "2026-05-06T22:00:00.000Z"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:04.316Z",
+      "updatedAt": "2026-04-03T10:53:25.897Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "d6ca4873-98a3-4ddd-ae6b-f4ad392aa94d": {
+      "id": "d6ca4873-98a3-4ddd-ae6b-f4ad392aa94d",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-10",
+        "prop-cdc79fa5": "2026-05-07T22:00:00.000Z"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:06.438Z",
+      "updatedAt": "2026-04-03T10:53:27.384Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "53c147aa-0086-439c-b9f2-ac07925407fa": {
+      "id": "53c147aa-0086-439c-b9f2-ac07925407fa",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-08T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-11",
+        "prop-cdc79fa5": "2026-04-27T22:00:00.000Z"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:06.866Z",
+      "updatedAt": "2026-04-03T10:53:29.010Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "c2b2f0a7-68dd-4a29-9e80-e8871c8a3974": {
+      "id": "c2b2f0a7-68dd-4a29-9e80-e8871c8a3974",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-12",
+        "prop-cdc79fa5": "2026-04-27T22:00:00.000Z"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:07.234Z",
+      "updatedAt": "2026-04-03T10:53:30.915Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "cdc32411-218b-4875-b370-db106f06ffb6": {
+      "id": "cdc32411-218b-4875-b370-db106f06ffb6",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-08T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-13"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:07.669Z",
+      "updatedAt": "2026-04-03T10:53:07.669Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "317e2e55-4450-41e2-b4e0-f90fc2ba7fa5": {
+      "id": "317e2e55-4450-41e2-b4e0-f90fc2ba7fa5",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-14"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:08.126Z",
+      "updatedAt": "2026-04-03T10:53:08.126Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "1000cd6e-5444-4b1f-8128-273404e97976": {
+      "id": "1000cd6e-5444-4b1f-8128-273404e97976",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-08T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-15"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:08.771Z",
+      "updatedAt": "2026-04-03T10:53:08.771Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "e20db4f9-538a-419e-995b-5bdf5b7bc7f5": {
+      "id": "e20db4f9-538a-419e-995b-5bdf5b7bc7f5",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-16",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:13.159Z",
+      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "createdBy": "You",
+      "lastEditedBy": "External"
+    },
+    "883238dc-13c3-469e-ae99-2775a61a28b4": {
+      "id": "883238dc-13c3-469e-ae99-2775a61a28b4",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-17",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:13.504Z",
+      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "createdBy": "You",
+      "lastEditedBy": "External"
+    },
+    "3bf9d65f-2403-4a0c-a64e-2ef8239746f5": {
+      "id": "3bf9d65f-2403-4a0c-a64e-2ef8239746f5",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-18",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:13.811Z",
+      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "createdBy": "You",
+      "lastEditedBy": "External"
+    },
+    "b3521844-7ec5-43b1-859c-6ddc1c845d7f": {
+      "id": "b3521844-7ec5-43b1-859c-6ddc1c845d7f",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-04-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-19",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:53:14.096Z",
+      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "createdBy": "You",
+      "lastEditedBy": "External"
+    },
+    "5af29ab8-c296-4504-9638-1ffe6c20999f": {
+      "id": "5af29ab8-c296-4504-9638-1ffe6c20999f",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-05-07T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-20",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-done": "",
+        "prop-points": "",
+        "prop-created": ""
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:55:55.015Z",
+      "updatedAt": "2026-04-03T10:55:58.022Z",
+      "createdBy": "You",
+      "lastEditedBy": "External"
+    },
+    "28a3a96e-a5a8-4925-a12a-ea31fbacd67e": {
+      "id": "28a3a96e-a5a8-4925-a12a-ea31fbacd67e",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-05-29T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-21"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:56:00.872Z",
+      "updatedAt": "2026-04-03T10:56:00.872Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "500f2be2-f236-4c7e-b41c-af49bd0cb628": {
+      "id": "500f2be2-f236-4c7e-b41c-af49bd0cb628",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-due": "2026-06-09T22:00:00.000Z",
+        "prop-title": "",
+        "prop-task-id": "TASK-22"
+      },
+      "content": [],
+      "createdAt": "2026-04-03T10:56:18.101Z",
+      "updatedAt": "2026-04-03T10:56:18.101Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     }
@@ -19578,11 +19831,12 @@
       "visibleProperties": [
         "prop-title",
         "prop-status",
-        "prop-assignee"
+        "prop-assignee",
+        "prop-cdc79fa5"
       ],
       "settings": {
         "showTable": true,
-        "zoomLevel": "week"
+        "zoomLevel": "month"
       }
     },
     "v-tasks-list": {

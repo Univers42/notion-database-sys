@@ -25,9 +25,24 @@ down:
 
 restart: down up
 
-re:
+re: ## Restart: re-seed live DBs (mongo/pg), preserve standalone (json/csv) data
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
-	@echo "1/5  Restoring clean state files..."
+	@echo "1/5  Restoring live-DB seed files..."
+	@git checkout -- src/store/dbms/mongodb/ src/store/dbms/relational/ src/store/dbms/hardcoded/ 2>/dev/null || true
+	@echo "2/5  Pulling latest images..."
+	@docker compose pull --quiet
+	@echo "3/5  Wiping volumes and stopping containers..."
+	@docker compose down -v
+	@echo "4/5  Starting fresh containers..."
+	@docker compose up -d
+	@echo "5/5  Seeding databases..."
+	@sleep 4
+	@$(MAKE) seed-all --no-print-directory
+	@echo -e "$(GREEN)══ Full restart complete — live DBs re-seeded, standalone data preserved ══$(RESET)"
+
+re-all: ## Hard reset: wipe EVERYTHING including standalone json/csv data
+	@echo -e "$(CYAN)══ Hard reset (all sources) ══$(RESET)"
+	@echo "1/5  Restoring ALL seed/state files from git..."
 	@git checkout -- src/store/dbms/ 2>/dev/null || true
 	@echo "2/5  Pulling latest images..."
 	@docker compose pull --quiet
@@ -38,7 +53,12 @@ re:
 	@echo "5/5  Seeding databases..."
 	@sleep 4
 	@$(MAKE) seed-all --no-print-directory
-	@echo -e "$(GREEN)══ Full restart complete — both DBs seeded and ready ══$(RESET)"
+	@echo -e "$(GREEN)══ Hard reset complete — ALL sources back to default ══$(RESET)"
+
+re-standalone: ## Reset only standalone json/csv data back to defaults
+	@echo -e "$(CYAN)══ Reset standalone sources ══$(RESET)"
+	@git checkout -- src/store/dbms/json/ src/store/dbms/csv/ 2>/dev/null || true
+	@echo -e "$(GREEN)══ Standalone json/csv data restored to defaults ══$(RESET)"
 
 logs:
 	docker compose logs -f --tail=50
@@ -89,8 +109,11 @@ seed-mongo:
 
 seed-all: seed-pg seed-mongo
 
-seed-state:
+seed-state: ## Regenerate _notion_state.json (skips standalone files that already exist)
 	@npx tsx scripts/generate-state-files.ts
+
+seed-state-force: ## Force-regenerate ALL _notion_state.json (overwrites standalone data)
+	@npx tsx scripts/generate-state-files.ts --force
 
 verify-pg:
 	@echo "── PostgreSQL table counts ──"
@@ -154,6 +177,6 @@ clean:
 	rm -rf node_modules dist .vite
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
-.PHONY: help up down restart re logs pull db-up db-down db-reset db-status \
-	seed-pg seed-mongo seed-all seed-state psql mongo-shell \
+.PHONY: help up down restart re re-all re-standalone logs pull db-up db-down db-reset db-status \
+	seed-pg seed-mongo seed-all seed-state seed-state-force psql mongo-shell \
 	build-rust check-rust dev clean verify smoke-test
