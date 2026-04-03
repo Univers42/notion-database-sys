@@ -1,21 +1,18 @@
-// ─── Logger System — N-API bridge to libcpp ──────────────────────────────────
-// Loads the native C++ addon that provides the full libcpp pipeline:
-//
-//   JS call ──► N-API ──► C++ Observer<string>::notify("query")
-//                              │
-//                              ▼  (C++ subscriber callback)
-//                         TermWriter + StyleSheet::dracula() ──► stderr
-//
-// The entire formatting pipeline runs in C++ — only the trigger crosses
-// the JS/C++ boundary.  The Logger decorator chain (ConsoleLogger →
-// LogColorDecorator → TimestampDecorator) handles compact one-liners;
-// TermWriter callouts handle the verbose boxed display.
-// ─────────────────────────────────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   index.ts                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
 
-// ─── Types (kept on TS side for query-log ring buffer / REST API) ────────────
+
 export type OpType =
   | 'INSERT' | 'DELETE' | 'UPDATE'
   | 'ADD_COLUMN' | 'DROP_COLUMN' | 'ALTER_TYPE'
@@ -27,9 +24,6 @@ export function getVerbosity(): Verbosity {
   return process.env.DBMS_VERBOSE === '1' ? 'verbose' : 'normal';
 }
 
-// ─── Load the native addon ──────────────────────────────────────────────────
-// The .node binary is compiled by cmake-js into native/build/Release/.
-// We use createRequire so ESM / Vite SSR can resolve the binary.
 
 interface NativeLogger {
   init(source: string, verbose: boolean): void;
@@ -57,8 +51,6 @@ try {
     setVerbosity: () => {},
   };
 }
-
-// ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
  * Initialize the C++ logger system.
