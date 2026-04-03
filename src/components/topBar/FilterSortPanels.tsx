@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { SortPanel } from '../sort/SortPanel';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for FilterSortPanels sub-elements. */
 export type FilterSortPanelsSlots = {
   pickerWrap: string;
   pickerPanel: string;
@@ -27,6 +28,7 @@ export type FilterSortPanelsSlots = {
   sortPanel: string;
 };
 
+/** Props for {@link FilterSortPanels}. */
 export interface FilterSortPanelsProps {
   showFilterPanel: boolean;
   showFilterPropertyPicker: boolean;
@@ -41,6 +43,7 @@ export interface FilterSortPanelsProps {
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
 }
 
+/** Renders filter bar, advanced filter grid, and sort panel below the top bar. */
 export function FilterSortPanels({
   showFilterPanel, showFilterPropertyPicker, setShowFilterPropertyPicker,
   showAdvancedFilter, setShowAdvancedFilter, setShowFilterPanel,

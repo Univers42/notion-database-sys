@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ import type { DatabaseSchema } from '../../types/database';
 import type { ViewConfig } from '../../types/views';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for ViewTabsRow sub-elements. */
 export type ViewTabsRowSlots = {
   root: string;
   tabList: string;
@@ -40,6 +41,7 @@ export type ViewTabsRowSlots = {
   addCards: string;
 };
 
+/** Props for {@link ViewTabsRow}. */
 export interface ViewTabsRowProps {
   dbViews: ViewConfig[];
   activeViewId: string;
@@ -54,6 +56,7 @@ export interface ViewTabsRowProps {
   onEditLayout: () => void;
 }
 
+/** Renders the row of view tabs with rename, context menu, and add-view dropdown. */
 export function ViewTabsRow({
   dbViews, activeViewId, view, database, setActiveView,
   addView, updateView, duplicateView, deleteView, onEditTitle, onEditLayout, slots,

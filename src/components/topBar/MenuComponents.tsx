@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:53 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@ import { ActionPanel, type PanelSection } from '../ui/ActionPanel';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { cn } from '../../utils/cn';
 
-// ─── Extra actions menu (··· in top-right) ───────────────────────────────────
-
+/** Renders the "more actions" dropdown menu (duplicate, export, import, print, delete). */
 export function ExtraActionsMenu({ show, onToggle, onClose }: Readonly<{
   show: boolean; onToggle: () => void; onClose: () => void;
 }>) {
@@ -64,8 +63,7 @@ export function ExtraActionsMenu({ show, onToggle, onClose }: Readonly<{
   );
 }
 
-// ─── View dots menu (··· in view tabs row) ───────────────────────────────────
-
+/** Renders the per-view context menu in the view tabs row (rename, duplicate, delete). */
 export function ViewDotsMenu({
   show, onToggle, onClose, containerRef,
   onDuplicate, onEditTitle, onEditLayout, isHoverVisible: _isHoverVisible,
@@ -116,8 +114,7 @@ export function ViewDotsMenu({
   );
 }
 
-// ─── Active view context menu (portal) ──────────────────────────────────────
-
+/** Renders the active view dropdown menu with layout and configuration options. */
 export function ActiveViewMenu({
   show, onClose, btnRef, menuRef, view, dbViewsLength,
   onRename, onEditView, onDuplicate, onDelete,
