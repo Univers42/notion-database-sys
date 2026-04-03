@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:39 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,7 @@ import React from 'react';
 import { COLORS, smoothLine } from './constants';
 import { cn } from '../../../utils/cn';
 
-// ─── DonutChart ──────────────────────────────────────────────────────────────
-
+/** Renders a donut chart as an SVG with stroke-based segments. */
 export function DonutChart({ data, size = 120 }: Readonly<{ data: { count: number; color: string; label: string }[]; size?: number }>) {
   const total = data.reduce((s, d) => s + d.count, 0);
   if (total === 0) return null;
@@ -45,8 +44,7 @@ export function DonutChart({ data, size = 120 }: Readonly<{ data: { count: numbe
   );
 }
 
-// ─── AreaChartSVG ────────────────────────────────────────────────────────────
-
+/** Renders a smooth area chart with glow effect as an SVG. */
 export function AreaChartSVG({ data }: Readonly<{ data: { count: number; label: string }[] }>) {
   if (data.length === 0) return null;
   const maxCount = Math.max(...data.map(d => d.count));
@@ -96,8 +94,7 @@ export function AreaChartSVG({ data }: Readonly<{ data: { count: number; label: 
   );
 }
 
-// ─── ProgressRing ────────────────────────────────────────────────────────────
-
+/** Renders a circular progress ring indicator as an SVG. */
 export function ProgressRing({ pct, color, size = 48 }: Readonly<{ pct: number; color: string; size?: number }>) {
   const radius = (size - 8) / 2;
   const circumference = 2 * Math.PI * radius;

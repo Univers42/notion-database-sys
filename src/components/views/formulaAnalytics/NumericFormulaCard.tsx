@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:38:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@ import React from 'react';
 import { COLORS, STAT_BG } from './constants';
 import { cn } from '../../../utils/cn';
 
+/** Render statistics (avg, median, stddev, histogram) for a numeric formula column. */
 export function NumericFormulaCard({
   title,
   icon,
@@ -46,7 +47,6 @@ export function NumericFormulaCard({
     return `${prefix}${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}`;
   };
 
-  // Build histogram (10 buckets)
   const bucketCount = 10;
   const range = max - min || 1;
   const bucketSize = range / bucketCount;

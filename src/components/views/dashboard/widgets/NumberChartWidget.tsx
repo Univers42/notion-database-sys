@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import type { DashboardWidget } from '../../../../types/database';
 import { formatNumber } from '../constants';
 import { cn } from '../../../../utils/cn';
 
+/** Renders a number property chart widget showing sum, average, min, and max. */
 export function renderNumberChart(widget: DashboardWidget, agg: { sum: number; count: number; min: number; max: number }) {
   return (
     <div className={cn("p-5 h-full flex flex-col")}>

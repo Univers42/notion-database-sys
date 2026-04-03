@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 02:10:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { cn } from '../../../utils/cn';
 
+/** Render a donut chart showing the distribution of formula result types. */
 export function FormulaTypePie({ analytics }: { analytics: Record<string, { resultType: string }> }) {
   const counts: Record<string, number> = {};
   Object.values(analytics).forEach((a) => {
@@ -71,6 +72,7 @@ export function FormulaTypePie({ analytics }: { analytics: Record<string, { resu
   );
 }
 
+/** Render stacked success/error bars for each formula column. */
 export function ErrorBarChart({ analytics }: { analytics: Record<string, { propName: string; total: number; errors: number }> }) {
   const entries = Object.values(analytics).sort((a, b) => b.errors - a.errors);
   const _maxTotal = Math.max(...entries.map((e) => e.total), 1);
@@ -105,6 +107,7 @@ function getComplexityColor(pct: number): string {
   return 'var(--color-chart-5)';
 }
 
+/** Render a complexity score bar for each formula based on expression length, depth, and call count. */
 export function ComplexityChart({ analytics }: { analytics: Record<string, { propName: string; expression: string }> }) {
   // Measure complexity by expression length + number of function calls
   const entries = Object.values(analytics)

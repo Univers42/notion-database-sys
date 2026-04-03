@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:11:57 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ import { FormulaOverviewTable } from '../formulaAnalytics/FormulaOverviewTable';
 import { SampleResultsTable } from '../formulaAnalytics/SampleResultsTable';
 import { cn } from '../../../utils/cn';
 
-// ─── MAIN COMPONENT ────────────────────────────────────────────────────────
+/** Renders a comprehensive formula analytics dashboard with KPIs, charts, and tables. */
 export function FormulaAnalyticsDashboard() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, resolveFormula, getPageTitle, openPage } =
@@ -34,7 +34,7 @@ export function FormulaAnalyticsDashboard() {
   const database = view ? databases[view.databaseId] : null;
   const pages = useMemo(() => view ? getPagesForView(view.id) : [], [view, getPagesForView]);
 
-  // ─── Compute all formula results ─────────────────────────────────────────
+
   const formulaResults = useMemo(() => {
     if (!database) return [];
     const formulaProps = Object.values(database.properties).filter(
@@ -73,7 +73,6 @@ export function FormulaAnalyticsDashboard() {
   return (
     <div className={cn("flex-1 overflow-auto p-6 bg-surface-secondary")}>
       <div className={cn("max-w-7xl mx-auto flex flex-col gap-6")}>
-        {/* ─── Header ─── */}
         <div className={cn("flex items-center gap-3")}>
           <div className={cn("p-2.5 rounded-xl bg-gradient-to-br from-gradient-violet-from to-gradient-violet-to text-ink-inverse")}>
             <Sigma className={cn("w-6 h-6")} />
@@ -86,7 +85,6 @@ export function FormulaAnalyticsDashboard() {
           </div>
         </div>
 
-        {/* ─── KPI Row ─── */}
         <div className={cn("grid grid-cols-2 md:grid-cols-4 gap-4")}>
           <KpiCard icon={<Sigma className={cn("w-5 h-5")} />} color="purple" label="Formula Columns" value={totalFormulas} />
           <KpiCard icon={<Zap className={cn("w-5 h-5")} />} color="blue" label="Total Evaluations" value={totalComputations} />
@@ -94,7 +92,6 @@ export function FormulaAnalyticsDashboard() {
           <KpiCard icon={<AlertTriangle className={cn("w-5 h-5")} />} color={Number(totalErrors) > 0 ? 'red' : 'green'} label="Errors" value={totalErrors} subtext={Number(totalErrors) === 0 ? 'All clear!' : undefined} />
         </div>
 
-        {/* ─── Formula Type Breakdown ─── */}
         <div className={cn("grid grid-cols-1 lg:grid-cols-3 gap-6")}>
           <div className={cn("bg-surface-primary rounded-xl border border-line p-5")}>
             <h3 className={cn("text-sm font-semibold text-ink mb-4 flex items-center gap-2")}>
@@ -116,7 +113,6 @@ export function FormulaAnalyticsDashboard() {
           </div>
         </div>
 
-        {/* ─── Numeric Formula Deep-Dive ─── */}
         <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-6")}>
           {marginPct && marginPct.resultType === 'number' && (
             <NumericFormulaCard title="Margin %" icon={<TrendingUp className={cn("w-5 h-5")} />} color="green" values={marginPct.numValues} expression={marginPct.expression} suffix="%" />
@@ -132,7 +128,6 @@ export function FormulaAnalyticsDashboard() {
           )}
         </div>
 
-        {/* ─── Text / Category Formula Distributions ─── */}
         <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-6")}>
           {(Object.entries(analytics) as [string, AnalyticsEntry][])
             .filter(([, a]) => a.resultType === 'text' && Object.keys(a.textValues).length > 0)
@@ -141,13 +136,10 @@ export function FormulaAnalyticsDashboard() {
             ))}
         </div>
 
-        {/* ─── Boolean Formula Summary ─── */}
         <BooleanSummary analytics={analytics} />
 
-        {/* ─── All Formulas Grid ─── */}
         <FormulaOverviewTable analytics={analytics} />
 
-        {/* ─── Sample Results Table ─── */}
         <div className={cn("bg-surface-primary rounded-xl border border-line p-5")}>
           <h3 className={cn("text-sm font-semibold text-ink mb-4 flex items-center gap-2")}>
             <Clock className={cn("w-4 h-4 text-ink-muted")} /> Sample Computed Values (First 15 Products)

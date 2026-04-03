@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import type { DashboardWidget, SchemaProperty } from '../../../../types/database
 import { formatCellValue } from '../constants';
 import { cn } from '../../../../utils/cn';
 
+/** Renders a table widget displaying page names and an optional property column. */
 export function renderTableWidget(
   widget: DashboardWidget, prop: SchemaProperty | null,
   pages: { id: string; icon?: string; properties: Record<string, unknown> }[],

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ import type { SchemaProperty } from '../../../types/database';
 import { COLORS } from './constants';
 import { cn } from '../../../utils/cn';
 
-// ─── BarChartWidget ──────────────────────────────────────────────────────────
-
+/** Renders a horizontal bar chart with percentage labels for categorical data. */
 export function BarChartWidget({ data, total }: { data: { count: number; color: string; label: string }[]; total: number }) {
   return (
     <div className={cn("flex flex-col gap-3")}>
@@ -40,8 +39,7 @@ export function BarChartWidget({ data, total }: { data: { count: number; color: 
   );
 }
 
-// ─── NumberSummaryWidget ─────────────────────────────────────────────────────
-
+/** Renders aggregate statistics (sum, avg, min, max) for number properties. */
 export function NumberSummaryWidget({ numberProps, numberAggs }: {
   numberProps: SchemaProperty[];
   numberAggs: Record<string, { sum: number; count: number; min: number; max: number }>;
@@ -74,8 +72,7 @@ export function NumberSummaryWidget({ numberProps, numberAggs }: {
   );
 }
 
-// ─── RecentList ──────────────────────────────────────────────────────────────
-
+/** Renders a clickable list of recently updated pages. */
 export function RecentList({ pages, openPage, getPageTitle }: {
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
   openPage: (id: string) => void;

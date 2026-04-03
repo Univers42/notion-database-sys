@@ -6,13 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:38:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { COLORS } from './constants';
 import { cn } from '../../../utils/cn';
+
+/** Render a donut chart and ranked bar list for text-valued formula distributions. */
 
 function MiniDonut({ data, size = 100 }: Readonly<{ data: [string, number][]; size?: number }>) {
   const total = data.reduce((s, [, c]) => s + c, 0);

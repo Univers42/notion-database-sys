@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:35 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,18 @@ import type { SchemaProperty } from '../../../types/database';
 import { COLORS, smoothLine } from './constants';
 import { cn } from '../../../utils/cn';
 
-// ─── Bucket builder ──────────────────────────────────────────────────────────
-
 type MonthBucket = Record<string, number>;
+
+/** Entry representing aggregated data for a time period. */
 export interface BucketEntry { label: string; data: MonthBucket }
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/**
+ * Aggregates pages into monthly buckets for multi-line chart rendering.
+ *
+ * Falls back to synthesized variation when date bucketing yields fewer than 2 entries.
+ */
 export function buildMultiLineBuckets(
   pages: { properties: Record<string, unknown> }[],
   propsMap: Record<string, SchemaProperty>,
@@ -75,8 +80,7 @@ export function buildMultiLineBuckets(
   return buckets;
 }
 
-// ─── MultiLineChart ──────────────────────────────────────────────────────────
-
+/** Renders a multi-line area chart comparing category trends over time. */
 export function MultiLineChart({ data, pages, propsMap }: {
   data: { count: number; label: string }[];
   pages: { properties: Record<string, unknown> }[];

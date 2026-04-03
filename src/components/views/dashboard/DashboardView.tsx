@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@ import {
 } from '.';
 import type { ComputedData } from '.';
 import { cn } from '../../../utils/cn';
-
-// ─── Aggregation hook ────────────────────────────────────────────────────────
 
 function useComputedData(pages: { updatedAt: string; properties: Record<string, unknown> }[], database: { properties: Record<string, { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }> } | null): ComputedData {
   const allProps = useMemo(() => database ? Object.values(database.properties) : [], [database]);
@@ -65,8 +63,6 @@ function useComputedData(pages: { updatedAt: string; properties: Record<string, 
   }, [pages, database, allProps]);
 }
 
-// ─── Widget grid mode ────────────────────────────────────────────────────────
-
 function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageTitle }: {
   widgets: DashboardWidget[];
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
@@ -91,8 +87,6 @@ function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageT
     </div>
   );
 }
-
-// ─── Auto-detect fallback ────────────────────────────────────────────────────
 
 function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageTitle }: {
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
@@ -155,8 +149,7 @@ function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageT
   );
 }
 
-// ─── Main entry ──────────────────────────────────────────────────────────────
-
+/** Renders the dashboard view with auto-detected stats or user-configured widgets. */
 export function DashboardView() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, openPage, getPageTitle } = useDatabaseStore();

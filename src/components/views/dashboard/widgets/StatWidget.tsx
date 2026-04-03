@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ import { STAT_COLORS, formatNumber } from '../constants';
 import { StatIconBadge } from '../StatComponents';
 import { cn } from '../../../../utils/cn';
 
-// ─── Computed data shape ─────────────────────────────────────────────────────
-
+/** Pre-computed aggregation data for dashboard widgets. */
 export interface ComputedData {
   numberAggs: Record<string, { sum: number; count: number; min: number; max: number }>;
   selectCounts: Record<string, Record<string, { count: number; color: string; label: string }>>;
@@ -27,9 +26,8 @@ export interface ComputedData {
   recentCount: number;
 }
 
+/** Single chart data item with count, color class, and label. */
 export type ChartItem = { count: number; color: string; label: string };
-
-// ─── Stat widget ─────────────────────────────────────────────────────────────
 
 const STAT_ICONS = [
   <Hash className={cn("w-5 h-5")} />, <TrendingUp className={cn("w-5 h-5")} />,
@@ -37,6 +35,7 @@ const STAT_ICONS = [
   <PieChart className={cn("w-5 h-5")} />, <Users className={cn("w-5 h-5")} />,
 ];
 
+/** Resolves the display value and subtext for a stat widget from aggregated data. */
 export function resolveStatValue(prop: SchemaProperty | null, data: ComputedData, widget: DashboardWidget, total: number) {
   let value = 0, subtext = '';
   if (!widget.propertyId || widget.aggregation === 'count') { value = total; }
@@ -57,6 +56,7 @@ export function resolveStatValue(prop: SchemaProperty | null, data: ComputedData
   return { value, subtext };
 }
 
+/** Renders a stat widget card with icon, value, title, and optional subtext. */
 export function renderStatWidget(widget: DashboardWidget, idx: number, prop: SchemaProperty | null, data: ComputedData, total: number) {
   const { value, subtext } = resolveStatValue(prop, data, widget, total);
   return (

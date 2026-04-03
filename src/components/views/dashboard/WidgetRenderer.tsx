@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,17 @@ import { cn } from '../../../utils/cn';
 
 export type { ComputedData } from './widgets/StatWidget';
 
-// ─── Main dispatcher ─────────────────────────────────────────────────────────
-
+/**
+ * Dispatches a dashboard widget to the appropriate renderer based on widget type.
+ *
+ * @param widget - Widget configuration
+ * @param idx - Widget index for color cycling
+ * @param pages - Database pages to render
+ * @param propsMap - Property schema lookup
+ * @param data - Pre-computed aggregation data
+ * @param openPage - Callback to open a page
+ * @param getPageTitle - Callback to resolve page title
+ */
 export function renderWidget(
   widget: DashboardWidget, idx: number,
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[],

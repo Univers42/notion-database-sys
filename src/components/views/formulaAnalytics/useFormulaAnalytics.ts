@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:56:53 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useMemo } from 'react';
 import type { FormulaResult, AnalyticsEntry } from './constants';
 
+/** Compute aggregate analytics (counts, distributions, dominant type) from formula results. */
 export function useFormulaAnalytics(formulaResults: FormulaResult[]) {
   const analytics = useMemo(() => {
     const map: Record<string, AnalyticsEntry> = {};
@@ -46,7 +47,6 @@ export function useFormulaAnalytics(formulaResults: FormulaResult[]) {
         }
       });
 
-      // Determine dominant type
       if (entry.numValues.length > 0 && entry.boolTrue + entry.boolFalse === 0 && Object.keys(entry.textValues).length === 0) {
         entry.resultType = 'number';
       } else if (entry.boolTrue + entry.boolFalse > 0 && entry.numValues.length === 0 && Object.keys(entry.textValues).length === 0) {

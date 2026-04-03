@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:37 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@ import { formatNumber } from '../../../utils/format';
 import { STAT_BG as COLOR_MAP } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
 
+/** Renders a colored icon badge for stat cards. */
 export function StatIconBadge({ color, children }: Readonly<{ color: string; children: React.ReactNode }>) {
   return <div className={cn(`p-2.5 rounded-lg ${COLOR_MAP[color] || COLOR_MAP.blue}`)}>{children}</div>;
 }
 
-// ─── StatCard ────────────────────────────────────────────────────────────────
-
+/** Renders a stat card with icon, value, label, and optional subtext. */
 export function StatCard({ icon, label, value, subtext, color }: Readonly<{
   icon: React.ReactNode; label: string; value: number; subtext?: string;
   color: 'blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan';
@@ -38,8 +38,7 @@ export function StatCard({ icon, label, value, subtext, color }: Readonly<{
   );
 }
 
-// ─── EmptyWidget ─────────────────────────────────────────────────────────────
-
+/** Renders an empty-state placeholder for misconfigured or empty widgets. */
 export function EmptyWidget({ title, message }: Readonly<{ title: string; message: string }>) {
   return (
     <div className={cn("p-5 h-full flex flex-col items-center justify-center text-ink-muted")}>

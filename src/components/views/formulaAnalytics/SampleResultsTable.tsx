@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:38:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@ import React from 'react';
 import type { FormulaResult } from './constants';
 import { cn } from '../../../utils/cn';
 
+/** Render a sample grid of formula results for the first N pages across all formula columns. */
 export function SampleResultsTable({
   formulaResults,
   openPage,
@@ -22,7 +23,6 @@ export function SampleResultsTable({
   openPage: (id: string) => void;
 }>) {
   const sampleCount = 15;
-  // Get first N pages from the first formula result
   const samplePages = formulaResults[0]?.results.slice(0, sampleCount) || [];
 
   return (

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:55:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import { ShieldCheck } from 'lucide-react';
 import type { AnalyticsEntry } from './constants';
 import { cn } from '../../../utils/cn';
 
+/** Render true/false distribution bars for all boolean-typed formula columns. */
 export function BooleanSummary({ analytics }: Readonly<{ analytics: Record<string, AnalyticsEntry> }>) {
   const boolEntries = Object.entries(analytics).filter(([, a]) => a.resultType === 'boolean');
   if (boolEntries.length === 0) return null;
