@@ -17,6 +17,7 @@ import {
   MapPin, Fingerprint, MousePointerClick, Sigma, Database,
   GitBranch, ExternalLink, UserCheck, AlertTriangle
 } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 export function PropTypeIcon({ type, className = 'w-3.5 h-3.5' }: Readonly<{ type: string; className?: string }>) {
   switch (type) {

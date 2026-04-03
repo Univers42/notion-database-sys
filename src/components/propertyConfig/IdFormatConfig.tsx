@@ -15,6 +15,7 @@ import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty } from '../../types/database';
 import { Fingerprint } from 'lucide-react';
 import { ActionButton } from './ActionButton';
+import { cn } from '../../utils/cn';
 
 export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
   property: SchemaProperty; databaseId: string; onClose: () => void;
@@ -30,16 +31,16 @@ export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
 
   return (
     <>
-      <div className="py-1 px-1">
+      <div className={cn("py-1 px-1")}>
         <ActionButton
-          icon={<Fingerprint className="w-3.5 h-3.5" />}
+          icon={<Fingerprint className={cn("w-3.5 h-3.5")} />}
           label={showIdConfig ? 'Close ID format' : 'Edit ID format'}
           onClick={() => setShowIdConfig(!showIdConfig)}
         />
       </div>
       {showIdConfig && (
-        <div className="px-3 pb-2 space-y-2">
-          <div className="text-xs font-medium text-ink-muted uppercase tracking-wide">ID Format</div>
+        <div className={cn("px-3 pb-2 space-y-2")}>
+          <div className={cn("text-xs font-medium text-ink-muted uppercase tracking-wide")}>ID Format</div>
           {([
             { value: 'auto_increment' as const, label: 'Auto-increment', desc: '1, 2, 3…' },
             { value: 'prefixed' as const, label: 'Prefixed', desc: `${idPrefix || 'PREFIX-'}1, ${idPrefix || 'PREFIX-'}2…` },
@@ -48,24 +49,24 @@ export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
             <button
               key={f.value}
               onClick={() => setIdFormat(f.value)}
-              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left transition-colors ${idFormat === f.value ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'}`}>
-              <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${idFormat === f.value ? 'border-accent-border' : 'border-line-medium'}`}>
-                {idFormat === f.value && <div className="w-1.5 h-1.5 rounded-full bg-accent" />}
+              className={cn(`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-left transition-colors ${idFormat === f.value ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'}`)}>
+              <div className={cn(`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${idFormat === f.value ? 'border-accent-border' : 'border-line-medium'}`)}>
+                {idFormat === f.value && <div className={cn("w-1.5 h-1.5 rounded-full bg-accent")} />}
               </div>
               <div>
                 <span>{f.label}</span>
-                <span className="text-xs text-ink-muted ml-1.5 font-mono">{f.desc}</span>
+                <span className={cn("text-xs text-ink-muted ml-1.5 font-mono")}>{f.desc}</span>
               </div>
             </button>
           ))}
           {idFormat === 'prefixed' && (
-            <div className="pt-1">
-              <label className="text-xs text-ink-secondary mb-1 block">Prefix</label>
+            <div className={cn("pt-1")}>
+              <label className={cn("text-xs text-ink-secondary mb-1 block")}>Prefix</label>
               <input
                 autoFocus
                 value={idPrefix}
                 onChange={e => setIdPrefix(e.target.value)}
-                className="w-full text-sm px-2 py-1.5 rounded-md border border-line bg-surface-secondary outline-none focus:border-focus-border transition-colors font-mono"
+                className={cn("w-full text-sm px-2 py-1.5 rounded-md border border-line bg-surface-secondary outline-none focus:border-focus-border transition-colors font-mono")}
                 placeholder="TASK-"
               />
             </div>
@@ -89,12 +90,12 @@ export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
               }
               onClose();
             }}
-            className="w-full py-1.5 text-sm font-medium text-ink-inverse bg-accent-bold hover:bg-hover-accent-bold rounded-md transition-colors">
+            className={cn("w-full py-1.5 text-sm font-medium text-ink-inverse bg-accent-bold hover:bg-hover-accent-bold rounded-md transition-colors")}>
             Apply to all records
           </button>
         </div>
       )}
-      <div className="h-px bg-surface-tertiary" />
+      <div className={cn("h-px bg-surface-tertiary")} />
     </>
   );
 }
