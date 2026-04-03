@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:39:21 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ import { PropertyTypeIcon } from './PropertyTypeIcon';
 import { FilterPropertyPicker } from './FilterPropertyPicker';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for FilterSettingsSubpanel sub-elements. */
 export type FilterSettingsSubpanelSlots = {
   root: string;
   header: string;
@@ -34,6 +35,7 @@ export type FilterSettingsSubpanelSlots = {
   pickerWrap: string;
 };
 
+/** Renders the filter management sub-panel within ViewSettings with add/remove/edit support. */
 export function FilterSettingsSubpanel({ viewId, properties, filters, conjunction: _conjunction, onBack, onClose, slots }: {
   viewId: string;
   properties: Record<string, SchemaProperty>;

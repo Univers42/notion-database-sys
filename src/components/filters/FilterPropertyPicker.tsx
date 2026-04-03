@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:50:27 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import type { SchemaProperty } from '../../types/database';
 import { PropertyTypeIcon } from './PropertyTypeIcon';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for FilterPropertyPicker sub-elements. */
 export type FilterPropertyPickerSlots = {
   root?: string;
   header?: string;
@@ -34,6 +35,7 @@ export type FilterPropertyPickerSlots = {
   footerButton?: string;
 };
 
+/** Renders a searchable property list for adding a new filter or advanced filter. */
 export function FilterPropertyPicker({ properties, onSelect, onClose, onAdvancedFilter, title = 'Add filter', slots = {} }: Readonly<{
   properties: SchemaProperty[];
   onSelect: (propId: string) => void;

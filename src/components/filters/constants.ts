@@ -6,17 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:13 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:40:53 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Filter constants, operators, and utilities
-// ═══════════════════════════════════════════════════════════════════════════════
-
 import type { FilterOperator } from '../../types/database';
-
-// ─── Atomic operator definitions — single source of truth ────────────────────
 
 const OP = {
   contains:                { label: 'Contains',             value: 'contains'              as FilterOperator },

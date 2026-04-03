@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:39:21 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ import { PropertyTypeIcon } from './PropertyTypeIcon';
 import { PortalDropdown } from './PortalDropdown';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for AdvancedFilterGrid sub-elements. */
 export type AdvancedFilterGridSlots = {
   root: string;
   body: string;
@@ -90,6 +91,7 @@ function getFilterLabel(idx: number, conjunction: string): string {
   return 'And';
 }
 
+/** Renders a grid-based advanced filter editor with per-row property, operator, and value controls. */
 export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilter, onUpdateFilter, onRemoveFilter, onDeleteAll, onClose: _onClose, slots }: {
   filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   properties: Record<string, SchemaProperty>;

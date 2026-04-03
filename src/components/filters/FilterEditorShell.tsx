@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ import { getOperatorsForType } from './constants';
 import { PortalDropdown } from './PortalDropdown';
 import { cn } from '../../utils/cn';
 
+/** Props shared by all filter value editor implementations. */
 export interface FilterValueEditorProps {
   property: SchemaProperty;
   operator: FilterOperator;
@@ -47,6 +48,7 @@ function FilterOperatorPicker({ type, current, onSelect, onClose }: Readonly<{
   );
 }
 
+/** CSS class overrides for FilterEditorShell sub-elements. */
 export type FilterEditorShellSlots = {
   root: string;
   header: string;
@@ -58,6 +60,7 @@ export type FilterEditorShellSlots = {
   advancedButton: string;
 };
 
+/** Wraps a filter value editor with operator picker and delete controls. */
 export function FilterEditorShell({ property, operator, onOperatorChange, onDelete, children, slots }: Readonly<{
   property: SchemaProperty;
   operator: FilterOperator;

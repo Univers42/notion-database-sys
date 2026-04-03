@@ -6,22 +6,20 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Portal dropdown — renders content at body level to avoid z-index clipping
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for PortalDropdown sub-elements. */
 export type PortalDropdownSlots = {
   root: string;
 };
 
+/** Renders a portal-based dropdown positioned relative to an anchor element. */
 export function PortalDropdown({ anchorRef, children, onClose, width, align = 'left', slots }: Readonly<{
   anchorRef: React.RefObject<HTMLElement | null>;
   children: React.ReactNode;

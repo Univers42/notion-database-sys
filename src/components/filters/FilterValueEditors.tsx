@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Filter value editors — dispatches to type-specific editors
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
@@ -21,8 +17,6 @@ import { PortalDropdown } from './PortalDropdown';
 import { FilterEditorShell } from './FilterEditorShell';
 import type { FilterValueEditorProps } from './FilterEditorShell';
 import { cn } from '../../utils/cn';
-
-// ─── Select / MultiSelect editor ─────────────────────────────────────────────
 
 function SelectFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const { property, operator, value, onOperatorChange, onValueChange, onDelete } = props;
@@ -90,8 +84,6 @@ function SelectFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   );
 }
 
-// ─── Date editor ──────────────────────────────────────────────────────────────
-
 function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const { property, operator, value, onOperatorChange, onValueChange, onDelete } = props;
   const [showPresetMenu, setShowPresetMenu] = useState(false);
@@ -153,8 +145,6 @@ function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   );
 }
 
-// ─── Text / Number editor ─────────────────────────────────────────────────────
-
 function TextFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const { property, operator, value, onOperatorChange, onValueChange, onDelete } = props;
 
@@ -173,10 +163,9 @@ function TextFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   );
 }
 
-// ─── Dispatcher ───────────────────────────────────────────────────────────────
-
 export type { FilterValueEditorProps } from './FilterEditorShell';
 
+/** Dispatches to the appropriate filter value editor based on property type. */
 export function FilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const t = props.property.type;
   if (t === 'select' || t === 'multi_select' || t === 'status') return <SelectFilterValueEditor {...props} />;
