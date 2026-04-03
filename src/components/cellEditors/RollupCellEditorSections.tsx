@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:36:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:36:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ export function CalculateSection({ fn, selectedFnLabel, fnGroups, open, calcSubm
 
 /* ── Reusable sub-menu group (replaces 3 identical blocks) ── */
 export function CalcSubmenuGroup({ label, items, activeFn, isOpen, onToggle, onSelect }: {
-  label: string; items: { value: RollupFunction; label: string }[];
+  label: string; items: readonly { value: RollupFunction; label: string }[];
   activeFn: RollupFunction; isOpen: boolean;
   onToggle: () => void; onSelect: (f: RollupFunction) => void;
 }) {
