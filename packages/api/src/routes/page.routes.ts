@@ -17,6 +17,8 @@ export async function pageRoutes(app: FastifyInstance) {
       properties?: Record<string, unknown>;
       icon?: string;
       cover?: string;
+      title?: string;
+      content?: unknown[];
     };
   }>('/', async (request, reply) => {
     const page = await svc.create({
@@ -24,6 +26,14 @@ export async function pageRoutes(app: FastifyInstance) {
       createdBy: request.user.sub,
     });
     reply.code(201).send(page);
+  });
+
+  // GET /api/pages/all?workspaceId= — all pages in workspace (root + children)
+  // ⚠️ Must be registered BEFORE /:id to avoid matching "all" as a param
+  app.get<{
+    Querystring: { workspaceId: string };
+  }>('/all', async (request) => {
+    return svc.listAllPages(request.query.workspaceId);
   });
 
   // GET /api/pages/:id
@@ -42,6 +52,20 @@ export async function pageRoutes(app: FastifyInstance) {
       return svc.listByDatabase(workspaceId, databaseId);
     }
     return svc.listRootPages(workspaceId);
+  });
+
+  // PATCH /api/pages/:id — general page update (title, icon, content)
+  app.patch<{
+    Params: { id: string };
+    Body: { title?: string; icon?: string; cover?: string; content?: unknown[]; parentPageId?: string | null };
+  }>('/:id', async (request, reply) => {
+    const page = await svc.updatePage(
+      request.params.id,
+      request.body,
+      request.user.sub,
+    );
+    if (!page) return reply.code(404).send({ error: 'Page not found' });
+    return page;
   });
 
   // PATCH /api/pages/:id/properties
