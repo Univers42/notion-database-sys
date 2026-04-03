@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:07 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:31 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 import React from 'react';
 import { SettingsHeader } from '../ui/MenuPrimitives';
+import { ToggleSwitch } from '../ui/ToggleSwitch';
 
 // ─── SubPanelHeader ──────────────────────────────────────────────────────────
 
@@ -77,15 +78,7 @@ export function PropertyOptionList({ properties, activeId, onSelect, noneLabel }
 // ─── Toggle ──────────────────────────────────────────────────────────────────
 
 export function Toggle({ label, checked, onChange }: Readonly<{ label: string; checked: boolean; onChange: (v: boolean) => void }>) {
-  return (
-    <button onClick={() => onChange(!checked)}
-      className="flex items-center justify-between text-sm text-ink-body py-1 px-1 rounded-lg hover:bg-hover-surface transition-colors">
-      <span>{label}</span>
-      <div className={`relative w-9 h-5 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-surface-strong'}`}>
-        <div className={`absolute w-4 h-4 bg-surface-primary rounded-full shadow-sm top-0.5 transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}`} />
-      </div>
-    </button>
-  );
+  return <ToggleSwitch label={label} checked={checked} onChange={onChange} size="md" />;
 }
 
 export { CardLayoutPicker, ViewIdentityRow, PropertyVisibilityRow } from './SubComponentsExtra';
