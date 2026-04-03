@@ -1,0 +1,31 @@
+{
+  "name": "@notion-db/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@notion-db/core": "workspace:*",
+    "@notion-db/types": "workspace:*",
+    "@fastify/cors": "^11.0.0",
+    "@fastify/jwt": "^9.1.0",
+    "@fastify/websocket": "^11.0.2",
+    "fastify": "^5.3.3",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2"
+  }
+}
