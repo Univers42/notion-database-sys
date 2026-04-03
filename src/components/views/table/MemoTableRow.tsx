@@ -19,6 +19,7 @@ import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
+import { cn } from '../../../utils/cn';
 
 export interface MemoTableRowProps {
   page: Page;
@@ -73,9 +74,9 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
 
   return (
-    <tr data-row-idx={rowIdx} className="group hover:bg-hover-surface-soft">
+    <tr data-row-idx={rowIdx} className={cn("group hover:bg-hover-surface-soft")}>
       {showRowNumbers && (
-        <td className="w-10 px-2 py-1.5 border-r border-b border-line text-xs text-ink-muted text-center tabular-nums">
+        <td className={cn("w-10 px-2 py-1.5 border-r border-b border-line text-xs text-ink-muted text-center tabular-nums")}>
           {rowIdx + 1}
         </td>
       )}
@@ -100,7 +101,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
 
         return (
           <td key={prop.id}
-            className={`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`}
+            className={cn(`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`)}
             style={{
               width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id),
               cursor: cellCursor,
@@ -108,7 +109,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
             onClick={() => onCellClick(page.id, prop.id, prop.type, value)}>
             {renderCellContent(cellProps)}
             {isFocused && !isEditing && (
-              <button type="button" className="absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20 p-0 appearance-none outline-none"
+              <button type="button" className={cn("absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20 p-0 appearance-none outline-none")}
                 style={{ bottom: -3, right: -3, cursor: CURSORS.crosshair }}
                 tabIndex={-1}
                 aria-label="Fill handle"
@@ -118,13 +119,13 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         );
       })}
 
-      <td className="border-b border-line px-1">
-        <button className="p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2"
+      <td className={cn("border-b border-line px-1")}>
+        <button className={cn("p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2")}
           onClick={e => { const r = e.currentTarget.getBoundingClientRect(); onRowMenu(page.id, r.left, r.bottom); }}>
-          <MoreHorizontal className="w-3.5 h-3.5" />
+          <MoreHorizontal className={cn("w-3.5 h-3.5")} />
         </button>
       </td>
-      <td className="border-b border-line" />
+      <td className={cn("border-b border-line")} />
     </tr>
   );
 });

@@ -21,6 +21,7 @@ import { randomTagColor } from '../../../constants/colors';
 import { SchemaProperty, PropertyValue } from '../../../types/database';
 import { CheckCircle2, Plus } from 'lucide-react';
 import { useCellAnchor } from '../../../hooks/useCellAnchor';
+import { cn } from '../../../utils/cn';
 
 interface EditorProps {
   readonly property: SchemaProperty;
@@ -59,34 +60,34 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
 
   return (
     <>
-      <div ref={measureRef} className="w-full h-0" />
+      <div ref={measureRef} className={cn("w-full h-0")} />
       {rect && createPortal(
         <>
-          <button type="button" className="fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default" onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
-          <div className="fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden"
+          <button type="button" className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
+          <div className={cn("fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden")}
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
             onClick={e => e.stopPropagation()}>
-            <div className="p-2 border-b border-line-light">
+            <div className={cn("p-2 border-b border-line-light")}>
               <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
-                className="w-full text-sm px-2 py-1.5 bg-surface-secondary rounded outline-none focus:ring-1 ring-ring-accent" placeholder="Search or create..." />
+                className={cn("w-full text-sm px-2 py-1.5 bg-surface-secondary rounded outline-none focus:ring-1 ring-ring-accent")} placeholder="Search or create..." />
             </div>
-            <div className="max-h-52 overflow-y-auto p-1">
+            <div className={cn("max-h-52 overflow-y-auto p-1")}>
               {value && (
-                <button onClick={() => { onUpdate(null); onClose(); }} className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-ink-secondary text-left rounded">
+                <button onClick={() => { onUpdate(null); onClose(); }} className={cn("w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-ink-secondary text-left rounded")}>
                   Clear selection
                 </button>
               )}
               {filtered.map(opt => (
                 <button key={opt.id} onClick={() => handleSelect(opt.id)}
-                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
-                  {opt.id === value && <CheckCircle2 className="w-3.5 h-3.5 text-accent-text-soft ml-auto" />}
+                  className={cn("w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2")}>
+                  <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
+                  {opt.id === value && <CheckCircle2 className={cn("w-3.5 h-3.5 text-accent-text-soft ml-auto")} />}
                 </button>
               ))}
               {input.trim() && !exact && (
                 <button onClick={handleCreate}
-                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2 text-ink-body-light">
-                  <Plus className="w-3.5 h-3.5" /> Create <span className="px-2 py-0.5 rounded text-xs font-medium bg-surface-tertiary">"{input}"</span>
+                  className={cn("w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2 text-ink-body-light")}>
+                  <Plus className={cn("w-3.5 h-3.5")} /> Create <span className={cn("px-2 py-0.5 rounded text-xs font-medium bg-surface-tertiary")}>"{input}"</span>
                 </button>
               )}
             </div>
@@ -134,40 +135,40 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
 
   return (
     <>
-      <div ref={measureRef} className="w-full h-0" />
+      <div ref={measureRef} className={cn("w-full h-0")} />
       {rect && createPortal(
         <>
-          <button type="button" className="fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default" onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
-          <div className="fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden"
+          <button type="button" className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
+          <div className={cn("fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden")}
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
             onClick={e => e.stopPropagation()}>
-            <div className="p-2 border-b border-line-light">
-              <div className="flex flex-wrap gap-1 mb-1">
+            <div className={cn("p-2 border-b border-line-light")}>
+              <div className={cn("flex flex-wrap gap-1 mb-1")}>
                 {selectedIds.map(id => {
                   const opt = options.find(o => o.id === id);
                   if (!opt) return null;
                   return (
-                    <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${opt.color}`}>
+                    <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${opt.color}`)}>
                       {opt.value}
-                      <button onClick={() => toggle(id)} className="hover:opacity-60">&times;</button>
+                      <button onClick={() => toggle(id)} className={cn("hover:opacity-60")}>&times;</button>
                     </span>
                   );
                 })}
               </div>
               <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
-                className="w-full text-sm px-1 py-1 outline-none bg-transparent" placeholder={selectedIds.length ? '' : 'Search or create...'} />
+                className={cn("w-full text-sm px-1 py-1 outline-none bg-transparent")} placeholder={selectedIds.length ? '' : 'Search or create...'} />
             </div>
-            <div className="max-h-48 overflow-y-auto p-1">
+            <div className={cn("max-h-48 overflow-y-auto p-1")}>
               {filtered.map(opt => (
                 <button key={opt.id} onClick={() => toggle(opt.id)}
-                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center">
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`}>{opt.value}</span>
+                  className={cn("w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center")}>
+                  <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
                 </button>
               ))}
               {input.trim() && !exact && (
                 <button onClick={handleCreate}
-                  className="w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2 text-ink-body-light">
-                  <Plus className="w-3.5 h-3.5" /> Create "{input}"
+                  className={cn("w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2 text-ink-body-light")}>
+                  <Plus className={cn("w-3.5 h-3.5")} /> Create "{input}"
                 </button>
               )}
             </div>

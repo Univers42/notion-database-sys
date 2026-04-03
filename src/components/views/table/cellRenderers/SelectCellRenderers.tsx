@@ -14,6 +14,7 @@ import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import { SelectEditor, MultiSelectEditor } from '../SelectEditors';
 import { StatusCellEditor } from '../../../cellEditors';
+import { cn } from '../../../../utils/cn';
 
 export function renderSelect(p: CellRendererProps): React.ReactNode {
   const { prop, page, value, isEditing, databaseId, onUpdate, onStopEditing, tableRef } = p;
@@ -26,8 +27,8 @@ export function renderSelect(p: CellRendererProps): React.ReactNode {
     );
   }
   return selOpt
-    ? <div className="flex items-center gap-1.5"><span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${selOpt.color}`}>{selOpt.value}</span></div>
-    : <span className="text-ink-muted text-sm">Empty</span>;
+    ? <div className={cn("flex items-center gap-1.5")}><span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${selOpt.color}`)}>{selOpt.value}</span></div>
+    : <span className={cn("text-ink-muted text-sm")}>Empty</span>;
 }
 
 export function renderStatus(p: CellRendererProps): React.ReactNode {
@@ -42,8 +43,8 @@ export function renderStatus(p: CellRendererProps): React.ReactNode {
     );
   }
   return statusOpt
-    ? <div className="flex items-center gap-1.5"><span className={`w-2 h-2 rounded-full ${statusOpt.color.split(' ')[0]}`} /><span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusOpt.color}`}>{statusOpt.value}</span></div>
-    : <span className="text-ink-muted text-sm">Empty</span>;
+    ? <div className={cn("flex items-center gap-1.5")}><span className={cn(`w-2 h-2 rounded-full ${statusOpt.color.split(' ')[0]}`)} /><span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusOpt.color}`)}>{statusOpt.value}</span></div>
+    : <span className={cn("text-ink-muted text-sm")}>Empty</span>;
 }
 
 export function renderMultiSelect(p: CellRendererProps): React.ReactNode {
@@ -57,11 +58,11 @@ export function renderMultiSelect(p: CellRendererProps): React.ReactNode {
     );
   }
   return (
-    <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
+    <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
       {msIds.length > 0 ? msIds.map(id => {
         const opt = prop.options?.find(o => o.id === id);
-        return opt ? <span key={id} className={`px-1.5 py-0.5 rounded text-xs font-medium shrink-0 ${opt.color}`}>{opt.value}</span> : null;
-      }) : <span className="text-ink-muted text-sm">Empty</span>}
+        return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium shrink-0 ${opt.color}`)}>{opt.value}</span> : null;
+      }) : <span className={cn("text-ink-muted text-sm")}>Empty</span>}
     </div>
   );
 }

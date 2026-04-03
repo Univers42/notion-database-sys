@@ -14,10 +14,11 @@ import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import type { SchemaProperty, PropertyValue } from '../../../../types/database';
 import { InlineInput, renderCheckbox, DateCellEditor } from './BasicCellRenderers';
+import { cn } from '../../../../utils/cn';
 
 export function renderFilesMedia(value: PropertyValue): React.ReactNode {
   return (
-    <div className="text-sm text-ink-muted italic truncate">
+    <div className={cn("text-sm text-ink-muted italic truncate")}>
       {Array.isArray(value) && value.length > 0 ? `${value.length} file(s)` : 'No files'}
     </div>
   );
@@ -25,7 +26,7 @@ export function renderFilesMedia(value: PropertyValue): React.ReactNode {
 
 export function renderButton(prop: SchemaProperty): React.ReactNode {
   return (
-    <button className="px-2.5 py-0.5 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md"
+    <button className={cn("px-2.5 py-0.5 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md")}
       onClick={e => {
         e.stopPropagation();
         if (prop.buttonConfig?.action === 'open_url' && prop.buttonConfig?.url) window.open(prop.buttonConfig.url, '_blank');
@@ -42,7 +43,7 @@ export function renderDueDate(p: CellRendererProps): React.ReactNode {
   if (isEditing) {
     return <DateCellEditor page={page} prop={prop} value={value} onUpdate={onUpdate} onStopEditing={onStopEditing} />;
   }
-  if (!dateVal) return <span className="text-ink-muted">Empty</span>;
+  if (!dateVal) return <span className={cn("text-ink-muted")}>Empty</span>;
   return renderDueDateBadge(dateVal);
 }
 
@@ -56,9 +57,9 @@ export function renderDueDateBadge(dateVal: Date): React.ReactNode {
   else if (diffDays === 0) { dueBadge = 'Today'; dueColor = 'text-orange-text'; badgeClass = 'bg-orange-surface-muted text-orange-text-bold'; }
   else if (diffDays <= 3) { dueBadge = `${diffDays}d left`; dueColor = 'text-warning-text'; badgeClass = 'bg-warning-surface-muted text-warning-text-bold'; }
   return (
-    <div className="flex items-center gap-1.5 text-sm truncate">
-      {dueBadge && <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${badgeClass}`}>{dueBadge}</span>}
-      <span className={dueColor}>{dateVal.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+    <div className={cn("flex items-center gap-1.5 text-sm truncate")}>
+      {dueBadge && <span className={cn(`px-1.5 py-0.5 rounded text-[10px] font-semibold ${badgeClass}`)}>{dueBadge}</span>}
+      <span className={cn(dueColor)}>{dateVal.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
     </div>
   );
 }
@@ -90,22 +91,22 @@ export function renderCustomEditor(dt: string, value: PropertyValue, onChange: (
       }}
       onBlur={onStop}
       onKeyDown={e => { if (e.key === 'Enter') { onStop(); tableRef.current?.focus(); } }}
-      className="w-full bg-transparent outline-none text-sm font-mono" />
+      className={cn("w-full bg-transparent outline-none text-sm font-mono")} />
   );
 }
 
 export function renderCustomDisplay(dt: string, value: PropertyValue): React.ReactNode {
   if (dt === 'boolean') return renderCheckbox(value);
   if (dt === 'timestamp') {
-    return <div className="text-sm text-ink-secondary font-mono truncate">{value ? new Date(value).toLocaleString() : <span className="text-ink-muted">—</span>}</div>;
+    return <div className={cn("text-sm text-ink-secondary font-mono truncate")}>{value ? new Date(value).toLocaleString() : <span className={cn("text-ink-muted")}>—</span>}</div>;
   }
   if (dt === 'json') {
-    return <div className="text-sm text-ink-body-light font-mono truncate">{value ? JSON.stringify(value) : <span className="text-ink-muted">{'{}'}</span>}</div>;
+    return <div className={cn("text-sm text-ink-body-light font-mono truncate")}>{value ? JSON.stringify(value) : <span className={cn("text-ink-muted")}>{'{}'}</span>}</div>;
   }
   const display = value != null && value !== '' ? String(value) : null;
-  if (!display) return <span className="text-ink-muted text-sm">Empty</span>;
+  if (!display) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
   return (
-    <div className={`text-sm text-ink font-mono ${dt === 'integer' || dt === 'float' ? 'tabular-nums' : ''} truncate`}>
+    <div className={cn(`text-sm text-ink font-mono ${dt === 'integer' || dt === 'float' ? 'tabular-nums' : ''} truncate`)}>
       {dt === 'integer' || dt === 'float' ? Number(display).toLocaleString() : display}
     </div>
   );

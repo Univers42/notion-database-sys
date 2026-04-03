@@ -24,6 +24,7 @@ import { TableHeader } from './TableHeader';
 import { TableGroupRows, renderPageRows } from './TableGroupRows';
 import { TableRowContextMenu } from './TableRowContextMenu';
 import { ChevronDown, Plus } from 'lucide-react';
+import { cn } from '../../../utils/cn';
 
 export function TableView() {
   const activeViewId = useActiveViewId();
@@ -135,9 +136,9 @@ export function TableView() {
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-surface-primary outline-none" role="grid" tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
-      <div className="inline-block min-w-full">
-        <table className="min-w-full text-left border-collapse">
+    <div className={cn("flex-1 overflow-auto bg-surface-primary outline-none")} role="grid" tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
+      <div className={cn("inline-block min-w-full")}>
+        <table className={cn("min-w-full text-left border-collapse")}>
           <TableHeader
             visibleProps={visibleProps} showRowNumbers={showRowNumbers}
             showVerticalLines={showVerticalLines} getColWidth={getColWidth}
@@ -160,22 +161,22 @@ export function TableView() {
                 {renderPageRows(displayedPages, rowProps)}
                 {hasMore && (
                   <tr>
-                    <td colSpan={colCount} className="p-0 border-b border-line">
+                    <td colSpan={colCount} className={cn("p-0 border-b border-line")}>
                       <button
                         onClick={() => setVisibleCount(Math.min(currentLimit + loadLimit, pages.length))}
-                        className="w-full text-left px-4 py-2 text-sm text-accent-text-soft hover:text-hover-accent-text-bold hover:bg-hover-surface-accent2 transition-colors flex items-center justify-between"
+                        className={cn("w-full text-left px-4 py-2 text-sm text-accent-text-soft hover:text-hover-accent-text-bold hover:bg-hover-surface-accent2 transition-colors flex items-center justify-between")}
                       >
-                        <span className="flex items-center gap-2"><ChevronDown className="w-4 h-4" />Load more</span>
-                        <span className="text-xs text-ink-muted tabular-nums">{currentLimit} of {pages.length}</span>
+                        <span className={cn("flex items-center gap-2")}><ChevronDown className={cn("w-4 h-4")} />Load more</span>
+                        <span className={cn("text-xs text-ink-muted tabular-nums")}>{currentLimit} of {pages.length}</span>
                       </button>
                     </td>
                   </tr>
                 )}
                 <tr>
-                  <td colSpan={colCount} className="p-0">
+                  <td colSpan={colCount} className={cn("p-0")}>
                     <button onClick={() => addPage(database.id)}
-                      className="w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent">
-                      <Plus className="w-4 h-4" /> New
+                      className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
+                      <Plus className={cn("w-4 h-4")} /> New
                     </button>
                   </td>
                 </tr>
