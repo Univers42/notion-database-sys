@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:33 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:36:34 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import { ArrowUpRight, CheckSquare } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
+/** Renders a copyable/insertable formula example code snippet. */
 export function ExampleBlock({ code, onInsert }: Readonly<{ code: string; onInsert: (text: string) => void }>) {
   const [copied, setCopied] = useState(false);
 

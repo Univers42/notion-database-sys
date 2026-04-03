@@ -6,16 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:29 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { cn } from '../../utils/cn';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FORMULA FUNCTION CATALOG — static data for the formula editor
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/** Describes a formula function with signature, description, and examples. */
 export interface FunctionDef {
   name: string;
   category: string;
@@ -25,6 +22,7 @@ export interface FunctionDef {
   examples: string[];
 }
 
+/** Complete catalog of available formula functions. */
 export const FORMULA_FUNCTIONS: FunctionDef[] = [
   // ── Built-ins ──
   { name: 'true', category: 'Built-ins', signature: 'true', description: 'Boolean true value.', returnType: 'Boolean', examples: ['true'] },
@@ -139,9 +137,8 @@ export const FORMULA_FUNCTIONS: FunctionDef[] = [
   { name: 'id', category: 'Special', signature: 'id()', description: 'Returns the unique page ID.', returnType: 'Text', examples: ['id()'] },
 ];
 
+/** Ordered list of formula function category names. */
 export const FUNCTION_CATEGORIES = ['Built-ins', 'General', 'Text', 'Number', 'Date', 'People', 'List', 'Special'];
-
-// ─── RETURN TYPE BADGE COLORS ────────────────────────────────────────────────
 
 const RETURN_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   'Number': { bg: 'bg-accent-muted', text: 'text-accent-text' },
@@ -154,6 +151,7 @@ const RETURN_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   'Person': { bg: 'bg-pink-surface-muted', text: 'text-pink-text-bold' },
 };
 
+/** Returns a styled badge element for a formula return type. */
 export function getReturnTypeBadge(returnType: string) {
   const colors = RETURN_TYPE_COLORS[returnType] || RETURN_TYPE_COLORS['Any'];
   return (
@@ -163,6 +161,7 @@ export function getReturnTypeBadge(returnType: string) {
   );
 }
 
+/** Maps a property type to its formula return type label. */
 export function propReturnType(type: string): string {
   switch (type) {
     case 'number': return 'Number';

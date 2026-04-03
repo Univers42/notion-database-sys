@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:36:39 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@ import {
   MapPin, Fingerprint, MousePointerClick, Sigma, Database,
   GitBranch, ExternalLink, UserCheck, AlertTriangle
 } from 'lucide-react';
-import { cn } from '../../utils/cn';
 
+/** Renders the appropriate icon for a property type in the formula editor. */
 export function PropTypeIcon({ type, className = 'w-3.5 h-3.5' }: Readonly<{ type: string; className?: string }>) {
   switch (type) {
     case 'title': case 'text': return <Type className={className} />;

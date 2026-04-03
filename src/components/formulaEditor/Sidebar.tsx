@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:36:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ interface SidebarProps {
   onSelectItem: (item: { type: 'property'; prop: SchemaProperty } | { type: 'function'; fn: FunctionDef }) => void;
 }
 
+/** Renders the formula editor sidebar with searchable property and function lists. */
 export function Sidebar({
   sidebarSearch, onSearchChange, filteredProperties, filteredFunctions,
   expandedCategories, toggleCategory, insertProperty, insertFunction, onSelectItem,

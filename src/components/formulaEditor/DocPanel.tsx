@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:36:32 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ import { cn } from '../../utils/cn';
 
 type SelectedItem = { type: 'property'; prop: SchemaProperty } | { type: 'function'; fn: FunctionDef } | null;
 
+/** Renders documentation for a selected property or function in the formula editor sidebar. */
 export function DocPanel({ selectedItem, insertAtCursor }: Readonly<{ selectedItem: SelectedItem; insertAtCursor: (text: string) => void }>) {
   if (!selectedItem) {
     return (
