@@ -38,6 +38,107 @@ interface NotionState {
   views: Record<string, unknown>;
 }
 
+interface SchemaProp {
+  id: string;
+  name: string;
+  type: string;
+  options?: { id: string; value: string; color: string }[];
+}
+
+// ─── Bidirectional property-value normalisation (option IDs ↔ display names) ─
+// PG / MongoDB store human-readable display values ("Done", "High", ["Bug"]).
+// The Notion UI store expects internal option IDs   ("opt-done", "pri-high", ["tag-bug"]).
+//
+// Load path  (DB → Store):  normalizePageToOptionIds
+// Write path (Store → DB):  convertValueToDisplay
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Types that carry option IDs internally. */
+const OPTION_TYPES = new Set(['select', 'status', 'multi_select']);
+
+/** Convert a single display value → option ID  (select / status). */
+function displayToId(val: unknown, prop: SchemaProp): unknown {
+  if (val == null || val === '') return val;
+  const opts = prop.options ?? [];
+  if (opts.length === 0) return val;
+  const s = String(val);
+  // Already an option ID?
+  if (opts.find(o => o.id === s)) return s;
+  // Match by display value (case-insensitive)
+  const byVal = opts.find(o => o.value.toLowerCase() === s.toLowerCase());
+  return byVal ? byVal.id : val;
+}
+
+/** Convert multi-select display values → option IDs (deduped). */
+function displayArrayToIds(val: unknown, prop: SchemaProp): unknown {
+  if (!Array.isArray(val)) return val == null ? val : displayArrayToIds([val], prop);
+  const opts = prop.options ?? [];
+  if (opts.length === 0) return val;
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of val) {
+    const s = String(item);
+    // Already an option ID?
+    let resolved = opts.find(o => o.id === s) ? s : undefined;
+    if (!resolved) {
+      const byVal = opts.find(o => o.value.toLowerCase() === s.toLowerCase());
+      if (byVal) resolved = byVal.id;
+    }
+    const id = resolved ?? s;
+    if (!seen.has(id)) { seen.add(id); result.push(id); }
+  }
+  return result;
+}
+
+/** Normalise all properties of a page from display values → option IDs. */
+function normalizePageToOptionIds(
+  properties: Record<string, unknown>,
+  schema: Record<string, SchemaProp>,
+): Record<string, unknown> {
+  const out = { ...properties };
+  for (const [propId, prop] of Object.entries(schema)) {
+    if (!(propId in out) || !OPTION_TYPES.has(prop.type)) continue;
+    const raw = out[propId];
+    if (raw == null) continue;
+    if (prop.type === 'multi_select') {
+      out[propId] = displayArrayToIds(raw, prop);
+    } else {
+      out[propId] = displayToId(raw, prop);
+    }
+  }
+  return out;
+}
+
+/** Convert a single option ID → display value  (select / status). */
+function idToDisplay(val: unknown, prop: SchemaProp): unknown {
+  if (val == null || val === '') return val;
+  const opts = prop.options ?? [];
+  if (opts.length === 0) return val;
+  const s = String(val);
+  const byId = opts.find(o => o.id === s);
+  return byId ? byId.value : val;            // already a display value? pass through
+}
+
+/** Convert multi-select option IDs → display values. */
+function idsToDisplayArray(val: unknown, prop: SchemaProp): unknown {
+  if (!Array.isArray(val)) return val;
+  const opts = prop.options ?? [];
+  if (opts.length === 0) return val;
+  return val.map(item => {
+    const s = String(item);
+    const byId = opts.find(o => o.id === s);
+    return byId ? byId.value : s;
+  });
+}
+
+/** Convert a property value from internal (option ID) to DB-friendly display value.
+ *  Only affects select / status / multi_select; everything else passes through. */
+function convertValueToDisplay(value: unknown, prop: SchemaProp | undefined): unknown {
+  if (!prop || !OPTION_TYPES.has(prop.type)) return value;
+  if (prop.type === 'multi_select') return idsToDisplayArray(value, prop);
+  return idToDisplay(value, prop);
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const ROOT = resolve(process.cwd());
 
@@ -91,6 +192,9 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
     // Merge: keep seed page metadata (icon, content) but overlay live properties
     for (const [pageId, livePage] of Object.entries(livePages)) {
       const seedPage = seed.pages[pageId] as Record<string, unknown> | undefined;
+      const dbId = livePage.databaseId as string;
+      const dbSchema = (seed.databases[dbId] as { properties: Record<string, SchemaProp> } | undefined)?.properties ?? {};
+
       if (seedPage) {
         // Preserve seed metadata that doesn't exist in the DB
         livePage.icon = livePage.icon ?? seedPage.icon;
@@ -98,8 +202,20 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
         // Merge: live properties override, but keep seed-only props (formula/rollup)
         const seedProps = (seedPage.properties ?? {}) as Record<string, unknown>;
         const liveProps = (livePage.properties ?? {}) as Record<string, unknown>;
-        livePage.properties = { ...seedProps, ...liveProps };
+        // Skip null live values so seed defaults (e.g. relations) are preserved
+        const filteredLive: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(liveProps)) {
+          if (v != null) filteredLive[k] = v;
+        }
+        livePage.properties = { ...seedProps, ...filteredLive };
       }
+
+      // ── Normalise display values → option IDs (PG/Mongo store "Done" but UI expects "opt-done") ──
+      livePage.properties = normalizePageToOptionIds(
+        livePage.properties as Record<string, unknown>,
+        dbSchema,
+      );
+
       livePages[pageId] = livePage;
     }
     seed.pages = livePages;
@@ -425,7 +541,9 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           // Live DB source: use page.id as the DB primary key (NOT display ID)
           const fieldName = fieldMap[propertyId];
           if (fieldName) {
-            dispatchUpdate(activeSource, dbId, page.id, fieldName, value, fieldMap);
+            // Convert option IDs → display values for live DB storage
+            const dbValue = convertValueToDisplay(value, prop as SchemaProp | undefined);
+            dispatchUpdate(activeSource, dbId, page.id, fieldName, dbValue, fieldMap);
           }
         } else {
           // File-based source: persist state + sync flat files
@@ -457,13 +575,20 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         const fieldMap = allFieldMaps[databaseId] ?? {};
 
         // Build flat record from properties + field map
+        const db = state.databases[databaseId] as { properties: Record<string, SchemaProp> } | undefined;
         const flatRecord: Record<string, unknown> = {};
         for (const [propId, fieldName] of Object.entries(fieldMap)) {
           if (fieldName === 'id') {
             // Live DB: id column = page primary key, not display value
             flatRecord.id = isLiveDbSource(activeSource) ? pageId : (properties[propId] ?? pageId);
           } else {
-            flatRecord[fieldName] = properties[propId] ?? null;
+            let val = properties[propId] ?? null;
+            // Convert option IDs → display values for live DB storage
+            if (isLiveDbSource(activeSource) && val != null) {
+              const schemaProp = db?.properties?.[propId];
+              val = convertValueToDisplay(val, schemaProp as SchemaProp | undefined);
+            }
+            flatRecord[fieldName] = val;
           }
         }
         if (!flatRecord.id) flatRecord.id = pageId;
@@ -639,6 +764,9 @@ export function dbmsMiddleware(server: ViteDevServer): void {
 
         let result: ReturnType<typeof dispatchInsert> = null;
 
+        const opsState = await getEffectiveState(activeSource);
+        const opsDb = opsState.databases[databaseId] as { properties: Record<string, SchemaProp> } | undefined;
+
         switch (action) {
           case 'insert': {
             const properties = (body.properties ?? {}) as Record<string, unknown>;
@@ -649,7 +777,13 @@ export function dbmsMiddleware(server: ViteDevServer): void {
                 // Live DB: id column = page primary key (e.g. 't1'), not display value ('TASK-1')
                 flatRecord.id = isLiveDbSource(activeSource) ? pageId : (properties[propId] ?? pageId);
               } else {
-                flatRecord[fieldName] = properties[propId] ?? null;
+                let val = properties[propId] ?? null;
+                // Convert option IDs → display values for live DB storage
+                if (isLiveDbSource(activeSource) && val != null) {
+                  const sp = opsDb?.properties?.[propId];
+                  val = convertValueToDisplay(val, sp as SchemaProp | undefined);
+                }
+                flatRecord[fieldName] = val;
               }
             }
             if (!flatRecord.id) flatRecord.id = pageId;
