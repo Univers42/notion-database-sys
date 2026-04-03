@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:53 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:43 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ import {
   EmojiFaceIcon, LayoutIcon, EyeSlashIcon,
 } from '../ui/Icons';
 import { ActionPanel, type PanelSection } from '../ui/ActionPanel';
-import { useOutsideClick } from './Dropdown';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 
 // ─── Extra actions menu (··· in top-right) ───────────────────────────────────
 
