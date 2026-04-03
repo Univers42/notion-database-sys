@@ -13,25 +13,26 @@
 import React from 'react';
 import type { DashboardWidget } from '../../../../types/database';
 import { formatNumber } from '../constants';
+import { cn } from '../../../../utils/cn';
 
 export function renderNumberChart(widget: DashboardWidget, agg: { sum: number; count: number; min: number; max: number }) {
   return (
-    <div className="p-5 h-full flex flex-col">
-      <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
-      <div className="grid grid-cols-4 gap-3 text-center flex-1 items-center">
+    <div className={cn("p-5 h-full flex flex-col")}>
+      <h3 className={cn("text-sm font-semibold text-ink mb-3")}>{widget.title}</h3>
+      <div className={cn("grid grid-cols-4 gap-3 text-center flex-1 items-center")}>
         {[
           { label: 'Sum', val: agg.sum },
           { label: 'Average', val: Number((agg.sum / agg.count).toFixed(1)) },
           { label: 'Min', val: agg.min === Infinity ? 0 : agg.min },
           { label: 'Max', val: agg.max === -Infinity ? 0 : agg.max },
         ].map(s => (
-          <div key={s.label} className="bg-surface-secondary rounded-lg p-3">
-            <div className="text-xl font-bold text-ink tabular-nums">{formatNumber(s.val)}</div>
-            <div className="text-[10px] text-ink-muted mt-1">{s.label}</div>
+          <div key={s.label} className={cn("bg-surface-secondary rounded-lg p-3")}>
+            <div className={cn("text-xl font-bold text-ink tabular-nums")}>{formatNumber(s.val)}</div>
+            <div className={cn("text-[10px] text-ink-muted mt-1")}>{s.label}</div>
           </div>
         ))}
       </div>
-      <div className="text-[10px] text-ink-muted mt-2 text-center">{agg.count} records with values</div>
+      <div className={cn("text-[10px] text-ink-muted mt-2 text-center")}>{agg.count} records with values</div>
     </div>
   );
 }

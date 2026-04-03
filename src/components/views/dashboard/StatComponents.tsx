@@ -14,9 +14,10 @@ import React from 'react';
 import { BarChart3 } from 'lucide-react';
 import { formatNumber } from '../../../utils/format';
 import { STAT_BG as COLOR_MAP } from '../../../utils/color';
+import { cn } from '../../../utils/cn';
 
 export function StatIconBadge({ color, children }: Readonly<{ color: string; children: React.ReactNode }>) {
-  return <div className={`p-2.5 rounded-lg ${COLOR_MAP[color] || COLOR_MAP.blue}`}>{children}</div>;
+  return <div className={cn(`p-2.5 rounded-lg ${COLOR_MAP[color] || COLOR_MAP.blue}`)}>{children}</div>;
 }
 
 // ─── StatCard ────────────────────────────────────────────────────────────────
@@ -26,12 +27,12 @@ export function StatCard({ icon, label, value, subtext, color }: Readonly<{
   color: 'blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan';
 }>) {
   return (
-    <div className="bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3">
+    <div className={cn("bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3")}>
       <StatIconBadge color={color}>{icon}</StatIconBadge>
       <div>
-        <div className="text-2xl font-bold text-ink tabular-nums leading-none mb-1">{formatNumber(value)}</div>
-        <div className="text-xs text-ink-secondary">{label}</div>
-        {subtext && <div className="text-xs text-ink-muted mt-0.5">{subtext}</div>}
+        <div className={cn("text-2xl font-bold text-ink tabular-nums leading-none mb-1")}>{formatNumber(value)}</div>
+        <div className={cn("text-xs text-ink-secondary")}>{label}</div>
+        {subtext && <div className={cn("text-xs text-ink-muted mt-0.5")}>{subtext}</div>}
       </div>
     </div>
   );
@@ -41,10 +42,10 @@ export function StatCard({ icon, label, value, subtext, color }: Readonly<{
 
 export function EmptyWidget({ title, message }: Readonly<{ title: string; message: string }>) {
   return (
-    <div className="p-5 h-full flex flex-col items-center justify-center text-ink-muted">
-      <BarChart3 className="w-8 h-8 mb-2 text-ink-disabled" />
-      <div className="text-xs font-medium">{title}</div>
-      <div className="text-[10px] mt-1">{message}</div>
+    <div className={cn("p-5 h-full flex flex-col items-center justify-center text-ink-muted")}>
+      <BarChart3 className={cn("w-8 h-8 mb-2 text-ink-disabled")} />
+      <div className={cn("text-xs font-medium")}>{title}</div>
+      <div className={cn("text-[10px] mt-1")}>{message}</div>
     </div>
   );
 }

@@ -24,6 +24,7 @@ import {
   type ZoomLevel, type BarGeometry, type BarColorSet,
 } from './TimelineViewHelpers';
 import { TimelineDatePicker } from './TimelineDatePicker';
+import { cn } from '../../../utils/cn';
 
 /* ── Drag interaction types ────────────────────────────────────────────── */
 
@@ -70,20 +71,20 @@ function BarTooltip({
 }>) {
   return (
     <div
-      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5
+      className={cn(`absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5
                  bg-gray-900 text-white rounded-md px-2.5 py-1.5
                  text-[11px] whitespace-nowrap shadow-lg pointer-events-none z-50
-                 opacity-0 group-hover/bar:opacity-100 transition-opacity"
+                 opacity-0 group-hover/bar:opacity-100 transition-opacity`)}
     >
-      <div className="flex items-center gap-1.5 mb-0.5">
+      <div className={cn("flex items-center gap-1.5 mb-0.5")}>
         <span
-          className="w-2 h-2 rounded-full shrink-0"
+          className={cn("w-2 h-2 rounded-full shrink-0")}
           style={{ backgroundColor: colorSet.hex }}
         />
-        <span className="font-medium">{statusLabel}</span>
+        <span className={cn("font-medium")}>{statusLabel}</span>
       </div>
-      <div className="text-[10px] text-gray-300">{title}</div>
-      <div className="text-[10px] text-gray-400">{dateLabel}</div>
+      <div className={cn("text-[10px] text-gray-300")}>{title}</div>
+      <div className={cn("text-[10px] text-gray-400")}>{dateLabel}</div>
     </div>
   );
 }
@@ -123,7 +124,7 @@ export function TimelineView() {
   const { startProp, endProp } = findDateProperties(database.properties);
   if (!startProp) {
     return (
-      <div className="flex-1 flex items-center justify-center text-ink-secondary">
+      <div className={cn("flex-1 flex items-center justify-center text-ink-secondary")}>
         Timeline view requires at least one date property.
       </div>
     );
@@ -397,44 +398,44 @@ export function TimelineView() {
   /* ════════════════════════════════════════════════════════════════════════ */
 
   return (
-    <div className="flex-1 overflow-hidden bg-surface-primary flex h-full flex-col select-none">
+    <div className={cn("flex-1 overflow-hidden bg-surface-primary flex h-full flex-col select-none")}>
       {/* ── Toolbar ───────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-line bg-surface-secondary shrink-0">
-        <div className="flex items-center gap-2">
+      <div className={cn("flex items-center justify-between px-4 py-2 border-b border-line bg-surface-secondary shrink-0")}>
+        <div className={cn("flex items-center gap-2")}>
           <button
             onClick={() => setOffset(o => o - navStep)}
-            className="p-1 hover:bg-hover-surface3 rounded text-ink-secondary transition-colors"
+            className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-secondary transition-colors")}
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className={cn("w-4 h-4")} />
           </button>
           <button
             onClick={() => setOffset(0)}
-            className="px-2 py-1 hover:bg-hover-surface3 rounded text-xs font-medium text-ink-body-light transition-colors"
+            className={cn("px-2 py-1 hover:bg-hover-surface3 rounded text-xs font-medium text-ink-body-light transition-colors")}
           >
             Today
           </button>
           <button
             onClick={() => setOffset(o => o + navStep)}
-            className="p-1 hover:bg-hover-surface3 rounded text-ink-secondary transition-colors"
+            className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-secondary transition-colors")}
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className={cn("w-4 h-4")} />
           </button>
-          <span className="text-xs font-medium text-ink-secondary ml-2">
+          <span className={cn("text-xs font-medium text-ink-secondary ml-2")}>
             {format(startDate, 'MMM d')} – {format(endDate, 'MMM d, yyyy')}
           </span>
         </div>
 
         {/* Zoom toggle */}
-        <div className="flex items-center gap-1 bg-surface-muted rounded-md p-0.5">
+        <div className={cn("flex items-center gap-1 bg-surface-muted rounded-md p-0.5")}>
           {(['day', 'week', 'month'] as const).map(level => (
             <button
               key={level}
               onClick={() => handleZoom(level)}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
+              className={cn(`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                 zoomLevel === level
                   ? 'bg-surface-primary shadow-sm text-ink'
                   : 'text-ink-body-light hover:text-hover-text-bolder'
-              }`}
+              }`)}
             >
               {level.charAt(0).toUpperCase() + level.slice(1)}
             </button>
@@ -443,39 +444,39 @@ export function TimelineView() {
       </div>
 
       {/* ── Content ───────────────────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className={cn("flex-1 flex overflow-hidden")}>
         {/* ── Left panel ──────────────────────────────────────────────── */}
         {showTable && (
           <div
-            className="border-r border-line shrink-0 flex flex-col bg-surface-secondary"
+            className={cn("border-r border-line shrink-0 flex flex-col bg-surface-secondary")}
             style={{ width: LEFT_PANEL_WIDTH }}
           >
-            <div className="h-[52px] border-b border-line flex items-end px-3 pb-2">
-              <span className="font-medium text-xs text-ink-secondary uppercase tracking-wider">
+            <div className={cn("h-[52px] border-b border-line flex items-end px-3 pb-2")}>
+              <span className={cn("font-medium text-xs text-ink-secondary uppercase tracking-wider")}>
                 Pages
               </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className={cn("flex-1 overflow-y-auto")}>
               {displayedPages.map(page => {
                 const title = getPageTitle(page);
                 return (
                   <div
                     key={page.id}
-                    className={`flex items-center px-3 text-sm border-b border-line-light
+                    className={cn(`flex items-center px-3 text-sm border-b border-line-light
                                 cursor-pointer transition-colors ${
                       hoverRow === page.id ? 'bg-hover-surface2' : 'hover:bg-hover-surface-soft'
-                    }`}
+                    }`)}
                     style={{ height: config.rowHeight }}
                     onClick={() => openPage(page.id)}
                     onMouseEnter={() => setHoverRow(page.id)}
                     onMouseLeave={() => setHoverRow(null)}
                   >
                     {page.icon && (
-                      <span className="mr-1.5 shrink-0">{page.icon}</span>
+                      <span className={cn("mr-1.5 shrink-0")}>{page.icon}</span>
                     )}
-                    <span className="truncate text-ink">
-                      {title || <span className="text-ink-muted">Untitled</span>}
+                    <span className={cn("truncate text-ink")}>
+                      {title || <span className={cn("text-ink-muted")}>Untitled</span>}
                     </span>
                   </div>
                 );
@@ -485,10 +486,10 @@ export function TimelineView() {
                 onClick={() => {
                   addPage(database.id, { [startProp.id]: today.toISOString() });
                 }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-ink-muted
-                           hover:text-hover-text hover:bg-hover-surface2 transition-colors"
+                className={cn(`flex items-center gap-2 w-full px-3 py-2 text-sm text-ink-muted
+                           hover:text-hover-text hover:bg-hover-surface2 transition-colors`)}
               >
-                <Plus className="w-4 h-4" /> New
+                <Plus className={cn("w-4 h-4")} /> New
               </button>
             </div>
           </div>
@@ -497,19 +498,19 @@ export function TimelineView() {
         {/* ── Right panel (grid) ──────────────────────────────────────── */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-x-auto overflow-y-auto flex flex-col"
+          className={cn("flex-1 overflow-x-auto overflow-y-auto flex flex-col")}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
         >
           {/* ══ Two-row header ════════════════════════════════════════ */}
-          <div className="shrink-0 sticky top-0 z-30 bg-surface-secondary border-b border-line">
+          <div className={cn("shrink-0 sticky top-0 z-30 bg-surface-secondary border-b border-line")}>
             {/* Row 1 — Month groups */}
-            <div className="flex h-6 border-b border-line-light">
+            <div className={cn("flex h-6 border-b border-line-light")}>
               {monthGroups.map((g, idx) => (
                 <div
                   key={`${g.year}-${g.month}-${idx}`}
-                  className="shrink-0 text-[10px] font-semibold text-ink-secondary
-                             flex items-center px-2 border-r border-line-light"
+                  className={cn(`shrink-0 text-[10px] font-semibold text-ink-secondary
+                             flex items-center px-2 border-r border-line-light`)}
                   style={{ width: g.colSpan * config.cellWidth }}
                 >
                   {g.label}
@@ -518,43 +519,43 @@ export function TimelineView() {
             </div>
 
             {/* Row 2 — Day columns */}
-            <div className="flex h-[26px]">
+            <div className={cn("flex h-[26px]")}>
               {days.map((day, i) => {
                 const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                 const isTodayCol = isTodayFn(day);
                 return (
                   <div
                     key={day.toISOString()}
-                    className={`shrink-0 border-r border-line-light flex items-center justify-center
-                                text-[10px] ${getDayHeaderBg(isTodayCol, isWeekend)}`}
+                    className={cn(`shrink-0 border-r border-line-light flex items-center justify-center
+                                text-[10px] ${getDayHeaderBg(isTodayCol, isWeekend)}`)}
                     style={{ width: config.cellWidth }}
                   >
                     {zoomLevel === 'day' ? (
-                      <div className="flex flex-col items-center leading-tight">
-                        <span className="text-ink-muted">{format(day, 'EEE')}</span>
+                      <div className={cn("flex flex-col items-center leading-tight")}>
+                        <span className={cn("text-ink-muted")}>{format(day, 'EEE')}</span>
                         <span
-                          className={`font-medium ${
+                          className={cn(`font-medium ${
                             isTodayCol
                               ? 'text-accent-text-light bg-accent-muted w-5 h-5 rounded-full flex items-center justify-center text-[10px]'
                               : 'text-ink-body'
-                          }`}
+                          }`)}
                         >
                           {format(day, 'd')}
                         </span>
                       </div>
                     ) : zoomLevel === 'month' ? (
                       <span
-                        className={`font-medium ${
+                        className={cn(`font-medium ${
                           isTodayCol ? 'text-accent-text-light' : 'text-ink-muted'
-                        }`}
+                        }`)}
                       >
                         {day.getDate() === 1 || i === 0 ? format(day, 'd') : ''}
                       </span>
                     ) : (
                       <span
-                        className={`font-medium ${
+                        className={cn(`font-medium ${
                           isTodayCol ? 'text-accent-text-light' : 'text-ink-body'
-                        }`}
+                        }`)}
                       >
                         {format(day, 'd')}
                       </span>
@@ -566,11 +567,11 @@ export function TimelineView() {
           </div>
 
           {/* ══ Grid rows ════════════════════════════════════════════ */}
-          <div className="relative overflow-hidden" style={{ width: totalWidth }}>
+          <div className={cn("relative overflow-hidden")} style={{ width: totalWidth }}>
             {/* Today marker */}
             {todayIdx >= 0 && todayIdx < days.length && (
               <div
-                className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
+                className={cn("absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none")}
                 style={{ left: todayIdx * config.cellWidth + config.cellWidth / 2 }}
               />
             )}
@@ -610,22 +611,22 @@ export function TimelineView() {
               return (
                 <div
                   key={page.id}
-                  className={`relative flex items-center border-b border-line-light transition-colors ${
+                  className={cn(`relative flex items-center border-b border-line-light transition-colors ${
                     hoverRow === page.id ? 'bg-hover-surface-soft' : ''
-                  }`}
+                  }`)}
                   style={{ height: config.rowHeight }}
                   onMouseEnter={() => setHoverRow(page.id)}
                   onMouseLeave={() => setHoverRow(null)}
                 >
                   {/* Background grid cells */}
-                  <div className="absolute inset-0 flex pointer-events-none">
+                  <div className={cn("absolute inset-0 flex pointer-events-none")}>
                     {days.map((day, i) => (
                       <div
                         key={day.toISOString()}
-                        className={`shrink-0 border-r border-line-light h-full pointer-events-auto
+                        className={cn(`shrink-0 border-r border-line-light h-full pointer-events-auto
                                     cursor-cell ${
                           getGridCellBg(todayIdx === i, day.getDay() === 0 || day.getDay() === 6)
-                        }`}
+                        }`)}
                         style={{ width: config.cellWidth }}
                         onClick={() => handleGridCellClick(i)}
                       />
@@ -635,11 +636,11 @@ export function TimelineView() {
                   {/* ── Bar ───────────────────────────────────────── */}
                   {(bar?.visible || isDragging) && (
                     <div
-                      className={`group/bar absolute z-10 flex items-center
+                      className={cn(`group/bar absolute z-10 flex items-center
                                   ${colorSet.bg} ${colorSet.text}
                                   ${bar?.isPoint && !isDragging ? 'rounded-full' : 'rounded-md'}
                                   ${isDragging ? 'opacity-80 ring-2 ring-accent-border' : ''}
-                                  shadow-sm transition-shadow`}
+                                  shadow-sm transition-shadow`)}
                       style={{
                         left: displayLeft,
                         width: Math.max(displayWidth, barHeight),
@@ -657,8 +658,8 @@ export function TimelineView() {
 
                       {/* Left resize handle — always visible */}
                       <div
-                        className="absolute left-0 top-0 bottom-0 cursor-col-resize z-20
-                                   hover:bg-white/30 rounded-l-md transition-colors"
+                        className={cn(`absolute left-0 top-0 bottom-0 cursor-col-resize z-20
+                                   hover:bg-white/30 rounded-l-md transition-colors`)}
                         style={{ width: RESIZE_HANDLE_WIDTH }}
                         onPointerDown={e =>
                           bar && handlePointerDown(e, page.id, 'resize-left', bar)
@@ -667,10 +668,10 @@ export function TimelineView() {
 
                       {/* Bar body — point bars drag to resize, range bars drag to move */}
                       <div
-                        className={`flex-1 flex items-center justify-center overflow-hidden
+                        className={cn(`flex-1 flex items-center justify-center overflow-hidden
                                     h-full ${bar?.isPoint && !isDragging
                                       ? 'cursor-ew-resize'
-                                      : 'cursor-grab active:cursor-grabbing'}`}
+                                      : 'cursor-grab active:cursor-grabbing'}`)}
                         style={{
                           marginLeft: RESIZE_HANDLE_WIDTH,
                           marginRight: RESIZE_HANDLE_WIDTH,
@@ -692,28 +693,28 @@ export function TimelineView() {
                       >
                         {/* Adaptive content rendering */}
                         {verbosity === 'color-only' ? null : verbosity === 'status' ? (
-                          <span className="text-[10px] font-semibold truncate px-1">
+                          <span className={cn("text-[10px] font-semibold truncate px-1")}>
                             {statusLabel || '\u25CF'}
                           </span>
                         ) : verbosity === 'status+dates' ? (
-                          <div className="flex items-center gap-1 px-1 min-w-0">
-                            <span className="text-[10px] font-semibold truncate">
+                          <div className={cn("flex items-center gap-1 px-1 min-w-0")}>
+                            <span className={cn("text-[10px] font-semibold truncate")}>
                               {statusLabel}
                             </span>
-                            <span className="text-[9px] opacity-70 shrink-0">
+                            <span className={cn("text-[9px] opacity-70 shrink-0")}>
                               {dateLabel}
                             </span>
                           </div>
                         ) : (
                           /* full */
-                          <div className="flex items-center gap-1.5 px-1.5 min-w-0">
+                          <div className={cn("flex items-center gap-1.5 px-1.5 min-w-0")}>
                             {page.icon && (
-                              <span className="text-xs shrink-0">{page.icon}</span>
+                              <span className={cn("text-xs shrink-0")}>{page.icon}</span>
                             )}
-                            <span className="text-[11px] font-semibold truncate">
+                            <span className={cn("text-[11px] font-semibold truncate")}>
                               {statusLabel}
                             </span>
-                            <span className="text-[9px] opacity-70 shrink-0 ml-auto">
+                            <span className={cn("text-[9px] opacity-70 shrink-0 ml-auto")}>
                               {dateLabel}
                             </span>
                           </div>
@@ -722,8 +723,8 @@ export function TimelineView() {
 
                       {/* Right resize handle */}
                       <div
-                        className="absolute right-0 top-0 bottom-0 cursor-col-resize z-20
-                                   hover:bg-white/30 rounded-r-md transition-colors"
+                        className={cn(`absolute right-0 top-0 bottom-0 cursor-col-resize z-20
+                                   hover:bg-white/30 rounded-r-md transition-colors`)}
                         style={{ width: RESIZE_HANDLE_WIDTH }}
                         onPointerDown={e =>
                           bar && handlePointerDown(e, page.id, 'resize-right', bar)
@@ -735,7 +736,7 @@ export function TimelineView() {
                   {/* No-date indicator */}
                   {!bar && !isDragging && (
                     <div
-                      className="absolute left-2 text-[10px] text-ink-disabled italic z-10 pointer-events-none"
+                      className={cn("absolute left-2 text-[10px] text-ink-disabled italic z-10 pointer-events-none")}
                       style={{ top: (config.rowHeight - 14) / 2 }}
                     >
                       No date
@@ -747,15 +748,15 @@ export function TimelineView() {
 
             {/* "New" row */}
             <div
-              className="flex items-center border-b border-line-light text-ink-muted
-                         hover:bg-hover-surface-soft cursor-pointer transition-colors"
+              className={cn(`flex items-center border-b border-line-light text-ink-muted
+                         hover:bg-hover-surface-soft cursor-pointer transition-colors`)}
               style={{ height: config.rowHeight }}
               onClick={() => {
                 addPage(database.id, { [startProp.id]: today.toISOString() });
               }}
             >
-              <div className="flex items-center gap-1 px-3 text-xs">
-                <Plus className="w-3.5 h-3.5" />
+              <div className={cn("flex items-center gap-1 px-3 text-xs")}>
+                <Plus className={cn("w-3.5 h-3.5")} />
                 <span>New</span>
               </div>
             </div>

@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { COLORS, smoothLine } from './constants';
+import { cn } from '../../../utils/cn';
 
 // ─── DonutChart ──────────────────────────────────────────────────────────────
 
@@ -35,11 +36,11 @@ export function DonutChart({ data, size = 120 }: Readonly<{ data: { count: numbe
             stroke={COLORS[i % COLORS.length]} strokeWidth={16}
             strokeDasharray={strokeDasharray}
             transform={`rotate(${rotation} ${size / 2} ${size / 2})`}
-            className="transition-all duration-500" />
+            className={cn("transition-all duration-500")} />
         );
       })}
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle"
-        className="text-lg font-bold fill-fill-primary">{total}</text>
+        className={cn("text-lg font-bold fill-fill-primary")}>{total}</text>
     </svg>
   );
 }
@@ -66,7 +67,7 @@ export function AreaChartSVG({ data }: Readonly<{ data: { count: number; label: 
   const gridLines = [0.25, 0.5, 0.75, 1].map(f => pad.top + innerH * (1 - f));
 
   return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+    <svg width="100%" viewBox={`0 0 ${width} ${height}`} className={cn("overflow-visible")}>
       <defs>
         <linearGradient id="areaGradSmooth" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity="0.35" />
@@ -88,7 +89,7 @@ export function AreaChartSVG({ data }: Readonly<{ data: { count: number; label: 
         <g key={p.label}>
           <circle cx={p.x} cy={p.y} r="4" fill="white" stroke="var(--color-chart-1)" strokeWidth="2" />
           <text x={p.x} y={pad.top + innerH + 16} textAnchor="middle"
-            className="text-[7px] fill-fill-secondary font-medium">{p.label.slice(0, 7)}</text>
+            className={cn("text-[7px] fill-fill-secondary font-medium")}>{p.label.slice(0, 7)}</text>
         </g>
       ))}
     </svg>
@@ -108,9 +109,9 @@ export function ProgressRing({ pct, color, size = 48 }: Readonly<{ pct: number; 
       <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth="4"
         strokeDasharray={dasharray} strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        className="transition-all duration-500" />
+        className={cn("transition-all duration-500")} />
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle"
-        className="text-[9px] font-bold fill-fill-body">{Math.round(pct)}%</text>
+        className={cn("text-[9px] font-bold fill-fill-body")}>{Math.round(pct)}%</text>
     </svg>
   );
 }

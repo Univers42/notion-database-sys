@@ -15,6 +15,7 @@ import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus } from 'lucide-react';
 import { getColumnWidth, BoardCard } from './BoardCardHelpers';
+import { cn } from '../../../utils/cn';
 
 export function BoardView() {
   const activeViewId = useActiveViewId();
@@ -26,10 +27,10 @@ export function BoardView() {
 
   if (!view || !database || !view.grouping) {
     return (
-      <div className="flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary">
-        <div className="text-center">
-          <p className="text-lg font-medium mb-2">Board view requires grouping</p>
-          <p className="text-sm text-ink-muted">Configure a grouping property in view settings</p>
+      <div className={cn("flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary")}>
+        <div className={cn("text-center")}>
+          <p className={cn("text-lg font-medium mb-2")}>Board view requires grouping</p>
+          <p className={cn("text-sm text-ink-muted")}>Configure a grouping property in view settings</p>
         </div>
       </div>
     );
@@ -37,7 +38,7 @@ export function BoardView() {
 
   const groupProperty = database.properties[view.grouping.propertyId];
   if (!groupProperty || (groupProperty.type !== 'select' && groupProperty.type !== 'status')) {
-    return <div className="flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary">Board view requires a select or status property for grouping.</div>;
+    return <div className={cn("flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary")}>Board view requires a select or status property for grouping.</div>;
   }
 
   const groups = getGroupedPages(view.id);
@@ -82,37 +83,37 @@ export function BoardView() {
   };
 
   return (
-    <div className="flex-1 overflow-x-auto p-4 bg-surface-secondary flex gap-4 h-full">
+    <div className={cn("flex-1 overflow-x-auto p-4 bg-surface-secondary flex gap-4 h-full")}>
       {groups.map(group => {
         const isDragOver = dragOverCol === group.groupId;
         const displayPages = group.pages.slice(0, loadLimit);
 
         return (
           <div key={group.groupId}
-            className={`flex flex-col shrink-0 ${getColumnWidth(cardSize)} rounded-xl transition-colors ${
+            className={cn(`flex flex-col shrink-0 ${getColumnWidth(cardSize)} rounded-xl transition-colors ${
               isDragOver ? 'bg-accent-soft ring-2 ring-ring-accent-muted ring-inset' : ''
-            }`}
+            }`)}
             onDrop={e => handleDrop(e, group.groupId)}
             onDragOver={e => handleDragOver(e, group.groupId)}
             onDragLeave={handleDragLeave}>
 
             {/* Column Header */}
-            <div className="flex items-center justify-between mb-3 px-2">
-              <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-1 rounded-md text-xs font-semibold ${group.groupColor}`}>
+            <div className={cn("flex items-center justify-between mb-3 px-2")}>
+              <div className={cn("flex items-center gap-2")}>
+                <span className={cn(`px-2.5 py-1 rounded-md text-xs font-semibold ${group.groupColor}`)}>
                   {group.groupLabel}
                 </span>
-                <span className="text-xs text-ink-muted font-medium tabular-nums">{displayPages.length}</span>
+                <span className={cn("text-xs text-ink-muted font-medium tabular-nums")}>{displayPages.length}</span>
               </div>
               <button
                 onClick={() => addPage(database.id, { [groupProperty.id]: group.groupId === '__unassigned__' ? null : group.groupId })}
-                className="p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors">
-                <Plus className="w-4 h-4" />
+                className={cn("p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors")}>
+                <Plus className={cn("w-4 h-4")} />
               </button>
             </div>
 
             {/* Cards */}
-            <div className={`flex flex-col gap-2 min-h-[120px] pb-10 px-1`}>
+            <div className={cn(`flex flex-col gap-2 min-h-[120px] pb-10 px-1`)}>
               {displayPages.map((page, pageIdx) => (
                 <BoardCard key={page.id} page={page} pageIdx={pageIdx}
                   cardPreview={cardPreview} wrapContent={wrapContent}
@@ -123,8 +124,8 @@ export function BoardView() {
               {/* Add card button */}
               <button
                 onClick={() => addPage(database.id, { [groupProperty.id]: group.groupId === '__unassigned__' ? null : group.groupId })}
-                className="flex items-center gap-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-white-soft2 p-2 rounded-lg transition-colors w-full">
-                <Plus className="w-4 h-4" /> New
+                className={cn("flex items-center gap-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-white-soft2 p-2 rounded-lg transition-colors w-full")}>
+                <Plus className={cn("w-4 h-4")} /> New
               </button>
             </div>
           </div>

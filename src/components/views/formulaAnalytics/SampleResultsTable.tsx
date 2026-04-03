@@ -12,6 +12,7 @@
 
 import React from 'react';
 import type { FormulaResult } from './constants';
+import { cn } from '../../../utils/cn';
 
 export function SampleResultsTable({
   formulaResults,
@@ -25,13 +26,13 @@ export function SampleResultsTable({
   const samplePages = formulaResults[0]?.results.slice(0, sampleCount) || [];
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
+    <div className={cn("overflow-x-auto")}>
+      <table className={cn("w-full text-xs")}>
         <thead>
-          <tr className="border-b border-line">
-            <th className="text-left py-2 px-2 text-ink-secondary font-medium sticky left-0 bg-surface-primary">Product</th>
+          <tr className={cn("border-b border-line")}>
+            <th className={cn("text-left py-2 px-2 text-ink-secondary font-medium sticky left-0 bg-surface-primary")}>Product</th>
             {formulaResults.map((fr) => (
-              <th key={fr.propId} className="text-right py-2 px-2 text-ink-secondary font-medium whitespace-nowrap">
+              <th key={fr.propId} className={cn("text-right py-2 px-2 text-ink-secondary font-medium whitespace-nowrap")}>
                 {fr.propName}
               </th>
             ))}
@@ -41,10 +42,10 @@ export function SampleResultsTable({
           {samplePages.map((sp, rowIdx) => (
             <tr
               key={sp.pageId}
-              className="border-b border-line-faint hover:bg-hover-surface cursor-pointer"
+              className={cn("border-b border-line-faint hover:bg-hover-surface cursor-pointer")}
               onClick={() => openPage(sp.pageId)}
             >
-              <td className="py-1.5 px-2 text-ink truncate max-w-[180px] sticky left-0 bg-surface-primary font-medium">
+              <td className={cn("py-1.5 px-2 text-ink truncate max-w-[180px] sticky left-0 bg-surface-primary font-medium")}>
                 {sp.pageName || 'Untitled'}
               </td>
               {formulaResults.map((fr) => {
@@ -52,15 +53,15 @@ export function SampleResultsTable({
                 const val = res?.value;
                 const isError = res?.error;
                 return (
-                  <td key={fr.propId} className="py-1.5 px-2 text-right tabular-nums whitespace-nowrap">
+                  <td key={fr.propId} className={cn("py-1.5 px-2 text-right tabular-nums whitespace-nowrap")}>
                     {isError ? (
-                      <span className="text-danger-text-faint">#ERR</span>
+                      <span className={cn("text-danger-text-faint")}>#ERR</span>
                     ) : typeof val === 'boolean' ? (
-                      <span className={val ? 'text-success-text' : 'text-ink-muted'}>{val ? '✓' : '✗'}</span>
+                      <span className={cn(val ? 'text-success-text' : 'text-ink-muted')}>{val ? '✓' : '✗'}</span>
                     ) : typeof val === 'number' ? (
-                      <span className="text-ink-body">{val.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                      <span className={cn("text-ink-body")}>{val.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                     ) : (
-                      <span className="text-ink-body-light truncate max-w-[120px] inline-block">{String(val ?? '—')}</span>
+                      <span className={cn("text-ink-body-light truncate max-w-[120px] inline-block")}>{String(val ?? '—')}</span>
                     )}
                   </td>
                 );

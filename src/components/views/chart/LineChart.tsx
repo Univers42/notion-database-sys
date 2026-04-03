@@ -12,6 +12,7 @@
 
 import React from 'react';
 import type { ChartDataItem } from './useChartData';
+import { cn } from '../../../utils/cn';
 
 interface LineChartProps {
   chartData: ChartDataItem[];
@@ -35,8 +36,8 @@ export function LineChart({ chartData, maxValue }: Readonly<LineChartProps>) {
   const areaD = pathD + ` L ${points[points.length - 1]?.x || 0} ${padding.top + innerH} L ${points[0]?.x || 0} ${padding.top + innerH} Z`;
 
   return (
-    <div className="flex-1 overflow-auto p-8 bg-surface-primary">
-      <div className="flex flex-col items-center">
+    <div className={cn("flex-1 overflow-auto p-8 bg-surface-primary")}>
+      <div className={cn("flex flex-col items-center")}>
         <svg width={chartWidth} height={chartHeight}>
           <defs>
             <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">

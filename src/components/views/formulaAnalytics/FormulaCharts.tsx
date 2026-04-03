@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
+import { cn } from '../../../utils/cn';
 
 export function FormulaTypePie({ analytics }: { analytics: Record<string, { resultType: string }> }) {
   const counts: Record<string, number> = {};
@@ -22,7 +23,7 @@ export function FormulaTypePie({ analytics }: { analytics: Record<string, { resu
   const typeColors: Record<string, string> = { number: 'var(--color-chart-1)', boolean: 'var(--color-chart-5)', text: 'var(--color-chart-2)', mixed: 'var(--color-slate)' };
 
   if (total === 0)
-    return <p className="text-sm text-ink-muted text-center py-4">No formulas</p>;
+    return <p className={cn("text-sm text-ink-muted text-center py-4")}>No formulas</p>;
 
   const radius = 44;
   const circumference = 2 * Math.PI * radius;
@@ -30,8 +31,8 @@ export function FormulaTypePie({ analytics }: { analytics: Record<string, { resu
   const size = 120;
 
   return (
-    <div className="flex items-center gap-4">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+    <div className={cn("flex items-center gap-4")}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={cn("shrink-0")}>
         {entries.map(([type, count]) => {
           const pct = count / total;
           const dasharray = `${circumference * pct} ${circumference * (1 - pct)}`;
@@ -51,16 +52,16 @@ export function FormulaTypePie({ analytics }: { analytics: Record<string, { resu
             />
           );
         })}
-        <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle" className="text-lg font-bold fill-fill-primary">
+        <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="middle" className={cn("text-lg font-bold fill-fill-primary")}>
           {total}
         </text>
       </svg>
-      <div className="flex flex-col gap-2">
+      <div className={cn("flex flex-col gap-2")}>
         {entries.map(([type, count]) => (
-          <div key={type} className="flex items-center gap-2 text-xs">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: typeColors[type] || 'var(--color-slate)' }} />
-            <span className="text-ink-body capitalize font-medium">{type}</span>
-            <span className="text-ink-muted tabular-nums">
+          <div key={type} className={cn("flex items-center gap-2 text-xs")}>
+            <div className={cn("w-3 h-3 rounded-full")} style={{ backgroundColor: typeColors[type] || 'var(--color-slate)' }} />
+            <span className={cn("text-ink-body capitalize font-medium")}>{type}</span>
+            <span className={cn("text-ink-muted tabular-nums")}>
               {count} ({Math.round((count / total) * 100)}%)
             </span>
           </div>
@@ -75,21 +76,21 @@ export function ErrorBarChart({ analytics }: { analytics: Record<string, { propN
   const _maxTotal = Math.max(...entries.map((e) => e.total), 1);
 
   return (
-    <div className="flex flex-col gap-2.5 overflow-auto max-h-52">
+    <div className={cn("flex flex-col gap-2.5 overflow-auto max-h-52")}>
       {entries.map((a) => {
         const errorRate = a.total > 0 ? (a.errors / a.total) * 100 : 0;
         const successRate = 100 - errorRate;
         return (
           <div key={a.propName}>
-            <div className="flex justify-between text-xs mb-0.5">
-              <span className="text-ink-body font-medium truncate">{a.propName}</span>
-              <span className={`tabular-nums ${a.errors > 0 ? 'text-danger-text-soft font-bold' : 'text-ink-muted'}`}>
+            <div className={cn("flex justify-between text-xs mb-0.5")}>
+              <span className={cn("text-ink-body font-medium truncate")}>{a.propName}</span>
+              <span className={cn(`tabular-nums ${a.errors > 0 ? 'text-danger-text-soft font-bold' : 'text-ink-muted'}`)}>
                 {a.errors > 0 ? `${a.errors} err (${Math.round(errorRate)}%)` : '0 errors'}
               </span>
             </div>
-            <div className="w-full bg-surface-tertiary rounded-full h-2 overflow-hidden flex">
-              <div className="h-2 bg-success-vivid" style={{ width: `${successRate}%` }} />
-              {a.errors > 0 && <div className="h-2 bg-danger-vivid" style={{ width: `${errorRate}%` }} />}
+            <div className={cn("w-full bg-surface-tertiary rounded-full h-2 overflow-hidden flex")}>
+              <div className={cn("h-2 bg-success-vivid")} style={{ width: `${successRate}%` }} />
+              {a.errors > 0 && <div className={cn("h-2 bg-danger-vivid")} style={{ width: `${errorRate}%` }} />}
             </div>
           </div>
         );
@@ -123,20 +124,20 @@ export function ComplexityChart({ analytics }: { analytics: Record<string, { pro
   const maxScore = Math.max(...entries.map((e) => e.score), 1);
 
   return (
-    <div className="flex flex-col gap-2.5 overflow-auto max-h-52">
+    <div className={cn("flex flex-col gap-2.5 overflow-auto max-h-52")}>
       {entries.map((e) => {
         const pct = (e.score / maxScore) * 100;
         return (
           <div key={e.name}>
-            <div className="flex justify-between text-xs mb-0.5">
-              <span className="text-ink-body font-medium truncate">{e.name}</span>
-              <span className="text-ink-muted tabular-nums">
+            <div className={cn("flex justify-between text-xs mb-0.5")}>
+              <span className={cn("text-ink-body font-medium truncate")}>{e.name}</span>
+              <span className={cn("text-ink-muted tabular-nums")}>
                 {e.fnCalls} fn · depth {e.depth}
               </span>
             </div>
-            <div className="w-full bg-surface-tertiary rounded-full h-2">
+            <div className={cn("w-full bg-surface-tertiary rounded-full h-2")}>
               <div
-                className="h-2 rounded-full transition-all"
+                className={cn("h-2 rounded-full transition-all")}
                 style={{
                   width: `${pct}%`,
                   backgroundColor: getComplexityColor(pct),

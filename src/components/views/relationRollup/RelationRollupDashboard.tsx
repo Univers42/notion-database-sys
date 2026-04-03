@@ -24,6 +24,7 @@ import {
   DataFlowSection,
   EdgeCasesSection,
 } from './RelationRollupWidgets';
+import { cn } from '../../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // RELATION & ROLLUP ANALYTICS DASHBOARD
@@ -42,7 +43,7 @@ export function RelationRollupDashboard() {
   const { pages } = useDatabaseStore();
   const analytics = useRelationRollupAnalytics();
 
-  if (!analytics) return <div className="p-8 text-ink-muted">No data</div>;
+  if (!analytics) return <div className={cn("p-8 text-ink-muted")}>No data</div>;
 
   const {
     dbPages, relationProps, rollupProps,
@@ -51,18 +52,18 @@ export function RelationRollupDashboard() {
   } = analytics;
 
   return (
-    <div className="flex-1 overflow-auto bg-gradient-to-br from-gradient-surface-from to-gradient-surface-to p-6">
-      <div className="max-w-[1400px] mx-auto space-y-6">
+    <div className={cn("flex-1 overflow-auto bg-gradient-to-br from-gradient-surface-from to-gradient-surface-to p-6")}>
+      <div className={cn("max-w-[1400px] mx-auto space-y-6")}>
         {/* ─── Title ─── */}
         <div>
-          <h2 className="text-xl font-bold text-ink">Relation & Rollup Analytics</h2>
-          <p className="text-sm text-ink-secondary mt-1">
+          <h2 className={cn("text-xl font-bold text-ink")}>Relation & Rollup Analytics</h2>
+          <p className={cn("text-sm text-ink-secondary mt-1")}>
             Cross-database data flow &middot; {relationProps.length} relations &middot; {rollupProps.length} rollups &middot; {dbPages.length} records
           </p>
         </div>
 
         {/* ─── KPI Row ─── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className={cn("grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3")}>
           <KpiCard label="Relations" value={relationProps.length} color="text-accent-text-light" />
           <KpiCard label="Rollups" value={rollupProps.length} color="text-purple-text" />
           <KpiCard label="Total Links" value={totalLinks} color="text-cyan-text" />
@@ -75,7 +76,7 @@ export function RelationRollupDashboard() {
         <RelationMapSection relationTargets={relationTargets} dbPages={dbPages} />
 
         {/* ─── Rollup Function Distribution + Display Format ─── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-4")}>
           <FunctionDistSection fnDist={fnDist} rollupCount={rollupProps.length} />
           <DisplayFormatSection displayDist={displayDist} rollupCount={rollupProps.length} />
         </div>

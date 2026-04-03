@@ -16,6 +16,7 @@ import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MARKER_COLORS, makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar, type MappablePage } from './MapHelpers';
+import { cn } from '../../../utils/cn';
 
 // Fix default marker icon issue in bundlers
 const defaultIcon = L.icon({
@@ -147,10 +148,10 @@ export function MapView() {
   const noPlaceProp = !placePropId;
 
   return (
-    <div className="flex-1 flex overflow-hidden bg-surface-primary">
+    <div className={cn("flex-1 flex overflow-hidden bg-surface-primary")}>
       {/* Map */}
-      <div className="flex-1 relative">
-        <div ref={mapContainerRef} className="absolute inset-0 z-0" />
+      <div className={cn("flex-1 relative")}>
+        <div ref={mapContainerRef} className={cn("absolute inset-0 z-0")} />
 
         {/* Empty state overlay */}
         {(noPlaceProp || mappablePages.length === 0) && (
@@ -164,7 +165,7 @@ export function MapView() {
 
         {/* Count badge */}
         {mappablePages.length > 0 && (
-          <div className="absolute bottom-3 left-3 z-[1000] bg-overlay backdrop-blur border border-line rounded-full px-3 py-1.5 shadow text-xs text-ink-body-light font-medium">
+          <div className={cn("absolute bottom-3 left-3 z-[1000] bg-overlay backdrop-blur border border-line rounded-full px-3 py-1.5 shadow text-xs text-ink-body-light font-medium")}>
             {mappablePages.length} location{mappablePages.length !== 1 ? 's' : ''}
           </div>
         )}

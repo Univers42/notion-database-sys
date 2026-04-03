@@ -19,6 +19,7 @@ import type { ChartType } from './useChartData';
 import { VerticalBarChart, HorizontalBarChart } from './BarCharts';
 import { LineChart } from './LineChart';
 import { DonutPieChart } from './DonutPieChart';
+import { cn } from '../../../utils/cn';
 
 export function ChartView() {
   const activeViewId = useActiveViewId();
@@ -39,11 +40,11 @@ export function ChartView() {
 
   if (!xAxisProperty) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8 bg-surface-primary">
-        <div className="text-center text-ink-muted max-w-sm">
-          <BarChart3 className="w-12 h-12 mx-auto mb-3 text-ink-disabled" />
-          <p className="font-medium mb-1">Configure your chart</p>
-          <p className="text-sm">Open view settings to select an X-axis property for charting.</p>
+      <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
+        <div className={cn("text-center text-ink-muted max-w-sm")}>
+          <BarChart3 className={cn("w-12 h-12 mx-auto mb-3 text-ink-disabled")} />
+          <p className={cn("font-medium mb-1")}>Configure your chart</p>
+          <p className={cn("text-sm")}>Open view settings to select an X-axis property for charting.</p>
         </div>
       </div>
     );
@@ -54,10 +55,10 @@ export function ChartView() {
 
   if (chartType === 'number') {
     return (
-      <div className="flex-1 flex items-center justify-center p-8 bg-surface-primary">
-        <div className="text-center">
-          <div className="text-6xl font-bold text-ink tabular-nums">{total.toLocaleString()}</div>
-          <div className="text-sm text-ink-secondary mt-2">Total {yAxisAggregation} &middot; {pages.length} records</div>
+      <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
+        <div className={cn("text-center")}>
+          <div className={cn("text-6xl font-bold text-ink tabular-nums")}>{total.toLocaleString()}</div>
+          <div className={cn("text-sm text-ink-secondary mt-2")}>Total {yAxisAggregation} &middot; {pages.length} records</div>
         </div>
       </div>
     );
