@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronRight, Plus, MoreHorizontal, File, Database } from 'lucide-react';
 import { usePageStore, type PageEntry } from '../../store/usePageStore';
 
@@ -22,8 +22,15 @@ export const PageTreeItem: React.FC<Props> = ({
   const [expanded, setExpanded] = useState(false);
   const [hovered,  setHovered]  = useState(false);
 
-  const { childPages, openPage, addPage } = usePageStore.getState();
-  const children  = usePageStore(s => s.childPages(page._id, workspaceId));
+  const openPage = usePageStore(s => s.openPage);
+  const addPage  = usePageStore(s => s.addPage);
+
+  // Access raw pages array (stable reference) and derive children outside selector
+  const wsPages   = usePageStore(s => s.pages[workspaceId]);
+  const children  = useMemo(
+    () => (wsPages ?? []).filter(p => p.parentPageId === page._id && !p.archivedAt),
+    [wsPages, page._id],
+  );
   const isActive  = activeId === page._id;
   const hasChildren = children.length > 0;
   const paddingLeft = 10 + depth * 12;
