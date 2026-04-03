@@ -20,6 +20,7 @@ import {
   Mail, Phone, Link, FileText, MapPin, Fingerprint, MousePointerClick,
   Clock, User, Sigma, GitBranch, ExternalLink, Database,
 } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 export function PropertyTypeIcon({ type, className = 'w-4 h-4' }: Readonly<{ type: string; className?: string }>) {
   switch (type) {
