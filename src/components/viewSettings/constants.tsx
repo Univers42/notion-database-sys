@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:20:52 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,10 @@ import {
   VerticalBarChartIcon, HorizontalBarChartIcon, LineChartIcon,
   DonutChartIcon, NumberIcon,
 } from '../ui/Icons';
-import type { ViewType, PropertyType } from '../../types/database';
+import type { ViewType } from '../../types/database';
+import { PROPERTY_ICON_NAMES as DEFAULT_PROPERTY_ICONS } from '../../utils/propertyIcons';
+
+export { DEFAULT_PROPERTY_ICONS };
 
 export type PanelScreen =
   | 'main' | 'layout' | 'propertyVisibility' | 'filter' | 'addFilter'
@@ -63,18 +66,4 @@ export const DEFAULT_VIEW_ICONS: Record<ViewType, string> = {
   calendar: 'ui/calendar', list: 'ui/list', gallery: 'ui/gallery',
   chart: 'ui/chart', feed: 'ui/feed', map: 'ui/map-view',
   dashboard: 'ui/dashboard',
-};
-
-export const DEFAULT_PROPERTY_ICONS: Record<PropertyType, string> = {
-  title: 'document', text: 'pencil-square-outline', number: '123',
-  select: 'check', multi_select: 'checkmark-list', status: 'activity-rectangle',
-  date: 'calendar', checkbox: 'checkmark-square', person: 'vitruvian-man-circle',
-  user: 'vitruvian-man-circle', url: 'arrow-northeast',
-  email: 'exclamation-speech-bubble', phone: 'bell', files_media: 'paperclip',
-  relation: 'arrows-swap-horizontal', formula: 'angle-brackets-solidus',
-  rollup: 'chart-pie', button: 'cursor-click', place: 'compass',
-  id: 'identification-badge', created_time: 'clock', last_edited_time: 'clock-outline',
-  created_by: 'user-speech-bubble', last_edited_by: 'user-speech-bubble',
-  assigned_to: 'vitruvian-man-circle', due_date: 'calendar',
-  custom: 'identification-badge',
 };
