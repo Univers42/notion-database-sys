@@ -6,36 +6,19 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { ChevronRightIcon } from './Icons';
+import { ToggleSwitch } from './ToggleSwitch';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Toggle & Setting Row primitives (no-icon variants for layout-settings panels)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/* ─── ToggleSwitch ─────────────────────────────────────────────────────
-   Notion-style inline toggle switch (14px height, 26px width).
-   Use standalone or inside ToggleSettingRow.
-   ─────────────────────────────────────────────────────────────────── */
-export function ToggleSwitch({ checked, onChange }: Readonly<{ checked: boolean; onChange: (v: boolean) => void }>) {
-  return (
-    <button onClick={e => { e.stopPropagation(); onChange(!checked); }}
-      className="relative shrink-0"
-      role="switch" aria-checked={checked}>
-      <div className={`flex shrink-0 h-[14px] w-[26px] rounded-full p-[2px] transition-colors duration-200 ${
-        checked ? 'bg-accent' : 'bg-surface-strong'
-      }`} style={{ boxSizing: 'content-box' }}>
-        <div className={`w-[14px] h-[14px] rounded-full bg-surface-primary shadow-sm transition-transform duration-200 ${
-          checked ? 'translate-x-[12px]' : 'translate-x-0'
-        }`} />
-      </div>
-    </button>
-  );
-}
+export { ToggleSwitch };
 
 /* ─── ToggleSettingRow ──────────────────────────────────────────────────
    Full-row toggle: label on left, ToggleSwitch on right.
