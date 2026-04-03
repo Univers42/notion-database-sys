@@ -171,12 +171,25 @@ check-rust:
 dev: ## Start Vite dev server (compact query logs)
 	@test -f src/server/logger/native/build/Release/libcpp_logger.node || $(MAKE) build-native --no-print-directory
 	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
-	npm run dev
+	pnpm run dev
 
 dev-verbose: ## Start Vite dev server (detailed query logs with colors & boxes)
 	@test -f src/server/logger/native/build/Release/libcpp_logger.node || $(MAKE) build-native --no-print-directory
 	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
-	DBMS_VERBOSE=1 npm run dev
+	DBMS_VERBOSE=1 pnpm run dev
+
+dev-api: ## Start Fastify API server (packages/api)
+	@echo -e "$(CYAN)Starting API server…$(RESET)"
+	cd packages/api && pnpm dev
+
+dev-all: ## Start both Vite + API in parallel
+	@echo -e "$(CYAN)Starting all services…$(RESET)"
+	pnpm run dev:all
+
+build-packages: ## Build all packages (types → core → api)
+	@echo -e "$(CYAN)Building packages…$(RESET)"
+	pnpm run build
+	@echo -e "$(GREEN)✔ All packages built$(RESET)"
 
 build-native: ## Build the libcpp N-API logger addon (cmake-js)
 	@echo -e "$(CYAN)Building native logger addon…$(RESET)"
@@ -185,9 +198,9 @@ build-native: ## Build the libcpp N-API logger addon (cmake-js)
 
 clean:
 	docker compose down -v 2>/dev/null || true
-	rm -rf node_modules dist .vite
+	rm -rf node_modules dist .vite .turbo packages/*/dist
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
 .PHONY: help up down restart re re-all re-standalone logs pull db-up db-down db-reset db-status \
 	seed-pg seed-mongo seed-all seed-state seed-state-force psql mongo-shell \
-	build-rust check-rust build-native dev dev-verbose clean verify smoke-test
+	build-rust check-rust build-native build-packages dev dev-verbose dev-api dev-all clean verify smoke-test

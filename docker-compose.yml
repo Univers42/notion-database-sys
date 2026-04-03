@@ -57,3 +57,12 @@ services:
 volumes:
   postgres_data:
   mongo_data:
+
+# ─── API server is run outside Docker via `make dev-api` or `pnpm dev:api` ───
+# It connects to the above containers at localhost:27017 and localhost:5432.
+# To containerize the API, add:
+#   api:
+#     build: { context: ., dockerfile: packages/api/Dockerfile }
+#     ports: ["4000:4000"]
+#     depends_on: [mongodb, postgres]
+#     env_file: .env
