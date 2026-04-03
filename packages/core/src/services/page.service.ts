@@ -15,6 +15,8 @@ export class PageService {
     createdBy: ObjectId;
     icon?: string;
     cover?: string;
+    title?: string;
+    content?: unknown[];
   }): Promise<any> {
     const page = await PageModel.create({
       ...data,
@@ -67,6 +69,34 @@ export class PageService {
       update[`properties.${key}`] = val;
     }
     return PageModel.findByIdAndUpdate(pageId, { $set: update }, { new: true }).lean();
+  }
+
+  /**
+   * General page update — title, icon, cover, content.
+   */
+  async updatePage(
+    pageId: ObjectId,
+    data: { title?: string; icon?: string; cover?: string; content?: unknown[]; parentPageId?: string | null },
+    editedBy: ObjectId,
+  ): Promise<any> {
+    const update: Record<string, unknown> = { lastEditedBy: editedBy };
+    if (data.title !== undefined)        update.title        = data.title;
+    if (data.icon !== undefined)         update.icon         = data.icon;
+    if (data.cover !== undefined)        update.cover        = data.cover;
+    if (data.content !== undefined)      update.content      = data.content;
+    if (data.parentPageId !== undefined) update.parentPageId  = data.parentPageId;
+    return PageModel.findByIdAndUpdate(pageId, { $set: update }, { new: true }).lean();
+  }
+
+  /**
+   * List ALL pages in a workspace (root + children, for sidebar tree).
+   */
+  async listAllPages(workspaceId: ObjectId): Promise<any[]> {
+    return PageModel.find({
+      workspaceId,
+      databaseId: null,
+      archived: { $ne: true },
+    }).lean();
   }
 
   /**
