@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 import { Icon } from './Icon';
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Notion-authentic UI SVG icons — thin wrappers around the centralized Icon registry.

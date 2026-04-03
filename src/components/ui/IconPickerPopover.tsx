@@ -14,6 +14,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { IconPicker as IconPickerPanel } from './IconPicker';
 import type { IconPickerProps } from './IconPicker';
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Portal-based popover wrapper — anchors to a trigger element
@@ -99,7 +100,7 @@ export function IconPickerPopover({
   return ReactDOM.createPortal(
     <div
       ref={popoverRef}
-      className="fixed z-[9999]"
+      className={cn("fixed z-[9999]")}
       style={{ top: pos.top, left: pos.left, width: pos.width, height: pos.height }}
     >
       <IconPickerPanel {...pickerProps} />

@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { useThemeStore } from '../../store/dbms/hardcoded/useThemeStore';
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ThemeToggle — cycles through light / dark / system
@@ -60,11 +61,11 @@ export function ThemeToggle() {
     <button
       onClick={cycleTheme}
       title={`Theme: ${meta.label} — click to cycle`}
-      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-ink-secondary
-                 hover:bg-hover-surface hover:text-ink transition-colors text-xs"
+      className={cn(`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-ink-secondary
+                 hover:bg-hover-surface hover:text-ink transition-colors text-xs`)}
     >
       {meta.icon}
-      <span className="hidden sm:inline">{meta.label}</span>
+      <span className={cn("hidden sm:inline")}>{meta.label}</span>
     </button>
   );
 }

@@ -11,6 +11,15 @@
 /* ************************************************************************** */
 
 import React from 'react';
+import { cn } from '../../utils/cn';
+
+export type ToggleSwitchSlots = {
+  root?: string;
+  track?: string;
+  thumb?: string;
+  labelWrap?: string;
+  label?: string;
+};
 
 interface ToggleSwitchProps {
   checked: boolean;
@@ -19,6 +28,7 @@ interface ToggleSwitchProps {
   /** Size variant. 'sm' = 14x26px (Notion style), 'md' = 18x32px (default) */
   size?: 'sm' | 'md';
   disabled?: boolean;
+  slots?: Partial<ToggleSwitchSlots>;
 }
 
 export function ToggleSwitch({
@@ -27,6 +37,7 @@ export function ToggleSwitch({
   label,
   size = 'sm',
   disabled = false,
+  slots = {},
 }: Readonly<ToggleSwitchProps>) {
   const trackW = size === 'sm' ? 26 : 32;
   const trackH = size === 'sm' ? 14 : 18;
@@ -39,18 +50,14 @@ export function ToggleSwitch({
       role="switch"
       aria-checked={checked}
       onClick={e => { e.stopPropagation(); if (!disabled) onChange(!checked); }}
-      className={`relative shrink-0 transition-colors cursor-pointer ${
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
+      className={cn('relative shrink-0 transition-colors cursor-pointer', disabled && 'opacity-50 cursor-not-allowed', slots.root)}
     >
       <div
-        className={`flex shrink-0 rounded-full p-[2px] transition-colors duration-200 ${
-          checked ? 'bg-accent' : 'bg-surface-strong'
-        }`}
+        className={cn('flex shrink-0 rounded-full p-[2px] transition-colors duration-200', checked ? 'bg-accent' : 'bg-surface-strong', slots.track)}
         style={{ width: trackW, height: trackH, boxSizing: 'content-box' }}
       >
         <div
-          className={`rounded-full bg-surface-primary shadow-sm transition-transform duration-200`}
+          className={cn('rounded-full bg-surface-primary shadow-sm transition-transform duration-200', slots.thumb)}
           style={{
             width: thumbW,
             height: thumbW,
@@ -68,10 +75,10 @@ export function ToggleSwitch({
       type="button"
       onClick={() => { if (!disabled) onChange(!checked); }}
       disabled={disabled}
-      className="w-full flex items-center justify-between text-sm text-ink-body py-1 px-1 rounded-lg hover:bg-hover-surface transition-colors"
+      className={cn('w-full flex items-center justify-between text-sm text-ink-body py-1 px-1 rounded-lg hover:bg-hover-surface transition-colors', slots.labelWrap)}
     >
-      <span className="flex-1 text-left truncate">{label}</span>
-      <div className="shrink-0 ml-2">{track}</div>
+      <span className={cn('flex-1 text-left truncate', slots.label)}>{label}</span>
+      <div className={cn("shrink-0 ml-2")}>{track}</div>
     </button>
   );
 }

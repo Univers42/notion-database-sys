@@ -12,6 +12,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { PanelItemRow, SectionDivider } from './ActionPanelRows';
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ActionPanel — a declarative, config-driven action menu.
@@ -72,6 +73,16 @@ export interface PanelSection {
   items: PanelItem[];
 }
 
+export type ActionPanelSlots = {
+  root?: string;
+  searchWrap?: string;
+  searchInput?: string;
+  body?: string;
+  sectionWrap?: string;
+  sectionLabel?: string;
+  sectionItems?: string;
+};
+
 export interface ActionPanelProps {
   /** Array of sections — each rendered with items, separated by dividers */
   sections: PanelSection[];
@@ -82,6 +93,7 @@ export interface ActionPanelProps {
   width?: number;
   /** Extra className on the outermost wrapper */
   className?: string;
+  slots?: Partial<ActionPanelSlots>;
 }
 
 function matchesSearch(item: PanelItem, q: string): boolean {
@@ -97,6 +109,7 @@ export function ActionPanel({
   searchPlaceholder = 'Search actions…',
   width = 265,
   className = '',
+  slots = {},
 }: Readonly<ActionPanelProps>) {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -116,38 +129,38 @@ export function ActionPanel({
 
   return (
     <div
-      className={`flex flex-col bg-surface-primary border border-line rounded-xl shadow-lg overflow-hidden ${className}`}
+      className={cn('flex flex-col bg-surface-primary border border-line rounded-xl shadow-lg overflow-hidden', className, slots.root)}
       style={{ width, minWidth: 180, maxWidth: 'calc(100vw - 24px)' }}
     >
-      <div className="flex flex-col" style={{ maxHeight: '70vh' }}>
+      <div className={cn("flex flex-col")} style={{ maxHeight: '70vh' }}>
         {/* ── Search ── */}
         {searchable && (
-          <div className="shrink-0 px-2 pt-2 pb-1">
-            <div className="flex items-center gap-1.5 rounded-md border border-line bg-surface-secondary-soft3 px-2 h-7">
+          <div className={cn('shrink-0 px-2 pt-2 pb-1', slots.searchWrap)}>
+            <div className={cn("flex items-center gap-1.5 rounded-md border border-line bg-surface-secondary-soft3 px-2 h-7")}>
               <input
                 ref={inputRef}
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="flex-1 bg-transparent text-sm outline-none placeholder:text-placeholder text-ink-strong"
+                className={cn('flex-1 bg-transparent text-sm outline-none placeholder:text-placeholder text-ink-strong', slots.searchInput)}
               />
             </div>
           </div>
         )}
 
         {/* ── Scrollable body ── */}
-        <div className="overflow-y-auto flex-1 min-h-0">
+        <div className={cn('overflow-y-auto flex-1 min-h-0', slots.body)}>
           {filtered.map((section, si) => (
             <div key={section.label ?? `s${si}`}>{/* NOSONAR */}
               {/* Divider between sections (not before first) */}
               {si > 0 && <SectionDivider />}
 
-              <div className="flex flex-col gap-px p-1">
+              <div className={cn('flex flex-col gap-px p-1', slots.sectionItems)}>
                 {/* Section label */}
                 {section.label && (
-                  <div className="flex items-center px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-ink-secondary select-none">
-                    <span className="truncate">{section.label}</span>
+                  <div className={cn('flex items-center px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-ink-secondary select-none', slots.sectionLabel)}>
+                    <span className={cn("truncate")}>{section.label}</span>
                   </div>
                 )}
 
