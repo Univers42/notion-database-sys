@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 00:30:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 01:07:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:42 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -387,7 +387,7 @@ export function TimelineDatePicker({
 
         {/* ── End date toggle ─────────────────────────────────────── */}
         <OptionRow label="End date" onClick={handleToggleEnd}>
-          <ToggleSwitch enabled={hasEndDate} />
+          <TimelineToggleSwitch enabled={hasEndDate} />
         </OptionRow>
 
         {/* ── Date format dropdown ────────────────────────────────── */}
@@ -416,7 +416,7 @@ export function TimelineDatePicker({
 
         {/* ── Include time toggle ─────────────────────────────────── */}
         <OptionRow label="Include time" onClick={() => setIncludeTime(v => !v)}>
-          <ToggleSwitch enabled={includeTime} />
+          <TimelineToggleSwitch enabled={includeTime} />
         </OptionRow>
 
         {/* ── Remind dropdown ─────────────────────────────────────── */}
@@ -486,22 +486,10 @@ function Divider() {
   return <div className="h-px bg-line mx-0" />;
 }
 
-/** Toggle switch matching Notion's 14×26 switch */
-function ToggleSwitch({ enabled }: Readonly<{ enabled: boolean }>) {
-  return (
-    <div className="flex items-center justify-center gap-1">
-      <div
-        className={`relative flex shrink-0 h-[14px] w-[26px] rounded-full p-[2px]
-                    box-content transition-colors duration-200
-                    ${enabled ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}
-      >
-        <div
-          className={`w-[14px] h-[14px] rounded-full bg-white transition-transform duration-200 ease-out
-                      ${enabled ? 'translate-x-[12px]' : 'translate-x-0'}`}
-        />
-      </div>
-    </div>
-  );
+/** Toggle switch matching Notion's 14×26 switch — now uses canonical ToggleSwitch */
+import { ToggleSwitch as CanonicalToggle } from '../../ui/ToggleSwitch';
+function TimelineToggleSwitch({ enabled }: Readonly<{ enabled: boolean }>) {
+  return <CanonicalToggle checked={enabled} onChange={() => {}} size="sm" />;
 }
 
 /** A settings row: label on left, controls on right */
