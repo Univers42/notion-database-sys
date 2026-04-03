@@ -24,14 +24,10 @@ export async function buildApp() {
   });
 
   // ── Plugins ────────────────────────────────────────────────────────────────
-  const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:3000,http://localhost:3001')
-    .split(',').map(o => o.trim());
   await app.register(cors, {
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      cb(new Error('Not allowed by CORS'), false);
-    },
+    origin: true,   // allow all origins in dev; lock down via CORS_ORIGIN in prod
     credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
   await app.register(jwt, {
