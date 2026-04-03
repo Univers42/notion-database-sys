@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useUserStore } from './store/useUserStore';
 import { usePageStore } from './store/usePageStore';
+import { SEED_PAGES }   from './data/seedPages';
 import { NotionSidebar } from './components/sidebar/NotionSidebar';
 import { MainContent }   from './components/MainContent';
 
@@ -10,8 +11,9 @@ import { MainContent }   from './components/MainContent';
  *
  * On mount:
  * 1. `useUserStore.init()` logs in all 3 pre-seeded accounts in parallel.
- * 2. Renders a loading spinner while auth is in-flight.
- * 3. Once auth resolves (or gracefully fails), displays the split-panel layout.
+ * 2. If online (API reachable): fetch pages from MongoDB for each workspace.
+ *    If a workspace has zero pages, seed them from SEED_PAGES via the API.
+ * 3. If offline: load in-memory seed data for instant local use.
  */
 const App: React.FC = () => {
   const [ready, setReady] = useState(false);
@@ -22,7 +24,67 @@ const App: React.FC = () => {
   // Run once on mount
   useEffect(() => {
     if (initialized) { setReady(true); return; }
-    initUsers().finally(() => setReady(true));
+
+    initUsers().then(async () => {
+      // Guard against StrictMode race: if initUsers() returned early
+      // (because another invocation is still in progress), sessions
+      // won't be populated yet. Only proceed if init actually completed.
+      const state = useUserStore.getState();
+      if (!state.initialized) return;
+
+      const { sessions, activeUserId } = state;
+      const session = sessions[activeUserId];
+      const jwt = session?.accessToken ?? '';
+
+      if (!jwt) {
+        // Offline mode — load in-memory seed data
+        usePageStore.getState().seedOfflinePages();
+        return;
+      }
+
+      // Online mode — fetch pages from MongoDB for every workspace
+      const allWorkspaces = Object.values(sessions).flatMap(
+        s => [...s.privateWorkspaces, ...s.sharedWorkspaces],
+      );
+      // Deduplicate by _id
+      const seen = new Set<string>();
+      const uniqueWs = allWorkspaces.filter(w => {
+        if (seen.has(w._id)) return false;
+        seen.add(w._id);
+        return true;
+      });
+
+      // Fetch pages for each workspace
+      await Promise.all(uniqueWs.map(w => usePageStore.getState().fetchPages(w._id, jwt)));
+
+      // Check if any workspace is empty → seed if needed
+      const pages = usePageStore.getState().pages;
+      const anyEmpty = uniqueWs.some(w => (pages[w._id] ?? []).length === 0);
+
+      if (anyEmpty) {
+        // Build workspace mapping: mock seed IDs → real workspace IDs
+        // Seed pages reference mock-ws-private-0/1/2 and mock-ws-shared-team
+        // Map them to the real workspace IDs from the sessions
+        const personas = useUserStore.getState().personas;
+        const workspaceMap: Record<string, string> = {};
+
+        for (let i = 0; i < personas.length; i++) {
+          const persona = personas[i];
+          const personaSession = sessions[persona.id];
+          if (!personaSession) continue;
+          const privateWs = personaSession.privateWorkspaces[0];
+          if (privateWs) {
+            workspaceMap[`mock-ws-private-${i}`] = privateWs._id;
+          }
+          const sharedWs = personaSession.sharedWorkspaces[0];
+          if (sharedWs) {
+            workspaceMap['mock-ws-shared-team'] = sharedWs._id;
+          }
+        }
+
+        await usePageStore.getState().seedOnlinePages(workspaceMap, jwt);
+      }
+    }).finally(() => setReady(true));
   }, [initUsers, initialized]);
 
   // ── Loading splash ────────────────────────────────────────────────────────
