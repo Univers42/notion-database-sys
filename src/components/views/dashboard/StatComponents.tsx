@@ -6,24 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:37 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:38 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { BarChart3 } from 'lucide-react';
-import { formatNumber } from './constants';
-
-// ─── StatIconBadge ───────────────────────────────────────────────────────────
-
-const COLOR_MAP: Record<string, string> = {
-  blue: 'bg-accent-soft text-accent-text-light',
-  purple: 'bg-purple-surface text-purple-text',
-  green: 'bg-success-surface text-success-text',
-  amber: 'bg-amber-surface text-amber-text',
-  pink: 'bg-pink-surface text-pink-text',
-  cyan: 'bg-cyan-surface text-cyan-text',
-};
+import { formatNumber } from '../../../utils/format';
+import { STAT_BG as COLOR_MAP } from '../../../utils/color';
 
 export function StatIconBadge({ color, children }: Readonly<{ color: string; children: React.ReactNode }>) {
   return <div className={`p-2.5 rounded-lg ${COLOR_MAP[color] || COLOR_MAP.blue}`}>{children}</div>;
