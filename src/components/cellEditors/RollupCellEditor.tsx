@@ -17,6 +17,7 @@ import type { RollupFunctionMeta } from '../../utils/rollup';
 import { CellPortal } from './CellPortal';
 import { ROLLUP_FUNCTIONS } from './constants';
 import { RelationSection, PropertySection, CalculateSection } from './RollupCellEditorSections';
+import { cn } from '../../utils/cn';
 
 interface RollupCellEditorProps {
   property: SchemaProperty;
@@ -80,8 +81,8 @@ export function RollupCellEditor({ property, databaseId, onClose }: Readonly<Rol
 
   return (
     <CellPortal onClose={onClose}>
-      <div className="flex flex-col min-w-[200px] max-h-[70vh]">
-        <div className="overflow-y-auto flex-1">
+      <div className={cn("flex flex-col min-w-[200px] max-h-[70vh]")}>
+        <div className={cn("overflow-y-auto flex-1")}>
           <RelationSection
             relationProps={relationProps} selected={selectedRelProp}
             open={showRelPicker}

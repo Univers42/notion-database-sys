@@ -15,6 +15,7 @@ import { createPortal } from 'react-dom';
 import { useCellAnchor } from '../../hooks/useCellAnchor';
 import { PortalBackdrop } from '../ui/PortalBackdrop';
 import { Z } from '../../utils/geometry';
+import { cn } from '../../utils/cn';
 
 interface CellPortalProps {
   onClose: () => void;
@@ -32,14 +33,14 @@ export function CellPortal({ onClose, minWidth = 280, maxWidth, maxHeight = '70v
 
   return (
     <>
-      <div ref={measureRef} className="w-full h-0" />
+      <div ref={measureRef} className={cn("w-full h-0")} />
       {rect && createPortal(
         <>
           <PortalBackdrop onClose={onClose} zIndex={Z.CELL_BACKDROP} />
           <div
             role="dialog"
             aria-modal="true"
-            className={`fixed bg-surface-primary shadow-xl border border-line rounded-lg overflow-hidden ${className}`}
+            className={cn("fixed bg-surface-primary shadow-xl border border-line rounded-lg overflow-hidden", className)}
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, minWidth), maxWidth, maxHeight, zIndex: Z.CELL_EDITOR }}
             onClick={e => e.stopPropagation()}
             onKeyDown={e => { if (e.key === 'Escape') onClose(); }}>

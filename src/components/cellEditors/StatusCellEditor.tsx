@@ -15,6 +15,7 @@ import type { SchemaProperty, SelectOption, PropertyValue } from '../../types/da
 import { CheckCircle2, Settings } from 'lucide-react';
 import { CellPortal } from './CellPortal';
 import { getDotColor } from './constants';
+import { cn } from '../../utils/cn';
 
 interface StatusCellEditorProps {
   property: SchemaProperty;
@@ -44,10 +45,10 @@ export function StatusCellEditor({ property, value, databaseId: _databaseId, onU
 
   return (
     <CellPortal onClose={onClose} minWidth={220}>
-      <div className="max-h-[60vh] overflow-y-auto py-1">
+      <div className={cn("max-h-[60vh] overflow-y-auto py-1")}>
         {groupedOptions.map((group, gi) => (
           <React.Fragment key={group.label}>
-            {gi > 0 && <div className="h-px bg-surface-tertiary mx-3 my-1" />}
+            {gi > 0 && <div className={cn("h-px bg-surface-tertiary mx-3 my-1")} />}
             <StatusGroup group={group} value={value} onSelect={handleSelect} />
           </React.Fragment>
         ))}
@@ -81,15 +82,15 @@ function StatusGroup({ group, value, onSelect }: Readonly<{
 }>) {
   return (
     <div>
-      <div className="px-3 py-1.5 text-xs font-medium text-ink-muted uppercase tracking-wide">{group.label}</div>
+      <div className={cn("px-3 py-1.5 text-xs font-medium text-ink-muted uppercase tracking-wide")}>{group.label}</div>
       {group.options.map(opt => {
         const isActive = opt.id === value;
         return (
           <button key={opt.id} onClick={() => onSelect(opt.id)}
-            className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-hover-surface transition-colors ${isActive ? 'bg-surface-secondary' : ''}`}>
-            <span className={`w-2 h-2 rounded-full shrink-0 ${getDotColor(opt.color)}`} />
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`}>{opt.value}</span>
-            {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-accent-text-soft ml-auto shrink-0" />}
+            className={cn(`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-hover-surface transition-colors ${isActive ? 'bg-surface-secondary' : ''}`)}>
+            <span className={cn(`w-2 h-2 rounded-full shrink-0 ${getDotColor(opt.color)}`)} />
+            <span className={cn(`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span>
+            {isActive && <CheckCircle2 className={cn("w-3.5 h-3.5 text-accent-text-soft ml-auto shrink-0")} />}
           </button>
         );
       })}
@@ -100,8 +101,8 @@ function StatusGroup({ group, value, onSelect }: Readonly<{
 function ClearButton({ onClear }: Readonly<{ onClear: () => void }>) {
   return (
     <>
-      <div className="h-px bg-surface-tertiary mx-3 my-1" />
-      <button onClick={onClear} className="w-full px-3 py-1.5 text-sm text-ink-secondary hover:bg-hover-surface text-left">
+      <div className={cn("h-px bg-surface-tertiary mx-3 my-1")} />
+      <button onClick={onClear} className={cn("w-full px-3 py-1.5 text-sm text-ink-secondary hover:bg-hover-surface text-left")}>
         Clear status
       </button>
     </>
@@ -111,10 +112,10 @@ function ClearButton({ onClear }: Readonly<{ onClear: () => void }>) {
 function EditPropertyButton({ onClick }: Readonly<{ onClick: () => void }>) {
   return (
     <>
-      <div className="h-px bg-surface-tertiary" />
+      <div className={cn("h-px bg-surface-tertiary")} />
       <button onClick={onClick}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-secondary hover:bg-hover-surface hover:text-hover-text-strong transition-colors">
-        <Settings className="w-3.5 h-3.5" />
+        className={cn("w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-secondary hover:bg-hover-surface hover:text-hover-text-strong transition-colors")}>
+        <Settings className={cn("w-3.5 h-3.5")} />
         <span>Edit property</span>
       </button>
     </>
