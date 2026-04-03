@@ -21,6 +21,24 @@ import { Icon } from '../ui/Icon';
 import { ViewDotsMenu, ActiveViewMenu } from './MenuComponents';
 import type { DatabaseSchema } from '../../types/database';
 import type { ViewConfig } from '../../types/views';
+import { cn } from '../../utils/cn';
+
+export type ViewTabsRowSlots = {
+  root: string;
+  tabList: string;
+  tabItem: string;
+  tabEditWrap: string;
+  tabEditInput: string;
+  tabButton: string;
+  contextMenu: string;
+  contextItem: string;
+  contextItemDanger: string;
+  actionsWrap: string;
+  addButton: string;
+  addDropdown: string;
+  addDropdownInner: string;
+  addCards: string;
+};
 
 export interface ViewTabsRowProps {
   dbViews: ViewConfig[];
@@ -38,8 +56,8 @@ export interface ViewTabsRowProps {
 
 export function ViewTabsRow({
   dbViews, activeViewId, view, database, setActiveView,
-  addView, updateView, duplicateView, deleteView, onEditTitle, onEditLayout,
-}: Readonly<ViewTabsRowProps>) {
+  addView, updateView, duplicateView, deleteView, onEditTitle, onEditLayout, slots,
+}: Readonly<ViewTabsRowProps & { slots?: Partial<ViewTabsRowSlots> }>) {
   const [renamingViewId, setRenamingViewId] = useState<string | null>(null);
   const [viewRenameValue, setViewRenameValue] = useState('');
   const [showViewMenu, setShowViewMenu] = useState<string | null>(null);
@@ -59,43 +77,43 @@ export function ViewTabsRow({
 
   return (
     <>
-      <div className="flex items-center px-4 py-1 border-t border-line-light">
-        <div className="flex items-center gap-0.5 overflow-x-auto min-w-0 mr-1">
+      <div className={cn("flex items-center px-4 py-1 border-t border-line-light", slots?.root)}>
+        <div className={cn("flex items-center gap-0.5 overflow-x-auto min-w-0 mr-1", slots?.tabList)}>
           {dbViews.map(v => (
-            <div key={v.id} className="relative group">
+            <div key={v.id} className={cn("relative group", slots?.tabItem)}>
               {renamingViewId === v.id ? (
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5">
-                  {v.settings?.viewIcon ? <Icon name={v.settings.viewIcon} className="w-4 h-4" /> : VIEW_ICONS[v.type]}
+                <div className={cn("flex items-center gap-1.5 px-2.5 py-1.5", slots?.tabEditWrap)}>
+                  {v.settings?.viewIcon ? <Icon name={v.settings.viewIcon} className={cn("w-4 h-4")} /> : VIEW_ICONS[v.type]}
                   <input ref={viewRenameRef} value={viewRenameValue} onChange={e => setViewRenameValue(e.target.value)}
                     onBlur={() => { if (viewRenameValue.trim()) updateView(v.id, { name: viewRenameValue.trim() }); setRenamingViewId(null); }}
                     onKeyDown={e => { if (e.key === 'Enter') { if (viewRenameValue.trim()) updateView(v.id, { name: viewRenameValue.trim() }); setRenamingViewId(null); } if (e.key === 'Escape') setRenamingViewId(null); }}
-                    className="text-sm font-medium text-ink bg-surface-primary border border-accent-border-light rounded px-1 py-0 outline-none w-28" />
+                    className={cn("text-sm font-medium text-ink bg-surface-primary border border-accent-border-light rounded px-1 py-0 outline-none w-28", slots?.tabEditInput)} />
                 </div>
               ) : (
                 <button ref={v.id === activeViewId ? activeTabBtnRef : undefined}
                   onClick={() => { if (v.id === activeViewId) setShowActiveViewMenu(!showActiveViewMenu); else { setActiveView(v.id); setShowActiveViewMenu(false); } }}
                   onContextMenu={e => { e.preventDefault(); setShowViewMenu(v.id); }}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg whitespace-nowrap transition-colors ${v.id === activeViewId
-                    ? 'bg-surface-tertiary text-ink font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`}>
-                  {v.settings?.viewIcon ? <Icon name={v.settings.viewIcon} className="w-4 h-4" /> : VIEW_ICONS[v.type]}
+                  className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg whitespace-nowrap transition-colors ${v.id === activeViewId
+                    ? 'bg-surface-tertiary text-ink font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`, slots?.tabButton)}>
+                  {v.settings?.viewIcon ? <Icon name={v.settings.viewIcon} className={cn("w-4 h-4")} /> : VIEW_ICONS[v.type]}
                   <span>{v.name}</span>
                 </button>
               )}
               {showViewMenu === v.id && (
                 <Dropdown onClose={() => setShowViewMenu(null)}>
-                  <div className="p-1">
+                  <div className={cn("p-1", slots?.contextMenu)}>
                     <button onClick={() => { setViewRenameValue(v.name); setRenamingViewId(v.id); setShowViewMenu(null); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-body hover:bg-hover-surface rounded-lg">
-                      <PencilIcon className="w-3.5 h-3.5" /> Rename
+                      className={cn("w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-body hover:bg-hover-surface rounded-lg", slots?.contextItem)}>
+                      <PencilIcon className={cn("w-3.5 h-3.5")} /> Rename
                     </button>
                     <button onClick={() => { duplicateView(v.id); setShowViewMenu(null); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-body hover:bg-hover-surface rounded-lg">
-                      <DuplicateIcon className="w-3.5 h-3.5" /> Duplicate
+                      className={cn("w-full flex items-center gap-2 px-3 py-2 text-sm text-ink-body hover:bg-hover-surface rounded-lg", slots?.contextItem)}>
+                      <DuplicateIcon className={cn("w-3.5 h-3.5")} /> Duplicate
                     </button>
                     {dbViews.length > 1 && (
                       <button onClick={() => { deleteView(v.id); setShowViewMenu(null); }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-danger-text hover:bg-hover-danger rounded-lg">
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                        className={cn("w-full flex items-center gap-2 px-3 py-2 text-sm text-danger-text hover:bg-hover-danger rounded-lg", slots?.contextItemDanger)}>
+                        <Trash2 className={cn("w-3.5 h-3.5")} /> Delete
                       </button>
                     )}
                   </div>
@@ -105,20 +123,20 @@ export function ViewTabsRow({
           ))}
         </div>
 
-        <div className="flex items-center gap-0.5 shrink-0">
-          <div className="relative" ref={addViewRef}>
+        <div className={cn("flex items-center gap-0.5 shrink-0", slots?.actionsWrap)}>
+          <div className={cn("relative")} ref={addViewRef}>
             <button onClick={() => { setShowAddView(!showAddView); setShowViewDots(false); }}
-              className={`flex items-center gap-1 px-2 py-1.5 text-sm rounded-lg transition-all ${showAddView
+              className={cn(`flex items-center gap-1 px-2 py-1.5 text-sm rounded-lg transition-all ${showAddView
                 ? 'text-ink-body-light bg-surface-tertiary opacity-100'
-                : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface opacity-0 group-hover/header:opacity-100'}`}>
-              <Plus className="w-3.5 h-3.5" />
+                : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface opacity-0 group-hover/header:opacity-100'}`, slots?.addButton)}>
+              <Plus className={cn("w-3.5 h-3.5")} />
             </button>
             {showAddView && (
-              <div className="absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden min-w-[200px] max-w-[240px]">
-                <div className="flex flex-col" style={{ maxHeight: '70vh' }}>
-                  <div className="p-2 flex flex-col gap-px">
+              <div className={cn("absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden min-w-[200px] max-w-[240px]", slots?.addDropdown)}>
+                <div className={cn("flex flex-col", slots?.addDropdownInner)} style={{ maxHeight: '70vh' }}>
+                  <div className={cn("p-2 flex flex-col gap-px")}>
                     <PanelSectionLabel>Add a new view</PanelSectionLabel>
-                    <div className="flex flex-wrap gap-0.5">
+                    <div className={cn("flex flex-wrap gap-0.5", slots?.addCards)}>
                       {VIEW_TYPE_ORDER.map(type => (
                         <ViewTypeCard key={type} icon={VIEW_TYPE_CARD_ICONS[type]} label={VIEW_LABELS[type]}
                           active={view.type === type}

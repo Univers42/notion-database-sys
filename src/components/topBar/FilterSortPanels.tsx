@@ -17,6 +17,15 @@ import type { SchemaProperty, Filter, DatabaseSchema, ViewConfig } from '../../t
 import { getOperatorsForType, FilterPropertyPicker, FilterBar, AdvancedFilterGrid } from '../FilterComponents';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { SortPanel } from '../sort/SortPanel';
+import { cn } from '../../utils/cn';
+
+export type FilterSortPanelsSlots = {
+  pickerWrap: string;
+  pickerPanel: string;
+  advancedWrap: string;
+  sortWrap: string;
+  sortPanel: string;
+};
 
 export interface FilterSortPanelsProps {
   showFilterPanel: boolean;
@@ -35,8 +44,8 @@ export interface FilterSortPanelsProps {
 export function FilterSortPanels({
   showFilterPanel, showFilterPropertyPicker, setShowFilterPropertyPicker,
   showAdvancedFilter, setShowAdvancedFilter, setShowFilterPanel,
-  showSortPanel, filters, database, view, filterBtnRef,
-}: Readonly<FilterSortPanelsProps>) {
+  showSortPanel, filters, database, view, filterBtnRef, slots,
+}: Readonly<FilterSortPanelsProps & { slots?: Partial<FilterSortPanelsSlots> }>) {
   const advancedFilterRef = useRef<HTMLDivElement>(null);
   const store = useDatabaseStore.getState();
 
@@ -50,9 +59,9 @@ export function FilterSortPanels({
           onOpenAdvanced={() => setShowAdvancedFilter(true)} />
       )}
       {showFilterPropertyPicker && filterBtnRef.current && createPortal(
-        <div className="fixed z-[9999]"
+        <div className={cn("fixed z-[9999]")}
           style={{ top: filterBtnRef.current.getBoundingClientRect().bottom + 4, left: filterBtnRef.current.getBoundingClientRect().left }}>
-          <div className="bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
+          <div className={cn("bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden", slots?.pickerPanel)}
             ref={el => { if (!el) return; const handler = (e: MouseEvent) => { if (!el.contains(e.target as Node)) setShowFilterPropertyPicker(false); };
               if (!el.dataset.listening) { el.dataset.listening = '1'; setTimeout(() => document.addEventListener('mousedown', handler), 0); } }}>
             <FilterPropertyPicker properties={Object.values(database.properties) as SchemaProperty[]}
@@ -65,7 +74,7 @@ export function FilterSortPanels({
       )}
       {showAdvancedFilter && createPortal(
         <div ref={advancedFilterRef}
-          className="fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
+          className={cn("fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden", slots?.advancedWrap)}
           style={{ top: 140, left: '50%', transform: 'translateX(-50%)', minWidth: 520 }}>
           <AdvancedFilterGrid filters={filters} properties={database.properties}
             conjunction={view.filterConjunction || 'and'}
@@ -78,8 +87,8 @@ export function FilterSortPanels({
         </div>, document.body
       )}
       {showSortPanel && (
-        <div className="px-4 pb-2">
-          <div className="bg-surface-primary border border-line rounded-xl shadow-lg w-full max-w-[420px]">
+        <div className={cn("px-4 pb-2", slots?.sortWrap)}>
+          <div className={cn("bg-surface-primary border border-line rounded-xl shadow-lg w-full max-w-[420px]", slots?.sortPanel)}>
             <SortPanel database={database} view={view} />
           </div>
         </div>

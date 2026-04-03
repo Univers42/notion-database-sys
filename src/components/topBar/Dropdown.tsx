@@ -12,6 +12,7 @@
 
 import React, { useRef } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { cn } from '../../utils/cn';
 
 /** Generic dropdown wrapper with outside-click dismiss */
 export function Dropdown({ children, onClose, className = '' }: Readonly<{
@@ -22,7 +23,7 @@ export function Dropdown({ children, onClose, className = '' }: Readonly<{
 
   return (
     <div ref={ref}
-      className={`absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden ${className}`}>
+      className={cn('absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden', className)}>
       {children}
     </div>
   );

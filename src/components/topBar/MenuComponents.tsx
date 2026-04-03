@@ -21,6 +21,7 @@ import {
 } from '../ui/Icons';
 import { ActionPanel, type PanelSection } from '../ui/ActionPanel';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { cn } from '../../utils/cn';
 
 // ─── Extra actions menu (··· in top-right) ───────────────────────────────────
 
@@ -35,27 +36,27 @@ export function ExtraActionsMenu({ show, onToggle, onClose }: Readonly<{
       items: [
         { icon: <DuplicateIcon />, label: 'Duplicate database', onClick: onClose },
         { icon: <CopyLinkIcon />, label: 'Copy link', onClick: onClose },
-        { icon: <Download className="w-[18px] h-[18px]" />, label: 'Export', onClick: onClose },
-        { icon: <Upload className="w-[18px] h-[18px]" />, label: 'Import', onClick: onClose },
-        { icon: <Printer className="w-[18px] h-[18px]" />, label: 'Print', onClick: onClose },
+        { icon: <Download className={cn("w-[18px] h-[18px]")} />, label: 'Export', onClick: onClose },
+        { icon: <Upload className={cn("w-[18px] h-[18px]")} />, label: 'Import', onClick: onClose },
+        { icon: <Printer className={cn("w-[18px] h-[18px]")} />, label: 'Print', onClick: onClose },
       ],
     },
     {
       items: [
-        { icon: <Trash2 className="w-[18px] h-[18px]" />, label: 'Delete database', danger: true, onClick: onClose },
+        { icon: <Trash2 className={cn("w-[18px] h-[18px]")} />, label: 'Delete database', danger: true, onClick: onClose },
       ],
     },
   ], [onClose]);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className={cn("relative")} ref={ref}>
       <button onClick={onToggle}
-        className={`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${show ? 'bg-surface-tertiary' : ''}`}
+        className={cn(`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${show ? 'bg-surface-tertiary' : ''}`)}
         title="More actions">
-        <MoreHorizontal className="w-4 h-4" />
+        <MoreHorizontal className={cn("w-4 h-4")} />
       </button>
       {show && (
-        <div className="absolute top-full right-0 mt-1 z-50">
+        <div className={cn("absolute top-full right-0 mt-1 z-50")}>
           <ActionPanel sections={sections} width={220} />
         </div>
       )}
@@ -97,17 +98,17 @@ export function ViewDotsMenu({
   ], [onClose, onDuplicate, onEditTitle, onEditLayout]);
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className={cn("relative")} ref={containerRef}>
       <button onClick={onToggle}
-        className={`flex items-center px-1.5 py-1.5 text-sm rounded-lg transition-all
+        className={cn(`flex items-center px-1.5 py-1.5 text-sm rounded-lg transition-all
           ${show
             ? 'bg-surface-tertiary text-ink-body-light opacity-100'
             : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface opacity-0 group-hover/header:opacity-100'
-          }`}>
-        <MoreHorizontal className="w-4 h-4" />
+          }`)}>
+        <MoreHorizontal className={cn("w-4 h-4")} />
       </button>
       {show && (
-        <div className="absolute top-full left-0 mt-1 z-50">
+        <div className={cn("absolute top-full left-0 mt-1 z-50")}>
           <ActionPanel sections={sections} width={240} />
         </div>
       )}
@@ -136,52 +137,52 @@ export function ActiveViewMenu({
 
   return createPortal(
     <>
-      <button type="button" className="fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default" onClick={onClose} tabIndex={-1} aria-label="Close menu" />
+      <button type="button" className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={onClose} tabIndex={-1} aria-label="Close menu" />
       <div ref={menuRef}
-        className="fixed z-[9999] w-[220px] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
+        className={cn("fixed z-[9999] w-[220px] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden")}
         style={{ top: btnRect.bottom + 4, left: btnRect.left }}>
-        <div className="flex flex-col">
-          <div className="p-1 flex flex-col gap-px">
+        <div className={cn("flex flex-col")}>
+          <div className={cn("p-1 flex flex-col gap-px")}>
             <button onClick={onRename}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
-              <PencilIcon className="w-4 h-4" /> Rename
+              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
+              <PencilIcon className={cn("w-4 h-4")} /> Rename
             </button>
             <button onClick={onEditView}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
-              <LayoutIcon className="w-4 h-4" /> Edit view
+              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
+              <LayoutIcon className={cn("w-4 h-4")} /> Edit view
             </button>
             <button onClick={onClose}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
-              <ExternalLinkIcon className="w-4 h-4" />
-              <span className="flex-1 text-left">Source</span>
-              <ChevronDown className="w-3 h-3 text-ink-muted -rotate-90" />
+              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
+              <ExternalLinkIcon className={cn("w-4 h-4")} />
+              <span className={cn("flex-1 text-left")}>Source</span>
+              <ChevronDown className={cn("w-3 h-3 text-ink-muted -rotate-90")} />
             </button>
           </div>
-          <div className="mx-3 h-px bg-surface-tertiary" />
-          <div className="p-1 flex flex-col gap-px">
+          <div className={cn("mx-3 h-px bg-surface-tertiary")} />
+          <div className={cn("p-1 flex flex-col gap-px")}>
             <button onClick={() => { navigator.clipboard?.writeText(globalThis.location.href + '?view=' + view.id); onClose(); }}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
-              <CopyLinkIcon className="w-4 h-4" /> Copy link to view
+              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
+              <CopyLinkIcon className={cn("w-4 h-4")} /> Copy link to view
             </button>
             <button onClick={onClose}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
-              <ExternalLinkIcon className="w-4 h-4" /> Open source database
+              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
+              <ExternalLinkIcon className={cn("w-4 h-4")} /> Open source database
             </button>
             <button onClick={onClose}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
-              <EyeSlashIcon className="w-4 h-4" /> Hide data source titles
+              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
+              <EyeSlashIcon className={cn("w-4 h-4")} /> Hide data source titles
             </button>
           </div>
-          <div className="mx-3 h-px bg-surface-tertiary" />
-          <div className="p-1 flex flex-col gap-px">
+          <div className={cn("mx-3 h-px bg-surface-tertiary")} />
+          <div className={cn("p-1 flex flex-col gap-px")}>
             <button onClick={onDuplicate}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors">
-              <DuplicateIcon className="w-4 h-4" /> Duplicate view
+              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
+              <DuplicateIcon className={cn("w-4 h-4")} /> Duplicate view
             </button>
             {dbViewsLength > 1 && (
               <button onClick={onDelete}
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-danger-text hover:bg-hover-danger transition-colors">
-                <Trash2 className="w-3.5 h-3.5" /> Delete view
+                className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-danger-text hover:bg-hover-danger transition-colors")}>
+                <Trash2 className={cn("w-3.5 h-3.5")} /> Delete view
               </button>
             )}
           </div>

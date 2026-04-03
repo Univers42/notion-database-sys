@@ -20,19 +20,20 @@ import {
   DashboardIcon, TimelineIcon, FeedIcon, MapViewIcon, CalendarIcon,
 } from '../ui/Icons';
 import type { ViewType } from '../../types/database';
+import { cn } from '../../utils/cn';
 
 /** Lucide icons for view tabs */
 export const VIEW_ICONS: Record<ViewType, React.ReactNode> = {
-  table: <Table className="w-4 h-4" />,
-  board: <Kanban className="w-4 h-4" />,
-  calendar: <Calendar className="w-4 h-4" />,
-  timeline: <Clock className="w-4 h-4" />,
-  list: <List className="w-4 h-4" />,
-  gallery: <LayoutGrid className="w-4 h-4" />,
-  chart: <BarChart3 className="w-4 h-4" />,
-  feed: <Rss className="w-4 h-4" />,
-  map: <Map className="w-4 h-4" />,
-  dashboard: <LayoutDashboard className="w-4 h-4" />,
+  table: <Table className={cn("w-4 h-4")} />,
+  board: <Kanban className={cn("w-4 h-4")} />,
+  calendar: <Calendar className={cn("w-4 h-4")} />,
+  timeline: <Clock className={cn("w-4 h-4")} />,
+  list: <List className={cn("w-4 h-4")} />,
+  gallery: <LayoutGrid className={cn("w-4 h-4")} />,
+  chart: <BarChart3 className={cn("w-4 h-4")} />,
+  feed: <Rss className={cn("w-4 h-4")} />,
+  map: <Map className={cn("w-4 h-4")} />,
+  dashboard: <LayoutDashboard className={cn("w-4 h-4")} />,
 };
 
 /** SVG icons for view type card grid */
