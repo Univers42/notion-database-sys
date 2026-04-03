@@ -6,19 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:21 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// useUndoRedo — undo/redo history for page block content
-// ═══════════════════════════════════════════════════════════════════════════════
-// Captures page content snapshots on each mutation through a subscription
-// to the Zustand store, then provides undo() and redo() with Ctrl+Z / Ctrl+Shift+Z.
-//
-// Strategy: snapshot the page's Block[] after each store update (debounced to
-// 300ms to batch rapid typing). On undo/redo, directly replace page content.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
@@ -31,6 +21,16 @@ interface HistoryEntry {
   timestamp: number;
 }
 
+/**
+ * Provides undo/redo history for page block content.
+ *
+ * Subscribes to the Zustand store and snapshots the page's `Block[]`
+ * after each mutation (debounced 300ms to batch rapid typing). Binds
+ * Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y keyboard shortcuts. Max 100 entries.
+ *
+ * @param pageId - The page to track.
+ * @returns `{ undo, redo, canUndo, canRedo }`
+ */
 export function useUndoRedo(pageId: string) {
   const undoStack = useRef<HistoryEntry[]>([]);
   const redoStack = useRef<HistoryEntry[]>([]);

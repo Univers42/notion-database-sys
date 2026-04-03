@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:40:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// useResizablePanel — handles panel-resize logic for side/center peek modals
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
@@ -38,6 +34,18 @@ const DEFAULT_WIDTHS: Record<string, number> = {
 const MIN_WIDTH = 400;
 const MAX_WIDTH_RATIO = 0.92;
 
+/**
+ * Manages drag-to-resize behavior for side peek and center peek modals.
+ *
+ * Returns `panelWidth`, `isResizing`, and a `startResize` handler to
+ * attach to a drag handle element. During resize, sets `cursor: col-resize`
+ * and `user-select: none` on the document body, cleaning up on mouse release.
+ *
+ * @param options.mode         - Panel layout mode. Default `'side_peek'`.
+ * @param options.defaultWidth - Initial width in pixels.
+ * @param options.minWidth     - Minimum width. Default 400.
+ * @param options.maxWidthRatio - Maximum width as ratio of window width. Default 0.92.
+ */
 export function useResizablePanel(options?: Partial<ResizablePanelOptions>): ResizablePanelReturn {
   const mode = options?.mode ?? 'side_peek';
   const defaultW = options?.defaultWidth ?? DEFAULT_WIDTHS[mode] ?? 672;

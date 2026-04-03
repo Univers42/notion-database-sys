@@ -6,23 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:10 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// usePasteHandler — intercept paste events in the block editor
-// ═══════════════════════════════════════════════════════════════════════════════
-// When the user pastes text, we detect if it looks like markdown (headings,
-// lists, code blocks, etc.) and convert it to Block[] using parseMarkdownToBlocks.
-// Plain text paste is left to the browser's default behavior.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useCallback } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { parseMarkdownToBlocks } from '../lib/markdown';
 
-
+/** Returns true if the text contains enough markdown-like patterns to warrant parsing. */
 function looksLikeMarkdown(text: string): boolean {
   // Quick heuristic: does the text contain markdown-ish patterns?
   const lines = text.split('\n');
@@ -48,6 +40,16 @@ function looksLikeMarkdown(text: string): boolean {
   return mdLineCount >= 1 && mdLineCount / lines.length >= 0.1;
 }
 
+/**
+ * Intercepts paste events in the block editor and converts markdown to blocks.
+ *
+ * When the user pastes text that looks like markdown (headings, lists,
+ * code fences, etc.), it prevents the default paste and inserts parsed
+ * `Block[]` after the currently focused block. Plain text paste is left
+ * to the browser's default behavior.
+ *
+ * @param pageId - The page to insert pasted blocks into.
+ */
 export function usePasteHandler(pageId: string) {
   const handlePaste = useCallback((e: ClipboardEvent) => {
     const target = e.target as HTMLElement;

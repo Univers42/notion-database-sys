@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,14 @@ import { useEffect } from 'react';
 import type React from 'react';
 
 /**
- * Calls onClose when a mousedown event occurs outside the referenced element.
- * @param ref     - ref to the container element to watch
- * @param active  - set to false to disable the listener (e.g. when the panel is closed)
- * @param onClose - callback to invoke on outside click
+ * Calls `onClose` when a mousedown event occurs outside the referenced element.
+ *
+ * Attaches a document-level `mousedown` listener when `active` is true,
+ * and removes it on unmount or when `active` becomes false.
+ *
+ * @param ref     - Ref to the container element to watch.
+ * @param active  - Set false to disable the listener (e.g. when the panel is closed).
+ * @param onClose - Callback invoked on outside click.
  */
 export function useOutsideClick(
   ref: React.RefObject<HTMLElement | null>,

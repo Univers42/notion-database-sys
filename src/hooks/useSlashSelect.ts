@@ -6,11 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:40:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ─── useSlashSelect — handles slash-command selection and block transformation ─
 
 import { useCallback } from 'react';
 import type { Block, BlockType } from '../types/database';
@@ -26,6 +24,17 @@ interface SlashSelectDeps {
   focusBlock: (blockId: string) => void;
 }
 
+/**
+ * Handles slash-command selection and transforms the target block.
+ *
+ * When the user picks a block type from the slash menu, this hook
+ * strips the `/prefix` text, converts the block to the chosen type,
+ * and applies type-specific initialization (e.g. empty table data,
+ * column layout, inline database creation).
+ *
+ * @param deps - Store actions and slash menu state.
+ * @returns Callback `(type, content) => void` to invoke on menu selection.
+ */
 export function useSlashSelect(deps: SlashSelectDeps) {
   const { pageId, slashMenu, setSlashMenu, updateBlock, changeBlockType, insertBlock, createInlineDatabase, focusBlock } = deps;
 
@@ -92,7 +101,11 @@ export function useSlashSelect(deps: SlashSelectDeps) {
   }, [pageId, slashMenu, updateBlock, changeBlockType, insertBlock, createInlineDatabase, focusBlock, setSlashMenu]);
 }
 
-/** Reposition the cursor inside a block element after markdown conversion. */
+/**
+ * Repositions the cursor inside a block element after a markdown
+ * shortcut conversion (e.g. `# ` became an h1). Runs on a 30ms delay
+ * to allow React to re-render the new block type first.
+ */
 export function repositionCursor(blockId: string, content: string): void {
   setTimeout(() => {
     const el = document.querySelector(`[data-block-id="${blockId}"] [contenteditable]`) as HTMLElement;

@@ -1,6 +1,14 @@
-// ─── useDbSource — Zustand store for active DB source ────────────────────────
-// Tracks which database source backend the app is using.
-// Persists the active source in the URL hash so page refreshes restore it.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   useDbSource.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { create } from 'zustand';
 import type { DbSourceType } from '../../services/dbms/types.ts';

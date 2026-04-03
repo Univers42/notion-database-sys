@@ -1,6 +1,14 @@
-// ─── useDbRecords — hook for fetching records from the active source ─────────
-// Currently delegates to the Zustand store (hardcoded data).
-// When a backend API is added, this hook will fetch from the active adapter.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   useDbRecords.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/useDatabaseStore';

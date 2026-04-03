@@ -1,4 +1,14 @@
-// useBlockEditor — encapsulates block-editing logic for PageContentEditor
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   useBlockEditor.ts                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/01 16:40:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import React, { useState, useRef, useCallback } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
@@ -12,6 +22,15 @@ interface SlashMenuState {
   filter: string;
 }
 
+/**
+ * Encapsulates block editing logic for the page content editor.
+ *
+ * Manages slash-command menu state, block CRUD operations, keyboard
+ * navigation between blocks, and markdown shortcut detection. Returns
+ * handlers that PageContentEditor wires to each block's events.
+ *
+ * @param pageId - The page whose blocks are being edited.
+ */
 export function useBlockEditor(pageId: string) {
   const {
     updatePageContent,
