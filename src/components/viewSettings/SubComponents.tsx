@@ -6,27 +6,21 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:07 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:31 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// View settings — shared sub-components
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { SettingsHeader } from '../ui/MenuPrimitives';
 import { ToggleSwitch } from '../ui/ToggleSwitch';
 import { cn } from '../../utils/cn';
 
-// ─── SubPanelHeader ──────────────────────────────────────────────────────────
-
+/** Renders a settings sub-panel header with back and close buttons. */
 export function SubPanelHeader({ title, onBack, onClose }: Readonly<{ title: string; onBack?: () => void; onClose?: () => void }>) {
   return <SettingsHeader title={title} onBack={onBack} onClose={onClose} />;
 }
 
-// ─── OptionList ──────────────────────────────────────────────────────────────
-
+/** Renders a vertical list of selectable options with active highlighting. */
 export function OptionList({ options, activeId, onSelect }: {
   options: { id: string; label: string }[];
   activeId: string;
@@ -46,8 +40,7 @@ export function OptionList({ options, activeId, onSelect }: {
   );
 }
 
-// ─── PropertyOptionList ──────────────────────────────────────────────────────
-
+/** Renders a vertical list of database properties as selectable options. */
 export function PropertyOptionList({ properties, activeId, onSelect, noneLabel }: {
   properties: { id: string; name: string }[];
   activeId: string;
@@ -76,8 +69,7 @@ export function PropertyOptionList({ properties, activeId, onSelect, noneLabel }
   );
 }
 
-// ─── Toggle ──────────────────────────────────────────────────────────────────
-
+/** Renders a labeled toggle switch. */
 export function Toggle({ label, checked, onChange }: Readonly<{ label: string; checked: boolean; onChange: (v: boolean) => void }>) {
   return <ToggleSwitch label={label} checked={checked} onChange={onChange} size="md" />;
 }

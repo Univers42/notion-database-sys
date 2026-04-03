@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:39 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:38:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ import { DEFAULT_VIEW_ICONS } from './constants';
 import { InfoCircleIcon } from '../ui/Icons';
 import { cn } from '../../utils/cn';
 
-// ─── CardLayoutPicker ────────────────────────────────────────────────────────
-
+/** Renders a visual picker for board card layout (compact vs. list). */
 export function CardLayoutPicker({ value, onChange }: Readonly<{ value: 'compact' | 'list'; onChange: (v: 'compact' | 'list') => void }>) {
   return (
     <div className={cn("mx-2 mb-2 rounded-[10px] p-3 bg-surface-tertiary-soft4 flex flex-col items-center overflow-hidden")}>
@@ -73,8 +72,7 @@ export function CardLayoutPicker({ value, onChange }: Readonly<{ value: 'compact
   );
 }
 
-// ─── ViewIdentityRow ─────────────────────────────────────────────────────────
-
+/** Renders the view name input and icon picker row at the top of settings panels. */
 export function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange, onIconChange, fallbackIcon: _fallbackIcon, viewType }: Readonly<{
   viewIcon: string; setViewIcon: (v: string) => void; viewName: string;
   onNameChange: (v: string) => void; onIconChange: (v: string) => void;
@@ -115,8 +113,7 @@ export function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange,
   );
 }
 
-// ─── PropertyRow ─────────────────────────────────────────────────────────────
-
+/** Renders a single property row with icon, name, and visibility toggle. */
 export function PropertyVisibilityRow({ propId: _propId, propName, iconName, visible, databaseId: _databaseId, onToggle, onIconChange }: Readonly<{
   propId: string; propName: string; iconName: string; visible: boolean;
   databaseId: string; onToggle: () => void; onIconChange: (name: string) => void;

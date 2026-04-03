@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Property picker / group-by / visibility screens — extracted from ViewSettingsPanel
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { SubPanelHeader, OptionList, PropertyOptionList, PropertyVisibilityRow } from './SubComponents';
@@ -20,8 +16,6 @@ import { DEFAULT_PROPERTY_ICONS } from './constants';
 import type { PanelScreen } from './constants';
 import type { SchemaProperty, PropertyValue } from '../../types/database';
 import { cn } from '../../utils/cn';
-
-// ─── Option screen configs ───────────────────────────────────────────────────
 
 interface OptionScreenCfg {
   title: string;
@@ -66,8 +60,7 @@ const OPTION_SCREENS: Record<string, (_s: Record<string, PropertyValue>) => Opti
   }),
 };
 
-// ─── Context type for property screens ───────────────────────────────────────
-
+/** Context data passed to property sub-screen renderers. */
 export interface PropertyScreensContext {
   settings: Record<string, PropertyValue>;
   updateSetting: (key: string, val: PropertyValue) => void;
@@ -86,14 +79,10 @@ export interface PropertyScreensContext {
   updateProperty: (dbId: string, propId: string, updates: Partial<SchemaProperty>) => void;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// renderPropertyScreen — returns a React node if screen matches, else null
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/** Returns a React node for the given settings sub-screen, or null if unrecognized. */
 export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext): React.ReactNode | null {
   const { settings, updateSetting, setScreen, onClose } = ctx;
 
-  // ─── Data-driven option sub-screens ─────────────────────────────────
   const optionCfgFactory = OPTION_SCREENS[screen];
   if (optionCfgFactory) {
     const cfg = optionCfgFactory(settings);
@@ -109,7 +98,6 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
     );
   }
 
-  // ─── Property-picker sub-screens ────────────────────────────────────
   if (screen === 'showCalendarBy') {
     return (
       <div className={cn("flex flex-col h-full")}>
@@ -138,7 +126,6 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
     );
   }
 
-  // ─── Group by ───────────────────────────────────────────────────────
   if (screen === 'groupBy') {
     return (
       <div className={cn("flex flex-col h-full")}>
@@ -160,7 +147,6 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
     );
   }
 
-  // ─── Property visibility ────────────────────────────────────────────
   if (screen === 'propertyVisibility') {
     return (
       <div className={cn("flex flex-col h-full")}>

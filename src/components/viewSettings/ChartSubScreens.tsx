@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Chart sub-screens — individual axis / style / palette pickers
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { CHART_TYPE_META } from './constants';
@@ -21,6 +17,7 @@ import type { PanelScreen } from './constants';
 import type { SchemaProperty, ViewSettings } from '../../types/database';
 import { cn } from '../../utils/cn';
 
+/** Shared props for all chart settings sub-screens. */
 export interface ChartScreensProps {
   screen: PanelScreen;
   setScreen: (s: PanelScreen) => void;
@@ -35,6 +32,7 @@ export interface ChartScreensProps {
   identityProps: any;
 }
 
+/** Renders the chart type selection grid (bar, line, donut, number). */
 export function ChartTypeScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className={cn("flex flex-col h-full")}>
@@ -57,6 +55,7 @@ export function ChartTypeScreen({ setScreen, settings, updateSetting, onClose }:
   );
 }
 
+/** Renders the X-axis property picker for chart configuration. */
 export function XAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: Readonly<ChartScreensProps>) {
   const eligible = allProps.filter(p => ['select', 'multi_select', 'status', 'checkbox', 'user', 'person', 'text', 'date'].includes(p.type));
   return (
@@ -67,6 +66,7 @@ export function XAxisWhatScreen({ setScreen, settings, updateSetting, allProps, 
   );
 }
 
+/** Renders the X-axis sort direction picker (ascending, descending, manual). */
 export function XAxisSortScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className={cn("flex flex-col h-full")}>
@@ -80,6 +80,7 @@ export function XAxisSortScreen({ setScreen, settings, updateSetting, onClose }:
   );
 }
 
+/** Renders the Y-axis property picker for chart configuration. */
 export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: Readonly<ChartScreensProps>) {
   const eligible = allProps.filter(p => p.type === 'number');
   return (
@@ -90,6 +91,7 @@ export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, 
   );
 }
 
+/** Renders the Y-axis group-by property picker. */
 export function YAxisGroupByScreen({ setScreen, settings, updateSetting, groupableProps, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className={cn("flex flex-col h-full")}>
@@ -99,6 +101,7 @@ export function YAxisGroupByScreen({ setScreen, settings, updateSetting, groupab
   );
 }
 
+/** Renders the Y-axis range configuration (min/max values). */
 export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className={cn("flex flex-col h-full")}>
@@ -112,6 +115,7 @@ export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }
   );
 }
 
+/** Renders the Y-axis reference line configuration (value and label). */
 export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className={cn("flex flex-col h-full")}>
@@ -131,6 +135,7 @@ export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, o
   );
 }
 
+/** Renders the chart color palette picker. */
 export function ColorPaletteScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className={cn("flex flex-col h-full")}>
@@ -144,6 +149,7 @@ export function ColorPaletteScreen({ setScreen, settings, updateSetting, onClose
   );
 }
 
+/** Renders additional chart style options (opacity, border radius, rounded lines, etc.). */
 export function MoreStyleScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
     <div className={cn("flex flex-col h-full")}>

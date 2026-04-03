@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Chart settings screens — barrel + EditChartScreen (main chart screen)
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import {
@@ -37,8 +33,7 @@ export type { ChartScreensProps } from './ChartSubScreens';
 import type { ChartScreensProps } from './ChartSubScreens';
 import { cn } from '../../utils/cn';
 
-// ─── Edit Chart (main chart screen) ─────────────────────────────────────────
-
+/** Renders the main chart settings screen with type, axes, style, and data source controls. */
 export function EditChartScreen(props: ChartScreensProps) {
   const { setScreen, settings, updateSetting, allProps, databaseName, onClose, identityProps } = props;
   const ct = settings.chartType || 'vertical_bar';
@@ -136,8 +131,6 @@ export function EditChartScreen(props: ChartScreensProps) {
     </div>
   );
 }
-
-// ─── Tiny layout helpers ─────────────────────────────────────────────────────
 
 function ChartAxisSection({ title, children }: Readonly<{ title: string; children: React.ReactNode }>) {
   return (

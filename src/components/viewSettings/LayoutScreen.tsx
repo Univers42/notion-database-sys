@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Layout screen — extracted from ViewSettingsPanel
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import {
@@ -24,6 +20,7 @@ import type { PanelScreen } from './constants';
 import type { ViewType, SchemaProperty, ViewSettings } from '../../types/database';
 import { cn } from '../../utils/cn';
 
+/** Props for {@link LayoutScreen}. */
 export interface LayoutScreenProps {
   viewId: string;
   viewType: ViewType;
@@ -38,8 +35,6 @@ export interface LayoutScreenProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateSetting: (key: string, val: any) => void;
 }
-
-// ─── Per-view-type settings ──────────────────────────────────────────────────
 
 function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, updateSetting }: Readonly<LayoutScreenProps>) {
   const groupName = grouping ? allProps.find(p => p.id === grouping.propertyId)?.name : 'None';
@@ -145,8 +140,7 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
   }
 }
 
-// ─── Layout Screen ───────────────────────────────────────────────────────────
-
+/** Renders the view layout picker with per-view-type settings (grouping, card preview, etc.). */
 export function LayoutScreen(props: LayoutScreenProps) {
   const { viewId, viewType, settings, setScreen, goHome, onClose, updateView, updateSetting } = props;
   return (
