@@ -17,6 +17,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 #include <napi.h>
+#include <chrono>
 #include <sstream>
 #include <string>
 #include <ctime>
@@ -56,6 +57,32 @@ static struct {
 } g_event;
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//  Dracula palette — per-part ANSI coloring for rich normal-mode output
+// ═══════════════════════════════════════════════════════════════════════════════
+
+static const std::string RST   = "\033[0m";
+static const std::string BOLD  = "\033[1m";
+static const std::string DIM_A = "\033[2m";
+static const std::string ITAL  = "\033[3m";
+
+struct OpDisplay {
+  Srgb        color;
+  std::string glyph;
+};
+
+static OpDisplay op_display(const std::string& op) {
+  if (op == "INSERT" || op == "ADD_COLUMN")
+    return { Srgb(80, 250, 123),  Glyph::CHECK };
+  if (op == "UPDATE")
+    return { Srgb(139, 233, 253), Glyph::TRIANGLE };
+  if (op == "DELETE" || op == "DROP_COLUMN")
+    return { Srgb(255, 85, 85),   Glyph::CROSS };
+  if (op == "ALTER_TYPE")
+    return { Srgb(189, 147, 249), Glyph::DIAMOND };
+  return   { Srgb(241, 250, 140), Glyph::CHAIN };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //  Helpers
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -92,19 +119,11 @@ static std::string first_meaningful_line(const std::string& query, size_t max_le
   return "";
 }
 
-/** Map an operation string to a callout type name. */
-static std::string op_to_callout(const std::string& op) {
-  if (op == "INSERT" || op == "ADD_COLUMN") return "query_insert";
-  if (op == "DELETE" || op == "DROP_COLUMN") return "query_delete";
-  if (op == "UPDATE")                       return "query_update";
-  if (op == "ALTER_TYPE")                   return "query_alter";
-  return "query_select";
-}
-
-/** Map an operation to a log level. */
-static log::Level op_to_level(const std::string& op) {
-  if (op == "DELETE" || op == "DROP_COLUMN") return log::LWARN;
-  return log::LINFO;
+/** Map operation to its callout registration name (verbose mode). */
+static std::string op_to_callout_name(const std::string& op) {
+  if (op == "ADD_COLUMN")  return "INSERT";
+  if (op == "DROP_COLUMN") return "DELETE";
+  return op;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -113,51 +132,72 @@ static log::Level op_to_level(const std::string& op) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 static void on_query_event() {
+  OpDisplay od = op_display(g_event.operation);
+
   if (g_verbose) {
-    // ── Verbose mode: use TermWriter callout for boxed display ──
+    // ── Verbose mode: use TermWriter callout with clean operation names ──
 
-    std::string callout_type = op_to_callout(g_event.operation);
-    std::string header = g_event.operation + " " + g_event.table;
+    std::string callout_name = op_to_callout_name(g_event.operation);
 
-    // Build body lines: meta, query, affected
-    std::string meta = "[" + g_event.source + "]  " + timestamp_hms();
+    // l1: table + meta on one line
+    std::string l1 = g_event.table
+      + "   [" + g_event.source + " · " + timestamp_hms() + "]";
+    // If the callout name differs from the raw op, show the raw op
+    if (callout_name != g_event.operation)
+      l1 = g_event.operation + " · " + l1;
+
     auto qlines = split_lines(g_event.query);
     std::string affected_str = "→ " + std::to_string(g_event.affected)
       + " row" + (g_event.affected != 1 ? "s" : "");
 
-    // TermWriter::callout takes up to 10 lines after the header
-    // Layout: header | meta | query lines... | affected
-    std::string lines[10];
-    lines[0] = meta;
-    int count = 1;
-    for (size_t i = 0; i < qlines.size() && count < 9; ++i) {
-      lines[count++] = qlines[i];
-    }
-    lines[count++] = affected_str;
+    // Pack body: l1(meta) + query lines + affected
+    std::string body[10];
+    body[0] = l1;
+    int n = 1;
+    for (size_t i = 0; i < qlines.size() && n < 8; ++i)
+      body[n++] = qlines[i];
+    body[n++] = affected_str;
 
-    g_writer->callout(callout_type, header,
-                      count > 0 ? lines[0] : "",
-                      count > 1 ? lines[1] : "",
-                      count > 2 ? lines[2] : "",
-                      count > 3 ? lines[3] : "",
-                      count > 4 ? lines[4] : "",
-                      count > 5 ? lines[5] : "",
-                      count > 6 ? lines[6] : "",
-                      count > 7 ? lines[7] : "",
-                      count > 8 ? lines[8] : "");
+    g_writer->callout(callout_name,
+                      n > 0 ? body[0] : "",
+                      n > 1 ? body[1] : "",
+                      n > 2 ? body[2] : "",
+                      n > 3 ? body[3] : "",
+                      n > 4 ? body[4] : "",
+                      n > 5 ? body[5] : "",
+                      n > 6 ? body[6] : "",
+                      n > 7 ? body[7] : "",
+                      n > 8 ? body[8] : "");
     g_writer->nl();
+
   } else {
-    // ── Normal mode: compact one-liner via ILogger decorator chain ──
+    // ── Normal mode: rich ANSI-colored line via TermWriter ─────────────
+    //
+    //  ✔ INSERT tasks → INSERT INTO tasks VALUES (1)  (1 row)  json · 18:01
+    //  │  │      │       │                             │        └ dim/italic
+    //  │  │      │       │                             └ dim
+    //  │  │      │       └ foreground
+    //  │  │      └ bold white
+    //  │  └ bold in op-color
+    //  └ glyph in op-color
 
+    std::string oc = od.color.to_ansi_fg();
+    std::string fc = Srgb(248, 248, 242).to_ansi_fg();
+    std::string dc = Srgb(98, 114, 164).to_ansi_fg();
     std::string firstLine = first_meaningful_line(g_event.query);
-    std::string msg = "[" + g_event.source + "] "
-      + g_event.operation + " " + g_event.table;
-    if (!firstLine.empty()) msg += " → " + firstLine;
-    msg += " (" + std::to_string(g_event.affected)
-      + " row" + (g_event.affected != 1 ? "s" : "") + ")";
+    std::string rows = std::to_string(g_event.affected)
+      + " row" + (g_event.affected != 1 ? "s" : "");
 
-    log::Level level = op_to_level(g_event.operation);
-    log::global().log(level, msg);
+    std::string line;
+    line += " " + oc + od.glyph + BOLD + g_event.operation + RST;
+    line += " " + fc + BOLD + g_event.table + RST;
+    if (!firstLine.empty())
+      line += " " + dc + "→" + RST + " " + fc + firstLine + RST;
+    line += "  " + dc + DIM_A + "(" + rows + ")" + RST;
+    line += "  " + dc + DIM_A + ITAL + g_event.source + " · "
+         + timestamp_hms() + RST;
+
+    g_writer->write_raw(line + "\n");
   }
 }
 
@@ -166,71 +206,33 @@ static void on_query_event() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 static void register_query_callouts() {
-  // INSERT — green
-  {
+  // Helper — all callouts share the same layout, only colors/glyph change
+  auto make = [](const Srgb& fg, const Srgb& bg_tint,
+                 const std::string& glyph) {
     ElemStyle e;
-    e.fg     = Srgb(80, 250, 123);
-    e.bg     = Srgb(11, 41, 20);
-    e.border = Srgb(80, 250, 123);
-    e.glyph  = Glyph::CHECK;
+    e.fg     = fg;
+    e.bg     = bg_tint;
+    e.border = fg;
+    e.glyph  = glyph;
     e.has_bg = true;
     e.font   = FONT_NONE;
-    e.width  = 68;
-    e.pad_l  = 1; e.pad_r = 1; e.margin_l = 1;
-    g_writer->define_callout("query_insert", e);
-  }
-  // UPDATE — cyan
-  {
-    ElemStyle e;
-    e.fg     = Srgb(139, 233, 253);
-    e.bg     = Srgb(11, 30, 41);
-    e.border = Srgb(139, 233, 253);
-    e.glyph  = Glyph::TRIANGLE;
-    e.has_bg = true;
-    e.font   = FONT_NONE;
-    e.width  = 68;
-    e.pad_l  = 1; e.pad_r = 1; e.margin_l = 1;
-    g_writer->define_callout("query_update", e);
-  }
-  // DELETE — red
-  {
-    ElemStyle e;
-    e.fg     = Srgb(255, 85, 85);
-    e.bg     = Srgb(41, 11, 11);
-    e.border = Srgb(255, 85, 85);
-    e.glyph  = Glyph::CROSS;
-    e.has_bg = true;
-    e.font   = FONT_NONE;
-    e.width  = 68;
-    e.pad_l  = 1; e.pad_r = 1; e.margin_l = 1;
-    g_writer->define_callout("query_delete", e);
-  }
-  // ALTER — purple
-  {
-    ElemStyle e;
-    e.fg     = Srgb(189, 147, 249);
-    e.bg     = Srgb(25, 11, 41);
-    e.border = Srgb(189, 147, 249);
-    e.glyph  = Glyph::DIAMOND;
-    e.has_bg = true;
-    e.font   = FONT_NONE;
-    e.width  = 68;
-    e.pad_l  = 1; e.pad_r = 1; e.margin_l = 1;
-    g_writer->define_callout("query_alter", e);
-  }
-  // SELECT / meta — yellow
-  {
-    ElemStyle e;
-    e.fg     = Srgb(241, 250, 140);
-    e.bg     = Srgb(35, 35, 11);
-    e.border = Srgb(241, 250, 140);
-    e.glyph  = Glyph::CHAIN;
-    e.has_bg = true;
-    e.font   = FONT_NONE;
-    e.width  = 68;
-    e.pad_l  = 1; e.pad_r = 1; e.margin_l = 1;
-    g_writer->define_callout("query_select", e);
-  }
+    e.width  = 72;
+    e.pad_l  = 1; e.pad_r = 1; e.margin_l = 2;
+    return e;
+  };
+
+  // Register with the operation name as key — so callout headers
+  // show "INSERT", "UPDATE", etc. instead of internal names.
+  g_writer->define_callout("INSERT",
+    make(Srgb(80,250,123),  Srgb(11,41,20),  Glyph::CHECK));
+  g_writer->define_callout("UPDATE",
+    make(Srgb(139,233,253), Srgb(11,30,41),  Glyph::TRIANGLE));
+  g_writer->define_callout("DELETE",
+    make(Srgb(255,85,85),   Srgb(41,11,11),  Glyph::CROSS));
+  g_writer->define_callout("ALTER_TYPE",
+    make(Srgb(189,147,249), Srgb(25,11,41),  Glyph::DIAMOND));
+  g_writer->define_callout("SELECT",
+    make(Srgb(241,250,140), Srgb(35,35,11),  Glyph::CHAIN));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -322,14 +324,29 @@ static Napi::Value LogQuery(const Napi::CallbackInfo& info) {
 /**
  * logLifecycle(message: string) → void
  *
- * Log a lifecycle message through the ILogger decorator chain.
+ * Log a lifecycle message via TermWriter info style.
+ * Deduplicates rapid identical messages (e.g. React StrictMode double-calls).
  */
+static std::string g_last_lifecycle;
+static std::chrono::steady_clock::time_point g_last_lifecycle_ts;
+
 static Napi::Value LogLifecycle(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if (info.Length() < 1) return env.Undefined();
 
   std::string msg = info[0].As<Napi::String>().Utf8Value();
-  log::global().log(log::LINFO, msg);
+
+  // Suppress duplicates within 500ms
+  auto now = std::chrono::steady_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+    now - g_last_lifecycle_ts).count();
+  if (msg == g_last_lifecycle && elapsed < 500)
+    return env.Undefined();
+  g_last_lifecycle = msg;
+  g_last_lifecycle_ts = now;
+
+  // Use TermWriter info style (dracula cyan ℹ) for rich themed output
+  g_writer->info(msg);
 
   return env.Undefined();
 }
