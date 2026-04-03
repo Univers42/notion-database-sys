@@ -85,20 +85,34 @@ const INITIAL_PERSONAS: StaticPersona[] = [
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
+/** Resolved API base URL — empty string means "no API configured → offline" */
+const API_BASE: string = ((import.meta.env as Record<string, string>)['VITE_API_URL'] ?? '').trim();
+
 async function loginPersona(persona: StaticPersona) {
+  if (!API_BASE) return null; // no API configured → skip fetch entirely
   try {
-    const res = await api.post<{
-      accessToken: string;
-      refreshToken: string;
-      user: { id: string };
-    }>('/api/auth/login', { email: persona.email, password: persona.password });
-    return { userId: res.user.id, accessToken: res.accessToken, refreshToken: res.refreshToken };
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(
+      `${API_BASE}/api/auth/login`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: persona.email, password: persona.password }),
+        signal: controller.signal,
+      },
+    );
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { userId: data.user.id as string, accessToken: data.accessToken as string, refreshToken: data.refreshToken as string };
   } catch {
     return null;
   }
 }
 
 async function fetchWorkspaces(jwt: string): Promise<Workspace[]> {
+  if (!jwt || !API_BASE) return [];  // offline mode — skip network call
   try {
     return await api.get<Workspace[]>('/api/workspaces', jwt);
   } catch {
@@ -115,6 +129,9 @@ function partition(workspaces: Workspace[], ownerId: string) {
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
+// Module-level guard against React Strict Mode double-invoke
+let _initInProgress = false;
+
 export const useUserStore = create<UserStore>((set, get) => ({
   personas:     INITIAL_PERSONAS.map(p => ({ ...p })),
   sessions:     {},
@@ -124,29 +141,70 @@ export const useUserStore = create<UserStore>((set, get) => ({
   error:        null,
 
   init: async () => {
-    if (get().initialized) return;
+    if (get().initialized || _initInProgress) return;
+    _initInProgress = true;
     set({ loading: true, error: null });
 
     const updatedPersonas = [...get().personas];
     const sessions: Record<string, UserSession> = {};
     let firstUserId = '';
 
-    // Login all personas in parallel
-    const loginResults = await Promise.all(INITIAL_PERSONAS.map(loginPersona));
+    // Try to log in the first persona as a connectivity check.
+    // If it fails, skip all remaining logins and go to offline mode.
+    const firstLogin = await loginPersona(INITIAL_PERSONAS[0]);
 
-    // Fetch workspaces for each logged-in user (sequential to avoid hammering a dev server)
-    for (let i = 0; i < INITIAL_PERSONAS.length; i++) {
-      const lr = loginResults[i];
-      if (!lr) continue;
-      const { userId, accessToken, refreshToken } = lr;
-      updatedPersonas[i] = { ...updatedPersonas[i], id: userId };
+    if (firstLogin) {
+      // API is reachable — process first result and login the rest
+      const { userId, accessToken, refreshToken } = firstLogin;
+      updatedPersonas[0] = { ...updatedPersonas[0], id: userId };
       const workspaces = await fetchWorkspaces(accessToken);
       const { privateWorkspaces, sharedWorkspaces } = partition(workspaces, userId);
       sessions[userId] = { userId, accessToken, refreshToken, privateWorkspaces, sharedWorkspaces };
-      if (!firstUserId) firstUserId = userId;
+      firstUserId = userId;
+
+      // Login remaining personas
+      const remainingResults = await Promise.all(INITIAL_PERSONAS.slice(1).map(loginPersona));
+      for (let i = 0; i < remainingResults.length; i++) {
+        const lr = remainingResults[i];
+        if (!lr) continue;
+        const idx = i + 1; // offset since we already did index 0
+        updatedPersonas[idx] = { ...updatedPersonas[idx], id: lr.userId };
+        const ws = await fetchWorkspaces(lr.accessToken);
+        const parts = partition(ws, lr.userId);
+        sessions[lr.userId] = { userId: lr.userId, accessToken: lr.accessToken, refreshToken: lr.refreshToken, privateWorkspaces: parts.privateWorkspaces, sharedWorkspaces: parts.sharedWorkspaces };
+      }
+    }
+
+    // ── Offline fallback: if all API logins failed, create mock sessions ──
+    if (Object.keys(sessions).length === 0) {
+      console.info('[playground] API unreachable — running in offline mode with seed data');
+      const sharedWs: Workspace = {
+        _id: 'mock-ws-shared-team',
+        name: 'Team Workspace',
+        slug: 'team',
+        ownerId: 'mock-user-0',
+      };
+      for (let i = 0; i < updatedPersonas.length; i++) {
+        const mockId = `mock-user-${i}`;
+        updatedPersonas[i] = { ...updatedPersonas[i], id: mockId };
+        sessions[mockId] = {
+          userId: mockId,
+          accessToken: '',
+          refreshToken: '',
+          privateWorkspaces: [{
+            _id: `mock-ws-private-${i}`,
+            name: `Notion de ${updatedPersonas[i].name.split(' ')[0].toLowerCase()}`,
+            slug: updatedPersonas[i].name.toLowerCase().replace(/\s+/g, '-'),
+            ownerId: mockId,
+          }],
+          sharedWorkspaces: [sharedWs],
+        };
+        if (!firstUserId) firstUserId = mockId;
+      }
     }
 
     set({ personas: updatedPersonas, sessions, activeUserId: firstUserId, initialized: true, loading: false });
+    _initInProgress = false;
   },
 
   switchUser: (userId: string) => set({ activeUserId: userId }),
@@ -191,3 +249,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   personaById: (id: string) => get().personas.find(p => p.id === id),
 }));
+
+// Expose on globalThis so usePageStore can access JWT without circular imports
+(globalThis as any).__playgroundUserStore = useUserStore;
