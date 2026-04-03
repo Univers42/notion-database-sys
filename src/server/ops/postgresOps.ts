@@ -1,7 +1,14 @@
-// ─── PostgreSQL ops adapter ──────────────────────────────────────────────────
-// Generates SQL queries, logs them, and executes against the live container.
-// NO file writes — seed files are never modified at runtime.
-// The Docker container is the source of truth for the postgresql source.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   postgresOps.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { DbmsAdapter, QueryResult } from './types';
 import { PROP_TO_SQL } from './types';
@@ -9,6 +16,7 @@ import { sqlId, sqlLit } from './helpers';
 import { logQuery } from './queryLog';
 import { pgQuery } from '../db/pgPool';
 
+/** PostgreSQL DBMS adapter. Generates and executes SQL queries. */
 export class PostgresOps implements DbmsAdapter {
   readonly sourceType = 'postgresql' as const;
 

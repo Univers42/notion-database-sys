@@ -1,5 +1,14 @@
-// ─── DBMS Operations — Adapter factory & high-level dispatch ─────────────────
-// Routes operations to the correct adapter based on the active source type.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   index.ts                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { DbmsAdapter, DbSourceType, QueryResult } from './types';
 import { DB_TO_TABLE } from './types';
@@ -13,7 +22,6 @@ export type { DbmsAdapter, DbSourceType, QueryResult } from './types';
 export { getQueryLog, clearQueryLog } from './queryLog';
 export type { QueryLogEntry } from './queryLog';
 
-// ─── Singleton adapters ──────────────────────────────────────────────────────
 const adapters: Record<DbSourceType, DbmsAdapter> = {
   json: new JsonOps(),
   csv: new CsvOps(),
@@ -31,10 +39,7 @@ export function resolveTable(databaseId: string): string | null {
   return DB_TO_TABLE[databaseId] ?? null;
 }
 
-// ─── High-level dispatch functions ───────────────────────────────────────────
-// These are called by the middleware endpoints.
-
-/** Run an insert across the active source adapter. */
+/** Runs an insert across the active source adapter. */
 export function dispatchInsert(
   source: DbSourceType, databaseId: string,
   flatRecord: Record<string, unknown>,

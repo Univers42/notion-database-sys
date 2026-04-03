@@ -1,5 +1,14 @@
-// ─── JSON flat-file DBMS adapter ─────────────────────────────────────────────
-// Reads/writes JSON entity files in src/store/dbms/json/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   jsonOps.ts                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -32,6 +41,7 @@ function writeRecords(table: string, raw: Record<string, unknown>, records: Reco
   }
 }
 
+/** JSON flat-file DBMS adapter. Reads/writes entity JSON files. */
 export class JsonOps implements DbmsAdapter {
   readonly sourceType = 'json' as const;
 

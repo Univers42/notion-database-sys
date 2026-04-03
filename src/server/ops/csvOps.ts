@@ -1,5 +1,14 @@
-// ─── CSV flat-file DBMS adapter ──────────────────────────────────────────────
-// Reads/writes CSV entity files in src/store/dbms/csv/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   csvOps.ts                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -36,6 +45,7 @@ function writeCsv(table: string, headers: string[], rows: string[][]): void {
   writeFileSync(p, [headerLine, ...dataLines].join('\n') + '\n', 'utf-8');
 }
 
+/** CSV flat-file DBMS adapter. Reads/writes entity CSV files. */
 export class CsvOps implements DbmsAdapter {
   readonly sourceType = 'csv' as const;
 

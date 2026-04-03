@@ -1,6 +1,16 @@
-// ─── Shared helpers for file-based DBMS adapters ─────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   helpers.ts                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-/** Parse a CSV line respecting quoted fields. */
+/** Parses a CSV line respecting quoted fields. */
 export function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = '';

@@ -1,7 +1,14 @@
-// ─── MongoDB live loader ─────────────────────────────────────────────────────
-// Reads all pages from the live MongoDB container and converts them
-// back to Notion-style page objects using the field map (reverse mapping).
-// Called on GET /api/dbms/state when activeSource is 'mongodb'.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mongoLoader.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { mongoFindAll } from './mongoClient';
 import { DB_TO_TABLE } from '../ops/types';

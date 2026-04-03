@@ -1,6 +1,14 @@
-// ─── PostgreSQL connection pool ──────────────────────────────────────────────
-// Lazily creates a pg.Pool on first use.  Falls back gracefully when the
-// Docker container isn't running (all queries become no-ops).
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pgPool.ts                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import pg from 'pg';
 

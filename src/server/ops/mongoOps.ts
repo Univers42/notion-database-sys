@@ -1,7 +1,14 @@
-// ─── MongoDB ops adapter ─────────────────────────────────────────────────────
-// Generates MongoDB shell-style commands, logs them, and executes against
-// the live container.  NO seed file writes — seed files are never modified
-// at runtime.  The Docker container is the source of truth for mongodb source.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mongoOps.ts                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { DbmsAdapter, QueryResult } from './types';
 import { PROP_TO_BSON } from './types';
@@ -9,6 +16,7 @@ import { mongoLit } from './helpers';
 import { logQuery } from './queryLog';
 import { mongoInsert, mongoDelete, mongoUpdate } from '../db/mongoClient';
 
+/** MongoDB DBMS adapter. Generates and executes shell-style commands. */
 export class MongoOps implements DbmsAdapter {
   readonly sourceType = 'mongodb' as const;
 

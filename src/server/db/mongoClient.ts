@@ -1,6 +1,14 @@
-// ─── MongoDB connection manager ──────────────────────────────────────────────
-// Lazily connects on first use.  Falls back gracefully when the
-// Docker container isn't running (all operations become no-ops).
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mongoClient.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { MongoClient, type Db, type Collection, type Document } from 'mongodb';
 
@@ -136,7 +144,6 @@ export async function mongoEnd(): Promise<void> {
   }
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 function isConnectionError(err: unknown): boolean {
   const msg = String((err as Error)?.message ?? '');
   return (

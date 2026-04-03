@@ -1,8 +1,14 @@
-// ─── Query Log — in-memory ring buffer for generated queries ─────────────────
-// Stores entries in a JS ring buffer (for the REST API) and forwards each
-// event to the native C++ addon via emitQuery().  The addon triggers
-// libcpp::core::Observer<string>::notify("query") which drives the
-// TermWriter / ILogger formatting pipeline directly to stderr.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   queryLog.ts                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { emitQuery } from '../logger';
 
@@ -35,12 +41,12 @@ export function logQuery(
   emitQuery(source, operation, table, query, affected);
 }
 
-/** Return recent log entries (newest first). */
+/** Returns recent log entries (newest first). */
 export function getQueryLog(limit = 50): QueryLogEntry[] {
   return entries.slice(-limit).reverse();
 }
 
-/** Clear the log. */
+/** Clears all entries from the query log. */
 export function clearQueryLog(): void {
   entries.length = 0;
 }

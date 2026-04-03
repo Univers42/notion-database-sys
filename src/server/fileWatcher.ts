@@ -1,20 +1,20 @@
-// ─── File Watcher — inotify-based live sync for DBMS flat files ─────────────
-// Uses Node's native fs.watch() which maps directly to Linux inotify(7).
-// Zero polling, zero CPU overhead — the kernel pushes events to us.
-//
-// When a flat file (JSON/CSV) is modified outside the app (e.g. user edits
-// in VS Code), this module:
-//   1) Detects the change            (inotify — ~0 CPU)
-//   2) Reverse-syncs flat → state    (reads file, patches _notion_state.json)
-//   3) Pushes a WebSocket event      (Vite HMR channel)
-//   4) Browser auto-refreshes data   (no full page reload)
-// ─────────────────────────────────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   fileWatcher.ts                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { ViteDevServer } from 'vite';
 import { watch, readFileSync, writeFileSync, existsSync, type FSWatcher } from 'node:fs';
 import { join, basename, extname, resolve } from 'node:path';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+
 type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
 
 interface PageLike {
@@ -30,7 +30,7 @@ interface NotionState {
   views: Record<string, unknown>;
 }
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+
 const ROOT = resolve(process.cwd());
 
 const SOURCE_DIR: Record<DbSourceType, string> = {
@@ -53,9 +53,6 @@ const FILE_TO_DB: Record<string, string> = {
 const STATE_FILE = '_notion_state.json';
 const FIELD_MAP_FILE = '_field_map.json';
 
-// ─── Write guard — ignore our own writes ─────────────────────────────────────
-// When the middleware writes a flat file, it registers the path here.
-// The watcher checks and skips those.  Entries auto-expire after 2 s.
 const recentOwnWrites = new Map<string, number>();
 const GUARD_TTL_MS = 2000;
 
@@ -75,7 +72,6 @@ function isOwnWrite(filePath: string): boolean {
   return true;
 }
 
-// ─── CSV helpers ─────────────────────────────────────────────────────────────
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = '';
@@ -95,9 +91,7 @@ function parseCSVLine(line: string): string[] {
   return result;
 }
 
-// ─── Reverse-sync: flat file → _notion_state.json ───────────────────────────
-
-/** Invert a field map: { propId → fieldName } → { fieldName → propId } */
+/** Inverts a field map: { propId → fieldName } → { fieldName → propId } */
 function invertMap(fmap: Record<string, string>): Record<string, string> {
   const inv: Record<string, string> = {};
   for (const [propId, fieldName] of Object.entries(fmap)) {
@@ -207,13 +201,17 @@ function syncCsvToState(
   return patches;
 }
 
-// ─── Main watcher ────────────────────────────────────────────────────────────
-
 const watchers: FSWatcher[] = [];
 
 /** Get the active source from the middleware (injected at init). */
 let getActiveSource: () => DbSourceType = () => 'json';
 
+/**
+ * Starts inotify-based file watchers for all DBMS source directories.
+ *
+ * Detects external edits to flat files, reverse-syncs them into
+ * `_notion_state.json`, and pushes granular patches via Vite WebSocket.
+ */
 export function initFileWatcher(
   server: ViteDevServer,
   activeSourceGetter: () => DbSourceType,
@@ -319,7 +317,7 @@ function handleFileChange(
   }
 }
 
-/** Clean up watchers on server close. */
+/** Closes all active file watchers. */
 export function stopFileWatcher(): void {
   for (const w of watchers) {
     try { w.close(); } catch { /* ignore */ }

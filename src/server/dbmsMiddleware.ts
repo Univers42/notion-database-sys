@@ -1,20 +1,14 @@
-// ─── DBMS API Middleware for Vite Dev Server ────────────────────────────────
-// Provides REST endpoints that bridge the browser frontend to the
-// file-based DBMS adapters.  Runs inside the Vite Node.js process.
-//
-// Endpoints:
-//   GET  /api/dbms/state                                → full { databases, pages, views }
-//   GET  /api/dbms/source                               → { source: "json" | "csv" | … }
-//   PUT  /api/dbms/source                               → { source }  — switch active source
-//   PATCH /api/dbms/pages/:id                           → { propertyId, value }
-//   PATCH /api/dbms/state                               → partial state  — bulk update
-//   POST  /api/dbms/records                             → create record
-//   DELETE /api/dbms/records/:pageId                    → delete record
-//   POST  /api/dbms/columns                             → add column
-//   DELETE /api/dbms/columns/:databaseId/:propId        → remove column
-//   PATCH  /api/dbms/columns/:databaseId/:propId/type   → change column type
-//   GET  /api/dbms/query-log                            → recent generated queries
-// ─────────────────────────────────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   dbmsMiddleware.ts                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { Connect, ViteDevServer } from 'vite';
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
@@ -30,7 +24,7 @@ import { validatePropertyValue } from '../store/validation';
 import { pgLoadPages } from './db/pgLoader';
 import { mongoLoadPages } from './db/mongoLoader';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+
 type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
 
 interface NotionState {
@@ -46,15 +40,6 @@ interface SchemaProp {
   options?: { id: string; value: string; color: string }[];
 }
 
-// ─── Bidirectional property-value normalisation (option IDs ↔ display names) ─
-// PG / MongoDB store human-readable display values ("Done", "High", ["Bug"]).
-// The Notion UI store expects internal option IDs   ("opt-done", "pri-high", ["tag-bug"]).
-//
-// Load path  (DB → Store):  normalizePageToOptionIds
-// Write path (Store → DB):  convertValueToDisplay
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Types that carry option IDs internally. */
 const OPTION_TYPES = new Set(['select', 'status', 'multi_select']);
 
 /** Convert a single display value → option ID  (select / status). */
@@ -140,7 +125,6 @@ function convertValueToDisplay(value: unknown, prop: SchemaProp | undefined): un
   return idToDisplay(value, prop);
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 const ROOT = resolve(process.cwd());
 
 /** Map source type → directory holding seed files. */
@@ -157,7 +141,7 @@ const FIELD_MAP_FILE = '_field_map.json';
 /** Active source — persists across requests in the Vite process. */
 let activeSource: DbSourceType = (process.env.ACTIVE_DB_SOURCE as DbSourceType) ?? 'json';
 
-/** Expose a getter for the file watcher. */
+/** Returns the currently active DBMS source type. */
 export function getActiveSource(): DbSourceType { return activeSource; }
 
 /** Reject mutation requests from a stale source (race condition guard).
@@ -211,7 +195,6 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
         livePage.properties = { ...seedProps, ...filteredLive };
       }
 
-      // ── Normalise display values → option IDs (PG/Mongo store "Done" but UI expects "opt-done") ──
       livePage.properties = normalizePageToOptionIds(
         livePage.properties as Record<string, unknown>,
         dbSchema,
@@ -224,9 +207,6 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
   return seed;
 }
 
-// ─── In-memory state cache for live DB sources ──────────────────────────────
-// Avoids querying all 6 tables on every PATCH/DELETE — only refreshes from the
-// live DB on initial load or when the cache is invalidated (source switch).
 let liveCache: NotionState | null = null;
 let liveCacheSource: DbSourceType | null = null;
 
@@ -268,8 +248,6 @@ function writeState(source: DbSourceType, state: NotionState): void {
   writeFileSync(p, JSON.stringify(state, null, 2), 'utf-8');
 }
 
-// ─── Flat-file sync helpers ─────────────────────────────────────────────────
-// When a page property changes, also update the corresponding flat file.
 
 interface PageLike {
   id: string;
@@ -434,7 +412,7 @@ function csvEscape(val: string): string {
   return val;
 }
 
-// ─── JSON body parser helper ─────────────────────────────────────────────────
+
 function parseBody(req: Connect.IncomingMessage): Promise<Record<string, unknown>> {
   return new Promise((resolve, reject) => {
     let data = '';
@@ -450,7 +428,7 @@ function parseBody(req: Connect.IncomingMessage): Promise<Record<string, unknown
   });
 }
 
-// ─── Middleware factory ──────────────────────────────────────────────────────
+/** Registers DBMS REST API routes on the Vite dev server. */
 export function dbmsMiddleware(server: ViteDevServer): void {
   // Initialize the styled logger system (Observer + Decorator chain)
   initLogger(activeSource);
@@ -466,7 +444,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
     res.setHeader('Content-Type', 'application/json');
 
     try {
-      // ── GET /api/dbms/state ──
       if (url === '/api/dbms/state' && req.method === 'GET') {
         // Force a fresh load from the live DB (invalidate cache to get latest)
         if (isLiveDbSource(activeSource)) invalidateLiveCache();
@@ -476,14 +453,12 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── GET /api/dbms/source ──
       if (url === '/api/dbms/source' && req.method === 'GET') {
         res.writeHead(200);
         res.end(JSON.stringify({ source: activeSource }));
         return;
       }
 
-      // ── PUT /api/dbms/source ──
       if (url === '/api/dbms/source' && req.method === 'PUT') {
         const body = await parseBody(req);
         const newSource = body.source as DbSourceType;
@@ -501,7 +476,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── PATCH /api/dbms/pages/:pageId ──
       const pageMatch = url.match(/^\/api\/dbms\/pages\/([^/]+)$/);
       if (pageMatch && req.method === 'PATCH') {
         const pageId = decodeURIComponent(pageMatch[1]);
@@ -567,7 +541,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── POST /api/dbms/records — create a new record ──
       if (url === '/api/dbms/records' && req.method === 'POST') {
         const body = await parseBody(req);
         if (isStaleSource(body, res)) return;
@@ -623,7 +596,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── DELETE /api/dbms/records/:pageId — delete a record ──
       const deleteRecordMatch = url.match(/^\/api\/dbms\/records\/([^/]+)$/);
       if (deleteRecordMatch && req.method === 'DELETE') {
         const pageId = decodeURIComponent(deleteRecordMatch[1]);
@@ -659,7 +631,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── POST /api/dbms/columns — add a column ──
       if (url === '/api/dbms/columns' && req.method === 'POST') {
         const body = await parseBody(req);
         if (isStaleSource(body, res)) return;
@@ -687,7 +658,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── DELETE /api/dbms/columns/:databaseId/:propId — remove a column ──
       const dropColMatch = url.match(/^\/api\/dbms\/columns\/([^/]+)\/([^/]+)$/);
       if (dropColMatch && req.method === 'DELETE') {
         const databaseId = decodeURIComponent(dropColMatch[1]);
@@ -718,7 +688,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── PATCH /api/dbms/columns/:databaseId/:propId/type — change column type ──
       const changeTypeMatch = url.match(/^\/api\/dbms\/columns\/([^/]+)\/([^/]+)\/type$/);
       if (changeTypeMatch && req.method === 'PATCH') {
         const databaseId = decodeURIComponent(changeTypeMatch[1]);
@@ -741,7 +710,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── GET /api/dbms/query-log — recent generated queries ──
       if (url.startsWith('/api/dbms/query-log') && req.method === 'GET') {
         const params = new URL(url, 'http://localhost').searchParams;
         const limit = Number(params.get('limit')) || 50;
@@ -750,14 +718,12 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── DELETE /api/dbms/query-log — clear query log ──
       if (url === '/api/dbms/query-log' && req.method === 'DELETE') {
         clearQueryLog();
         res.writeHead(200);
         res.end(JSON.stringify({ ok: true }));
         return;
       }
-      // ── POST /api/dbms/ops — ops-only dispatch (no state modification) ──
       if (url === '/api/dbms/ops' && req.method === 'POST') {
         const body = await parseBody(req);
         if (isStaleSource(body, res)) return;
@@ -841,7 +807,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         res.end(JSON.stringify({ ok: true, query: result?.query ?? null }));
         return;
       }
-      // ── PATCH /api/dbms/state — full state replacement ──
       if (url === '/api/dbms/state' && req.method === 'PATCH') {
         const body = await parseBody(req);
         if (isStaleSource(body, res)) return;
@@ -871,7 +836,6 @@ export function dbmsMiddleware(server: ViteDevServer): void {
         return;
       }
 
-      // ── Not matched ──
       res.writeHead(404);
       res.end(JSON.stringify({ error: 'Not found' }));
     } catch (err) {
