@@ -20,6 +20,7 @@ import type { Connect, ViteDevServer } from 'vite';
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { initFileWatcher, stopFileWatcher, markOwnWrite } from './fileWatcher';
+import { initLogger, logLifecycle } from './logger';
 import {
   dispatchInsert, dispatchDelete, dispatchUpdate,
   dispatchAddColumn, dispatchDropColumn, dispatchChangeType,
@@ -164,7 +165,7 @@ export function getActiveSource(): DbSourceType { return activeSource; }
 function isStaleSource(body: Record<string, unknown>, res: import('http').ServerResponse): boolean {
   const reqSource = body._source as string | undefined;
   if (reqSource && reqSource !== activeSource) {
-    console.log(`[dbms-middleware] Stale request from '${reqSource}' (active: '${activeSource}') — skipped`);
+    logLifecycle(`Stale request from '${reqSource}' (active: '${activeSource}') — skipped`);
     res.writeHead(409);
     res.end(JSON.stringify({ ok: false, skipped: true, reason: 'source_mismatch' }));
     return true;
@@ -451,6 +452,9 @@ function parseBody(req: Connect.IncomingMessage): Promise<Record<string, unknown
 
 // ─── Middleware factory ──────────────────────────────────────────────────────
 export function dbmsMiddleware(server: ViteDevServer): void {
+  // Initialize the styled logger system (Observer + Decorator chain)
+  initLogger(activeSource);
+
   // Start file watcher (inotify — zero CPU)
   initFileWatcher(server, getActiveSource);
   server.httpServer?.on('close', stopFileWatcher);
@@ -489,6 +493,7 @@ export function dbmsMiddleware(server: ViteDevServer): void {
           return;
         }
         activeSource = newSource;
+        logLifecycle(`Source switched → ${newSource}`);
         invalidateLiveCache();
         const state = await getEffectiveState(activeSource);
         res.writeHead(200);

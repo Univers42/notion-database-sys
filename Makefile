@@ -168,9 +168,13 @@ check-rust:
 	done
 	@echo -e "$(GREEN)✔ Rust crates ok$(RESET)"
 
-dev:
+dev: ## Start Vite dev server (compact query logs)
 	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
 	npm run dev
+
+dev-verbose: ## Start Vite dev server (detailed query logs with colors & boxes)
+	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
+	DBMS_VERBOSE=1 npm run dev
 
 clean:
 	docker compose down -v 2>/dev/null || true
@@ -179,4 +183,4 @@ clean:
 
 .PHONY: help up down restart re re-all re-standalone logs pull db-up db-down db-reset db-status \
 	seed-pg seed-mongo seed-all seed-state seed-state-force psql mongo-shell \
-	build-rust check-rust dev clean verify smoke-test
+	build-rust check-rust dev dev-verbose clean verify smoke-test
