@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:44:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@ import { cn } from '../../utils/cn';
 
 const MIN_WIDTH = 400;
 const MAX_WIDTH_RATIO = 0.92;
-
-// ─── Resize handle ──────────────────────────────────────────────────────────
 
 function ResizeHandle({ side = 'left', isResizing, onMouseDown }: Readonly<{
   side?: 'left' | 'right';
@@ -35,8 +33,7 @@ function ResizeHandle({ side = 'left', isResizing, onMouseDown }: Readonly<{
   );
 }
 
-// ─── Side peek view ─────────────────────────────────────────────────────────
-
+/** Renders a page as a resizable side panel (right-anchored). */
 export function SidePeekView({ page, database, pageId, onClose, panelWidth, isResizing, startResize }: Readonly<{
   page: Page;
   database: DatabaseSchema;
@@ -63,8 +60,7 @@ export function SidePeekView({ page, database, pageId, onClose, panelWidth, isRe
   );
 }
 
-// ─── Center peek view ───────────────────────────────────────────────────────
-
+/** Renders a page as a centered overlay modal with backdrop. */
 export function CenterPeekView({ page, database, pageId, onClose, panelWidth, isResizing, startResize }: Readonly<{
   page: Page;
   database: DatabaseSchema;

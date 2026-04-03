@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 17:03:34 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ import { PageContentEditor } from '../PageContentEditor';
 import type { Page, DatabaseSchema, SchemaProperty } from '../../types/database';
 import { cn } from '../../utils/cn';
 
-// ─── Action buttons (duplicate / delete / close) ────────────────────────────
-
+/** Renders duplicate, delete, and close action buttons for the page modal header. */
 export function ActionButtons({ pageId, onClose, deletePage, duplicatePage }: Readonly<{
   pageId: string;
   onClose: () => void;
@@ -45,8 +44,7 @@ export function ActionButtons({ pageId, onClose, deletePage, duplicatePage }: Re
   );
 }
 
-// ─── Header bar (shared across modes) ───────────────────────────────────────
-
+/** Renders the top header bar shared across page modal modes (breadcrumb + actions). */
 export function ModalHeaderBar({ database, title, pageId, onClose }: {
   database: { icon?: string; name: string };
   title: string;
@@ -67,8 +65,7 @@ export function ModalHeaderBar({ database, title, pageId, onClose }: {
   );
 }
 
-// ─── Page inner content (icon + title + props + blocks + meta) ──────────────
-
+/** Renders the page body: icon, editable title, properties, content editor, and metadata footer. */
 export function PageInnerContent({ page, database, pageId, hPad }: {
   page: { icon?: string; properties: Record<string, unknown>; createdAt: string; updatedAt: string };
   database: { titlePropertyId: string; properties: Record<string, SchemaProperty>; icon?: string; name: string };

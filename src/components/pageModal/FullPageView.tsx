@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,7 @@ import { cn } from '../../utils/cn';
 const CONTENT_WIDTHS = { narrow: 640, default: 896, wide: 1152, full: -1 } as const;
 type ContentWidth = keyof typeof CONTENT_WIDTHS;
 
-// ─── Full page view ─────────────────────────────────────────────────────────
-
+/** Renders a page as a full-screen view with adjustable content width. */
 export function FullPageView({ page, database, pageId, onClose }: Readonly<{
   page: Page;
   database: DatabaseSchema;
