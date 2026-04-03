@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:33 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:20:52 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 01:35:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ interface PropertyConfigPanelProps {
 export function PropertyConfigPanel({ property, databaseId, viewId, position, onClose }: Readonly<PropertyConfigPanelProps>) {
   const {
     updateProperty, deleteProperty, togglePropertyVisibility,
-    setSort, addFilter, setGrouping, insertPropertyAt, views,
+    addSort, addFilter, setGrouping, insertPropertyAt, views,
   } = useDatabaseStore();
 
   const [propName, setPropName] = useState(property.name);
@@ -143,9 +143,9 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
         <ActionButton icon={<Filter className="w-3.5 h-3.5" />} label="Filter by this property"
           onClick={() => { addFilter(viewId, { propertyId: property.id, operator: 'is_not_empty', value: '' }); onClose(); }} />
         <ActionButton icon={<ArrowUp className="w-3.5 h-3.5" />} label="Sort ascending"
-          onClick={() => { setSort(viewId, { propertyId: property.id, direction: 'asc' }); onClose(); }} />
+          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'asc' }); onClose(); }} />
         <ActionButton icon={<ArrowDown className="w-3.5 h-3.5" />} label="Sort descending"
-          onClick={() => { setSort(viewId, { propertyId: property.id, direction: 'desc' }); onClose(); }} />
+          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'desc' }); onClose(); }} />
         {(property.type === 'select' || property.type === 'status' || property.type === 'multi_select' || property.type === 'checkbox' || property.type === 'person' || property.type === 'user') && (
           <ActionButton icon={<Group className="w-3.5 h-3.5" />} label="Group by this property"
             onClick={() => { setGrouping(viewId, { propertyId: property.id }); onClose(); }} />
