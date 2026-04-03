@@ -24,6 +24,7 @@ import { BlockRenderer } from './blocks/BlockRenderer';
 import { SlashCommandMenu } from './blocks/SlashCommandMenu';
 import { InlineToolbar } from './blocks/InlineToolbar';
 import { DraggableBlockWrapper, EmptyBlockPlaceholder } from './PageContentEditorHelpers';
+import { cn } from '../utils/cn';
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
   const content = page.content || [];
 
   return (
-    <div className="flex flex-col gap-0.5 min-h-[200px]" data-page-content-editor>
+    <div className={cn("flex flex-col gap-0.5 min-h-[200px]")} data-page-content-editor>
       {content.length === 0 ? (
         <EmptyBlockPlaceholder onFocus={() => handleInitBlock(content)} />
       ) : (
@@ -79,10 +80,10 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
       {content.length > 0 && (
         <button
           onClick={() => handleAddBlock(content)}
-          className="flex items-center gap-2 text-sm text-ink-disabled hover:text-hover-text-muted py-2 transition-colors group"
+          className={cn("flex items-center gap-2 text-sm text-ink-disabled hover:text-hover-text-muted py-2 transition-colors group")}
         >
-          <Plus className="w-4 h-4" />
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity">Add a block</span>
+          <Plus className={cn("w-4 h-4")} />
+          <span className={cn("opacity-0 group-hover:opacity-100 transition-opacity")}>Add a block</span>
         </button>
       )}
 

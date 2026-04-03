@@ -1,14 +1,15 @@
 import React from 'react';
 import { format, parseISO } from 'date-fns';
+import { cn } from '../utils/cn';
 
 // ─── Read-only property renderers ───────────────────────────────────────────
 
 export function ReadOnlyText({ value, fallback = '—' }: Readonly<{ value: unknown; fallback?: string }>) {
-  return <span className="text-sm text-ink-secondary px-2">{typeof value === 'string' && value ? value : fallback}</span>;
+  return <span className={cn("text-sm text-ink-secondary px-2")}>{typeof value === 'string' && value ? value : fallback}</span>;
 }
 
 export function ReadOnlyTime({ iso }: Readonly<{ iso: string | undefined }>) {
-  return <span className="text-sm text-ink-secondary px-2">{iso ? format(parseISO(iso), 'MMM d, yyyy h:mm a') : '-'}</span>;
+  return <span className={cn("text-sm text-ink-secondary px-2")}>{iso ? format(parseISO(iso), 'MMM d, yyyy h:mm a') : '-'}</span>;
 }
 
 // ─── Editable property renderers ────────────────────────────────────────────
@@ -21,7 +22,7 @@ export function TextEditor({ value, onChange, type }: Readonly<{ value: string; 
       type={inputTypeMap[type ?? ''] || 'text'}
       value={value || ''}
       onChange={e => onChange(e.target.value)}
-      className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
+      className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface")}
       placeholder="Empty"
     />
   );
@@ -33,7 +34,7 @@ export function NumberEditor({ value, onChange }: Readonly<{ value: number | nul
       type="number"
       value={value ?? ''}
       onChange={e => onChange(e.target.value ? Number(e.target.value) : null)}
-      className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface tabular-nums"
+      className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface tabular-nums")}
       placeholder="Empty"
     />
   );
@@ -48,7 +49,7 @@ export function SelectEditor({ value, options, onChange }: {
     <select
       value={value || ''}
       onChange={e => onChange(e.target.value || null)}
-      className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
+      className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface")}
     >
       <option value="">Empty</option>
       {options.map(opt => <option key={opt.id} value={opt.id}>{opt.value}</option>)}
@@ -63,20 +64,20 @@ export function MultiSelectEditor({ value, options, onChange }: {
 }) {
   const selected = Array.isArray(value) ? value : [];
   return (
-    <div className="flex-1 flex flex-wrap items-center gap-1 px-2 py-1">
+    <div className={cn("flex-1 flex flex-wrap items-center gap-1 px-2 py-1")}>
       {selected.map(id => {
         const opt = options.find(o => o.id === id);
         return opt ? (
-          <span key={id} className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`}>
+          <span key={id} className={cn(`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>
             {opt.value}
-            <button onClick={() => onChange(selected.filter(s => s !== id))} className="hover:text-hover-danger-text-bold">×</button>
+            <button onClick={() => onChange(selected.filter(s => s !== id))} className={cn("hover:text-hover-danger-text-bold")}>×</button>
           </span>
         ) : null;
       })}
       <select
         value=""
         onChange={e => { if (e.target.value && !selected.includes(e.target.value)) onChange([...selected, e.target.value]); }}
-        className="text-xs text-ink-muted bg-transparent outline-none"
+        className={cn("text-xs text-ink-muted bg-transparent outline-none")}
       >
         <option value="">+ Add</option>
         {options.filter(o => !selected.includes(o.id)).map(opt => (
@@ -91,11 +92,11 @@ export function CheckboxEditor({ value, onChange }: Readonly<{ value: boolean; o
   return (
     <button
       onClick={() => onChange(!value)}
-      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+      className={cn(`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
         value ? 'bg-accent border-accent-border' : 'border-line-medium hover:border-hover-border-strong'
-      }`}
+      }`)}
     >
-      {value && <span className="text-ink-inverse text-xs">✓</span>}
+      {value && <span className={cn("text-ink-inverse text-xs")}>✓</span>}
     </button>
   );
 }
@@ -106,7 +107,7 @@ export function DateEditor({ value, onChange }: Readonly<{ value: string; onChan
       type="date"
       value={value || ''}
       onChange={e => onChange(e.target.value || null)}
-      className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
+      className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface")}
     />
   );
 }
@@ -118,7 +119,7 @@ export function PlaceEditor({ value, onChange }: Readonly<{ value: unknown; onCh
       type="text"
       value={placeVal?.address || (typeof value === 'string' ? value : '')}
       onChange={e => onChange({ address: e.target.value })}
-      className="flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface"
+      className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface")}
       placeholder="Address..."
     />
   );

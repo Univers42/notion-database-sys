@@ -20,6 +20,7 @@ import { useResizablePanel } from '../hooks/useResizablePanel';
 import { SidePeekView } from './pageModal/PeekViews';
 import { CenterPeekView } from './pageModal/PeekViews';
 import { FullPageView } from './pageModal/FullPageView';
+import { cn } from '../utils/cn';
 
 type ModalMode = 'side_peek' | 'center_peek' | 'full_page';
 
@@ -54,11 +55,11 @@ export function PageModal({ pageId, onClose, mode = 'side_peek' }: Readonly<Page
 
 function PageNotFound({ onClose }: Readonly<{ onClose: () => void }>) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim">
-      <button type="button" className="fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default" onClick={onClose} tabIndex={-1} aria-label="Close" />
-      <div className="relative z-[60] bg-surface-primary rounded-xl shadow-2xl p-8 text-center" onClick={e => e.stopPropagation()}>
-        <p className="text-ink-secondary">Page not found</p>
-        <button onClick={onClose} className="mt-3 text-sm text-accent-text-soft">Close</button>
+    <div className={cn("fixed inset-0 z-50 flex items-center justify-center bg-scrim")}>
+      <button type="button" className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={onClose} tabIndex={-1} aria-label="Close" />
+      <div className={cn("relative z-[60] bg-surface-primary rounded-xl shadow-2xl p-8 text-center")} onClick={e => e.stopPropagation()}>
+        <p className={cn("text-ink-secondary")}>Page not found</p>
+        <button onClick={onClose} className={cn("mt-3 text-sm text-accent-text-soft")}>Close</button>
       </div>
     </div>
   );

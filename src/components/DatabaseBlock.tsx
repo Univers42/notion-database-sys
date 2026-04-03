@@ -30,6 +30,7 @@ import { DatabaseScopeProvider } from '../hooks/useDatabaseScope';
 import { TopBar } from './TopBar';
 import { DatabaseView } from './DatabaseView';
 import { Plus, FileText } from 'lucide-react';
+import { cn } from '../utils/cn';
 
 export interface DatabaseBlockProps {
   /** Which database to show. If omitted, uses the database of the global activeViewId. */
@@ -77,13 +78,13 @@ export function DatabaseBlock({
   // ─── Empty state ─────────────────────────────────────────────────
   if (!database || !resolvedView) {
     return (
-      <div className={mode === 'inline'
+      <div className={cn(mode === 'inline'
         ? 'my-3 border border-line rounded-xl p-8 text-center bg-surface-primary'
-        : 'flex-1 flex items-center justify-center p-8'}>
-        <div className="text-center text-ink-muted max-w-sm">
-          <FileText className="w-12 h-12 mx-auto mb-3 text-ink-disabled" />
-          <h3 className="text-lg font-semibold text-ink-body-light mb-2">No database</h3>
-          <p className="text-sm">Select a database and view to get started.</p>
+        : 'flex-1 flex items-center justify-center p-8')}>
+        <div className={cn("text-center text-ink-muted max-w-sm")}>
+          <FileText className={cn("w-12 h-12 mx-auto mb-3 text-ink-disabled")} />
+          <h3 className={cn("text-lg font-semibold text-ink-body-light mb-2")}>No database</h3>
+          <p className={cn("text-sm")}>Select a database and view to get started.</p>
         </div>
       </div>
     );
@@ -96,9 +97,9 @@ export function DatabaseBlock({
   if (mode === 'inline') {
     return (
       <DatabaseScopeProvider value={resolvedViewId}>
-        <div className="my-3 border border-line rounded-xl overflow-hidden bg-surface-primary shadow-sm">
+        <div className={cn("my-3 border border-line rounded-xl overflow-hidden bg-surface-primary shadow-sm")}>
           <TopBar onViewChange={handleViewChange} />
-          <div className="max-h-[500px] overflow-auto">
+          <div className={cn("max-h-[500px] overflow-auto")}>
             <DatabaseView viewId={resolvedViewId} compact />
           </div>
           <InlineFooter databaseId={database.id} />
@@ -109,7 +110,7 @@ export function DatabaseBlock({
 
   // Full-page mode — identical to current App layout
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className={cn("flex-1 flex flex-col min-h-0")}>
       <TopBar />
       <DatabaseView />
     </div>
@@ -127,12 +128,12 @@ function InlineFooter({ databaseId }: Readonly<{ databaseId: string }>) {
     <>
       <button
         onClick={() => addPage(databaseId)}
-        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface transition-colors border-t border-line-light"
+        className={cn("w-full flex items-center gap-2 px-4 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface transition-colors border-t border-line-light")}
       >
-        <Plus className="w-4 h-4" />
+        <Plus className={cn("w-4 h-4")} />
         <span>New</span>
       </button>
-      <div className="px-4 py-1.5 border-t border-line-light bg-surface-secondary-soft text-xs text-ink-muted flex items-center justify-between">
+      <div className={cn("px-4 py-1.5 border-t border-line-light bg-surface-secondary-soft text-xs text-ink-muted flex items-center justify-between")}>
         <span>{count} {count === 1 ? 'row' : 'rows'}</span>
       </div>
     </>

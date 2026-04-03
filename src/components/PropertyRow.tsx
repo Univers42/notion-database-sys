@@ -22,6 +22,7 @@ import {
   ReadOnlyText, ReadOnlyTime, TextEditor, NumberEditor, SelectEditor,
   MultiSelectEditor, CheckboxEditor, DateEditor, PlaceEditor,
 } from './PropertyRowEditors';
+import { cn } from '../utils/cn';
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
@@ -38,10 +39,10 @@ export function PropertyRow({ prop, page, pageId, database: _database }: Readonl
   const editor = renderPropertyEditor(prop, val, page, update);
 
   return (
-    <div className="flex items-center gap-3 py-1.5 group hover:bg-hover-surface -mx-3 px-3 rounded-lg transition-colors">
-      <div className="flex items-center gap-2 w-36 shrink-0">
-        <span className="text-ink-muted"><PropIcon type={prop.type} className="w-3.5 h-3.5" /></span>
-        <span className="text-sm text-ink-secondary truncate">{prop.name}</span>
+    <div className={cn("flex items-center gap-3 py-1.5 group hover:bg-hover-surface -mx-3 px-3 rounded-lg transition-colors")}>
+      <div className={cn("flex items-center gap-2 w-36 shrink-0")}>
+        <span className={cn("text-ink-muted")}><PropIcon type={prop.type} className={cn("w-3.5 h-3.5")} /></span>
+        <span className={cn("text-sm text-ink-secondary truncate")}>{prop.name}</span>
       </div>
       {editor}
     </div>
@@ -81,10 +82,10 @@ function renderPropertyEditor(
     case 'id':
       return <ReadOnlyText value={val} />;
     case 'files_media':
-      return <span className="text-sm text-ink-muted italic px-2">{Array.isArray(val) && val.length > 0 ? `${val.length} file(s)` : 'No files'}</span>;
+      return <span className={cn("text-sm text-ink-muted italic px-2")}>{Array.isArray(val) && val.length > 0 ? `${val.length} file(s)` : 'No files'}</span>;
     case 'button':
       return (
-        <button className="px-3 py-1 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md transition-colors">
+        <button className={cn("px-3 py-1 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md transition-colors")}>
           {prop.buttonConfig?.label || 'Click'}
         </button>
       );
@@ -97,6 +98,6 @@ function renderPropertyEditor(
     case 'last_edited_by':
       return <ReadOnlyText value={page.lastEditedBy} />;
     default:
-      return <span className="text-sm text-ink-muted px-2">—</span>;
+      return <span className={cn("text-sm text-ink-muted px-2")}>—</span>;
   }
 }
