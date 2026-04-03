@@ -1,8 +1,7 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
 
-// ─── Formatting actions ─────────────────────────────────────────────────────
-
+/** Describes a formatting action available in the inline toolbar. */
 export interface FormatAction {
   icon: React.ReactNode;
   label: string;
@@ -10,6 +9,7 @@ export interface FormatAction {
   isActive?: () => boolean;
 }
 
+/** Wraps the current text selection with prefix/suffix (toggles off if already wrapped). */
 export function wrapSelection(prefix: string, suffix: string): void {
   const sel = globalThis.getSelection();
   if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
@@ -37,6 +37,7 @@ export function wrapSelection(prefix: string, suffix: string): void {
   editable.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
+/** Inserts a Markdown link template at the current selection. */
 export function insertLinkMarkdown(): void {
   const sel = globalThis.getSelection();
   if (!sel || sel.rangeCount === 0) return;
@@ -55,14 +56,14 @@ export function insertLinkMarkdown(): void {
   editable.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
-// ─── Toolbar position calculation ───────────────────────────────────────────
-
+/** Position and visibility state for the floating inline toolbar. */
 export interface ToolbarPosition {
   x: number;
   y: number;
   visible: boolean;
 }
 
+/** Returns the bounding rect of the current selection within a contenteditable, or null. */
 export function getSelectionRect(): DOMRect | null {
   const sel = globalThis.getSelection();
   if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
@@ -77,8 +78,7 @@ export function getSelectionRect(): DOMRect | null {
   return rect;
 }
 
-// ─── Toolbar button ─────────────────────────────────────────────────────────
-
+/** Renders a single button in the inline formatting toolbar. */
 export function ToolbarButton({ icon, label, onClick, active }: Readonly<{
   icon: React.ReactNode;
   label: string;
@@ -104,8 +104,7 @@ export function ToolbarButton({ icon, label, onClick, active }: Readonly<{
   );
 }
 
-// ─── Color picker dropdown ──────────────────────────────────────────────────
-
+/** Available text color options for the inline color picker. */
 export const TEXT_COLORS = [
   { label: 'Default', value: '', className: 'bg-ink' },
   { label: 'Red', value: 'red', className: 'bg-red-500' },

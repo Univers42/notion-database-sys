@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ const HEADING_PLACEHOLDERS: Record<string, string> = {
   heading_6: 'Heading 6',
 };
 
+/** Renders a heading block (h1–h6) with toggle support and editable content. */
 export function HeadingBlock({ block, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   return (
     <EditableContent

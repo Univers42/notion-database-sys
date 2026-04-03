@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:31 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import type { BlockRendererProps } from './BlockRenderer';
 import { FileText, ArrowUpRight } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
+/** Renders a sub-page or link-to-page block within page content. */
 export function PageBlock({ block }: Readonly<BlockRendererProps>) {
   return (
     <div className={cn("my-1")}>

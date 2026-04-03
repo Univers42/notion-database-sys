@@ -6,17 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 21:00:32 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// InlineToolbar — floating formatting toolbar on text selection
-// ═══════════════════════════════════════════════════════════════════════════════
-// Appears above selected text in contentEditable blocks.
-// Buttons: Bold | Italic | Strikethrough | Code | Link
-// Uses document.execCommand for formatting and wraps with markdown syntax.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -25,8 +17,7 @@ import { wrapSelection, insertLinkMarkdown, getSelectionRect, ToolbarButton } fr
 import type { ToolbarPosition } from './InlineToolbarHelpers';
 import { cn } from '../../utils/cn';
 
-// ─── Main component ─────────────────────────────────────────────────────────
-
+/** Floating toolbar that appears on text selection with formatting actions (bold, italic, link, etc.). */
 export function InlineToolbar() {
   const [pos, setPos] = useState<ToolbarPosition>({ x: 0, y: 0, visible: false });
   const toolbarRef = useRef<HTMLDivElement>(null);

@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// TableOfContentsBlock — auto-generated TOC from page headings
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
@@ -33,6 +29,7 @@ const TEXT_SIZE: Record<string, string> = {
   heading_4: 'text-xs text-ink-muted',
 };
 
+/** Renders a table of contents block with links to heading blocks on the page. */
 export function TableOfContentsBlock({ pageId }: Readonly<{ pageId: string }>) {
   const pages = useDatabaseStore(s => s.pages);
   const page = pages[pageId];

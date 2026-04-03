@@ -4,8 +4,7 @@ import type { BlockType } from '../../types/database';
 import { SLASH_ITEMS, SECTION_LABELS, type SlashMenuItem } from './slashMenu/slashMenuCatalog';
 import { cn } from '../../utils/cn';
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
+/** Props for {@link SlashCommandMenu}. */
 export interface SlashCommandMenuProps {
   position: { x: number; y: number };
   filter: string;
@@ -13,6 +12,7 @@ export interface SlashCommandMenuProps {
   onClose: () => void;
 }
 
+/** Renders a filterable slash command menu for inserting new block types. */
 export function SlashCommandMenu({ position, filter, onSelect, onClose }: Readonly<SlashCommandMenuProps>) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);

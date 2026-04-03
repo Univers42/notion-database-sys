@@ -6,24 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:21 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:48 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// InlineDatabaseBlock — inline database embed in page content
-// ═══════════════════════════════════════════════════════════════════════════════
-//
-// This is a thin wrapper: it reads the block's databaseId + viewId, then
-// renders the same DatabaseBlock component used for the full-page app —
-// just in inline mode. Zero duplication, identical functionality.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { DatabaseBlock } from '../DatabaseBlock';
-import { cn } from '../../utils/cn';
 
+/** Renders an inline database embed using DatabaseBlock in inline mode. */
 export function InlineDatabaseBlock({ block }: Readonly<BlockRendererProps>) {
   return (
     <DatabaseBlock
