@@ -6,8 +6,8 @@ import type { Session } from '@notion-db/types';
 export type SessionDocument = Omit<Session, '_id'> & Document;
 
 const sessionSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, required: true, ref: 'User', index: true },
-  refreshToken: { type: String, required: true, unique: true },
+  userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+  refreshToken: { type: String, required: true },
   userAgent: String,
   ip: String,
   createdAt: { type: Date, default: Date.now },

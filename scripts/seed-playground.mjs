@@ -8,7 +8,7 @@
 //   node scripts/seed-playground.mjs
 //   VITE_API_URL=http://localhost:4000 node scripts/seed-playground.mjs
 
-const BASE = process.env.VITE_API_URL ?? 'http://localhost:3000';
+const BASE = process.env.API_URL ?? process.env.VITE_API_URL ?? 'http://localhost:4000';
 
 const PERSONAS = [
   { email: 'admin@playground.local',        password: 'playground123', name: 'Dylan Admin'      },
@@ -17,6 +17,16 @@ const PERSONAS = [
 ];
 
 // ── HTTP helpers ──────────────────────────────────────────────────────────────
+
+async function safeJson(res) {
+  const text = await res.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Non-JSON response (${res.status} ${res.statusText}): ${text.slice(0, 200)}`);
+  }
+}
 
 async function post(path, body, jwt) {
   const res = await fetch(`${BASE}${path}`, {
@@ -28,14 +38,14 @@ async function post(path, body, jwt) {
     body: JSON.stringify(body),
   });
   if (res.status === 204) return null;
-  return res.json();
+  return safeJson(res);
 }
 
 async function get(path, jwt) {
   const res = await fetch(`${BASE}${path}`, {
     headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
   });
-  return res.json();
+  return safeJson(res);
 }
 
 // ── Auth: register or login (idempotent) ─────────────────────────────────────
@@ -104,8 +114,9 @@ async function ensureMember(workspaceId, userId, role, adminJwt) {
     { userId, role },
     adminJwt,
   );
-  if (res?.ok) {
-    console.log(`  ✔  Invited ${userId} as ${role}`);
+  // code 11000 = duplicate key → member already present
+  if (res?.ok || String(res?.code) === '11000') {
+    console.log(`  ✔  ${res?.ok ? 'Invited' : 'Already member'} ${userId} as ${role}`);
   } else {
     console.warn(`  ⚠  Could not invite ${userId}: ${JSON.stringify(res)}`);
   }

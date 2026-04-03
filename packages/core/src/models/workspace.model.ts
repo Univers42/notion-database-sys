@@ -20,14 +20,14 @@ const workspaceSettingsSchema = new Schema({
 const workspaceSchema = new Schema({
   name: { type: String, required: true, trim: true, maxlength: 100 },
   icon: String,
-  ownerId: { type: Schema.Types.ObjectId, required: true, ref: 'User', index: true },
+  ownerId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
   plan: {
     type: String,
     enum: ['free', 'plus', 'business', 'enterprise'],
     default: 'free',
   },
   settings: { type: workspaceSettingsSchema, default: () => ({}) },
-  domain: { type: String, sparse: true, unique: true, lowercase: true, trim: true },
+  domain: { type: String, lowercase: true, trim: true },
 }, { timestamps: true });
 
 workspaceSchema.index({ ownerId: 1 });
