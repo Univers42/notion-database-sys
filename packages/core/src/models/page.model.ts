@@ -9,6 +9,7 @@ const pageSchema = new Schema({
   workspaceId: { type: Schema.Types.ObjectId, required: true, ref: 'Workspace', index: true },
   databaseId: { type: Schema.Types.ObjectId, ref: 'Page', index: true },
   parentPageId: { type: Schema.Types.ObjectId, ref: 'Page' },
+  title: { type: String, default: '' },
   icon: String,
   cover: String,
   properties: { type: Schema.Types.Mixed, default: {} },
