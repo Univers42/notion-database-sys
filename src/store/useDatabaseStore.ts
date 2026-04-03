@@ -6,11 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 22:53:51 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:56 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ─── useDatabaseStore — Zustand store composing domain slices ────────────────
 
 import { create } from 'zustand';
 import type { DatabaseSchema, ViewConfig } from '../types/database';
@@ -23,7 +21,7 @@ import { createComputedSlice } from './slices/computedSlice';
 import { validatePropertyValue } from './validation';
 import { readViewFromHash, writeHash } from '../hooks/useDbSource';
 
-// Read initial source from URL hash (same logic as useDbSource)
+// Read initial source from URL hash
 const VALID_SOURCES = new Set(['json', 'csv', 'mongodb', 'postgresql']);
 function getInitialSource(): string {
   try {
@@ -57,7 +55,6 @@ export type ExtendedDatabaseState = DatabaseState & DbmsExtras;
 /** Sources backed by a live database container. */
 const LIVE_DB_SOURCES = new Set(['postgresql', 'mongodb']);
 
-// ─── Helper: Flush full state to server immediately (no debounce) ───────────
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
 function flushState(get: () => ExtendedDatabaseState): void {
   if (persistTimer) { clearTimeout(persistTimer); persistTimer = null; }
@@ -73,7 +70,7 @@ function flushState(get: () => ExtendedDatabaseState): void {
   }).catch((err) => console.error('[dbms] State flush error:', err));
 }
 
-// ─── Helper: Fire ops dispatch (query generation only, no state mod) ────────
+/** Dispatches an ops request for query generation (fire-and-forget). */
 function dispatchOps(action: string, payload: Record<string, unknown>, source: string): void {
   fetch('/api/dbms/ops', {
     method: 'POST',
@@ -82,10 +79,7 @@ function dispatchOps(action: string, payload: Record<string, unknown>, source: s
   }).catch(() => { /* ops dispatch is best-effort */ });
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// STORE
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/** Zustand store composing domain slices with DBMS persistence. */
 export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   databases: {},
   pages: {},
@@ -94,7 +88,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   openPageId: null,
   searchQuery: '',
 
-  // DBMS loading state
   dbmsLoading: true,
   dbmsError: null,
   activeDbmsSource: getInitialSource(),
@@ -198,14 +191,12 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     });
   },
 
-  // ─── Compose domain slices ─────────────────────────────────
   ...createDatabaseSlice(set, get),
   ...createPageSlice(set, get),
   ...createViewSlice(set, get),
   ...createSelectionSlice(set),
   ...createComputedSlice(set, get),
 
-  // ─── Override updatePageProperty to add validation + write-through persistence ──
   updatePageProperty: (pageId: string, propertyId: string, value: unknown) => {
     // 0) Validate & coerce against schema
     const page = get().pages[pageId];
@@ -242,7 +233,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     get().persistPageProperty(pageId, propertyId, coerced);
   },
 
-  // ─── Override addPage: flush state + dispatch ops ──
   addPage: (databaseId: string, properties: Record<string, unknown> = {}) => {
     const sliceActions = createPageSlice(set, get);
     const pageId = sliceActions.addPage(databaseId, properties);
@@ -256,7 +246,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     return pageId;
   },
 
-  // ─── Override deletePage: flush state + dispatch ops ──
   deletePage: (pageId: string) => {
     const page = get().pages[pageId];
     const sliceActions = createPageSlice(set, get);
@@ -271,7 +260,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     }
   },
 
-  // ─── Override addProperty: flush state + dispatch ops ──
   addProperty: (databaseId: string, name: string, type: string) => {
     const sliceActions = createDatabaseSlice(set, get);
     sliceActions.addProperty(databaseId, name, type as never);
@@ -279,7 +267,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     dispatchOps('addColumn', { databaseId, columnName: name, propType: type }, get().activeDbmsSource);
   },
 
-  // ─── Override deleteProperty: flush state + dispatch ops ──
   deleteProperty: (databaseId: string, propertyId: string) => {
     const db = get().databases[databaseId];
     const propName = db?.properties[propertyId]?.name;
@@ -291,7 +278,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     }
   },
 
-  // ─── Override updateProperty: flush state + dispatch type changes ──
   updateProperty: (databaseId: string, propertyId: string, updates: Partial<{ name: string; type: string }>) => {
     const oldProp = get().databases[databaseId]?.properties[propertyId];
     const sliceActions = createDatabaseSlice(set, get);
@@ -306,7 +292,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     }
   },
 
-  // ─── Inline Database Creation ──────────────────────────────
   createInlineDatabase: (name = 'Untitled Database') => {
     const dbId = `db-inline-${crypto.randomUUID().slice(0, 8)}`;
     const viewId = `v-${crypto.randomUUID().slice(0, 8)}`;
@@ -351,7 +336,6 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   },
 }));
 
-// ─── URL hash sync: keep hash in sync when activeViewId or source changes ───
 useDatabaseStore.subscribe(
   (state, prev) => {
     if (state.activeViewId !== prev.activeViewId || state.activeDbmsSource !== prev.activeDbmsSource) {

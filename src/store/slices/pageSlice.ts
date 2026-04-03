@@ -6,11 +6,10 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:39:14 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ─── pageSlice — page CRUD and block mutation actions ────────────────────────
 import type { Page, Block, DatabaseSchema, SchemaProperty } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 
@@ -37,6 +36,11 @@ export interface PageSliceActions {
 
 export type PageSlice = PageSliceState & PageSliceActions;
 
+/**
+ * Creates the page CRUD and block mutation slice for the Zustand store.
+ *
+ * Mutates `pages` state. Auto-increments ID properties on `addPage`.
+ */
 export function createPageSlice(set: StoreSet, get: StoreGet): PageSliceActions {
   const now = (): string => new Date().toISOString();
 

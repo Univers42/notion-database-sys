@@ -6,15 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:43:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:47 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { create } from 'zustand';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// THEME STORE — Light / Dark / System preference
-// ═══════════════════════════════════════════════════════════════════════════════
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -76,7 +72,6 @@ export const useThemeStore = create<ThemeState>((set, get) => {
   };
 });
 
-// ─── Listen for OS-level changes when preference is "system" ─────────────────
 
 if (typeof window !== 'undefined') {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {

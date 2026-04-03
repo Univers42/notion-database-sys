@@ -6,11 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ─── databaseSlice — database schema CRUD actions ───────────────────────────
 
 import type { DatabaseSchema, SchemaProperty, PropertyType, SelectOption } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
@@ -31,6 +29,11 @@ export interface DatabaseSliceActions {
 
 export type DatabaseSlice = DatabaseSliceState & DatabaseSliceActions;
 
+/**
+ * Creates the database schema CRUD slice for the Zustand store.
+ *
+ * Mutates `databases` and `views` state on schema changes (add/update/delete properties).
+ */
 export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSliceActions {
   return {
     renameDatabase: (databaseId, name) => set((state: DatabaseState) => ({

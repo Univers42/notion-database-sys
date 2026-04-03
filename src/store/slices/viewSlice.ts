@@ -6,11 +6,10 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:39:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:20:52 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// ─── viewSlice — view CRUD, filter, sort, grouping, and property visibility ─
 import type { ViewConfig, ViewSettings, Filter, Sort, Grouping } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 
@@ -42,6 +41,12 @@ export interface ViewSliceActions {
 
 export type ViewSlice = ViewSliceState & ViewSliceActions;
 
+/**
+ * Creates the view CRUD slice for the Zustand store.
+ *
+ * Mutates `views` and `activeViewId` state. Handles filters, sorts,
+ * grouping, and property visibility.
+ */
 export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions {
   return {
     addView: (view) => set((state: DatabaseState) => {
@@ -142,7 +147,7 @@ export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions 
       };
     }),
 
-    // Replace ALL sorts with a single one (used by column-header quick-sort)
+    /** Replaces all sorts with a single sort (used by column-header quick-sort). */
     setSort: (viewId, sort) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;

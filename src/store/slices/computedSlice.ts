@@ -6,11 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:44:31 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ─── computedSlice — read-only computed helpers for the store ─────────────────
 
 import type { Page } from '../../types/database';
 import { initFormulaEngine, evalFormula, isWasmReady } from '../../lib/engine/bridge';
@@ -21,7 +19,6 @@ import { searchPage, buildGroups, formatFormulaResult, computeRollup } from './s
 
 initFormulaEngine().catch(() => {});
 
-// ─── getPagesForView memo cache ──────────────────────────────────────────────
 let pagesForViewCache: {
   pagesRef: Record<string, unknown> | null;
   viewsRef: Record<string, unknown> | null;
@@ -31,6 +28,12 @@ let pagesForViewCache: {
 
 import type { StoreSet, StoreGet } from '../dbms/hardcoded/storeTypes';
 
+/**
+ * Creates the computed/read-only helpers slice for the Zustand store.
+ *
+ * Provides derived data: filtered/sorted pages, grouped pages, formula
+ * resolution, rollup aggregation, and smart view defaults.
+ */
 export function createComputedSlice(_set: StoreSet, get: StoreGet) {
   return {
     getPageTitle: (page: Page) => {

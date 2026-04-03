@@ -6,14 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 18:45:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ─── Property Value Validation & Coercion ────────────────────────────────────
-// Ensures values conform to their property type before persisting.
-// Returns the coerced value (or the original if already valid).
-// Returns `undefined` when the value is fundamentally incompatible.
 
 import type { SchemaProperty, Page } from '../types/database';
 
@@ -51,12 +46,11 @@ export function validatePropertyValue(
 ): ValidationResult {
   const { type } = property;
 
-  // ── Null / empty always accepted (clears the field) ──
+  // Null / empty always accepted (clears the field)
   if (raw === null || raw === undefined || raw === '') {
     return ok(null);
   }
 
-  // ── System / computed / readonly — reject user edits ──
   if (SYSTEM_TYPES.has(type)) {
     return fail(`"${type}" is system-managed and cannot be edited`);
   }
@@ -68,7 +62,6 @@ export function validatePropertyValue(
   }
 
   switch (type) {
-    // ── Text-like ──
     case 'title':
     case 'text':
     case 'url':
@@ -79,45 +72,33 @@ export function validatePropertyValue(
     case 'assigned_to':
       return ok(String(raw));
 
-    // ── Number ──
     case 'number': return validateNumber(raw);
 
-    // ── Checkbox ──
     case 'checkbox': return validateCheckbox(raw);
 
-    // ── Date / Due date ──
     case 'date':
     case 'due_date': return validateDate(raw);
 
-    // ── Select / Status (single option ID) ──
     case 'select':
     case 'status': return validateSelect(raw, property);
 
-    // ── Multi-select (array of option IDs) ──
     case 'multi_select': return validateMultiSelect(raw, property);
 
-    // ── Relation (array of page IDs) ──
     case 'relation': return validateRelation(raw, property, allPages);
 
-    // ── Files / Media ──
     case 'files_media':
       return Array.isArray(raw) ? ok(raw) : ok([raw]);
 
-    // ── Place (object with lat/lng/address) ──
     case 'place':
       return typeof raw === 'object' ? ok(raw) : ok(String(raw));
 
-    // ── Button (no value) ──
     case 'button': return ok(null);
 
-    // ── Custom ──
     case 'custom': return ok(raw);
 
     default: return ok(raw);
   }
 }
-
-// ─── Type-specific validators ────────────────────────────────────────────────
 
 function validateNumber(raw: unknown): ValidationResult {
   if (typeof raw === 'number') {
@@ -243,7 +224,6 @@ function validateRelation(
   return ok(pageIds);
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function ok(value: unknown): ValidationResult {
   return { ok: true, value };

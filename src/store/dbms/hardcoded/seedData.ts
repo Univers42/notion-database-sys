@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:35 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:49:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:47 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// seedData.ts — aggregates all seed databases, pages and views
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import type { DatabaseSchema, Page, ViewConfig } from '../../../types/database';
 import { coreDatabases, corePages, coreViews } from './coreSeed';

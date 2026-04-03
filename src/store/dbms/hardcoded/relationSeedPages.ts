@@ -6,11 +6,10 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:39:49 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:49:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:43:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// Relation Seed — project pages and reverse-relation data
 import type { Page } from '../../../types/database';
 
 const DB_PROJECTS = 'db-projects';
