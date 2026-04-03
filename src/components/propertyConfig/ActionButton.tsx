@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:36:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:36:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ function getIconColor(disabled?: boolean, danger?: boolean): string {
   return 'text-ink-muted';
 }
 
+/** Renders a full-width action button with icon, label, and optional danger styling. */
 export function ActionButton({ icon, label, onClick, disabled, danger }: Readonly<{
   icon: React.ReactNode; label: string; onClick: () => void; disabled?: boolean; danger?: boolean;
 }>) {

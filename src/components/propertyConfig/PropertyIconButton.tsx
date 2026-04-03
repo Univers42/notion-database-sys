@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:36:51 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ import { Icon } from '../ui/Icon';
 import { DEFAULT_PROPERTY_ICONS } from './constants';
 import { cn } from '../../utils/cn';
 
+/** Renders a clickable button that opens an icon picker to change a property's icon. */
 export function PropertyIconButton({ property, databaseId }: Readonly<{ property: SchemaProperty; databaseId: string }>) {
   const [showPicker, setShowPicker] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
