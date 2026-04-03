@@ -6,23 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:12:08 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { format } from 'date-fns';
 import type { SchemaProperty, PropertyValue } from '../../../types/database';
-
-// Gallery-specific color palette for empty covers
-export const coverColors = [
-  'bg-gradient-to-br from-gradient-blue-from to-gradient-blue-to',
-  'bg-gradient-to-br from-gradient-purple-card-from to-gradient-purple-card-to',
-  'bg-gradient-to-br from-gradient-green-from to-gradient-green-to',
-  'bg-gradient-to-br from-gradient-orange-from to-gradient-orange-to',
-  'bg-gradient-to-br from-gradient-pink-from to-gradient-pink-to',
-  'bg-gradient-to-br from-gradient-cyan-from to-gradient-cyan-to',
-];
+import { CARD_COVER_GRADIENTS } from '../../../utils/color';
+export const coverColors = CARD_COVER_GRADIENTS;
 
 export function renderPropertyValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
   if (val === undefined || val === null || val === '') return null;
