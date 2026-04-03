@@ -13,6 +13,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import { cn } from '../../utils/cn';
 
 export function EquationBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
@@ -48,19 +49,19 @@ export function EquationBlock({ block, pageId }: Readonly<BlockRendererProps>) {
 
   if (editing) {
     return (
-      <div className="my-2 border border-line rounded-lg overflow-hidden">
-        <div className="flex items-center justify-between px-3 py-1.5 bg-surface-secondary-soft border-b border-line-light">
-          <span className="text-xs font-medium text-ink-secondary">Equation (LaTeX)</span>
-          <div className="flex gap-1">
+      <div className={cn("my-2 border border-line rounded-lg overflow-hidden")}>
+        <div className={cn("flex items-center justify-between px-3 py-1.5 bg-surface-secondary-soft border-b border-line-light")}>
+          <span className={cn("text-xs font-medium text-ink-secondary")}>Equation (LaTeX)</span>
+          <div className={cn("flex gap-1")}>
             <button
               onClick={() => setEditing(false)}
-              className="text-xs px-2 py-0.5 text-ink-muted hover:text-hover-text rounded"
+              className={cn("text-xs px-2 py-0.5 text-ink-muted hover:text-hover-text rounded")}
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="text-xs px-2 py-0.5 bg-accent text-ink-inverse rounded"
+              className={cn("text-xs px-2 py-0.5 bg-accent text-ink-inverse rounded")}
             >
               Done
             </button>
@@ -75,7 +76,7 @@ export function EquationBlock({ block, pageId }: Readonly<BlockRendererProps>) {
             if (e.key === 'Escape') setEditing(false);
           }}
           placeholder="E = mc^2"
-          className="w-full p-3 text-sm font-mono bg-surface-primary outline-none resize-none min-h-[60px]"
+          className={cn("w-full p-3 text-sm font-mono bg-surface-primary outline-none resize-none min-h-[60px]")}
           rows={Math.max(2, latex.split('\n').length)}
         />
       </div>
@@ -86,7 +87,7 @@ export function EquationBlock({ block, pageId }: Readonly<BlockRendererProps>) {
     return (
       <button
         onClick={() => setEditing(true)}
-        className="my-2 w-full p-4 border border-dashed border-line-medium rounded-lg text-center text-sm text-ink-muted hover:bg-hover-surface transition-colors"
+        className={cn("my-2 w-full p-4 border border-dashed border-line-medium rounded-lg text-center text-sm text-ink-muted hover:bg-hover-surface transition-colors")}
       >
         Click to add an equation
       </button>
@@ -97,7 +98,7 @@ export function EquationBlock({ block, pageId }: Readonly<BlockRendererProps>) {
     <button
       type="button"
       onClick={() => setEditing(true)}
-      className="my-2 p-3 text-center cursor-pointer hover:bg-hover-surface rounded-lg transition-colors overflow-x-auto w-full border-0 bg-transparent font-[inherit]"
+      className={cn("my-2 p-3 text-center cursor-pointer hover:bg-hover-surface rounded-lg transition-colors overflow-x-auto w-full border-0 bg-transparent font-[inherit]")}
     >
       <div ref={previewRef} />
     </button>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { BlockType } from '../../types/database';
 import { SLASH_ITEMS, SECTION_LABELS, type SlashMenuItem } from './slashMenu/slashMenuCatalog';
+import { cn } from '../../utils/cn';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -101,8 +102,8 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: Readon
 
   if (filteredItems.length === 0) {
     return createPortal(
-      <div ref={menuRef} style={style} className="bg-surface-primary border border-line rounded-xl shadow-xl w-80">
-        <div className="px-4 py-6 text-center text-sm text-ink-muted">
+      <div ref={menuRef} style={style} className={cn("bg-surface-primary border border-line rounded-xl shadow-xl w-80")}>
+        <div className={cn("px-4 py-6 text-center text-sm text-ink-muted")}>
           No results
         </div>
       </div>,
@@ -113,18 +114,18 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: Readon
   let flatIndex = 0;
 
   return createPortal(
-    <div ref={menuRef} style={style} className="bg-surface-primary border border-line rounded-xl shadow-xl w-80 overflow-hidden">
+    <div ref={menuRef} style={style} className={cn("bg-surface-primary border border-line rounded-xl shadow-xl w-80 overflow-hidden")}>
       <div
         ref={scrollRef}
-        className="overflow-y-auto"
+        className={cn("overflow-y-auto")}
         style={{ maxHeight: `min(448px, 40vh)`, maskImage: 'linear-gradient(black 0%, black calc(100% - 34px), transparent 100%)' }}
       >
         {(['basic', 'media', 'layout', 'advanced', 'database'] as const).map(sectionKey => {
           const items = sections[sectionKey];
           if (!items || items.length === 0) return null;
           return (
-            <div key={sectionKey} className="py-1 px-1">
-              <div className="px-2 pt-2 pb-1.5 text-xs font-medium text-ink-secondary select-none">
+            <div key={sectionKey} className={cn("py-1 px-1")}>
+              <div className={cn("px-2 pt-2 pb-1.5 text-xs font-medium text-ink-secondary select-none")}>
                 {SECTION_LABELS[sectionKey]}
               </div>
               {items.map(item => {
@@ -134,20 +135,20 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: Readon
                     key={item.type}
                     type="button"
                     data-slash-index={idx}
-                    className={`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-left transition-colors ${
+                    className={cn(`w-full flex items-center gap-3 px-2 py-1.5 rounded-md text-left transition-colors ${
                       idx === selectedIndex
                         ? 'bg-surface-tertiary'
                         : 'hover:bg-hover-surface'
-                    }`}
+                    }`)}
                     onMouseEnter={() => setSelectedIndex(idx)}
                     onClick={() => onSelect(item.type)}
                   >
-                    <div className="w-5 h-5 text-ink-body-light shrink-0 flex items-center justify-center">
+                    <div className={cn("w-5 h-5 text-ink-body-light shrink-0 flex items-center justify-center")}>
                       {item.icon}
                     </div>
-                    <span className="text-sm text-ink-strong flex-1">{item.label}</span>
+                    <span className={cn("text-sm text-ink-strong flex-1")}>{item.label}</span>
                     {item.shortcut && (
-                      <span className="text-xs text-ink-muted font-mono">{item.shortcut} </span>
+                      <span className={cn("text-xs text-ink-muted font-mono")}>{item.shortcut} </span>
                     )}
                   </button>
                 );
@@ -158,14 +159,14 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: Readon
       </div>
 
       {/* Footer */}
-      <div className="border-t border-line px-1 py-1">
+      <div className={cn("border-t border-line px-1 py-1")}>
         <button
           type="button"
           onClick={onClose}
-          className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-hover-surface transition-colors"
+          className={cn("w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-hover-surface transition-colors")}
         >
-          <span className="text-sm text-ink-body-light">Close menu</span>
-          <span className="text-xs text-ink-muted">esc</span>
+          <span className={cn("text-sm text-ink-body-light")}>Close menu</span>
+          <span className={cn("text-xs text-ink-muted")}>esc</span>
         </button>
       </div>
     </div>,

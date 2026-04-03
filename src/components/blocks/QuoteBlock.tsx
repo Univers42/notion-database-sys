@@ -13,14 +13,15 @@
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
+import { cn } from '../../utils/cn';
 
 export function QuoteBlock({ block, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   return (
-    <div className="flex my-0.5">
-      <div className="w-1 bg-surface-inverse rounded-full shrink-0 mr-3" />
+    <div className={cn("flex my-0.5")}>
+      <div className={cn("w-1 bg-surface-inverse rounded-full shrink-0 mr-3")} />
       <EditableContent
         content={block.content}
-        className="text-sm text-ink-body-light leading-relaxed py-0.5 italic flex-1"
+        className={cn("text-sm text-ink-body-light leading-relaxed py-0.5 italic flex-1")}
         placeholder="Quote"
         onChange={onChange}
         onKeyDown={onKeyDown}

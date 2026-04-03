@@ -32,6 +32,7 @@ import { EquationBlock } from './EquationBlock';
 import { SpacerBlock } from './SpacerBlock';
 import { EmbedBlock } from './EmbedBlock';
 import { BreadcrumbBlock } from './BreadcrumbBlock';
+import { cn } from '../../utils/cn';
 
 export interface BlockRendererProps {
   block: Block;

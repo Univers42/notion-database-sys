@@ -11,11 +11,12 @@
 /* ************************************************************************** */
 
 import React from 'react';
+import { cn } from '../../utils/cn';
 
 export function DividerBlock() {
   return (
-    <div className="py-2">
-      <hr className="border-line" />
+    <div className={cn("py-2")}>
+      <hr className={cn("border-line")} />
     </div>
   );
 }

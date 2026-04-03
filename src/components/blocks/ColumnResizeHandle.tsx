@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import type { Block } from '../../types/database';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import { cn } from '../../utils/cn';
 
 export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _columns }: Readonly<{
   pageId: string;
@@ -40,9 +41,9 @@ export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _
 
   return (
     <div
-      className={`w-1 shrink-0 cursor-col-resize rounded-full transition-colors self-stretch ${
+      className={cn(`w-1 shrink-0 cursor-col-resize rounded-full transition-colors self-stretch ${
         dragging ? 'bg-accent' : 'bg-transparent hover:bg-line-medium'
-      }`}
+      }`)}
       onMouseDown={handleMouseDown}
     />
   );

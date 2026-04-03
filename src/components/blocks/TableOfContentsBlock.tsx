@@ -17,6 +17,7 @@
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { List } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 const INDENT: Record<string, string> = {
   heading_1: 'pl-0',
@@ -46,9 +47,9 @@ export function TableOfContentsBlock({ pageId }: Readonly<{ pageId: string }>) {
 
   if (headings.length === 0) {
     return (
-      <div className="my-2 p-3 rounded-lg border border-line-light bg-surface-secondary-soft">
-        <div className="flex items-center gap-2 text-xs text-ink-muted">
-          <List className="w-3.5 h-3.5" />
+      <div className={cn("my-2 p-3 rounded-lg border border-line-light bg-surface-secondary-soft")}>
+        <div className={cn("flex items-center gap-2 text-xs text-ink-muted")}>
+          <List className={cn("w-3.5 h-3.5")} />
           <span>Add headings to create a table of contents</span>
         </div>
       </div>
@@ -56,12 +57,12 @@ export function TableOfContentsBlock({ pageId }: Readonly<{ pageId: string }>) {
   }
 
   return (
-    <div className="my-2 p-3 rounded-lg border border-line-light bg-surface-secondary-soft">
-      <div className="flex items-center gap-2 mb-2 text-xs font-medium text-ink-secondary uppercase tracking-wider">
-        <List className="w-3.5 h-3.5" />
+    <div className={cn("my-2 p-3 rounded-lg border border-line-light bg-surface-secondary-soft")}>
+      <div className={cn("flex items-center gap-2 mb-2 text-xs font-medium text-ink-secondary uppercase tracking-wider")}>
+        <List className={cn("w-3.5 h-3.5")} />
         Table of Contents
       </div>
-      <div className="flex flex-col gap-0.5">
+      <div className={cn("flex flex-col gap-0.5")}>
         {headings.map(h => (
           <button
             key={h.id}
@@ -69,9 +70,9 @@ export function TableOfContentsBlock({ pageId }: Readonly<{ pageId: string }>) {
               const el = document.querySelector(`[data-block-id="${h.id}"]`);
               el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
-            className={`text-left py-0.5 text-ink-body hover:text-accent-text-light transition-colors ${
+            className={cn(`text-left py-0.5 text-ink-body hover:text-accent-text-light transition-colors ${
               INDENT[h.type] || ''
-            } ${TEXT_SIZE[h.type] || 'text-sm'}`}
+            } ${TEXT_SIZE[h.type] || 'text-sm'}`)}
           >
             {h.content || 'Untitled'}
           </button>

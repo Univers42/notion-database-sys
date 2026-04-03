@@ -20,6 +20,7 @@ import {
   IconEquation, IconSpacer, IconEmbed, IconBreadcrumb,
 } from './SlashMenuIcons';
 import type { BlockType } from '../../../types/database';
+import { cn } from '../../../utils/cn';
 
 // ─── Menu item definition ─────────────────────────────────────────────────────
 
