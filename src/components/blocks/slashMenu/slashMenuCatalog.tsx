@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:58:59 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:59:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,8 @@ import {
   IconEquation, IconSpacer, IconEmbed, IconBreadcrumb,
 } from './SlashMenuIcons';
 import type { BlockType } from '../../../types/database';
-import { cn } from '../../../utils/cn';
 
-// ─── Menu item definition ─────────────────────────────────────────────────────
-
+/** Describes a single entry in the slash command menu. */
 export interface SlashMenuItem {
   type: BlockType;
   label: string;
@@ -33,8 +31,7 @@ export interface SlashMenuItem {
   keywords?: string[];
 }
 
-// ─── Full item catalog ────────────────────────────────────────────────────────
-
+/** Complete catalog of slash command menu items grouped by section. */
 export const SLASH_ITEMS: SlashMenuItem[] = [
   // ── Basic blocks
   { type: 'paragraph',      label: 'Text',           icon: <IconText />,       section: 'basic', keywords: ['text', 'paragraph', 'plain'] },
@@ -78,6 +75,7 @@ export const SLASH_ITEMS: SlashMenuItem[] = [
   { type: 'database_full_page', label: 'Database - Full page', icon: <IconBoard />,   section: 'database', keywords: ['database', 'full', 'page', 'standalone'] },
 ];
 
+/** Human-readable labels for slash menu sections. */
 export const SECTION_LABELS: Record<string, string> = {
   basic: 'Basic blocks',
   media: 'Media',
