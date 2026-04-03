@@ -43,7 +43,7 @@ export async function authRoutes(app: FastifyInstance) {
         ip: request.ip,
       });
 
-      reply.send({ accessToken, refreshToken });
+      reply.send({ accessToken, refreshToken, user: { id: userId, email } });
     } catch (err: any) {
       reply.code(401).send({ error: err.message });
     }
