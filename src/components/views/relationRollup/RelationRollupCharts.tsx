@@ -13,7 +13,7 @@
 import React from 'react';
 import type { Page } from '../../../types/database';
 import type { RelationRollupAnalytics, RelationTarget } from './useRelationRollupAnalytics';
-import { COLORS } from './RelationRollupCards';
+import { CHART_COLORS as COLORS } from '../../../utils/color';
 
 // ─── Dashboard section components ────────────────────────────────────────────
 
