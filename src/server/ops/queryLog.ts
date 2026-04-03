@@ -1,7 +1,8 @@
 // ─── Query Log — in-memory ring buffer for generated queries ─────────────────
-// Uses the Observer-based logger pipeline instead of raw console.log.
-// The Observer pattern decouples query emission from formatting/output,
-// mirroring the libcpp::core::Observer<TEvent> architecture.
+// Stores entries in a JS ring buffer (for the REST API) and forwards each
+// event to the native C++ addon via emitQuery().  The addon triggers
+// libcpp::core::Observer<string>::notify("query") which drives the
+// TermWriter / ILogger formatting pipeline directly to stderr.
 
 import { emitQuery } from '../logger';
 
@@ -29,7 +30,8 @@ export function logQuery(
   entries.push(entry);
   if (entries.length > MAX_ENTRIES) entries.shift();
 
-  // Emit through the Observer → QueryStyler → ILogger decorator chain
+  // Emit through the native C++ pipeline:
+  // N-API ─▶ Observer::notify("query") ─▶ TermWriter/ILogger ─▶ stderr
   emitQuery(source, operation, table, query, affected);
 }
 

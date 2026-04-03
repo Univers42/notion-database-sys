@@ -6,6 +6,9 @@ build/
 dist/
 coverage/
 
+# Native addon build artifacts (cmake-js)
+src/server/logger/native/build/
+
 scripts/
 # Rust build artifacts
 src/lib/engine/target/

@@ -169,12 +169,19 @@ check-rust:
 	@echo -e "$(GREEN)✔ Rust crates ok$(RESET)"
 
 dev: ## Start Vite dev server (compact query logs)
+	@test -f src/server/logger/native/build/Release/libcpp_logger.node || $(MAKE) build-native --no-print-directory
 	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
 	npm run dev
 
 dev-verbose: ## Start Vite dev server (detailed query logs with colors & boxes)
+	@test -f src/server/logger/native/build/Release/libcpp_logger.node || $(MAKE) build-native --no-print-directory
 	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
 	DBMS_VERBOSE=1 npm run dev
+
+build-native: ## Build the libcpp N-API logger addon (cmake-js)
+	@echo -e "$(CYAN)Building native logger addon…$(RESET)"
+	npx cmake-js compile -d src/server/logger/native
+	@echo -e "$(GREEN)✔ libcpp_logger.node built$(RESET)"
 
 clean:
 	docker compose down -v 2>/dev/null || true
@@ -183,4 +190,4 @@ clean:
 
 .PHONY: help up down restart re re-all re-standalone logs pull db-up db-down db-reset db-status \
 	seed-pg seed-mongo seed-all seed-state seed-state-force psql mongo-shell \
-	build-rust check-rust dev dev-verbose clean verify smoke-test
+	build-rust check-rust build-native dev dev-verbose clean verify smoke-test
