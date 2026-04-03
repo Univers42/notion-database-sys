@@ -12,8 +12,8 @@
 
 import React from 'react';
 import type { PropertyValue } from '../../../types/database';
-
-export const COLORS = ['var(--color-chart-1)','var(--color-chart-2)','var(--color-chart-6)','var(--color-chart-4)','var(--color-chart-7)','var(--color-progress-high)','var(--color-chart-3)','var(--color-chart-8)'];
+import { CHART_COLORS } from '../../../utils/color';
+export const COLORS = CHART_COLORS;
 
 const DISPLAY_BADGE_CLASSES: Record<string, string> = {
   bar: 'bg-accent-soft text-accent-text',
