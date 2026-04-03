@@ -61,15 +61,13 @@ export const UserSwitcherPanel: React.FC<Props> = ({ onClose }) => {
           <button
             key={p.email}
             type="button"
-            disabled={!loggedIn}
             onClick={() => { if (p.id) switchUser(p.id); onClose(); }}
             className={[
               'w-full flex items-center gap-3 px-3 py-2 text-left',
-              'transition-colors duration-100',
+              'transition-colors duration-100 cursor-pointer',
               isActive
                 ? 'bg-[var(--color-surface-tertiary)]'
                 : 'hover:bg-[var(--color-surface-hover)]',
-              !loggedIn ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer',
             ].join(' ')}
           >
             {/* Avatar emoji */}
