@@ -1,5 +1,3 @@
-// ─── SortSettingsSubpanel — Notion-style sort panel for ViewSettings ─────────
-
 import React, { useState } from 'react';
 import { ChevronDown, Plus, GripVertical, X, Trash2 } from 'lucide-react';
 import type { SchemaProperty, Sort } from '../../types/database';
@@ -8,6 +6,7 @@ import { PropertyTypeIcon } from '../filters/PropertyTypeIcon';
 import { SortPropertyPicker } from './SortPropertyPicker';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for SortSettingsSubpanel sub-elements. */
 export type SortSettingsSubpanelSlots = {
   root: string;
   header: string;
@@ -22,8 +21,6 @@ export type SortSettingsSubpanelSlots = {
   deleteSortButton: string;
   pickerWrap: string;
 };
-
-// ─── Direction picker popup ──────────────────────────────────────────────────
 
 function DirectionPicker({ direction, onChange }: Readonly<{
   direction: 'asc' | 'desc';
@@ -57,8 +54,6 @@ function DirectionPicker({ direction, onChange }: Readonly<{
     </div>
   );
 }
-
-// ─── Property picker button (inline dropdown) ───────────────────────────────
 
 function PropertyPicker({ propertyId, properties, onChange }: Readonly<{
   propertyId: string;
@@ -96,8 +91,7 @@ function PropertyPicker({ propertyId, properties, onChange }: Readonly<{
   );
 }
 
-// ─── Main component ──────────────────────────────────────────────────────────
-
+/** Renders the sort management sub-panel within ViewSettings with add/remove/reorder support. */
 export function SortSettingsSubpanel({ viewId, properties, sorts, onBack, onClose, slots }: Readonly<{
   viewId: string;
   properties: Record<string, SchemaProperty>;

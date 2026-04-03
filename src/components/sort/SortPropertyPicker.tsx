@@ -1,11 +1,10 @@
-// ─── SortPropertyPicker — property list for adding a new sort ────────────────
-
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import type { SchemaProperty } from '../../types/database';
 import { PropertyTypeIcon } from '../filters/PropertyTypeIcon';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for SortPropertyPicker sub-elements. */
 export type SortPropertyPickerSlots = {
   root: string;
   header: string;
@@ -23,6 +22,7 @@ export type SortPropertyPickerSlots = {
   empty: string;
 };
 
+/** Renders a searchable property list for adding a new sort rule. */
 export function SortPropertyPicker({ properties, onSelect, onClose, slots }: Readonly<{
   properties: SchemaProperty[];
   onSelect: (propId: string) => void;

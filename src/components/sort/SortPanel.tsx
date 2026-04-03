@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:55 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty, DatabaseSchema, ViewConfig, Sort } from '../../types/database';
 import { cn } from '../../utils/cn';
 
+/** CSS class overrides for SortPanel sub-elements. */
 export type SortPanelSlots = {
   root: string;
   header: string;
@@ -28,6 +29,7 @@ export type SortPanelSlots = {
   addButton: string;
 };
 
+/** Renders a portal-based sort management panel below the filter bar. */
 export function SortPanel({ database, view, slots }: Readonly<{ database: DatabaseSchema; view: ViewConfig; slots?: Partial<SortPanelSlots> }>) {
   const { addSort, updateSort, removeSort, clearSorts } = useDatabaseStore.getState();
   const allProps = Object.values(database.properties) as SchemaProperty[];
