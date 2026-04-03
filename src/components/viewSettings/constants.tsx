@@ -23,6 +23,7 @@ import {
 } from '../ui/Icons';
 import type { ViewType } from '../../types/database';
 import { PROPERTY_ICON_NAMES as DEFAULT_PROPERTY_ICONS } from '../../utils/propertyIcons';
+import { cn } from '../../utils/cn';
 
 export { DEFAULT_PROPERTY_ICONS };
 
@@ -49,11 +50,11 @@ export const VIEW_META: Record<ViewType, { svgIcon: React.ReactNode; label: stri
 };
 
 export const CHART_TYPE_META: { type: string; icon: React.ReactNode; label: string }[] = [
-  { type: 'vertical_bar',   icon: <VerticalBarChartIcon className="w-5 h-5" />,   label: 'Vertical bar' },
-  { type: 'horizontal_bar', icon: <HorizontalBarChartIcon className="w-5 h-5" />, label: 'Horizontal bar' },
-  { type: 'line',           icon: <LineChartIcon className="w-5 h-5" />,           label: 'Line' },
-  { type: 'donut',          icon: <DonutChartIcon className="w-5 h-5" />,          label: 'Donut' },
-  { type: 'number',         icon: <NumberIcon className="w-5 h-5" />,              label: 'Number' },
+  { type: 'vertical_bar',   icon: <VerticalBarChartIcon className={cn("w-5 h-5")} />,   label: 'Vertical bar' },
+  { type: 'horizontal_bar', icon: <HorizontalBarChartIcon className={cn("w-5 h-5")} />, label: 'Horizontal bar' },
+  { type: 'line',           icon: <LineChartIcon className={cn("w-5 h-5")} />,           label: 'Line' },
+  { type: 'donut',          icon: <DonutChartIcon className={cn("w-5 h-5")} />,          label: 'Donut' },
+  { type: 'number',         icon: <NumberIcon className={cn("w-5 h-5")} />,              label: 'Number' },
 ];
 
 export const LAYOUT_ORDER: ViewType[] = [

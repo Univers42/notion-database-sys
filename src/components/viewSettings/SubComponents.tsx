@@ -17,6 +17,7 @@
 import React from 'react';
 import { SettingsHeader } from '../ui/MenuPrimitives';
 import { ToggleSwitch } from '../ui/ToggleSwitch';
+import { cn } from '../../utils/cn';
 
 // ─── SubPanelHeader ──────────────────────────────────────────────────────────
 
@@ -32,12 +33,12 @@ export function OptionList({ options, activeId, onSelect }: {
   onSelect: (id: string) => void;
 }) {
   return (
-    <div className="p-4 flex flex-col gap-1">
+    <div className={cn("p-4 flex flex-col gap-1")}>
       {options.map(o => (
         <button key={o.id} onClick={() => onSelect(o.id)}
-          className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
+          className={cn(`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
             activeId === o.id ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
-          }`}>
+          }`)}>
           {o.label}
         </button>
       ))}
@@ -54,20 +55,20 @@ export function PropertyOptionList({ properties, activeId, onSelect, noneLabel }
   noneLabel?: string;
 }) {
   return (
-    <div className="p-4 flex flex-col gap-1">
+    <div className={cn("p-4 flex flex-col gap-1")}>
       {noneLabel && (
         <button onClick={() => onSelect('')}
-          className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
+          className={cn(`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
             !activeId ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
-          }`}>
+          }`)}>
           {noneLabel}
         </button>
       )}
       {properties.map(p => (
         <button key={p.id} onClick={() => onSelect(p.id)}
-          className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
+          className={cn(`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
             activeId === p.id ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
-          }`}>
+          }`)}>
           {p.name}
         </button>
       ))}
