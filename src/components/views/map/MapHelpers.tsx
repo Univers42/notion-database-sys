@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:12:26 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import L from 'leaflet';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { cn } from '../../../utils/cn';
 
+/** Page with resolved geographic coordinates for map rendering. */
 export type MappablePage = {
   page: Page;
   lat: number;
@@ -37,6 +38,7 @@ export const MARKER_COLORS: Record<string, string> = {
   'bg-emerald-surface-muted text-emerald-text-tag': 'var(--color-chart-5)',
 };
 
+/** Creates a Leaflet divIcon with a colored circular marker and pin SVG. */
 export function makeColorIcon(color: string) {
   return L.divIcon({
     className: '',
@@ -51,6 +53,7 @@ export function makeColorIcon(color: string) {
   });
 }
 
+/** Renders an overlay explaining why no markers are visible on the map. */
 export function MapEmptyOverlay({ noPlaceProp, pageCount }: Readonly<{
   noPlaceProp: boolean;
   pageCount: number;
@@ -80,6 +83,7 @@ export function MapEmptyOverlay({ noPlaceProp, pageCount }: Readonly<{
   );
 }
 
+/** Renders a map legend showing category colors from a select property. */
 export function MapLegend({ categoryProp }: Readonly<{ categoryProp: SchemaProperty }>) {
   return (
     <div className={cn("absolute top-3 left-3 z-[1000] bg-overlay backdrop-blur border border-line rounded-lg p-3 shadow-lg max-w-[200px]")}>
@@ -98,6 +102,7 @@ export function MapLegend({ categoryProp }: Readonly<{ categoryProp: SchemaPrope
   );
 }
 
+/** Renders the sidebar listing all map locations with navigation controls. */
 export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, addPage, databaseId }: Readonly<{
   mappablePages: MappablePage[];
   pages: Page[];

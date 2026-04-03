@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:12:11 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ import type { Page } from '../../../types/database';
 import { format } from 'date-fns';
 import { cn } from '../../../utils/cn';
 
+/** Renders a list view of database pages with optional grouping and inline property tags. */
 export function ListView() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, openPage, getPageTitle, addPage, getGroupedPages } = useDatabaseStore();

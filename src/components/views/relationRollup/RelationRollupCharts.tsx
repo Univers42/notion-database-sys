@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:38:47 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@ import type { RelationRollupAnalytics, RelationTarget } from './useRelationRollu
 import { CHART_COLORS as COLORS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
 
-// ─── Dashboard section components ────────────────────────────────────────────
-
+/** Render cards for each cross-database relation showing link counts and target DBs. */
 export function RelationMapSection({ relationTargets, dbPages }: Readonly<{ relationTargets: RelationTarget[]; dbPages: Page[] }>) {
   return (
     <div className={cn("bg-surface-primary rounded-xl border border-line p-5 shadow-sm")}>
@@ -47,6 +46,7 @@ export function RelationMapSection({ relationTargets, dbPages }: Readonly<{ rela
   );
 }
 
+/** Render a bar chart showing the distribution of rollup aggregation functions. */
 export function FunctionDistSection({ fnDist, rollupCount }: Readonly<{ fnDist: Record<string, number>; rollupCount: number }>) {
   return (
     <div className={cn("bg-surface-primary rounded-xl border border-line p-5 shadow-sm")}>
@@ -69,6 +69,7 @@ export function FunctionDistSection({ fnDist, rollupCount }: Readonly<{ fnDist: 
   );
 }
 
+/** Render ring charts comparing rollup display format usage. */
 export function DisplayFormatSection({ displayDist, rollupCount }: Readonly<{ displayDist: Record<string, number>; rollupCount: number }>) {
   return (
     <div className={cn("bg-surface-primary rounded-xl border border-line p-5 shadow-sm")}>
@@ -105,6 +106,7 @@ function getCompletionStroke(pct: number): string {
   return 'var(--color-chart-7)';
 }
 
+/** Render per-project completion rings derived from rollup percentage values. */
 export function CompletionRingsSection({ analytics }: Readonly<{ analytics: RelationRollupAnalytics }>) {
   const { dbPages, rollupResults } = analytics;
   return (
@@ -139,6 +141,7 @@ export function CompletionRingsSection({ analytics }: Readonly<{ analytics: Rela
   );
 }
 
+/** Render a visual data-flow diagram connecting the current DB to its relation targets. */
 export function DataFlowSection({ analytics, pages }: Readonly<{ analytics: RelationRollupAnalytics; pages: Record<string, Page> }>) {
   const { db, dbPages, relationTargets } = analytics;
   return (

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,7 @@ import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import type { SchemaProperty, RollupFunction, DatabaseSchema, Page, PropertyValue } from '../../../types/database';
 
-// ─── Exported types ──────────────────────────────────────────────────────────
-
+/** Describes a single relation property's target database and link statistics. */
 export type RelationTarget = {
   prop: SchemaProperty;
   targetDb: DatabaseSchema | null;
@@ -25,6 +24,7 @@ export type RelationTarget = {
   pagesWithLinks: number;
 };
 
+/** Evaluated rollup values for one rollup property across all pages. */
 export type RollupResult = {
   prop: SchemaProperty;
   fn: RollupFunction;
@@ -34,6 +34,7 @@ export type RollupResult = {
   errorCount: number;
 };
 
+/** Full analytics payload for the relation & rollup dashboard. */
 export type RelationRollupAnalytics = {
   db: DatabaseSchema;
   dbPages: Page[];
@@ -47,8 +48,7 @@ export type RelationRollupAnalytics = {
   displayDist: Record<string, number>;
 };
 
-// ─── Hook ────────────────────────────────────────────────────────────────────
-
+/** Compute relation link stats, rollup results, and distribution metrics for the active view. */
 export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
   const activeViewId = useActiveViewId();
   const { views, databases, pages, resolveRollup } = useDatabaseStore();
@@ -63,7 +63,6 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
     const rollupProps = allProps.filter(p => p.type === 'rollup');
     const dbPages = Object.values(pages).filter(p => p.databaseId === db.id);
 
-    // ─── Relation analytics ──────────────────────────────────
     const relationTargets: RelationTarget[] = relationProps.map(rp => ({
       prop: rp,
       targetDb: rp.relationConfig ? databases[rp.relationConfig.databaseId] : null,
@@ -81,7 +80,6 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
     const totalLinks = relationTargets.reduce((s, r) => s + r.totalLinks, 0);
     const linkedDbs = new Set(relationTargets.map(r => r.targetDb?.id).filter(Boolean));
 
-    // ─── Rollup analytics ────────────────────────────────────
     const rollupResults: RollupResult[] = rollupProps.map(rp => {
       const results: { pageTitle: string; value: PropertyValue }[] = [];
       const numericResults: number[] = [];
@@ -109,13 +107,11 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
       };
     });
 
-    // Function distribution
     const fnDist: Record<string, number> = {};
     for (const rr of rollupResults) {
       fnDist[rr.fn] = (fnDist[rr.fn] || 0) + 1;
     }
 
-    // Display-as distribution
     const displayDist: Record<string, number> = {};
     for (const rr of rollupResults) {
       displayDist[rr.displayAs] = (displayDist[rr.displayAs] || 0) + 1;

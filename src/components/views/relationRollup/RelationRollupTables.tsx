@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:38:47 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import type { RelationRollupAnalytics, RollupResult } from './useRelationRollupA
 import { DisplayBadge, RollupCellValue } from './RelationRollupCards';
 import { cn } from '../../../utils/cn';
 
+/** Render a summary table of numeric rollup statistics (min, max, avg, sum). */
 export function NumericRollupTable({ rollupResults }: Readonly<{ rollupResults: RollupResult[] }>) {
   return (
     <div className={cn("bg-surface-primary rounded-xl border border-line p-5 shadow-sm")}>
@@ -61,6 +62,7 @@ export function NumericRollupTable({ rollupResults }: Readonly<{ rollupResults: 
   );
 }
 
+/** Render a grid of all rollup results keyed by project row and rollup column. */
 export function RollupResultsGrid({ analytics }: Readonly<{ analytics: RelationRollupAnalytics }>) {
   const { dbPages, rollupResults } = analytics;
   return (
@@ -105,6 +107,7 @@ export function RollupResultsGrid({ analytics }: Readonly<{ analytics: RelationR
   );
 }
 
+/** Render a table highlighting edge cases (empty, single, many) for each relation per project. */
 export function EdgeCasesSection({ analytics }: Readonly<{ analytics: RelationRollupAnalytics }>) {
   const { dbPages, relationTargets } = analytics;
   return (

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:38:47 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,7 @@ function getRingStroke(pct: number): string {
   return 'var(--color-chart-4)';
 }
 
-// ─── Small sub-components ────────────────────────────────────────────────────
-
+/** Render a compact KPI card with a large value and description label. */
 export function KpiCard({ label, value, color }: Readonly<{ label: string; value: number | string; color: string }>) {
   return (
     <div className={cn("bg-surface-primary rounded-xl border border-line p-4 shadow-sm")}>
@@ -44,11 +43,13 @@ export function KpiCard({ label, value, color }: Readonly<{ label: string; value
   );
 }
 
+/** Render a styled badge showing the rollup display format. */
 export function DisplayBadge({ format }: Readonly<{ format: string }>) {
   const bg = DISPLAY_BADGE_CLASSES[format] || 'bg-surface-tertiary text-ink-body-light';
   return <span className={cn(`px-1.5 py-0.5 rounded text-[10px] font-medium ${bg}`)}>{format}</span>;
 }
 
+/** Render a rollup cell value with support for arrays, booleans, ring/bar number formats. */
 export function RollupCellValue({ value, displayAs }: Readonly<{ value: PropertyValue; displayAs: string }>) {
   if (value == null) return <span className={cn("text-ink-disabled")}>—</span>;
 

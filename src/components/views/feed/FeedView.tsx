@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:13 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ import { MessageCircle, Heart, Share2, MoreHorizontal, FileText } from 'lucide-r
 import { parseISO, formatDistanceToNow } from 'date-fns';
 import { cn } from '../../../utils/cn';
 
+/** Renders a social-media-style feed of database pages with actions and property tags. */
 export function FeedView() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
@@ -34,11 +35,8 @@ export function FeedView() {
   const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
   const nonTitleProps = visibleProps.filter(p => p.id !== database.titlePropertyId);
 
-  // Find author/user property
   const userProp = Object.values(database.properties).find(p => p.type === 'user');
-  // Find date property
   const dateProp = Object.values(database.properties).find(p => p.type === 'date');
-  // Find text/richtext property for body
   const textProp = Object.values(database.properties).find(p => p.type === 'text' && p.id !== database.titlePropertyId);
 
   return (

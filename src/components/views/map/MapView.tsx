@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:12:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ const defaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = defaultIcon;
 
+/** Renders a Leaflet-based map view with markers for geolocated database pages. */
 export function MapView() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();

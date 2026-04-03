@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,19 +26,7 @@ import {
 } from './RelationRollupWidgets';
 import { cn } from '../../../utils/cn';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// RELATION & ROLLUP ANALYTICS DASHBOARD
-// ═══════════════════════════════════════════════════════════════════════════════
-// Showcases:
-//   • KPI overview: relations, rollups, linked records, databases
-//   • Per-project relation graph (which DBs are linked)
-//   • Rollup results comparison table
-//   • Rollup calculation function distribution
-//   • Numeric rollup histograms
-//   • Completion ring chart per project
-//   • Cross-database data flow visualization
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/** Render the full relation & rollup analytics dashboard with KPIs, charts, tables, and data flow. */
 export function RelationRollupDashboard() {
   const { pages } = useDatabaseStore();
   const analytics = useRelationRollupAnalytics();
@@ -54,7 +42,6 @@ export function RelationRollupDashboard() {
   return (
     <div className={cn("flex-1 overflow-auto bg-gradient-to-br from-gradient-surface-from to-gradient-surface-to p-6")}>
       <div className={cn("max-w-[1400px] mx-auto space-y-6")}>
-        {/* ─── Title ─── */}
         <div>
           <h2 className={cn("text-xl font-bold text-ink")}>Relation & Rollup Analytics</h2>
           <p className={cn("text-sm text-ink-secondary mt-1")}>
@@ -62,7 +49,6 @@ export function RelationRollupDashboard() {
           </p>
         </div>
 
-        {/* ─── KPI Row ─── */}
         <div className={cn("grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3")}>
           <KpiCard label="Relations" value={relationProps.length} color="text-accent-text-light" />
           <KpiCard label="Rollups" value={rollupProps.length} color="text-purple-text" />
@@ -72,28 +58,21 @@ export function RelationRollupDashboard() {
           <KpiCard label="Two-way" value={relationTargets.filter(r => r.isTwoWay).length} color="text-pink-text" />
         </div>
 
-        {/* ─── Relation Map ─── */}
         <RelationMapSection relationTargets={relationTargets} dbPages={dbPages} />
 
-        {/* ─── Rollup Function Distribution + Display Format ─── */}
         <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-4")}>
           <FunctionDistSection fnDist={fnDist} rollupCount={rollupProps.length} />
           <DisplayFormatSection displayDist={displayDist} rollupCount={rollupProps.length} />
         </div>
 
-        {/* ─── Per-Project Completion Rings ─── */}
         <CompletionRingsSection analytics={analytics} />
 
-        {/* ─── Numeric Rollup Comparison ─── */}
         <NumericRollupTable rollupResults={rollupResults} />
 
-        {/* ─── Full Rollup Results Grid ─── */}
         <RollupResultsGrid analytics={analytics} />
 
-        {/* ─── Data Flow Diagram ─── */}
         <DataFlowSection analytics={analytics} pages={pages} />
 
-        {/* ─── Edge Cases Table ─── */}
         <EdgeCasesSection analytics={analytics} />
       </div>
     </div>
