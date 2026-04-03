@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ interface DonutPieChartProps {
   isDonut: boolean;
 }
 
+/** Renders a donut or pie chart with a color-coded legend. */
 export function DonutPieChart({ chartData, total, isDonut }: Readonly<DonutPieChartProps>) {
   const size = 300;
   const cx = size / 2;

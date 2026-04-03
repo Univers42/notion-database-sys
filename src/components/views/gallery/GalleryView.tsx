@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:12:08 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ import { CURSORS } from '../../ui/cursors';
 import { renderPropertyValue, coverColors } from './GalleryViewHelpers';
 import { cn } from '../../../utils/cn';
 
+/** Renders a gallery view of database pages as cards with optional cover previews. */
 export function GalleryView() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:11:20 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ import { Plus } from 'lucide-react';
 import { getColumnWidth, BoardCard } from './BoardCardHelpers';
 import { cn } from '../../../utils/cn';
 
+/** Renders a Kanban-style board view with drag-and-drop between columns grouped by a select/status property. */
 export function BoardView() {
   const activeViewId = useActiveViewId();
   const { views, databases, updatePageProperty, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
@@ -55,7 +56,6 @@ export function BoardView() {
     setDragPageId(pageId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', pageId);
-    // Add drag image styling
     const el = e.currentTarget as HTMLElement;
     el.style.opacity = '0.5';
     setTimeout(() => { el.style.opacity = '1'; }, 0);

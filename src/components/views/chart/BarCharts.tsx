@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ interface BarChartProps {
   maxValue: number;
 }
 
+/** Renders a vertical bar chart with labeled axes as an SVG. */
 export function VerticalBarChart({ chartData, maxValue }: Readonly<BarChartProps>) {
   const barWidth = Math.max(24, Math.min(64, 600 / chartData.length));
   const chartWidth = Math.max(600, chartData.length * (barWidth + 16));
@@ -66,6 +67,7 @@ export function VerticalBarChart({ chartData, maxValue }: Readonly<BarChartProps
   );
 }
 
+/** Renders a horizontal bar chart with labeled rows as an SVG. */
 export function HorizontalBarChart({ chartData, maxValue }: Readonly<BarChartProps>) {
   const barHeight = 28;
   const chartWidth = 500;

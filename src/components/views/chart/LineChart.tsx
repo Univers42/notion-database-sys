@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ interface LineChartProps {
   maxValue: number;
 }
 
+/** Renders a line chart with area fill, data points, and labeled axes. */
 export function LineChart({ chartData, maxValue }: Readonly<LineChartProps>) {
   const chartWidth = Math.max(600, chartData.length * 80);
   const chartHeight = 300;

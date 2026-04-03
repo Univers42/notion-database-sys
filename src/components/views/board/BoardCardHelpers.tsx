@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ import type { Page, SchemaProperty, PropertyValue } from '../../../types/databas
 import { CARD_COVER_GRADIENTS as COVER_COLORS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
 
+/** Returns the Tailwind width class for a board column based on card size. */
 export function getColumnWidth(cardSize: string) {
   switch (cardSize) {
     case 'small': return 'w-56';
@@ -27,6 +28,7 @@ export function getColumnWidth(cardSize: string) {
   }
 }
 
+/** Renders a compact property value for display inside a board card. */
 export function renderBoardPropertyValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
   if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) return null;
   if (prop.type === 'select' || prop.type === 'status') {
@@ -67,6 +69,7 @@ export function renderBoardPropertyValue(prop: SchemaProperty, val: PropertyValu
   return null;
 }
 
+/** Renders an optional preview section (cover, content, or properties) at the top of a board card. */
 export function BoardCardPreview({ cardPreview, coverColor, page, nonTitleGroupProps, wrapContent }: Readonly<{
   cardPreview: string;
   coverColor: string;
@@ -132,6 +135,7 @@ interface BoardCardProps {
   onDragStart: (e: React.DragEvent, pageId: string) => void;
 }
 
+/** Renders a draggable board card with title, preview, and property values. */
 export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGroupProps, openPage, getPageTitle, onDragStart }: Readonly<BoardCardProps>) {
   const title = getPageTitle(page);
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];

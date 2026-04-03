@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:04 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:11:32 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ function getDayNumberStyle(dayIsToday: boolean, isCurrentMonth: boolean): string
   return 'text-ink-muted';
 }
 
+/** Renders a monthly calendar view with drag-to-reschedule and per-day page cards. */
 export function CalendarView() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, updatePageProperty, openPage, addPage, getPageTitle } = useDatabaseStore();
@@ -39,7 +40,6 @@ export function CalendarView() {
   const showWeekends = settings.showWeekends !== false;
   const wrapTitles = settings.wrapPageTitles !== false;
 
-  // Find date property
   const dateProperty = Object.values(database.properties).find(p => p.type === 'date');
   if (!dateProperty) {
     return <div className={cn("flex-1 flex items-center justify-center text-ink-secondary")}>Calendar view requires a date property.</div>;
@@ -152,7 +152,6 @@ export function CalendarView() {
                 <div className={cn("flex flex-col gap-0.5")}>
                   {dayPages.slice(0, 3).map(page => {
                     const title = getPageTitle(page);
-                    // Find status for color coding
                     const statusProp = Object.values(database.properties).find(p => p.type === 'select' && p.id !== dateProperty.id);
                     const statusVal = statusProp ? page.properties[statusProp.id] : null;
                     const statusOpt = statusProp?.options?.find(o => o.id === statusVal);

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,26 @@ import { useMemo } from 'react';
 import type { SchemaProperty, PropertyValue, SelectOption } from '../../../types/database';
 import { CHART_COLORS } from '../../../utils/color';
 
+/** Supported chart visualization types. */
 export type ChartType = 'vertical_bar' | 'horizontal_bar' | 'line' | 'donut' | 'pie' | 'number';
 
+/** Single data point for chart rendering. */
 export interface ChartDataItem {
   label: string;
   value: number;
   color: string;
 }
 
+/**
+ * Aggregates database pages into chart data items grouped by the x-axis property.
+ *
+ * @param database - Database schema with property definitions
+ * @param pages - Pages to aggregate
+ * @param xAxisProperty - Property ID for grouping
+ * @param yAxisProperty - Optional property ID for value aggregation
+ * @param yAxisAggregation - Aggregation function: 'count', 'sum', or 'average'
+ * @returns Sorted chart data items with labels, values, and colors
+ */
 export function useChartData(
   database: { properties: Record<string, SchemaProperty> } | null,
   pages: { properties: Record<string, PropertyValue> }[],

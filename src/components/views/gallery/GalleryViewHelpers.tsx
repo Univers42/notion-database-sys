@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ import { CARD_COVER_GRADIENTS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
 export const coverColors = CARD_COVER_GRADIENTS;
 
+/** Renders a property value as a compact inline element for gallery cards. */
 export function renderPropertyValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
   if (val === undefined || val === null || val === '') return null;
   if (prop.type === 'select' || prop.type === 'status') {

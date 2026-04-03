@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:11:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ import { LineChart } from './LineChart';
 import { DonutPieChart } from './DonutPieChart';
 import { cn } from '../../../utils/cn';
 
+/** Renders the chart view, dispatching to the appropriate chart type based on view settings. */
 export function ChartView() {
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView } = useDatabaseStore();
