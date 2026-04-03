@@ -14,6 +14,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import type { SchemaProperty, Page, PropertyValue } from '../../../../types/database';
 import { ArrowUpRight, CheckCircle2, MapPin } from 'lucide-react';
+import { TimelineDatePicker } from '../../timeline/TimelineDatePicker';
 
 // ─── Inline input shared by text, number, date, person, email/url/phone, place ──
 // Buffers locally while the user types. Only commits via onChange on blur / Enter.
@@ -96,15 +97,57 @@ export function renderCheckbox(value: PropertyValue): React.ReactNode {
   );
 }
 
+/* ── Notion-like date cell editor (portal-based picker) ────────────────── */
+
+export function DateCellEditor({ page, prop, value, onUpdate, onStopEditing }: Readonly<{
+  page: CellRendererProps['page'];
+  prop: CellRendererProps['prop'];
+  value: CellRendererProps['value'];
+  onUpdate: CellRendererProps['onUpdate'];
+  onStopEditing: CellRendererProps['onStopEditing'];
+}>) {
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    if (measureRef.current) {
+      const td = measureRef.current.closest('td');
+      if (td) setRect(td.getBoundingClientRect());
+    }
+  }, []);
+
+  const currentDate = value ? new Date(String(value)) : null;
+  const isValidDate = currentDate !== null && !isNaN(currentDate.getTime());
+
+  return (
+    <>
+      <div ref={measureRef} className="w-full h-0" />
+      <div className="text-sm text-ink-body">
+        {isValidDate
+          ? currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : <span className="text-ink-muted">Empty</span>}
+      </div>
+      {rect && (
+        <TimelineDatePicker
+          anchorRect={rect}
+          startDate={isValidDate ? currentDate : null}
+          endDate={null}
+          hasEndDate={false}
+          onChangeStart={d => onUpdate(page.id, prop.id, d.toISOString())}
+          onChangeEnd={() => {}}
+          onToggleEndDate={() => {}}
+          onClear={() => { onUpdate(page.id, prop.id, null); onStopEditing(); }}
+          onClose={onStopEditing}
+        />
+      )}
+    </>
+  );
+}
+
 export function renderDate(p: CellRendererProps): React.ReactNode {
-  const { page, prop, value, isEditing, onUpdate, onStopEditing, tableRef } = p;
+  const { page, prop, value, isEditing, onUpdate, onStopEditing } = p;
   if (isEditing) {
-    return (
-      <InlineInput type="date"
-        value={value ? new Date(value).toISOString().split('T')[0] : ''}
-        onChange={v => onUpdate(page.id, prop.id, v ? new Date(v).toISOString() : null)}
-        onStop={onStopEditing} tableRef={tableRef} className="text-ink-body" />
-    );
+    return <DateCellEditor page={page} prop={prop} value={value} onUpdate={onUpdate} onStopEditing={onStopEditing} />;
   }
   return (
     <div className="text-sm text-ink-body truncate whitespace-nowrap">

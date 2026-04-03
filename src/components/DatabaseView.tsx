@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,16 @@ import { ErrorBoundary } from './ErrorBoundary';
 import type { ViewType } from '../types/database';
 
 // View component imports
-import { TableView } from './views/TableView';
-import { BoardView } from './views/BoardView';
-import { CalendarView } from './views/CalendarView';
-import { TimelineView } from './views/TimelineView';
-import { ListView } from './views/ListView';
-import { GalleryView } from './views/GalleryView';
-import { ChartView } from './views/ChartView';
-import { DashboardView } from './views/DashboardView';
-import { FeedView } from './views/FeedView';
-import { MapView } from './views/MapView';
+import { TableView } from './views/table/TableView';
+import { BoardView } from './views/board/BoardView';
+import { CalendarView } from './views/calendar/CalendarView';
+import { TimelineView } from './views/timeline/TimelineView';
+import { ListView } from './views/list/ListView';
+import { GalleryView } from './views/gallery/GalleryView';
+import { ChartView } from './views/chart/ChartView';
+import { DashboardView } from './views/dashboard/DashboardView';
+import { FeedView } from './views/feed/FeedView';
+import { MapView } from './views/map/MapView';
 import { FileText } from 'lucide-react';
 
 const VIEW_COMPONENTS: Record<ViewType, React.ComponentType> = {

@@ -13,7 +13,7 @@
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import type { SchemaProperty, PropertyValue } from '../../../../types/database';
-import { InlineInput, renderCheckbox } from './BasicCellRenderers';
+import { InlineInput, renderCheckbox, DateCellEditor } from './BasicCellRenderers';
 
 export function renderFilesMedia(value: PropertyValue): React.ReactNode {
   return (
@@ -37,14 +37,10 @@ export function renderButton(prop: SchemaProperty): React.ReactNode {
 }
 
 export function renderDueDate(p: CellRendererProps): React.ReactNode {
-  const { page, prop, value, isEditing, onUpdate, onStopEditing, tableRef } = p;
+  const { page, prop, value, isEditing, onUpdate, onStopEditing } = p;
   const dateVal = value ? new Date(value) : null;
   if (isEditing) {
-    return (
-      <InlineInput type="date" value={dateVal ? dateVal.toISOString().split('T')[0] : ''}
-        onChange={v => onUpdate(page.id, prop.id, v ? new Date(v).toISOString() : null)}
-        onStop={onStopEditing} tableRef={tableRef} className="text-ink-body" />
-    );
+    return <DateCellEditor page={page} prop={prop} value={value} onUpdate={onUpdate} onStopEditing={onStopEditing} />;
   }
   if (!dateVal) return <span className="text-ink-muted">Empty</span>;
   return renderDueDateBadge(dateVal);
