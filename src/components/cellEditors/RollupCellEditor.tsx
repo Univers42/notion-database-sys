@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useMemo } from 'react';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty, RollupFunction } from '../../types/database';
+import type { RollupFunctionMeta } from '../../utils/rollup';
 import { CellPortal } from './CellPortal';
 import { ROLLUP_FUNCTIONS } from './constants';
 import { RelationSection, PropertySection, CalculateSection } from './RollupCellEditorSections';
@@ -63,7 +64,7 @@ export function RollupCellEditor({ property, databaseId, onClose }: Readonly<Rol
   };
 
   const fnGroups = useMemo(() => {
-    const groups: Record<string, typeof ROLLUP_FUNCTIONS> = {};
+    const groups: Record<string, RollupFunctionMeta[]> = {};
     for (const f of ROLLUP_FUNCTIONS) {
       if (!groups[f.group]) groups[f.group] = [];
       groups[f.group].push(f);
