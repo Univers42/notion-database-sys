@@ -6,23 +6,23 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:28 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:12:17 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
-import { useActiveViewId } from '../../hooks/useDatabaseScope';
-import { PropertyConfigPanel } from '../PropertyConfigPanel';
-import { FormulaEditorPanel } from '../FormulaEditorPanel';
-import { SchemaProperty, PropertyValue } from '../../types/database';
-import { READ_ONLY_TYPES } from '../../constants/propertyIcons';
-import { useFillDrag } from './table/useFillDrag';
-import { useColumnResize, useColWidth } from './table/useColumnResize';
-import { useTableKeyboard } from './table/useTableKeyboard';
-import { TableHeader } from './table/TableHeader';
-import { TableGroupRows, renderPageRows } from './table/TableGroupRows';
-import { TableRowContextMenu } from './table/TableRowContextMenu';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useActiveViewId } from '../../../hooks/useDatabaseScope';
+import { PropertyConfigPanel } from '../../PropertyConfigPanel';
+import { FormulaEditorPanel } from '../../FormulaEditorPanel';
+import { SchemaProperty, PropertyValue } from '../../../types/database';
+import { READ_ONLY_TYPES } from '../../../constants/propertyIcons';
+import { useFillDrag } from './useFillDrag';
+import { useColumnResize, useColWidth } from './useColumnResize';
+import { useTableKeyboard } from './useTableKeyboard';
+import { TableHeader } from './TableHeader';
+import { TableGroupRows, renderPageRows } from './TableGroupRows';
+import { TableRowContextMenu } from './TableRowContextMenu';
 import { ChevronDown, Plus } from 'lucide-react';
 
 export function TableView() {

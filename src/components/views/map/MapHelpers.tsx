@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:12:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { MapPin, Plus, FileText, Layers } from 'lucide-react';
 import L from 'leaflet';
-import type { Page, SchemaProperty } from '../../types/database';
+import type { Page, SchemaProperty } from '../../../types/database';
 
 export type MappablePage = {
   page: Page;

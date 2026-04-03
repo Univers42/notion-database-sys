@@ -1,14 +1,14 @@
 id,title,status,priority,tags,assignee,due_date,completed,story_points,icon,created_at,updated_at,created_by,last_edited_by
 TASK-1,CSV Persistence Works!fsadfsdfaffsafsf1654513,opt-done,pri-high,tag-design,Alice,2026-03-29T14:22:50.751Z,true,5,🎨,2026-03-23T00:00:00Z,2026-04-01T00:00:00Z,Alice,Alice
-t2,Implement View Engine,opt-in-progress,pri-urgent,tag-feature,Bob,2026-04-04T14:22:50.751Z,false,13,⚙️,2026-03-26T00:00:00Z,2026-04-02T00:00:00Z,Bob,Bob
+t2,Implement View Engine,opt-in-progress,pri-urgent,tag-infra,Bob,2026-04-04T14:22:50.751Z,false,13,⚙️,2026-03-26T00:00:00Z,2026-04-02T00:00:00Z,Bob,Bob
 t3,Fix Drag-and-Drop Bug,opt-review,Medium,Bug,Charlie,2026-04-07T00:00:00Z,false,3,🐛,2026-03-30T00:00:00Z,2026-03-30T00:00:00Z,Charlie,Charlie
 t4,Write API Documentation,opt-review,Low,Documentation,Alice,2026-04-12T00:00:00Z,false,2,📖,2026-03-31T00:00:00Z,2026-03-31T00:00:00Z,Alice,Alice
 t5,Deploy to Production,opt-review,High,Infrastructure,Bob,2026-04-09T00:00:00Z,false,8,🚀,2026-04-01T00:00:00Z,2026-04-01T00:00:00Z,Bob,Bob
 t6,Write Integration Tests,opt-review,Medium,Feature|Infrastructure,Diana,2026-04-05T00:00:00Z,false,5,🧪,2026-03-28T00:00:00Z,2026-04-02T00:00:00Z,Diana,Diana
 t7,Performance Optimization,opt-review,High,Infrastructure,Eve,2026-04-06T00:00:00Z,false,8,🎯,2026-03-29T00:00:00Z,2026-04-02T00:00:00Z,Eve,Eve
-t8,UI Polish Pass,opt-review,Medium,Design,Alice,2026-04-10T00:00:00Z,false,3,💅,2026-04-01T00:00:00Z,2026-04-01T00:00:00Z,Alice,Alice
+t8,UI Polish Pass,opt-review,Medium,tag-feature,Alice,2026-04-10T00:00:00Z,false,3,💅,2026-04-01T00:00:00Z,2026-04-01T00:00:00Z,Alice,Alice
 TASK-9,,opt-review,,,,,,,,,,,
-TASK-10,,opt-review,,,,,,,,,,,
+TASK-10,,,,tag-bug,,,,,,,,,
 TASK-11,,opt-review,,,,,,,,,,,
 TASK-12,,opt-review,,,,,,,,,,,
 TASK-13,,opt-review,,,,,,,,,,,

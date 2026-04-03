@@ -160,7 +160,7 @@
           "name": "Task ID",
           "type": "id",
           "prefix": "TASK-",
-          "autoIncrement": 9
+          "autoIncrement": 12
         },
         "prop-project": {
           "id": "prop-project",
@@ -171,6 +171,26 @@
             "type": "two_way",
             "reversePropertyId": "proj-tasks"
           }
+        },
+        "prop-1608b7d1": {
+          "id": "prop-1608b7d1",
+          "name": "End Date",
+          "type": "date"
+        },
+        "prop-b705aaf2": {
+          "id": "prop-b705aaf2",
+          "name": "End Date",
+          "type": "date"
+        },
+        "prop-1b4cf713": {
+          "id": "prop-1b4cf713",
+          "name": "End Date",
+          "type": "date"
+        },
+        "prop-f3dabd13": {
+          "id": "prop-f3dabd13",
+          "name": "End Date",
+          "type": "date"
         }
       }
     },
@@ -980,7 +1000,7 @@
           "name": "SKU",
           "type": "id",
           "prefix": "SKU-",
-          "autoIncrement": 301
+          "autoIncrement": 302
         },
         "pp-created": {
           "id": "pp-created",
@@ -19327,7 +19347,11 @@
       "visibleProperties": [
         "prop-title",
         "prop-status",
-        "prop-assignee"
+        "prop-assignee",
+        "prop-1608b7d1",
+        "prop-b705aaf2",
+        "prop-1b4cf713",
+        "prop-f3dabd13"
       ],
       "settings": {
         "showTable": true,

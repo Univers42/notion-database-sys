@@ -6,15 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:11:14 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { Image, ArrowUpRight } from 'lucide-react';
 import { format } from 'date-fns';
-import { CURSORS } from '../ui/cursors';
-import type { Page, SchemaProperty, PropertyValue } from '../../types/database';
+import { CURSORS } from '../../ui/cursors';
+import type { Page, SchemaProperty, PropertyValue } from '../../../types/database';
 
 export const COVER_COLORS = [
   'bg-gradient-to-br from-gradient-blue-from to-gradient-blue-to',

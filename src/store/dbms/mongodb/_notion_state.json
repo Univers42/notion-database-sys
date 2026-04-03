@@ -979,8 +979,8 @@
           "id": "pp-sku",
           "name": "SKU",
           "type": "id",
-          "prefix": "SKU-",
-          "autoIncrement": 301
+          "prefix": "uuid",
+          "autoIncrement": 2
         },
         "pp-created": {
           "id": "pp-created",

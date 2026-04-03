@@ -18,6 +18,21 @@ export default defineConfig(({mode}) => {
           dbmsMiddleware(server);
         },
       },
+      // Patch d3-dsv's `new Function()` to avoid CSP eval violations.
+      // d3-dsv uses `new Function("d", "return {" + ...)` for CSV column accessors.
+      // Replace it with a safe closure-based equivalent.
+      {
+        name: 'patch-d3-dsv-eval',
+        enforce: 'pre' as const,
+        transform(code: string, id: string) {
+          if (!id.includes('d3-dsv') && !id.includes('chunk-')) return null;
+          if (!code.includes('new Function("d"')) return null;
+          return code.replace(
+            /return new Function\("d", "return \{" \+ columns\.map\(function\(name, i\) \{\s*return JSON\.stringify\(name\) \+ ": d\[" \+ i \+ "\] \|\| \\\"\\\"";[\s\S]*?\}\)\.join\(","\) \+ "\}"\);/,
+            `return function(d) { var o = {}; columns.forEach(function(name, i) { o[name] = d[i] || ""; }); return o; };`,
+          );
+        },
+      },
     ],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
@@ -28,9 +43,6 @@ export default defineConfig(({mode}) => {
       },
     },
     server: {
-      headers: {
-        'Content-Security-Policy': "script-src 'self' 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:;",
-      },
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
         ignored: [
@@ -49,7 +61,7 @@ export default defineConfig(({mode}) => {
       },
     },
     optimizeDeps: {
-      exclude: ['formula-engine'],
+      exclude: ['formula-engine', 'mermaid'],
     },
   };
 });

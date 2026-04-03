@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 18:45:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 18:52:38 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,21 +180,34 @@ function validateMultiSelect(raw: unknown, property: SchemaProperty): Validation
   if (options.length === 0) return ok(ids.map(String));
 
   const resolved: string[] = [];
+  const seen = new Set<string>();
   for (const id of ids) {
     const s = String(id);
+    let resolvedId: string | undefined;
+
     const match = options.find(o => o.id === s);
-    if (match) { resolved.push(s); continue; }
+    if (match) { resolvedId = s; }
 
-    // Fallback: match by display value
-    const byValue = options.find(o =>
-      o.value.toLowerCase() === s.toLowerCase(),
-    );
-    if (byValue) { resolved.push(byValue.id); continue; }
+    if (!resolvedId) {
+      // Fallback: match by display value
+      const byValue = options.find(o =>
+        o.value.toLowerCase() === s.toLowerCase(),
+      );
+      if (byValue) { resolvedId = byValue.id; }
+    }
 
-    return fail(
-      `"${s}" is not a valid multi-select option. ` +
-      `Valid: ${options.map(o => o.value).join(', ')}`,
-    );
+    if (!resolvedId) {
+      return fail(
+        `"${s}" is not a valid multi-select option. ` +
+        `Valid: ${options.map(o => o.value).join(', ')}`,
+      );
+    }
+
+    // Deduplicate: skip if already resolved to this ID
+    if (!seen.has(resolvedId)) {
+      seen.add(resolvedId);
+      resolved.push(resolvedId);
+    }
   }
   return ok(resolved);
 }

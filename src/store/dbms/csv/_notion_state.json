@@ -1423,7 +1423,9 @@
         "prop-title": "Implement View Engine",
         "prop-status": "opt-in-progress",
         "prop-priority": "pri-urgent",
-        "prop-tags": "tag-feature",
+        "prop-tags": [
+          "tag-infra"
+        ],
         "prop-assignee": "Bob",
         "prop-due": "2026-04-04T14:22:50.751Z",
         "prop-done": false,
@@ -1443,9 +1445,9 @@
         }
       ],
       "createdAt": "2026-03-26T15:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:39.820Z",
+      "updatedAt": "2026-04-02T21:57:10.483Z",
       "createdBy": "Bob",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t3": {
       "id": "t3",
@@ -1584,7 +1586,9 @@
         "prop-title": "UI Polish Pass",
         "prop-status": "opt-review",
         "prop-priority": "Medium",
-        "prop-tags": "Design",
+        "prop-tags": [
+          "tag-feature"
+        ],
         "prop-assignee": "Alice",
         "prop-due": "2026-04-10T00:00:00Z",
         "prop-done": false,
@@ -1598,7 +1602,7 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:49.360Z",
+      "updatedAt": "2026-04-02T21:57:12.653Z",
       "createdBy": "Alice",
       "lastEditedBy": "You"
     },
@@ -19280,7 +19284,9 @@
         "prop-task-id": "TASK-10",
         "prop-status": "",
         "prop-priority": "",
-        "prop-tags": "",
+        "prop-tags": [
+          "tag-bug"
+        ],
         "prop-assignee": "",
         "prop-due": "",
         "prop-done": "",
@@ -19289,9 +19295,9 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:46.506Z",
-      "updatedAt": "2026-04-02T16:40:56.343Z",
+      "updatedAt": "2026-04-02T21:57:14.453Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670": {
       "id": "7b99caaa-8e9e-4bcd-b6f8-b8ef3ea75670",

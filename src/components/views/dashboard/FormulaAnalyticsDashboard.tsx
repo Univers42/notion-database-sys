@@ -6,23 +6,23 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:11:57 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useMemo } from 'react';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
-import { useActiveViewId } from '../../hooks/useDatabaseScope';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Sigma, TrendingUp, AlertTriangle, CheckCircle, Package, DollarSign, Scale, Clock, Zap, BarChart3, PieChart } from 'lucide-react';
-import type { FormulaResult, AnalyticsEntry } from './formulaAnalytics/constants';
-import { useFormulaAnalytics } from './formulaAnalytics/useFormulaAnalytics';
-import { KpiCard } from './formulaAnalytics/KpiCard';
-import { NumericFormulaCard } from './formulaAnalytics/NumericFormulaCard';
-import { TextDistributionCard } from './formulaAnalytics/TextDistributionCard';
-import { FormulaTypePie, ErrorBarChart, ComplexityChart } from './formulaAnalytics/FormulaCharts';
-import { BooleanSummary } from './formulaAnalytics/BooleanSummary';
-import { FormulaOverviewTable } from './formulaAnalytics/FormulaOverviewTable';
-import { SampleResultsTable } from './formulaAnalytics/SampleResultsTable';
+import type { FormulaResult, AnalyticsEntry } from '../formulaAnalytics/constants';
+import { useFormulaAnalytics } from '../formulaAnalytics/useFormulaAnalytics';
+import { KpiCard } from '../formulaAnalytics/KpiCard';
+import { NumericFormulaCard } from '../formulaAnalytics/NumericFormulaCard';
+import { TextDistributionCard } from '../formulaAnalytics/TextDistributionCard';
+import { FormulaTypePie, ErrorBarChart, ComplexityChart } from '../formulaAnalytics/FormulaCharts';
+import { BooleanSummary } from '../formulaAnalytics/BooleanSummary';
+import { FormulaOverviewTable } from '../formulaAnalytics/FormulaOverviewTable';
+import { SampleResultsTable } from '../formulaAnalytics/SampleResultsTable';
 
 // ─── MAIN COMPONENT ────────────────────────────────────────────────────────
 export function FormulaAnalyticsDashboard() {
