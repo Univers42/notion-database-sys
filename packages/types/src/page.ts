@@ -14,6 +14,7 @@ export interface Page extends Timestamps, SoftDeletable {
   workspaceId: ObjectId;
   databaseId?: ObjectId;
   parentPageId?: ObjectId;
+  title?: string;
   icon?: string;
   cover?: string;
   properties: Record<string, PropertyValue>;
