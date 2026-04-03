@@ -3,6 +3,7 @@ import type { Block } from '../../types/database';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { cn } from '../../utils/cn';
 
+/** Draggable handle for resizing adjacent columns in a ColumnBlock. */
 export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _columns }: Readonly<{
   pageId: string;
   blockId: string;

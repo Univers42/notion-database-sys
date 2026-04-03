@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:35:04 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { parseInlineMarkdown } from '../../lib/markdown';
 import { cn } from '../../utils/cn';
 
+/** Props for {@link EditableContent}. */
 export interface EditableContentProps {
   content: string;
   className?: string;
@@ -23,6 +24,7 @@ export interface EditableContentProps {
   tag?: 'div' | 'span';
 }
 
+/** Contenteditable wrapper that syncs with block state and renders inline markdown. */
 export function EditableContent({
   content,
   className = '',

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:34 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ function getCrumbs(pageId: string, pages: Record<string, { title: string; icon?:
   return page ? [{ id: pageId, title: page.title || 'Untitled', icon: page.icon }] : [];
 }
 
+/** Renders a breadcrumb navigation block showing the page hierarchy. */
 export function BreadcrumbBlock({ pageId }: Readonly<BlockRendererProps>) {
   const pages = useDatabaseStore(s => s.pages);
   const crumbs = getCrumbs(pageId, pages as unknown as Record<string, { title: string; icon?: string }>);

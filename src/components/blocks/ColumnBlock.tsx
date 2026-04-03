@@ -6,14 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:49 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // ColumnBlock — horizontal multi-column layout block
-// ═══════════════════════════════════════════════════════════════════════════════
 //
 // Renders N columns side-by-side. Each column holds child blocks rendered via
 // BlockRenderer. Columns are resizable via drag handles.
@@ -21,7 +18,6 @@
 // Block data:
 //   block.columns: Block[][] — array of column arrays
 //   block.columnRatios: number[] — flex ratios for each column
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useCallback, useMemo } from 'react';
 import type { Block } from '../../types/database';
@@ -31,11 +27,13 @@ import { Plus } from 'lucide-react';
 import { ColumnResizeHandle } from './ColumnResizeHandle';
 import { cn } from '../../utils/cn';
 
+/** Props for {@link ColumnBlock}. */
 export interface ColumnBlockProps {
   block: Block;
   pageId: string;
 }
 
+/** Renders a multi-column layout with resizable column widths. */
 export function ColumnBlock({ block, pageId }: Readonly<ColumnBlockProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const columns = useMemo(() => block.columns || [[], []], [block.columns]);
@@ -159,4 +157,3 @@ export function ColumnBlock({ block, pageId }: Readonly<ColumnBlockProps>) {
     </div>
   );
 }
-

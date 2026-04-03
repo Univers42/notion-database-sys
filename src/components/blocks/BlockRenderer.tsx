@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:28 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 20:26:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:47 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ import { EquationBlock } from './EquationBlock';
 import { SpacerBlock } from './SpacerBlock';
 import { EmbedBlock } from './EmbedBlock';
 import { BreadcrumbBlock } from './BreadcrumbBlock';
-import { cn } from '../../utils/cn';
 
+/** Props for {@link BlockRenderer}. */
 export interface BlockRendererProps {
   block: Block;
   pageId: string;
@@ -42,6 +42,7 @@ export interface BlockRendererProps {
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
+/** Dispatches rendering to the appropriate block component based on block type. */
 export const BlockRenderer = React.memo(function BlockRenderer(props: BlockRendererProps) {
   const { block } = props;
 

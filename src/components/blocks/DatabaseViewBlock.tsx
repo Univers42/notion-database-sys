@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:54 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:34:55 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ const VIEW_CONFIG: Record<string, { icon: typeof Table; label: string }> = {
   list_view: { icon: List, label: 'List view' },
 };
 
+/** Renders a full-page database view block within page content. */
 export function DatabaseViewBlock({ block }: Readonly<BlockRendererProps>) {
   const config = VIEW_CONFIG[block.type] || VIEW_CONFIG.table_view;
   const Icon = config.icon;

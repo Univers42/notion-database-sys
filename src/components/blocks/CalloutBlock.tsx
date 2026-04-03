@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ const CALLOUT_COLORS: Record<string, { bg: string; border: string }> = {
   '⭐': { bg: 'bg-warning-surface', border: 'border-warning-border' },
 };
 
+/** Renders a callout block with customizable icon and background color. */
 export function CalloutBlock({ block, pageId, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [showIconPicker, setShowIconPicker] = useState(false);

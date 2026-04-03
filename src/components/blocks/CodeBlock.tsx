@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:34:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ const LANGUAGES = [
   'ruby', 'php', 'swift', 'kotlin', 'lua', 'toml', 'mermaid',
 ];
 
+/** Renders a code block with syntax highlighting and language selector. */
 export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const [showLangPicker, setShowLangPicker] = useState(false);
