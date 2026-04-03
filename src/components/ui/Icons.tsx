@@ -6,17 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:17 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { Icon } from './Icon';
-import { cn } from '../../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Notion-authentic UI SVG icons — thin wrappers around the centralized Icon registry.
-// Each icon renders at its default size. Pass className to override.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 interface IconProps {
   className?: string;

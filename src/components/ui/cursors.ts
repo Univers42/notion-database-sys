@@ -6,14 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:07 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:08 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Cursor Utility — CSS custom cursor styles from the SVG Icon Registry
-// Generates data-URI cursors for use as `style={{ cursor: CURSORS.xxx }}`
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import { ICON_REGISTRY } from './iconRegistry';
 
@@ -50,9 +45,7 @@ export function getCursorStyle(
   return encodeCursor(svg, opts?.hotX ?? 0, opts?.hotY ?? 0, opts?.fallback ?? 'auto');
 }
 
-// ─── Pre-built cursor styles ─────────────────────────────────────────────────
-// Use these as `style={{ cursor: CURSORS.pointer }}` on any element
-
+/** Pre-built CSS cursor values keyed by semantic name. */
 export const CURSORS = {
   /** Classic arrow pointer */
   default: getCursorStyle('cursor/default', { hotX: 4, hotY: 2, fallback: 'default' }),

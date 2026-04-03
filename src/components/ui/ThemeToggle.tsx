@@ -6,17 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { useThemeStore } from '../../store/dbms/hardcoded/useThemeStore';
 import { cn } from '../../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ThemeToggle — cycles through light / dark / system
-// ═══════════════════════════════════════════════════════════════════════════════
 
 const SunIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -52,6 +48,7 @@ const THEME_META: Record<string, { icon: React.ReactNode; label: string }> = {
   system: { icon: <MonitorIcon />, label: 'System' },
 };
 
+/** Button that cycles through light, dark, and system theme preferences. */
 export function ThemeToggle() {
   const preference = useThemeStore(s => s.preference);
   const cycleTheme = useThemeStore(s => s.cycleTheme);

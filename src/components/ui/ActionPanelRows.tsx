@@ -6,20 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ActionPanel row renderers — split from ActionPanel.tsx
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import type { ActionItem, ToggleItem, LinkItem, InfoItem, PanelItem } from './ActionPanel';
 import { cn } from '../../utils/cn';
 
-/* ─── Item dispatcher ──────────────────────────────────────────────────── */
-
+/** Dispatches rendering to the appropriate row component based on item type. */
 export function PanelItemRow({ item }: Readonly<{ item: PanelItem }>) {
   if (item.type === 'info') return <InfoRow item={item} />;
   if (item.type === 'toggle') return <ToggleRow item={item} />;
@@ -104,8 +99,7 @@ function InfoRow({ item }: Readonly<{ item: InfoItem }>) {
   );
 }
 
-/* ─── Small helpers ────────────────────────────────────────────────────── */
-
+/** Horizontal divider between panel sections. */
 export function SectionDivider() {
   return (
     <div className={cn("relative mt-px")}>
@@ -114,6 +108,7 @@ export function SectionDivider() {
   );
 }
 
+/** Presentational toggle indicator (no click handling). */
 export function ToggleSwitch({ checked }: Readonly<{ checked: boolean }>) {
   return (
     <div

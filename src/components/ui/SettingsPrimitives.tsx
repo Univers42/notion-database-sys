@@ -6,21 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:20 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { CloseIcon } from './Icons';
 import { cn } from '../../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Settings-panel primitives extracted from MenuPrimitives
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/* ─── SettingsHeader ──────────────────────────────────────────────────────
-   Panel header with title + optional back arrow + close (X) button.
-   ─────────────────────────────────────────────────────────────────────── */
 
 export type SettingsHeaderSlots = {
   root?: string;
@@ -36,6 +28,7 @@ export interface SettingsHeaderProps {
   slots?: Partial<SettingsHeaderSlots>;
 }
 
+/** Panel header with title, optional back arrow, and close button. */
 export function SettingsHeader({ title, onClose, onBack, slots = {} }: Readonly<SettingsHeaderProps>) {
   return (
     <div className={cn('flex items-center shrink-0', slots.root)} style={{ paddingTop: 14, paddingBottom: 6, paddingInline: 16, height: 42 }}>
@@ -62,10 +55,7 @@ export function SettingsHeader({ title, onClose, onBack, slots = {} }: Readonly<
   );
 }
 
-/* ─── SettingsSectionLabel ─────────────────────────────────────────────────
-   Muted section label divider within settings panels.
-   ─────────────────────────────────────────────────────────────────────── */
-
+/** Muted section label with top divider for settings panels. */
 export function SettingsSectionLabel({ children, className }: Readonly<{ children: React.ReactNode; className?: string }>) {
   return (
     <div className={cn('relative pt-[6px] mt-1', className)}>
@@ -77,10 +67,7 @@ export function SettingsSectionLabel({ children, className }: Readonly<{ childre
   );
 }
 
-/* ─── MenuDivider ─────────────────────────────────────────────────────────
-   Thin separator used between menu sections.
-   ─────────────────────────────────────────────────────────────────────── */
-
+/** Thin horizontal separator for menu sections. */
 export function MenuDivider({ className }: Readonly<{ className?: string }>) {
   return (
     <div className={cn('relative my-[3px] mx-3', className)}>
@@ -88,10 +75,6 @@ export function MenuDivider({ className }: Readonly<{ className?: string }>) {
     </div>
   );
 }
-
-/* ─── ViewTypeCard ────────────────────────────────────────────────────────
-   A card used in the "Add a new view" grid and the layout-switcher grid.
-   ─────────────────────────────────────────────────────────────────────── */
 
 export type ViewTypeCardSlots = {
   root?: string;
@@ -107,6 +90,7 @@ export interface ViewTypeCardProps {
   slots?: Partial<ViewTypeCardSlots>;
 }
 
+/** Selectable card for view type grids (e.g. layout-switcher). */
 export function ViewTypeCard({ icon, label, active = false, onClick, slots = {} }: Readonly<ViewTypeCardProps>) {
   return (
     <button
@@ -125,10 +109,7 @@ export function ViewTypeCard({ icon, label, active = false, onClick, slots = {} 
   );
 }
 
-/* ─── PanelSectionLabel ───────────────────────────────────────────────────
-   Small muted section header label.
-   ─────────────────────────────────────────────────────────────────────── */
-
+/** Small muted section header label for panels. */
 export function PanelSectionLabel({ children, className }: Readonly<{ children: React.ReactNode; className?: string }>) {
   return (
     <div className={cn('flex items-center px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-ink-muted select-none', className)}>

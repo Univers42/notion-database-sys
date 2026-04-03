@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,15 @@ import { ChevronRightIcon } from './Icons';
 import { ToggleSwitch } from './ToggleSwitch';
 import { cn } from '../../utils/cn';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Toggle & Setting Row primitives (no-icon variants for layout-settings panels)
-// ═══════════════════════════════════════════════════════════════════════════════
-
 export { ToggleSwitch };
 
-/* ─── ToggleSettingRow ──────────────────────────────────────────────────
-   Full-row toggle: label on left, ToggleSwitch on right.
-   No left icon — used in per-view layout settings panels.
-   ─────────────────────────────────────────────────────────────────── */
 export type ToggleSettingRowSlots = {
   root?: string;
   label?: string;
   toggle?: string;
 };
 
+/** Full-width toggle row with label on left and switch on right. */
 export function ToggleSettingRow({ label, checked, onChange, slots = {} }: Readonly<{ label: string; checked: boolean; onChange: (v: boolean) => void; slots?: Partial<ToggleSettingRowSlots> }>) {
   return (
     <button
@@ -47,10 +40,6 @@ export function ToggleSettingRow({ label, checked, onChange, slots = {} }: Reado
   );
 }
 
-/* ─── NavSettingRow ────────────────────────────────────────────────────
-   Navigation row: label on left, optional value + chevron on right.
-   No left icon — used in per-view layout settings panels.
-   ─────────────────────────────────────────────────────────────────── */
 export type NavSettingRowSlots = {
   root?: string;
   label?: string;
@@ -59,6 +48,7 @@ export type NavSettingRowSlots = {
   chevron?: string;
 };
 
+/** Navigation row with label, optional value display, and right chevron. */
 export function NavSettingRow({ label, value, onClick, slots = {} }: Readonly<{ label: string; value?: string; onClick: () => void; slots?: Partial<NavSettingRowSlots> }>) {
   return (
     <button
@@ -74,16 +64,6 @@ export function NavSettingRow({ label, value, onClick, slots = {} }: Readonly<{ 
     </button>
   );
 }
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Reusable primitives used throughout the database widget panels / menus.
-// Import these instead of duplicating the icon+label row pattern.
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/* ─── MenuRow ─────────────────────────────────────────────────────────────
-   Clickable row with an SVG icon on the left and a label on the right.
-   Used in dropdown menus, context menus, and action panels.
-   ─────────────────────────────────────────────────────────────────────── */
 
 export type MenuRowSlots = {
   root?: string;
@@ -101,6 +81,7 @@ export interface MenuRowProps {
   slots?: Partial<MenuRowSlots>;
 }
 
+/** Clickable menu row with icon and label, optionally styled as destructive. */
 export function MenuRow({ icon, label, onClick, className = '', danger = false, slots = {} }: Readonly<MenuRowProps>) {
   return (
     <button
@@ -118,12 +99,6 @@ export function MenuRow({ icon, label, onClick, className = '', danger = false, 
     </button>
   );
 }
-
-/* ─── SettingsRow ──────────────────────────────────────────────────────────
-   Navigation row with icon, label, optional right-side value, and chevron.
-   Matches Notion's settings panel row pattern exactly.
-   Used in ViewSettingsPanel and sub-screens.
-   ─────────────────────────────────────────────────────────────────────── */
 
 export type SettingsRowSlots = {
   root?: string;
@@ -146,6 +121,7 @@ export interface SettingsRowProps {
   slots?: Partial<SettingsRowSlots>;
 }
 
+/** Settings-panel row with icon, label, optional value, and navigation chevron. */
 export function SettingsRow({ icon, label, value, showChevron, onClick, slots = {} }: Readonly<SettingsRowProps>) {
   const hasChevron = showChevron ?? !!onClick;
   return (
@@ -177,10 +153,6 @@ export function SettingsRow({ icon, label, value, showChevron, onClick, slots = 
     </button>
   );
 }
-
-/* ─── SettingsHeader, SettingsSectionLabel, MenuDivider, ViewTypeCard, PanelSectionLabel ──
-   Re-exported from ./SettingsPrimitives for backward compatibility.
-   ─────────────────────────────────────────────────────────────────────── */
 
 export { SettingsHeader, SettingsSectionLabel, MenuDivider, ViewTypeCard, PanelSectionLabel } from './SettingsPrimitives';
 export type { SettingsHeaderProps, ViewTypeCardProps } from './SettingsPrimitives';

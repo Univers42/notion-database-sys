@@ -6,28 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { PanelItemRow, SectionDivider } from './ActionPanelRows';
 import { cn } from '../../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ActionPanel — a declarative, config-driven action menu.
-//
-// Pass an array of sections. Each section has items. Items can be:
-//   • 'action'  — icon + label + optional shortcut + onClick
-//   • 'toggle'  — icon + label + toggle switch
-//   • 'link'    — icon + label + href (external link)
-//   • 'info'    — plain text info line (e.g. "Last edited by…")
-//
-// Sections are automatically separated by dividers. If you add more sections
-// the component handles layout responsively — no hardcoding needed.
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/* ─── Public types ──────────────────────────────────────────────────────── */
 
 export interface ActionItem {
   type?: 'action';
@@ -101,8 +86,7 @@ function matchesSearch(item: PanelItem, q: string): boolean {
   return ('label' in item ? item.label : '').toLowerCase().includes(q);
 }
 
-/* ─── Component ─────────────────────────────────────────────────────────── */
-
+/** Declarative, config-driven action menu with filterable sections. */
 export function ActionPanel({
   sections,
   searchable = false,
@@ -133,7 +117,6 @@ export function ActionPanel({
       style={{ width, minWidth: 180, maxWidth: 'calc(100vw - 24px)' }}
     >
       <div className={cn("flex flex-col")} style={{ maxHeight: '70vh' }}>
-        {/* ── Search ── */}
         {searchable && (
           <div className={cn('shrink-0 px-2 pt-2 pb-1', slots.searchWrap)}>
             <div className={cn("flex items-center gap-1.5 rounded-md border border-line bg-surface-secondary-soft3 px-2 h-7")}>
@@ -149,7 +132,6 @@ export function ActionPanel({
           </div>
         )}
 
-        {/* ── Scrollable body ── */}
         <div className={cn('overflow-y-auto flex-1 min-h-0', slots.body)}>
           {filtered.map((section, si) => (
             <div key={section.label ?? `s${si}`}>{/* NOSONAR */}

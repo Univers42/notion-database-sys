@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:04 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:05 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GripHandleIcon } from './Icons';
 import { ActionPanel, type ActionPanelProps } from './ActionPanel';
 import { cn } from '../../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// BlockHandle — the "dotted square" drag handle that Notion shows on hover.
-//
-// Features:
-//   1. Appears only when hovering the parent area
-//   2. Positioned to the left of the target element, slightly offset
-//   3. Supports drag-and-drop (reorder / move)
-//   4. Supports click → opens an ActionPanel (configurable)
-//   5. Easily attachable to any component via wrapping or render-prop
-//
-// Usage (wrapper mode — wraps children):
-//   <BlockHandle panelProps={{ sections: [...] }}>
-//     <MyDatabaseWidget />
-//   </BlockHandle>
-//
-// Usage (standalone mode — position yourself):
-//   <BlockHandle panelProps={{ sections: [...] }} standalone />
-//
-// The handle is a small grip icon (⠿) that fades in on hover.
-// Click it to open the action panel. Drag it to move the element.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 export interface BlockHandleProps {
   children?: React.ReactNode;
@@ -60,6 +38,10 @@ export interface BlockHandleProps {
   handleClassName?: string;
 }
 
+/**
+ * Drag handle that appears on hover, supporting click-to-open ActionPanel
+ * and drag-and-drop reordering. Use in wrapper or standalone mode.
+ */
 export function BlockHandle({
   children,
   panelProps,
@@ -105,7 +87,6 @@ export function BlockHandle({
     onDragEnd?.(e);
   }, [onDragEnd]);
 
-  /* ─── The handle element ─────────────────────────────────────────────── */
   const handle = (
     <div className={cn("relative flex items-start")}>
       <button
@@ -142,10 +123,8 @@ export function BlockHandle({
     </div>
   );
 
-  /* ─── Standalone: just the handle ────────────────────────────────────── */
   if (standalone) return handle;
 
-  /* ─── Wrapper mode: wraps children with a hover container ────────────── */
   return (
     <div className={cn(`relative group/block flex flex-col min-h-0 ${className}`)}>
       {/* Handle floats to the left of the content, visible on hover */}

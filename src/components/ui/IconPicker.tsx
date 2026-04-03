@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,6 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { PICKER_ICON_NAMES } from './iconRegistry';
 import { Icon } from './Icon';
 import { cn } from '../../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Notion-style Icon Picker — 288 icons in a filterable, portal-rendered grid.
-// Renders via portal to avoid parent overflow/clipping issues.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 export interface IconPickerProps {
   /** Currently selected icon name (kebab-case registry key) */
@@ -36,8 +31,7 @@ function toLabel(name: string): string {
   return name.replaceAll('-', ' ').replaceAll(/\b\w/g, c => c.toUpperCase());
 }
 
-// ─── Inner picker panel (no portal logic) ────────────────────────────────────
-
+/** Filterable icon grid panel for selecting icons from the registry. */
 function IconPickerPanel({
   value,
   onSelect,
@@ -63,7 +57,6 @@ function IconPickerPanel({
 
   return (
     <div className={cn("flex flex-col bg-surface-primary rounded-xl shadow-lg border border-line overflow-hidden w-full h-full")}>
-      {/* ─── Header ─── */}
       <div className={cn("shrink-0")}>
         <div className={cn("flex items-center px-2 pt-2")}>
           <div className={cn("flex items-center")}>
@@ -84,7 +77,6 @@ function IconPickerPanel({
           </div>
         </div>
 
-        {/* ─── Filter + Random ─── */}
         <div className={cn("px-3 pt-1.5 pb-2.5")}>
           <div className={cn("flex items-center gap-1.5")}>
             <div className={cn("flex-1 flex items-center gap-1.5 px-2 py-1 bg-surface-secondary border border-line rounded-md h-7")}>
@@ -113,7 +105,6 @@ function IconPickerPanel({
         </div>
       </div>
 
-      {/* ─── Icon Grid ─── */}
       <div
         className={cn("flex-1 overflow-y-auto min-h-0 px-3 pb-3")}
         style={{ maskImage: 'linear-gradient(black 0%, black calc(100% - 24px), transparent 100%)' }}

@@ -6,18 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:10 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { ICON_REGISTRY } from './iconRegistry';
-import { cn } from '../../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Generic <Icon /> renderer — looks up from the registry by kebab-case name.
-// Usage: <Icon name="airplane" className={cn("w-5 h-5")} />
-// ═══════════════════════════════════════════════════════════════════════════════
 
 interface IconProps {
   /** Registry key, e.g. "airplane", "arrow-down-line" */
@@ -28,6 +22,7 @@ interface IconProps {
   fill?: string;
 }
 
+/** Renders an SVG icon from the registry by kebab-case name. */
 export function Icon({ name, className = 'w-5 h-5', style, fill = 'currentColor' }: Readonly<IconProps>) {
   const entry = ICON_REGISTRY[name];
   if (!entry) {

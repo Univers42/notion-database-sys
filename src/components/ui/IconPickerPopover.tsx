@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:37:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:37:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,6 @@ import { IconPicker as IconPickerPanel } from './IconPicker';
 import type { IconPickerProps } from './IconPicker';
 import { cn } from '../../utils/cn';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Portal-based popover wrapper — anchors to a trigger element
-// ═══════════════════════════════════════════════════════════════════════════════
-
 interface IconPickerPopoverProps extends IconPickerProps {
   /** The anchor element ref to position near */
   anchorRef: React.RefObject<HTMLElement | null>;
@@ -27,6 +23,7 @@ interface IconPickerPopoverProps extends IconPickerProps {
   align?: 'left' | 'right';
 }
 
+/** Portal-rendered popover that anchors an IconPicker to a trigger element. */
 export function IconPickerPopover({
   anchorRef,
   align = 'left',
