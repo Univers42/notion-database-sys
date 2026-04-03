@@ -19,7 +19,7 @@ function getPool(): InstanceType<typeof Pool> | null {
       port: Number(process.env.POSTGRES_PORT ?? 5432),
       user: process.env.POSTGRES_USER ?? 'notion_user',
       password: process.env.POSTGRES_PASSWORD ?? 'notion_pass',
-      database: process.env.POSTGRES_DB ?? 'notion_db',
+      database: process.env.SRC_POSTGRES_DB ?? process.env.POSTGRES_DB ?? 'notion_src_db',
       max: 5,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 3_000,

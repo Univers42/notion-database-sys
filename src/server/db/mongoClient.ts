@@ -27,7 +27,7 @@ async function getDb(): Promise<Db | null> {
         connectTimeoutMS: 3_000,
       });
       await client.connect();
-      const dbName = process.env.MONGO_DB ?? 'notion_db';
+      const dbName = process.env.SRC_MONGO_DB ?? process.env.MONGO_DB ?? 'notion_src_db';
       db = client.db(dbName);
       unavailable = false;
     } catch {

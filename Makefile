@@ -7,72 +7,44 @@ GREEN := \033[32m
 RED   := \033[31m
 RESET := \033[0m
 
-help:
-	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*## "}; {printf "$(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
+help: ## Show available targets (root + sub-projects)
+	@echo -e "$(CYAN)── Root (shared infrastructure) ──$(RESET)"
+	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' Makefile | \
+		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(CYAN)── src/ ──$(RESET)"
+	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' src/Makefile | \
+		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(CYAN)── playground/ ──$(RESET)"
+	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' playground/Makefile | \
+		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
 
-pull:
+# ── Docker services (shared) ────────────────────────────────────────────────
+
+pull: ## Pull latest Docker images
 	@docker compose pull --quiet
 	@echo -e "$(GREEN)✔ Images pulled$(RESET)"
 
-up:
+up: ## Start containers
 	docker compose up -d
 	@echo -e "$(GREEN)✔ Containers up$(RESET)"
 
-down:
+down: ## Stop containers
 	docker compose down
 	@echo -e "$(GREEN)✔ Containers down$(RESET)"
 
-restart: down up
+restart: down up ## Restart containers
 
-re: ## Restart: re-seed live DBs (mongo/pg), preserve standalone (json/csv) data
-	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
-	@echo "1/5  Restoring live-DB seed files..."
-	@git checkout -- src/store/dbms/mongodb/ src/store/dbms/relational/ src/store/dbms/hardcoded/ 2>/dev/null || true
-	@echo "2/5  Pulling latest images..."
-	@docker compose pull --quiet
-	@echo "3/5  Wiping volumes and stopping containers..."
-	@docker compose down -v
-	@echo "4/5  Starting fresh containers..."
-	@docker compose up -d
-	@echo "5/5  Seeding databases..."
-	@sleep 4
-	@$(MAKE) seed-all --no-print-directory
-	@echo -e "$(GREEN)══ Full restart complete — live DBs re-seeded, standalone data preserved ══$(RESET)"
-
-re-all: ## Hard reset: wipe EVERYTHING including standalone json/csv data
-	@echo -e "$(CYAN)══ Hard reset (all sources) ══$(RESET)"
-	@echo "1/5  Restoring ALL seed/state files from git..."
-	@git checkout -- src/store/dbms/ 2>/dev/null || true
-	@echo "2/5  Pulling latest images..."
-	@docker compose pull --quiet
-	@echo "3/5  Wiping volumes and stopping containers..."
-	@docker compose down -v
-	@echo "4/5  Starting fresh containers..."
-	@docker compose up -d
-	@echo "5/5  Seeding databases..."
-	@sleep 4
-	@$(MAKE) seed-all --no-print-directory
-	@echo -e "$(GREEN)══ Hard reset complete — ALL sources back to default ══$(RESET)"
-
-re-standalone: ## Reset only standalone json/csv data back to defaults
-	@echo -e "$(CYAN)══ Reset standalone sources ══$(RESET)"
-	@git checkout -- src/store/dbms/json/ src/store/dbms/csv/ 2>/dev/null || true
-	@echo -e "$(GREEN)══ Standalone json/csv data restored to defaults ══$(RESET)"
-
-logs:
+logs: ## Tail container logs
 	docker compose logs -f --tail=50
 
-db-up: up
-
-db-down: down
-
-db-reset:
+db-reset: ## Destroy volumes + recreate containers
 	docker compose down -v
 	docker compose up -d
 	@echo -e "$(GREEN)✔ Volumes destroyed, containers recreated$(RESET)"
 
-db-status:
+db-status: ## Show container & DB health
 	@docker compose ps
 	@echo ""
 	@echo "PostgreSQL:"
@@ -86,130 +58,26 @@ db-status:
 
 status: db-status
 
-seed-pg:
-	@echo "Waiting for PostgreSQL..."
-	@until docker compose exec -T postgres pg_isready -U $${POSTGRES_USER:-notion_user} > /dev/null 2>&1; do sleep 0.5; done
-	docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
-		-f /seed/001_schema.sql
-	docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
-		-f /seed/002_seed.sql
-	@echo -e "$(GREEN)✔ PostgreSQL seeded$(RESET)"
-
-seed-mongo:
-	@echo "Waiting for MongoDB..."
-	@until docker compose exec -T mongodb mongosh --quiet --eval "db.adminCommand('ping')" > /dev/null 2>&1; do sleep 0.5; done
-	@for f in src/store/dbms/mongodb/*.seed.json; do \
-		collection=$$(basename "$$f" .seed.json); \
-		echo "  Importing $$collection..."; \
-		docker compose exec -T mongodb mongoimport \
-			--uri="mongodb://$${MONGO_USER:-notion_user}:$${MONGO_PASSWORD:-notion_pass}@localhost:27017/$${MONGO_DB:-notion_db}?authSource=admin" \
-			--collection="$$collection" --jsonArray --drop --file="/seed/$$collection.seed.json"; \
-	done
-	@echo -e "$(GREEN)✔ MongoDB seeded$(RESET)"
-
-seed-all: seed-pg seed-mongo
-
-seed-state: ## Regenerate _notion_state.json (skips standalone files that already exist)
-	@npx tsx scripts/generate-state-files.ts
-
-seed-state-force: ## Force-regenerate ALL _notion_state.json (overwrites standalone data)
-	@npx tsx scripts/generate-state-files.ts --force
-
-verify-pg:
-	@echo "── PostgreSQL table counts ──"
-	@for tbl in tasks contacts content inventory projects products; do \
-		count=$$(docker compose exec -T postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db} \
-			-tAc "SELECT COUNT(*) FROM $$tbl" 2>/dev/null || echo "ERR"); \
-		printf "  %-12s %s rows\n" "$$tbl" "$$count"; \
-	done
-
-verify-mongo:
-	@echo "── MongoDB collection counts ──"
-	@docker compose exec -T mongodb mongosh --quiet \
-		"mongodb://$${MONGO_USER:-notion_user}:$${MONGO_PASSWORD:-notion_pass}@localhost:27017/$${MONGO_DB:-notion_db}?authSource=admin" \
-		--eval 'db.getCollectionNames().filter(function(c){return c.indexOf("system")!==0}).forEach(function(c){print("  "+c+"  "+db[c].countDocuments()+" docs")})'
-
-verify: verify-pg verify-mongo
-
-psql:
+psql: ## Open psql shell
 	docker compose exec postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}
 
-mongo-shell:
+mongo-shell: ## Open mongosh shell
 	docker compose exec mongodb mongosh \
 		"mongodb://$${MONGO_USER:-notion_user}:$${MONGO_PASSWORD:-notion_pass}@localhost:27017/$${MONGO_DB:-notion_db}?authSource=admin"
 
-smoke-test:
-	@echo -e "$(CYAN)══ Smoke Test ══$(RESET)"
-	@echo "1/4  Pulling images..."
-	@$(MAKE) pull --no-print-directory 2>&1 | tail -1
-	@echo "2/4  Starting containers..."
-	@$(MAKE) up --no-print-directory 2>&1 | tail -1
-	@echo "3/4  Seeding databases..."
-	@sleep 3
-	@$(MAKE) seed-all --no-print-directory
-	@echo "4/4  Verifying data..."
-	@$(MAKE) verify --no-print-directory
-	@echo ""
-	@echo -e "$(GREEN)══ Smoke Test PASSED ══$(RESET)"
-
-RUST_CRATES := src/lib/rust/json_writer src/lib/rust/csv_writer
-
-build-rust:
-	@for crate in $(RUST_CRATES); do \
-		echo "Building $$crate..."; \
-		(cd "$$crate" && cargo build --release) || exit 1; \
-	done
-	@echo -e "$(GREEN)✔ Rust crates built$(RESET)"
-
-check-rust:
-	@for crate in $(RUST_CRATES); do \
-		echo "Checking $$crate..."; \
-		(cd "$$crate" && cargo check) || exit 1; \
-	done
-	@echo -e "$(GREEN)✔ Rust crates ok$(RESET)"
-
-dev: ## Start Vite dev server (compact query logs)
-	@test -f src/server/logger/native/build/Release/libcpp_logger.node || $(MAKE) build-native --no-print-directory
-	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
-	pnpm run dev
-
-dev-verbose: ## Start Vite dev server (detailed query logs with colors & boxes)
-	@test -f src/server/logger/native/build/Release/libcpp_logger.node || $(MAKE) build-native --no-print-directory
-	@test -f src/store/dbms/json/_notion_state.json || $(MAKE) seed-state
-	DBMS_VERBOSE=1 pnpm run dev
-
-dev-api: ## Start Fastify API server (packages/api)
-	@echo -e "$(CYAN)Starting API server…$(RESET)"
-	cd packages/api && pnpm dev
-
-dev-playground: ## Start Vite dev server for playground (port 3001)
-	@echo -e "$(CYAN)Starting playground on http://localhost:3001/playground/$(RESET)"
-	pnpm run dev:playground
-
-seed-playground: ## Seed MongoDB with 3 users + workspaces for playground
-	@echo -e "$(CYAN)Seeding playground data…$(RESET)"
-	pnpm run seed:playground
-	@echo -e "$(GREEN)✔ Playground seeded$(RESET)"
-
-dev-all: ## Start both Vite + API in parallel
-	@echo -e "$(CYAN)Starting all services…$(RESET)"
-	pnpm run dev:all
+# ── Packages ─────────────────────────────────────────────────────────────────
 
 build-packages: ## Build all packages (types → core → api)
 	@echo -e "$(CYAN)Building packages…$(RESET)"
 	pnpm run build
 	@echo -e "$(GREEN)✔ All packages built$(RESET)"
 
-build-native: ## Build the libcpp N-API logger addon (cmake-js)
-	@echo -e "$(CYAN)Building native logger addon…$(RESET)"
-	npx cmake-js compile -d src/server/logger/native
-	@echo -e "$(GREEN)✔ libcpp_logger.node built$(RESET)"
+# ── Cleanup ──────────────────────────────────────────────────────────────────
 
-clean:
+clean: ## Remove containers, volumes, node_modules, dist
 	docker compose down -v 2>/dev/null || true
 	rm -rf node_modules dist .vite .turbo packages/*/dist
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
-.PHONY: help up down restart re re-all re-standalone logs pull db-up db-down db-reset db-status \
-	seed-pg seed-mongo seed-all seed-state seed-state-force psql mongo-shell \
-	build-rust check-rust build-native build-packages dev dev-verbose dev-api dev-playground seed-playground dev-all clean verify smoke-test
+.PHONY: help pull up down restart logs db-reset db-status status psql mongo-shell \
+	build-packages clean

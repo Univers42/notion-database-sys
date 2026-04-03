@@ -1,13 +1,17 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path, { resolve } from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import path from 'path';
+import { defineConfig, loadEnv } from 'vite';
 import wasm from 'vite-plugin-wasm';
-import { dbmsMiddleware } from './src/server/dbmsMiddleware';
+import { dbmsMiddleware } from './server/dbmsMiddleware';
 
-export default defineConfig(({mode}) => {
-  const env = loadEnv(mode, '.', '');
+export default defineConfig(({ mode }) => {
+  const root = __dirname;                       // src/
+  const workspace = path.resolve(root, '..');   // project root
+  const env = loadEnv(mode, workspace, '');
+
   return {
+    root,
     plugins: [
       react(),
       tailwindcss(),
@@ -19,8 +23,6 @@ export default defineConfig(({mode}) => {
         },
       },
       // Patch d3-dsv's `new Function()` to avoid CSP eval violations.
-      // d3-dsv uses `new Function("d", "return {" + ...)` for CSV column accessors.
-      // Replace it with a safe closure-based equivalent.
       {
         name: 'patch-d3-dsv-eval',
         enforce: 'pre' as const,
@@ -39,33 +41,30 @@ export default defineConfig(({mode}) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
-        '@src': path.resolve(__dirname, 'src'),
+        '@': workspace,
+        '@src': root,
       },
     },
     build: {
-      rollupOptions: {
-        input: {
-          main: resolve(__dirname, 'index.html'),
-          playground: resolve(__dirname, 'playground/index.html'),
-        },
-      },
+      outDir: path.resolve(workspace, 'dist'),
     },
     server: {
+      port: 3000,
+      host: '0.0.0.0',
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
         ignored: [
-          '**/src/store/dbms/**/_notion_state.json',
-          '**/src/store/dbms/**/_field_map.json',
-          '**/src/store/dbms/**/tasks.json',
-          '**/src/store/dbms/**/contacts.json',
-          '**/src/store/dbms/**/content.json',
-          '**/src/store/dbms/**/inventory.json',
-          '**/src/store/dbms/**/products.json',
-          '**/src/store/dbms/**/projects.json',
-          '**/src/store/dbms/**/*.csv',
-          '**/src/store/dbms/**/*.sql',
-          '**/src/store/dbms/**/*.seed.json',
+          '**/store/dbms/**/_notion_state.json',
+          '**/store/dbms/**/_field_map.json',
+          '**/store/dbms/**/tasks.json',
+          '**/store/dbms/**/contacts.json',
+          '**/store/dbms/**/content.json',
+          '**/store/dbms/**/inventory.json',
+          '**/store/dbms/**/products.json',
+          '**/store/dbms/**/projects.json',
+          '**/store/dbms/**/*.csv',
+          '**/store/dbms/**/*.sql',
+          '**/store/dbms/**/*.seed.json',
         ],
       },
     },
