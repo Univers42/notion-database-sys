@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,13 @@
 // Portal-based Select / MultiSelect editors for table cells
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { randomTagColor } from '../../../constants/colors';
 import { SchemaProperty, PropertyValue } from '../../../types/database';
 import { CheckCircle2, Plus } from 'lucide-react';
+import { useCellAnchor } from '../../../hooks/useCellAnchor';
 
 interface EditorProps {
   readonly property: SchemaProperty;
@@ -29,24 +30,12 @@ interface EditorProps {
   readonly databaseId: string;
 }
 
-/** Measures the parent `<td>` rect for portal positioning. */
-function useTdRect(ref: React.RefObject<HTMLDivElement | null>) {
-  const [rect, setRect] = useState<DOMRect | null>(null);
-  useEffect(() => {
-    if (ref.current) {
-      const td = ref.current.closest('td');
-      if (td) setRect(td.getBoundingClientRect());
-    }
-  }, [ref]);
-  return rect;
-}
-
 // ─── SELECT EDITOR ───────────────────────────────────────────────────────────
 
 export function SelectEditor({ property, value, onUpdate, onClose, databaseId }: Readonly<EditorProps>) {
   const [input, setInput] = useState('');
   const measureRef = useRef<HTMLDivElement>(null);
-  const rect = useTdRect(measureRef);
+  const rect = useCellAnchor(measureRef);
   const addSelectOption = useDatabaseStore(s => s.addSelectOption);
 
   const options = property.options || [];
@@ -114,7 +103,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
 export function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: Readonly<EditorProps>) {
   const [input, setInput] = useState('');
   const measureRef = useRef<HTMLDivElement>(null);
-  const rect = useTdRect(measureRef);
+  const rect = useCellAnchor(measureRef);
   const addSelectOption = useDatabaseStore(s => s.addSelectOption);
 
   const options = property.options || [];
