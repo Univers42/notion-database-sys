@@ -6,19 +6,19 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:11:41 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
-import { useActiveViewId } from '../../hooks/useDatabaseScope';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { BarChart3 } from 'lucide-react';
-import { useChartData } from './chart/useChartData';
-import type { ChartType } from './chart/useChartData';
-import { VerticalBarChart, HorizontalBarChart } from './chart/BarCharts';
-import { LineChart } from './chart/LineChart';
-import { DonutPieChart } from './chart/DonutPieChart';
+import { useChartData } from './useChartData';
+import type { ChartType } from './useChartData';
+import { VerticalBarChart, HorizontalBarChart } from './BarCharts';
+import { LineChart } from './LineChart';
+import { DonutPieChart } from './DonutPieChart';
 
 export function ChartView() {
   const activeViewId = useActiveViewId();

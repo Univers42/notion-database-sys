@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:38:21 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:12:08 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { format } from 'date-fns';
-import type { SchemaProperty, PropertyValue } from '../../types/database';
+import type { SchemaProperty, PropertyValue } from '../../../types/database';
 
 // Gallery-specific color palette for empty covers
 export const coverColors = [

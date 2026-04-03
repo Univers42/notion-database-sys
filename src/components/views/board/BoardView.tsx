@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:11:20 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState } from 'react';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
-import { useActiveViewId } from '../../hooks/useDatabaseScope';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus } from 'lucide-react';
 import { getColumnWidth, BoardCard } from './BoardCardHelpers';
 

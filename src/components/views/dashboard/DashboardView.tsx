@@ -6,23 +6,23 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useMemo } from 'react';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
-import { useActiveViewId } from '../../hooks/useDatabaseScope';
-import type { DashboardWidget, SchemaProperty } from '../../types/database';
+import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useActiveViewId } from '../../../hooks/useDatabaseScope';
+import type { DashboardWidget, SchemaProperty } from '../../../types/database';
 import { Hash, TrendingUp, Users, CheckCircle, Clock, BarChart3 } from 'lucide-react';
 import { isThisWeek, parseISO } from 'date-fns';
 import { FormulaAnalyticsDashboard } from './FormulaAnalyticsDashboard';
-import { RelationRollupDashboard } from './RelationRollupDashboard';
+import { RelationRollupDashboard } from '../relationRollup/RelationRollupDashboard';
 import {
   StatCard, BarChartWidget, NumberSummaryWidget, RecentList,
   renderWidget,
-} from './dashboard';
-import type { ComputedData } from './dashboard';
+} from '.';
+import type { ComputedData } from '.';
 
 // ─── Aggregation hook ────────────────────────────────────────────────────────
 
