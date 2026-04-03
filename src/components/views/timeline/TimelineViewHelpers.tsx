@@ -6,15 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 02:26:37 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { format, differenceInDays, startOfMonth, addDays, getMonth } from 'date-fns';
-import type { Page, SchemaProperty, SelectOption } from '../../../types/database';
-import { cn } from '../../../utils/cn';
-
-/* ── Types ─────────────────────────────────────────────────────────────── */
+import { format, differenceInDays, startOfMonth, getMonth } from 'date-fns';
+import type { Page, SchemaProperty } from '../../../types/database';
 
 export type ZoomLevel = 'day' | 'week' | 'month';
 
@@ -45,10 +42,9 @@ export interface MonthGroup {
   year: number;
 }
 
-/* ── Zoom config ───────────────────────────────────────────────────────── */
-
 const ROW_HEIGHT = 40;
 
+/** Returns the timeline grid configuration for a given zoom level. */
 export function getTimelineConfig(zoomLevel: string): TimelineConfig {
   switch (zoomLevel) {
     case 'day':
@@ -86,8 +82,7 @@ export function getTimelineConfig(zoomLevel: string): TimelineConfig {
   }
 }
 
-/* ── Month header groupings ────────────────────────────────────────────── */
-
+/** Groups consecutive days into month spans for the timeline header. */
 export function getMonthGroups(days: Date[]): MonthGroup[] {
   const groups: MonthGroup[] = [];
   let currentGroup: MonthGroup | null = null;
@@ -108,8 +103,6 @@ export function getMonthGroups(days: Date[]): MonthGroup[] {
   }
   return groups;
 }
-
-/* ── Date-property resolution ──────────────────────────────────────────── */
 
 /**
  * Find the best start / end date property pair from a database schema.
@@ -157,8 +150,6 @@ export function findDateProperties(
   return { startProp, endProp };
 }
 
-/* ── Bar positioning ───────────────────────────────────────────────────── */
-
 /**
  * NEW logic:
  *   - If the page only has a start date (no end date) → the bar is exactly
@@ -196,8 +187,7 @@ export function getBarGeometry(
   const startDay = differenceInDays(pageStart, timelineStart);
 
   if (!hasEndDate || !pageEnd) {
-    /* ── Point mode: single cell ──────────────────────────────── */
-    // Always compute geometry — let the renderer handle clipping.
+    /* Point mode: single cell */
     // Bars far off-screen are hidden for perf, but allow a generous margin.
     if (startDay < -200 || startDay > config.daysToShow + 200) return null;
 
@@ -212,7 +202,6 @@ export function getBarGeometry(
     };
   }
 
-  /* ── Range mode ─────────────────────────────────────────────── */
   const endDay = differenceInDays(pageEnd, timelineStart);
   // Hide only if the entire bar is far off-screen in both directions
   if (endDay < -200 || startDay > config.daysToShow + 200) return null;
@@ -230,13 +219,7 @@ export function getBarGeometry(
   };
 }
 
-/* ── Status color palette ─────────────────────────────────────────────── */
 
-/**
- * Full mapping from option color-token substrings to solid Tailwind bar
- * backgrounds **and** a lighter hover variant.  We also export the raw
- * hex so the tooltip / hover card can reuse the palette.
- */
 export interface BarColorSet {
   /** Solid bar background class (Tailwind) */
   bg: string;
@@ -264,6 +247,7 @@ const DEFAULT_COLOR_SET: BarColorSet = {
   bg: 'bg-blue-500', text: 'text-white', hex: '#3b82f6',
 };
 
+/** Return the color set for a timeline bar based on a status option's color token. */
 export function getBarColorSet(statusOpt: { color: string } | undefined): BarColorSet {
   if (!statusOpt) return DEFAULT_COLOR_SET;
   for (const [key, set] of STATUS_PALETTE) {
@@ -277,19 +261,9 @@ export function getBarColor(statusOpt: { color: string } | undefined): string {
   return getBarColorSet(statusOpt).bg;
 }
 
-/* ── Adaptive bar label logic ─────────────────────────────────────────── */
-
-/**
- * Determines what verbosity level the bar can afford based on its pixel
- * width.  Returns an object telling the bar renderer what to show.
- *
- * - `'color-only'`  — bar too small for any text
- * - `'status'`      — show just the status label
- * - `'status+dates'`— show status + compact date range
- * - `'full'`        — show status + date range + icon
- */
 export type BarVerbosity = 'color-only' | 'status' | 'status+dates' | 'full';
 
+/** Determine the label verbosity a bar can afford based on its pixel width. */
 export function computeBarVerbosity(
   barWidthPx: number,
   cellWidth: number,
@@ -307,22 +281,21 @@ export function compactDateRange(start: Date, end: Date | null): string {
   return `${format(start, 'd/M')}–${format(end, 'd/M')}`;
 }
 
-/* ── Day cell helpers ──────────────────────────────────────────────────── */
-
+/** Returns the background class for a day header cell based on today/weekend status. */
 export function getDayHeaderBg(isToday: boolean, isWeekend: boolean): string {
   if (isToday) return 'bg-accent-soft';
   if (isWeekend) return 'bg-surface-secondary-soft2';
   return 'bg-surface-primary';
 }
 
+/** Returns the background class for a grid body cell based on today/weekend status. */
 export function getGridCellBg(isToday: boolean, isWeekend: boolean): string {
   if (isToday) return 'bg-accent-soft5';
   if (isWeekend) return 'bg-surface-secondary-soft4';
   return '';
 }
 
-/* ── Clamp a date range to valid values ────────────────────────────────── */
-
+/** Clamps a day range ensuring start ≤ end with a minimum 1-day span. */
 export function clampDuration(startDay: number, endDay: number): { s: number; e: number } {
   const s = Math.min(startDay, endDay);
   const e = Math.max(startDay, endDay);

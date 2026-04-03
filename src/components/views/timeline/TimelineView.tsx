@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:51 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 02:28:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ import {
 import { TimelineDatePicker } from './TimelineDatePicker';
 import { cn } from '../../../utils/cn';
 
-/* ── Drag interaction types ────────────────────────────────────────────── */
 
 type DragKind = 'move' | 'resize-left' | 'resize-right';
 
@@ -41,14 +40,12 @@ interface DragState {
   hasMoved: boolean;
 }
 
-/* ── Date-picker state ─────────────────────────────────────────────────── */
 
 interface DatePickerState {
   pageId: string;
   anchorRect: DOMRect;
 }
 
-/* ── Constants ─────────────────────────────────────────────────────────── */
 
 const RESIZE_HANDLE_WIDTH = 10;
 const LEFT_PANEL_WIDTH = 240;
@@ -56,7 +53,6 @@ const BAR_V_PADDING = 6; // top+bottom inside the row
 const EDGE_SCROLL_ZONE = 40; // px from viewport edge to trigger auto-scroll
 const EDGE_SCROLL_SPEED = 12; // px per frame
 
-/* ── Tooltip component ─────────────────────────────────────────────────── */
 
 function BarTooltip({
   title,
@@ -89,10 +85,7 @@ function BarTooltip({
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/*  TimelineView                                                              */
-/* ═══════════════════════════════════════════════════════════════════════════ */
-
+/** Renders a drag-and-drop timeline (Gantt) view for date-based database pages. */
 export function TimelineView() {
   const activeViewId = useActiveViewId();
   const {
@@ -110,27 +103,19 @@ export function TimelineView() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef<number | null>(null);
 
-  /* ── Early-returns ──────────────────────────────────────────────────── */
-
-  if (!view || !database) return null;
-
-  const pages = getPagesForView(view.id);
-  const settings = view.settings || {};
+  const pages = view ? getPagesForView(view.id) : [];
+  const settings = view?.settings || {};
   const showTable = settings.showTable !== false;
   const zoomLevel = (settings.zoomLevel || 'week') as ZoomLevel;
   const loadLimit = settings.loadLimit || 100;
   const displayedPages = pages.slice(0, loadLimit);
 
-  const { startProp, endProp } = findDateProperties(database.properties);
-  if (!startProp) {
-    return (
-      <div className={cn("flex-1 flex items-center justify-center text-ink-secondary")}>
-        Timeline view requires at least one date property.
-      </div>
-    );
-  }
-
-  /* ── Timeline grid calculations ─────────────────────────────────────── */
+  const dateProps = database
+    ? findDateProperties(database.properties)
+    : { startProp: null, endProp: null };
+  const startProp = dateProps.startProp;
+  const endProp = dateProps.endProp;
+  const dbId = database?.id ?? '';
 
   const today = new Date();
   const config = getTimelineConfig(zoomLevel);
@@ -142,66 +127,54 @@ export function TimelineView() {
 
   const todayIdx = days.findIndex(d => isTodayFn(d));
 
-  /* ── Zoom / Navigate ────────────────────────────────────────────────── */
-
   const handleZoom = (level: ZoomLevel) => {
+    if (!view) return;
     useDatabaseStore.getState().updateViewSettings(view.id, { zoomLevel: level });
   };
   const navStep = Math.max(7, Math.floor(config.daysToShow / 3));
 
-  /* ── Status property for bar colors ─────────────────────────────────── */
-
   const statusProp = useMemo(
     () =>
-      Object.values(database.properties).find(
-        p =>
-          p.type === 'status' ||
-          (p.type === 'select' && p.name.toLowerCase().includes('status')),
-      ),
-    [database.properties],
+      database?.properties
+        ? Object.values(database.properties).find(
+            p =>
+              p.type === 'status' ||
+              (p.type === 'select' && p.name.toLowerCase().includes('status')),
+          )
+        : undefined,
+    [database?.properties],
   );
-
-  /* ── Get mouse day-index ────────────────────────────────────────────── */
 
   const getDayFromMouse = useCallback(
     (clientX: number): number => {
       if (!scrollRef.current) return 0;
-      const rect = scrollRef.current.getBoundingClientRect();
-      return Math.floor((clientX - rect.left + scrollRef.current.scrollLeft) / config.cellWidth);
+      return Math.floor((clientX - scrollRef.current.getBoundingClientRect().left + scrollRef.current.scrollLeft) / config.cellWidth);
     },
     [config.cellWidth],
   );
 
-  /* ── Helper: find any end-date property by exact name or heuristic ── */
-
   const findEndProp = useCallback((): import('../../../types/database').SchemaProperty | null => {
-    const freshDb = useDatabaseStore.getState().databases[database.id];
+    if (!dbId) return null;
+    const freshDb = useDatabaseStore.getState().databases[dbId];
     if (!freshDb) return null;
-    // 1) Heuristic match
     const { endProp } = findDateProperties(freshDb.properties);
     if (endProp) return endProp;
-    // 2) Exact-name fallback (in case heuristic missed it)
     return Object.values(freshDb.properties).find(
       p => p.name === 'End Date' && (p.type === 'date' || p.type === 'due_date'),
     ) ?? null;
-  }, [database.id]);
-
-  /* ── Auto-create "End Date" property when the database has none ───── */
+  }, [dbId]);
 
   const ensureEndProp = useCallback((): import('../../../types/database').SchemaProperty | null => {
+    if (!dbId) return null;
     const existing = findEndProp();
     if (existing) return existing;
-    // Create one
-    useDatabaseStore.getState().addProperty(database.id, 'End Date', 'date');
-    // Find it by exact name in the updated state (avoids heuristic ambiguity)
-    const updatedDb = useDatabaseStore.getState().databases[database.id];
+    useDatabaseStore.getState().addProperty(dbId, 'End Date', 'date');
+    const updatedDb = useDatabaseStore.getState().databases[dbId];
     if (!updatedDb) return null;
     return Object.values(updatedDb.properties).find(
       p => p.name === 'End Date' && (p.type === 'date' || p.type === 'due_date'),
     ) ?? null;
-  }, [database.id, findEndProp]);
-
-  /* ── Pointer drag handlers ──────────────────────────────────────────── */
+  }, [dbId, findEndProp]);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, pageId: string, kind: DragKind, bar: BarGeometry) => {
@@ -228,7 +201,6 @@ export function TimelineView() {
       const delta = currentDay - dragState.originDayIdx;
       if (delta === 0 && !dragState.hasMoved) return;
 
-      /* ── Auto-scroll when pointer is near the edge of the scroll container ── */
       if (scrollRef.current) {
         const rect = scrollRef.current.getBoundingClientRect();
         const xInContainer = e.clientX - rect.left;
@@ -300,7 +272,7 @@ export function TimelineView() {
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragState) return;
+      if (!dragState || !startProp) return;
       (e.target as HTMLElement).releasePointerCapture(e.pointerId);
 
       // Stop auto-scroll
@@ -327,7 +299,6 @@ export function TimelineView() {
         } else if (kind === 'resize-left') {
           const { s } = clampDuration(originBar.startDay + delta, originBar.endDay);
           updatePageProperty(pageId, startProp.id, addDays(startDate, s).toISOString());
-          /* ── Auto-create end-date property when resizing from point ── */
           if (!originBar.hasEndDate) {
             const ep = ensureEndProp();
             if (ep) {
@@ -349,18 +320,14 @@ export function TimelineView() {
     [dragState, getDayFromMouse, startDate, startProp, updatePageProperty, ensureEndProp],
   );
 
-  /* ── Click empty cell to add record (single date, no end) ──────────── */
-
   const handleGridCellClick = useCallback(
     (dayIdx: number) => {
-      if (dragState) return;
+      if (dragState || !startProp || !dbId) return;
       const clickDate = addDays(startDate, dayIdx);
-      addPage(database.id, { [startProp.id]: clickDate.toISOString() });
+      addPage(dbId, { [startProp.id]: clickDate.toISOString() });
     },
-    [dragState, startDate, startProp, database.id, addPage],
+    [dragState, startDate, startProp, dbId, addPage],
   );
-
-  /* ── Date-picker callbacks ──────────────────────────────────────────── */
 
   const openDatePicker = useCallback(
     (pageId: string, rect: DOMRect) => {
@@ -383,7 +350,6 @@ export function TimelineView() {
 
   const dpHasEnd = dpEndDate !== null && dpEndDate !== undefined;
 
-  /* ── Scroll to today on zoom change ─────────────────────────────────── */
 
   useEffect(() => {
     if (scrollRef.current && todayIdx >= 0) {
@@ -393,13 +359,19 @@ export function TimelineView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoomLevel]);
 
-  /* ════════════════════════════════════════════════════════════════════════ */
-  /*  Render                                                                 */
-  /* ════════════════════════════════════════════════════════════════════════ */
+  if (!view || !database) return null;
+
+  if (!startProp) {
+    return (
+      <div className={cn("flex-1 flex items-center justify-center text-ink-secondary")}>
+        Timeline view requires at least one date property.
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex-1 overflow-hidden bg-surface-primary flex h-full flex-col select-none")}>
-      {/* ── Toolbar ───────────────────────────────────────────────────── */}
+
       <div className={cn("flex items-center justify-between px-4 py-2 border-b border-line bg-surface-secondary shrink-0")}>
         <div className={cn("flex items-center gap-2")}>
           <button
@@ -443,9 +415,7 @@ export function TimelineView() {
         </div>
       </div>
 
-      {/* ── Content ───────────────────────────────────────────────────── */}
       <div className={cn("flex-1 flex overflow-hidden")}>
-        {/* ── Left panel ──────────────────────────────────────────────── */}
         {showTable && (
           <div
             className={cn("border-r border-line shrink-0 flex flex-col bg-surface-secondary")}
@@ -495,16 +465,14 @@ export function TimelineView() {
           </div>
         )}
 
-        {/* ── Right panel (grid) ──────────────────────────────────────── */}
         <div
           ref={scrollRef}
           className={cn("flex-1 overflow-x-auto overflow-y-auto flex flex-col")}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
         >
-          {/* ══ Two-row header ════════════════════════════════════════ */}
           <div className={cn("shrink-0 sticky top-0 z-30 bg-surface-secondary border-b border-line")}>
-            {/* Row 1 — Month groups */}
+            {/* Month groups */}
             <div className={cn("flex h-6 border-b border-line-light")}>
               {monthGroups.map((g, idx) => (
                 <div
@@ -518,7 +486,7 @@ export function TimelineView() {
               ))}
             </div>
 
-            {/* Row 2 — Day columns */}
+            {/* Day columns */}
             <div className={cn("flex h-[26px]")}>
               {days.map((day, i) => {
                 const isWeekend = day.getDay() === 0 || day.getDay() === 6;
@@ -566,7 +534,7 @@ export function TimelineView() {
             </div>
           </div>
 
-          {/* ══ Grid rows ════════════════════════════════════════════ */}
+
           <div className={cn("relative overflow-hidden")} style={{ width: totalWidth }}>
             {/* Today marker */}
             {todayIdx >= 0 && todayIdx < days.length && (
@@ -633,7 +601,6 @@ export function TimelineView() {
                     ))}
                   </div>
 
-                  {/* ── Bar ───────────────────────────────────────── */}
                   {(bar?.visible || isDragging) && (
                     <div
                       className={cn(`group/bar absolute z-10 flex items-center
@@ -764,7 +731,7 @@ export function TimelineView() {
         </div>
       </div>
 
-      {/* ── Date picker popover ───────────────────────────────────────── */}
+
       {datePicker && dpPage && (
         <TimelineDatePicker
           anchorRect={datePicker.anchorRect}

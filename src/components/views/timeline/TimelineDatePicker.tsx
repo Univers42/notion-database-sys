@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 00:30:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:42 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight, ChevronDown, HelpCircle } from 'lucide-react';
 
-/* ── Date format options ───────────────────────────────────────────────── */
 
 const DATE_FORMATS = [
   { label: 'Full date',  fmt: 'MMMM d, yyyy' },
@@ -31,7 +30,6 @@ const DATE_FORMATS = [
 
 type DateFormatLabel = (typeof DATE_FORMATS)[number]['label'];
 
-/* ── Remind options ────────────────────────────────────────────────────── */
 
 const REMIND_OPTIONS = [
   'None',
@@ -48,7 +46,6 @@ const REMIND_OPTIONS = [
 
 type RemindOption = (typeof REMIND_OPTIONS)[number];
 
-/* ── Props ─────────────────────────────────────────────────────────────── */
 
 interface TimelineDatePickerProps {
   anchorRect: DOMRect;
@@ -62,10 +59,7 @@ interface TimelineDatePickerProps {
   onClose: () => void;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/*  TimelineDatePicker                                                        */
-/* ═══════════════════════════════════════════════════════════════════════════ */
-
+/** Render a date-picker popover for editing timeline start/end dates, format, and reminders. */
 export function TimelineDatePicker({
   anchorRect,
   startDate,
@@ -88,8 +82,6 @@ export function TimelineDatePicker({
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* ── Position panel below anchor, clamped to viewport ───────────────── */
-
   const style = useMemo(() => {
     const top = anchorRect.bottom + 4;
     const left = anchorRect.left;
@@ -101,8 +93,6 @@ export function TimelineDatePicker({
     };
   }, [anchorRect]);
 
-  /* ── Sync input value with selected date ────────────────────────────── */
-
   useEffect(() => {
     const d = selectingEnd ? endDate : startDate;
     if (d) {
@@ -112,7 +102,6 @@ export function TimelineDatePicker({
     }
   }, [startDate, endDate, selectingEnd]);
 
-  /* ── Close on Escape ────────────────────────────────────────────────── */
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -126,7 +115,6 @@ export function TimelineDatePicker({
     return () => document.removeEventListener('keydown', handler);
   }, [onClose, showFormatDropdown, showRemindDropdown]);
 
-  /* ── Calendar grid ──────────────────────────────────────────────────── */
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -176,7 +164,6 @@ export function TimelineDatePicker({
     [hasEndDate, endDate],
   );
 
-  /* ── Input submit handler ───────────────────────────────────────────── */
 
   const handleInputSubmit = useCallback(() => {
     if (!inputValue.trim()) return;
@@ -191,7 +178,6 @@ export function TimelineDatePicker({
     }
   }, [inputValue, selectingEnd, hasEndDate, onChangeStart, onChangeEnd]);
 
-  /* ── Toggle callbacks ───────────────────────────────────────────────── */
 
   const handleToggleEnd = useCallback(() => {
     const next = !hasEndDate;
@@ -202,9 +188,8 @@ export function TimelineDatePicker({
 
   const activeFmt = DATE_FORMATS.find(f => f.label === dateFormat) ?? DATE_FORMATS[0];
 
-  /* ── Format display for dates ───────────────────────────────────────── */
 
-  const formatDate = useCallback(
+  const _formatDate = useCallback(
     (d: Date | null): string => {
       if (!d) return '';
       if (activeFmt.fmt === 'relative') {
@@ -220,9 +205,6 @@ export function TimelineDatePicker({
     [activeFmt],
   );
 
-  /* ═══════════════════════════════════════════════════════════════════════ */
-  /*  Render                                                                 */
-  /* ═══════════════════════════════════════════════════════════════════════ */
 
   return createPortal(
     <>
@@ -249,9 +231,6 @@ export function TimelineDatePicker({
         style={{ ...style, width: 280, minWidth: 180, maxWidth: 'calc(100vw - 24px)' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* ════════════════════════════════════════════════════════════ */}
-        {/*  Date input                                                 */}
-        {/* ════════════════════════════════════════════════════════════ */}
         <div className={cn("px-2 pt-2 pb-2 flex")}>
           <div
             className={cn(`flex items-center rounded-md h-7 leading-[1.2] px-2
@@ -275,9 +254,6 @@ export function TimelineDatePicker({
           </div>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════ */}
-        {/*  Calendar                                                    */}
-        {/* ════════════════════════════════════════════════════════════ */}
         <div className={cn("px-2 pb-1 text-center")}>
           {/* Caption: month label + Today + nav */}
           <div className={cn("flex items-center justify-between mb-1")}>
@@ -378,19 +354,15 @@ export function TimelineDatePicker({
           </table>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════ */}
-        {/*  Settings rows                                               */}
-        {/* ════════════════════════════════════════════════════════════ */}
 
-        {/* ── Divider ─────────────────────────────────────────────── */}
         <Divider />
 
-        {/* ── End date toggle ─────────────────────────────────────── */}
+
         <OptionRow label="End date" onClick={handleToggleEnd}>
           <TimelineToggleSwitch enabled={hasEndDate} />
         </OptionRow>
 
-        {/* ── Date format dropdown ────────────────────────────────── */}
+
         <div className={cn("relative")}>
           <OptionRow
             label="Date format"
@@ -414,12 +386,10 @@ export function TimelineDatePicker({
           )}
         </div>
 
-        {/* ── Include time toggle ─────────────────────────────────── */}
         <OptionRow label="Include time" onClick={() => setIncludeTime(v => !v)}>
           <TimelineToggleSwitch enabled={includeTime} />
         </OptionRow>
 
-        {/* ── Remind dropdown ─────────────────────────────────────── */}
         <div className={cn("relative")}>
           <OptionRow
             label="Remind"
@@ -443,10 +413,8 @@ export function TimelineDatePicker({
           )}
         </div>
 
-        {/* ── Divider ─────────────────────────────────────────────── */}
         <Divider />
 
-        {/* ── Clear ───────────────────────────────────────────────── */}
         <OptionRow
           label="Clear"
           onClick={() => {
@@ -455,10 +423,8 @@ export function TimelineDatePicker({
           }}
         />
 
-        {/* ── Divider ─────────────────────────────────────────────── */}
         <Divider />
 
-        {/* ── Learn about reminders ───────────────────────────────── */}
         <a
           href="https://www.notion.com/help/reminders"
           target="_blank"
@@ -476,10 +442,6 @@ export function TimelineDatePicker({
     document.body,
   );
 }
-
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/*  Sub-components                                                            */
-/* ═══════════════════════════════════════════════════════════════════════════ */
 
 /** Horizontal divider between sections */
 function Divider() {
