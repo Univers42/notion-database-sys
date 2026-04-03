@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ interface IdCellEditorProps {
   onClose: () => void;
 }
 
+/** Renders an inline editor for configuring ID property format (auto-increment, prefixed, UUID, or custom). */
 export function IdCellEditor({ property, databaseId, value, onClose }: Readonly<IdCellEditorProps>) {
   const updateProperty = useDatabaseStore(s => s.updateProperty);
 

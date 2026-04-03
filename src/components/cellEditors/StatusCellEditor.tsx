@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:07 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ interface StatusCellEditorProps {
   onEditProperty?: () => void;
 }
 
+/** Renders an inline editor for selecting a status value, grouped by status category. */
 export function StatusCellEditor({ property, value, databaseId: _databaseId, onUpdate, onClose, onEditProperty }: Readonly<StatusCellEditorProps>) {
   const options = useMemo(() => property.options || [], [property.options]);
   const { statusGroups } = property;

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ interface RollupCellEditorProps {
   onClose: () => void;
 }
 
+/** Renders an inline editor for configuring rollup relation, target property, and aggregation function. */
 export function RollupCellEditor({ property, databaseId, onClose }: Readonly<RollupCellEditorProps>) {
   const databases = useDatabaseStore(s => s.databases);
   const updateProperty = useDatabaseStore(s => s.updateProperty);

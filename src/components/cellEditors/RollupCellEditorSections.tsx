@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:36:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ import { ExternalLink, Hash, BarChart2, ChevronDown, ChevronRight, CheckCircle2 
 import { ROLLUP_FUNCTIONS } from './constants';
 import { cn } from '../../utils/cn';
 
-/* ── Section: Relation ── */
+/** Renders a collapsible picker for selecting a relation property in the rollup editor. */
 export function RelationSection({ relationProps, selected, open, onToggle, onSelect, relationPropId }: Readonly<{
   relationProps: SchemaProperty[]; selected: SchemaProperty | undefined | null;
   open: boolean; onToggle: () => void; onSelect: (p: SchemaProperty) => void; relationPropId: string;
@@ -42,7 +42,7 @@ export function RelationSection({ relationProps, selected, open, onToggle, onSel
   );
 }
 
-/* ── Section: Property ── */
+/** Renders a collapsible picker for selecting a target property from the related database. */
 export function PropertySection({ targetDb, targetProps, selected, open, onToggle, onSelect, targetPropId }: Readonly<{
   targetDb: DatabaseSchema | null; targetProps: SchemaProperty[]; selected: SchemaProperty | undefined | null;
   open: boolean; onToggle: () => void; onSelect: (p: SchemaProperty) => void; targetPropId: string;
@@ -73,7 +73,7 @@ export function PropertySection({ targetDb, targetProps, selected, open, onToggl
   );
 }
 
-/* ── Section: Calculate ── */
+/** Renders a collapsible picker for choosing the rollup aggregation function. */
 export function CalculateSection({ fn, selectedFnLabel, fnGroups, open, calcSubmenu, onToggle, onSelect, setCalcSubmenu }: Readonly<{
   fn: RollupFunction; selectedFnLabel: string;
   fnGroups: Record<string, typeof ROLLUP_FUNCTIONS>;
@@ -107,7 +107,7 @@ export function CalculateSection({ fn, selectedFnLabel, fnGroups, open, calcSubm
   );
 }
 
-/* ── Reusable sub-menu group (replaces 3 identical blocks) ── */
+/** Renders a collapsible sub-menu group within the calculation picker. */
 export function CalcSubmenuGroup({ label, items, activeFn, isOpen, onToggle, onSelect }: {
   label: string; items: readonly { value: RollupFunction; label: string }[];
   activeFn: RollupFunction; isOpen: boolean;
@@ -134,7 +134,7 @@ export function CalcSubmenuGroup({ label, items, activeFn, isOpen, onToggle, onS
   );
 }
 
-/* ── Shared section toggle button ── */
+/** Renders a toggle button used as the header for collapsible editor sections. */
 export function SectionButton({ icon, label, open, onClick }: Readonly<{
   icon: React.ReactNode; label: string; open: boolean; onClick: () => void;
 }>) {
