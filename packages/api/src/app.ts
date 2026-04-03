@@ -24,8 +24,13 @@ export async function buildApp() {
   });
 
   // ── Plugins ────────────────────────────────────────────────────────────────
+  const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:3000,http://localhost:3001')
+    .split(',').map(o => o.trim());
   await app.register(cors, {
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      cb(new Error('Not allowed by CORS'), false);
+    },
     credentials: true,
   });
 
@@ -60,3 +65,4 @@ export async function buildApp() {
 
   return app;
 }
+

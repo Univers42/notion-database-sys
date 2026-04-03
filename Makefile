@@ -182,6 +182,15 @@ dev-api: ## Start Fastify API server (packages/api)
 	@echo -e "$(CYAN)Starting API server…$(RESET)"
 	cd packages/api && pnpm dev
 
+dev-playground: ## Start Vite dev server for playground (port 3001)
+	@echo -e "$(CYAN)Starting playground on http://localhost:3001/playground/$(RESET)"
+	pnpm run dev:playground
+
+seed-playground: ## Seed MongoDB with 3 users + workspaces for playground
+	@echo -e "$(CYAN)Seeding playground data…$(RESET)"
+	pnpm run seed:playground
+	@echo -e "$(GREEN)✔ Playground seeded$(RESET)"
+
 dev-all: ## Start both Vite + API in parallel
 	@echo -e "$(CYAN)Starting all services…$(RESET)"
 	pnpm run dev:all
@@ -203,4 +212,4 @@ clean:
 
 .PHONY: help up down restart re re-all re-standalone logs pull db-up db-down db-reset db-status \
 	seed-pg seed-mongo seed-all seed-state seed-state-force psql mongo-shell \
-	build-rust check-rust build-native build-packages dev dev-verbose dev-api dev-all clean verify smoke-test
+	build-rust check-rust build-native build-packages dev dev-verbose dev-api dev-playground seed-playground dev-all clean verify smoke-test

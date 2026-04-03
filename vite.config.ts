@@ -1,6 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import path, { resolve } from 'path';
 import {defineConfig, loadEnv} from 'vite';
 import wasm from 'vite-plugin-wasm';
 import { dbmsMiddleware } from './src/server/dbmsMiddleware';
@@ -40,6 +40,15 @@ export default defineConfig(({mode}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        '@src': path.resolve(__dirname, 'src'),
+      },
+    },
+    build: {
+      rollupOptions: {
+        input: {
+          main: resolve(__dirname, 'index.html'),
+          playground: resolve(__dirname, 'playground/index.html'),
+        },
       },
     },
     server: {
