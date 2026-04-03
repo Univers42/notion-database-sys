@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import type { SchemaProperty } from '../../types/database';
-import { PropertyTypeIcon } from './PropertyTypeIcon';
+import { PropertyTypeIcon } from '../filters/PropertyTypeIcon';
 
 export function SortPropertyPicker({ properties, onSelect, onClose }: Readonly<{
   properties: SchemaProperty[];

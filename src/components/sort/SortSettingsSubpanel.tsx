@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ChevronDown, Plus, GripVertical, X, Trash2 } from 'lucide-react';
 import type { SchemaProperty, Sort } from '../../types/database';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
-import { PropertyTypeIcon } from './PropertyTypeIcon';
+import { PropertyTypeIcon } from '../filters/PropertyTypeIcon';
 import { SortPropertyPicker } from './SortPropertyPicker';
 
 // ─── Direction picker popup ──────────────────────────────────────────────────
