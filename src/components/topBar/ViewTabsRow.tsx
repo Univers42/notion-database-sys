@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:43 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useOutsideClick, Dropdown } from './Dropdown';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { Dropdown } from './Dropdown';
 import { VIEW_ICONS, VIEW_TYPE_CARD_ICONS, VIEW_TYPE_ORDER, VIEW_LABELS } from './constants';
 import { MenuRow, MenuDivider, ViewTypeCard, PanelSectionLabel } from '../ui/MenuPrimitives';
 import { PencilIcon, DuplicateIcon, NewDataSourceIcon } from '../ui/Icons';
