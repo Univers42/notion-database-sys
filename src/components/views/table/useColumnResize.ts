@@ -6,17 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:54 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// useColumnResize — column resize handle logic
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useCallback } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 
+/** Manages column resize interactions via mouse drag with RAF-throttled updates. */
 export function useColumnResize(viewId: string) {
   const [resizingCol, setResizingCol] = useState<string | null>(null);
 
@@ -69,6 +66,7 @@ export function useColumnResize(viewId: string) {
   return { resizingCol, handleResizeStart };
 }
 
+/** Returns a getter for column widths from the active view settings. */
 export function useColWidth() {
   return useCallback((propId: string) => {
     const s = useDatabaseStore.getState();

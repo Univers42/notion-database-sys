@@ -6,16 +6,17 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:45 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:46 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import type { SchemaProperty, PropertyValue } from '../../../../types/database';
-import { InlineInput, renderCheckbox, DateCellEditor } from './BasicCellRenderers';
+import { renderCheckbox, DateCellEditor } from './BasicCellRenderers';
 import { cn } from '../../../../utils/cn';
 
+/** Renders a files/media cell showing the file count. */
 export function renderFilesMedia(value: PropertyValue): React.ReactNode {
   return (
     <div className={cn("text-sm text-ink-muted italic truncate")}>
@@ -24,6 +25,7 @@ export function renderFilesMedia(value: PropertyValue): React.ReactNode {
   );
 }
 
+/** Renders a clickable button cell with configurable actions. */
 export function renderButton(prop: SchemaProperty): React.ReactNode {
   return (
     <button className={cn("px-2.5 py-0.5 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md")}
@@ -37,6 +39,7 @@ export function renderButton(prop: SchemaProperty): React.ReactNode {
   );
 }
 
+/** Renders a due-date cell with urgency badge when editing or displaying. */
 export function renderDueDate(p: CellRendererProps): React.ReactNode {
   const { page, prop, value, isEditing, onUpdate, onStopEditing } = p;
   const dateVal = value ? new Date(value) : null;
@@ -47,6 +50,7 @@ export function renderDueDate(p: CellRendererProps): React.ReactNode {
   return renderDueDateBadge(dateVal);
 }
 
+/** Renders an urgency badge (Overdue, Today, Xd left) for a due date value. */
 export function renderDueDateBadge(dateVal: Date): React.ReactNode {
   const now = new Date();
   const diffDays = Math.ceil((dateVal.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -64,6 +68,7 @@ export function renderDueDateBadge(dateVal: Date): React.ReactNode {
   );
 }
 
+/** Renders a custom-typed cell, delegating to the appropriate editor or display. */
 export function renderCustom(p: CellRendererProps): React.ReactNode {
   const { page, prop, value, isEditing, onUpdate, onStopEditing, tableRef } = p;
   const dt = prop.customConfig?.dataType || 'string';
@@ -95,6 +100,7 @@ export function renderCustomEditor(dt: string, value: PropertyValue, onChange: (
   );
 }
 
+/** Renders the read-only display for a custom-typed cell. */
 export function renderCustomDisplay(dt: string, value: PropertyValue): React.ReactNode {
   if (dt === 'boolean') return renderCheckbox(value);
   if (dt === 'timestamp') {

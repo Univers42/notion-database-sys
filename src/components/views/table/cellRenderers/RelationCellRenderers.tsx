@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:45 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:46 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ function toStringArray(value: PropertyValue): string[] {
   return [];
 }
 
+/** Renders a formula cell with computed value and click-to-edit. */
 export function renderFormula(p: CellRendererProps): React.ReactNode {
   const { prop, page, databaseId, onFormulaEdit } = p;
   const resolveFormula = useDatabaseStore.getState().resolveFormula;
@@ -58,6 +59,7 @@ export function renderFormula(p: CellRendererProps): React.ReactNode {
   );
 }
 
+/** Renders a rollup cell, dispatching to array, bar, or ring display modes. */
 export function renderRollup(p: CellRendererProps): React.ReactNode {
   const { prop, page, databaseId, wrapContent } = p;
   const resolveRollup = useDatabaseStore.getState().resolveRollup;
@@ -76,6 +78,7 @@ export function renderRollup(p: CellRendererProps): React.ReactNode {
   );
 }
 
+/** Renders a rollup result as a row of inline tags. */
 export function renderRollupArray(arr: PropertyValue[], wrapContent: boolean): React.ReactNode {
   if (arr.length === 0) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
   return (
@@ -89,6 +92,7 @@ export function renderRollupArray(arr: PropertyValue[], wrapContent: boolean): R
   );
 }
 
+/** Renders a rollup number as a horizontal progress bar. */
 export function renderRollupBar(value: number): React.ReactNode {
   const pct = Math.min(100, Math.max(0, (value / 15) * 100));
   return (
@@ -101,6 +105,7 @@ export function renderRollupBar(value: number): React.ReactNode {
   );
 }
 
+/** Renders a rollup percentage as an SVG ring chart. */
 export function renderRollupRing(value: number): React.ReactNode {
   const pct = Math.min(100, Math.max(0, value));
   const r = 8;
@@ -118,6 +123,7 @@ export function renderRollupRing(value: number): React.ReactNode {
   );
 }
 
+/** Renders a relation cell with linked page chips and inline editor. */
 export function renderRelation(p: CellRendererProps): React.ReactNode {
   const { prop, page, value, isEditing, wrapContent, databaseId, onUpdate, onStopEditing, onOpenPage, tableRef } = p;
   const relatedIds: string[] = Array.isArray(value) ? value : [];
@@ -149,6 +155,7 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
   );
 }
 
+/** Renders assigned-to avatars, stacked or wrapped based on content setting. */
 export function renderAssignedTo(value: PropertyValue, wrapContent: boolean): React.ReactNode {
   const assignees: string[] = toStringArray(value);
   if (assignees.length === 0) return <span className={cn("text-ink-muted text-sm")}>Unassigned</span>;

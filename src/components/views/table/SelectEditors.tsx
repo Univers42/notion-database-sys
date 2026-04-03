@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Portal-based Select / MultiSelect editors for table cells
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
@@ -31,8 +27,7 @@ interface EditorProps {
   readonly databaseId: string;
 }
 
-// ─── SELECT EDITOR ───────────────────────────────────────────────────────────
-
+/** Portal-based single-select dropdown editor for table cells. */
 export function SelectEditor({ property, value, onUpdate, onClose, databaseId }: Readonly<EditorProps>) {
   const [input, setInput] = useState('');
   const measureRef = useRef<HTMLDivElement>(null);
@@ -99,8 +94,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
   );
 }
 
-// ─── MULTI-SELECT EDITOR ─────────────────────────────────────────────────────
-
+/** Portal-based multi-select tag editor for table cells. */
 export function MultiSelectEditor({ property, value, onUpdate, onClose, databaseId }: Readonly<EditorProps>) {
   const [input, setInput] = useState('');
   const measureRef = useRef<HTMLDivElement>(null);

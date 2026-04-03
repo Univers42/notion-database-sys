@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:45 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Cell content renderer — maps property type → React node
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
@@ -41,6 +37,7 @@ import {
 } from './cellRenderers';
 import { cn } from '../../../utils/cn';
 
+/** Props passed to every cell renderer function. */
 export interface CellRendererProps {
   prop: SchemaProperty;
   page: Page;
@@ -56,10 +53,7 @@ export interface CellRendererProps {
   tableRef: React.RefObject<HTMLDivElement | null>;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Main dispatcher
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/** Dispatches cell rendering based on property type. */
 export function renderCellContent(props: CellRendererProps): React.ReactNode {
   const { prop, value, page, wrapContent } = props;
   switch (prop.type) {

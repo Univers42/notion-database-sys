@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:28 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:12:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ import { TableRowContextMenu } from './TableRowContextMenu';
 import { ChevronDown, Plus } from 'lucide-react';
 import { cn } from '../../../utils/cn';
 
+/** Renders the full table view with header, rows, grouping, pagination, and cell editing. */
 export function TableView() {
   const activeViewId = useActiveViewId();
   const views = useDatabaseStore(s => s.views);

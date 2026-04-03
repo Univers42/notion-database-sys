@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:59 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// useTableKeyboard — keyboard navigation & cell editing shortcuts
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useCallback } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
@@ -34,6 +30,7 @@ interface KeyboardDeps {
   tableRef: React.RefObject<HTMLDivElement | null>;
 }
 
+/** Handles keyboard navigation (arrows, Tab) and cell editing shortcuts (Enter, Delete). */
 export function useTableKeyboard(deps: KeyboardDeps) {
   const { focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef } = deps;
 

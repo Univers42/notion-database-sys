@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:57:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// MemoTableRow — only re-renders when its own data changes
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
@@ -21,6 +17,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
 import { cn } from '../../../utils/cn';
 
+/** Props for the memoized table row component. */
 export interface MemoTableRowProps {
   page: Page;
   rowIdx: number;
@@ -63,6 +60,7 @@ function focusRingClass(isFocused: boolean, inFillRange: boolean): string {
   return '';
 }
 
+/** Memoized table row that only re-renders when its own data changes. */
 export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRowProps) {
   const {
     page, rowIdx, visibleProps, focusedPropId, editingPropId,

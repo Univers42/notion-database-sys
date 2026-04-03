@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:45 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:37:46 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import { SelectEditor, MultiSelectEditor } from '../SelectEditors';
 import { StatusCellEditor } from '../../../cellEditors';
 import { cn } from '../../../../utils/cn';
 
+/** Renders a single-select cell with a portal-based dropdown editor. */
 export function renderSelect(p: CellRendererProps): React.ReactNode {
   const { prop, page, value, isEditing, databaseId, onUpdate, onStopEditing, tableRef } = p;
   const selOpt = prop.options?.find(o => o.id === value);
@@ -31,6 +32,7 @@ export function renderSelect(p: CellRendererProps): React.ReactNode {
     : <span className={cn("text-ink-muted text-sm")}>Empty</span>;
 }
 
+/** Renders a status cell with a colored dot and status editor. */
 export function renderStatus(p: CellRendererProps): React.ReactNode {
   const { prop, page, value, isEditing, databaseId, onUpdate, onStopEditing, onPropertyConfig, tableRef } = p;
   const statusOpt = prop.options?.find(o => o.id === value);
@@ -47,6 +49,7 @@ export function renderStatus(p: CellRendererProps): React.ReactNode {
     : <span className={cn("text-ink-muted text-sm")}>Empty</span>;
 }
 
+/** Renders a multi-select cell as a row of colored tags. */
 export function renderMultiSelect(p: CellRendererProps): React.ReactNode {
   const { prop, page, value, isEditing, wrapContent, databaseId, onUpdate, onStopEditing, tableRef } = p;
   const msIds: string[] = Array.isArray(value) ? value : [];

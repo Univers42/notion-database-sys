@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ interface RenderPageRowsProps {
   tableRef: React.RefObject<HTMLDivElement | null>;
 }
 
+/** Renders an array of pages as MemoTableRow components with proper row indexing. */
 export function renderPageRows(
   rowPages: Page[],
   props: RenderPageRowsProps,
@@ -98,6 +99,7 @@ interface TableGroupRowsProps extends RenderPageRowsProps {
   addPage: (databaseId: string) => void;
 }
 
+/** Renders grouped table rows with collapsible headers and per-group actions. */
 export function TableGroupRows({
   groupedData, collapsedGroups, toggleGroup, colCount,
   addPage, databaseId, ...rowProps
@@ -112,7 +114,6 @@ export function TableGroupRows({
 
         return (
           <React.Fragment key={group.groupId}>
-            {/* ── Group header row ── */}
             <tr className={cn("group/hdr")}>
               <td colSpan={colCount} className={cn("p-0 border-b border-line bg-surface-secondary-soft2")}>
                 <div className={cn("flex items-center gap-2 px-3 py-2 select-none")}>
@@ -145,7 +146,6 @@ export function TableGroupRows({
               </td>
             </tr>
 
-            {/* ── Group content rows ── */}
             {!isCollapsed && renderPageRows(group.pages, { ...rowProps, databaseId })}
 
             {/* Empty group placeholder */}
