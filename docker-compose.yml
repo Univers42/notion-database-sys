@@ -16,8 +16,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./src/store/dbms/relational:/seed:ro
-      - ./src/services/postgresql/conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      - ./src/services/postgresql/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ./services/postgresql/conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./services/postgresql/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - ./docker/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql:ro
     command:
       - postgres
@@ -46,7 +46,7 @@ services:
     volumes:
       - mongo_data:/data/db
       - ./src/store/dbms/mongodb:/seed:ro
-      - ./src/services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
+      - ./services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
     command: ["mongod", "--bind_ip_all", "--quiet"]
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
