@@ -1,9 +1,9 @@
 [submodule "src/lib/libcpp"]
 	path = src/lib/libcpp
-	url = git@github.com:Univers42/libcpp.git
+        url = https://github.com/Univers42/libcpp.git
 [submodule "src/lib/engine"]
-	path = src/lib/engine
-	url = git@github.com:Univers42/formula-engine.git
+        path = src/lib/engine
+        url = https://github.com/Univers42/formula-engine.git
 [submodule "vendor/scripts"]
-	path = vendor/scripts
-	url = git@github.com:Univers42/scripts.git
+        path = vendor/scripts
+        url = https://github.com/Univers42/scripts.git
