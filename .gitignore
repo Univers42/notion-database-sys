@@ -42,3 +42,4 @@ src/lib/rust/*/target/
 # SonarCloud issue reports (generated locally by fetch-sonar-issues.py)
 sonarcloud-issues.json
 sonarcloud-report.txt
+audit-report.json

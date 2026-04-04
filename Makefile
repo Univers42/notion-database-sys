@@ -6,7 +6,7 @@
 #    By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/04 18:15:22 by dlesieur          #+#    #+#              #
-#    Updated: 2026/04/04 19:25:28 by dlesieur         ###   ########.fr        #
+#    Updated: 2026/04/04 19:25:48 by dlesieur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -122,32 +122,8 @@ lint-fix: ## Run ESLint with --fix
 	pnpm eslint src/ packages/ playground/ services/dbms/ --max-warnings=0 --fix
 	@echo -e "$(GREEN)✔ Lint fix complete$(RESET)"
 
-audit: ## Run full static analysis: typecheck + lint + SonarQube scan
-	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
-	@echo -e "$(CYAN)  Full Audit — TypeScript + ESLint + SonarQube   $(RESET)"
-	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
-	@echo ""
-	@echo -e "$(CYAN)[1/4] Type-checking…$(RESET)"
-	@$(MAKE) typecheck
-	@echo ""
-	@echo -e "$(CYAN)[2/4] Linting…$(RESET)"
-	@$(MAKE) lint
-	@echo ""
-	@echo -e "$(CYAN)[3/4] Ensuring SonarQube is running…$(RESET)"
-	@if ! curl -sf $(SONAR_URL)/api/system/status 2>/dev/null | grep -q UP; then \
-		echo -e "  $(YELLOW)SonarQube not running — starting it…$(RESET)"; \
-		docker compose up -d redis sonarqube; \
-		bash services/sonarqube/tools/wait-sonarqube.sh $(SONAR_URL) 180; \
-	else \
-		echo -e "  $(GREEN)✔ SonarQube already running$(RESET)"; \
-	fi
-	@echo ""
-	@echo -e "$(CYAN)[4/4] Running SonarQube scanner…$(RESET)"
-	@bash services/sonarqube/tools/run-scan.sh
-	@echo ""
-	@echo -e "$(GREEN)══════════════════════════════════════════════════$(RESET)"
-	@echo -e "$(GREEN)  ✔ Full audit complete                          $(RESET)"
-	@echo -e "$(GREEN)══════════════════════════════════════════════════$(RESET)"
+audit: ## Run full audit: typecheck + lint + SonarCloud issues → audit-report.json
+	@bash scripts/audit.sh
 
 sonar-up: up-sonar ## Alias — start SonarQube + Redis
 	@bash services/sonarqube/tools/wait-sonarqube.sh $(SONAR_URL) 180
@@ -169,7 +145,7 @@ clean: ## Remove containers, volumes, node_modules, dist
 
 sonar-issues: ## Fetch all SonarCloud issues into sonarcloud-report.txt + sonarcloud-issues.json
 	@SONAR_TOKEN=$${SONAR_TOKEN:-$$(grep SONAR_TOKEN .env 2>/dev/null | cut -d= -f2)} \
-		python3 .github/scripts/fetch-sonar-issues.py
+		python3 scripts/fetch-sonar-issues.py
 	@echo -e "$(GREEN)✔ Reports saved: sonarcloud-report.txt  sonarcloud-issues.json$(RESET)"
 
 .PHONY: help pull up up-db up-sonar down restart logs db-reset db-status status \
