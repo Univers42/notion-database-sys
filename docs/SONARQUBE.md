@@ -250,24 +250,18 @@ telemetry.
 
 ## 5. How the CI job works
 
-```
-push to main
-    │
-    ▼
-┌─────────┐     ┌───────────┐     ┌─────────┐
-│ install  │────▶│ typecheck  │────▶│  build  │
-│          │────▶│   lint     │     └─────────┘
-└─────────┘     └───────────┘
-                      │
-                      ▼
-               ┌─────────────┐
-               │  sonarcloud  │
-               │  (optional)  │
-               └─────────────┘
-                      │
-          ┌───────────┼───────────┐
-          ▼           ▼           ▼
-     run scanner   quality gate  print summary
+```mermaid
+flowchart TD
+    push["push to main"] --> install
+    install --> typecheck
+    install --> lint
+    typecheck --> build
+    lint --> build
+    typecheck --> sonarcloud["sonarcloud (optional)"]
+    lint --> sonarcloud
+    sonarcloud --> scanner["run scanner"]
+    sonarcloud --> gate["quality gate"]
+    sonarcloud --> summary["print summary"]
 ```
 
 The sonarcloud job depends on typecheck and lint.  If either fails, the

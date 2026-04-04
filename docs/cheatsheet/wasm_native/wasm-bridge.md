@@ -32,18 +32,19 @@ For our use case, this is acceptable. If we needed to process 100K rows, we'd sw
 
 ## The Bridge Architecture
 
-```
-bridge.ts                     lib.rs (Rust)
-─────────                     ──────────────
-                               #[wasm_bindgen]
-evalFormula("price*2", props)  
-  → propsToJson(props)         // Serialize to JSON string
-  → wasmEngine.eval_formula()  pub fn eval_formula(formula: &str, props_json: &str) -> String
-                                  → serde_json::from_str(props_json)  // Deserialize
-                                  → lexer → parser → compiler → VM
-                                  → serde_json::to_string(&result)    // Serialize result
-  ← JSON.parse(resultJson)     // Deserialize back to TS
-  ← fromFormulaValue(result)   // Convert tagged union to native TS
+```mermaid
+sequenceDiagram
+    participant TS as bridge.ts
+    participant Rust as lib.rs (Rust + wasm_bindgen)
+
+    TS->>TS: propsToJson(props)
+    TS->>Rust: eval_formula(formula, props_json)
+    Rust->>Rust: serde_json::from_str(props_json)
+    Rust->>Rust: lexer → parser → compiler → VM
+    Rust->>Rust: serde_json::to_string(result)
+    Rust-->>TS: result JSON string
+    TS->>TS: JSON.parse(resultJson)
+    TS->>TS: fromFormulaValue(result)
 ```
 
 ## Key Bridge Functions

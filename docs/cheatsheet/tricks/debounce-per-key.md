@@ -68,10 +68,12 @@ The Map grows as cells are edited and shrinks as timers fire. In the worst case 
 
 ## Pattern Summary
 
-```
-User types → store updates immediately → timer starts for that cell
-  ↓ 400ms of silence
-  ↓ Write to database adapter → clear timer from Map
+```mermaid
+flowchart TD
+    A["User types"] --> B["Store updates immediately"]
+    B --> C["Timer starts for that cell"]
+    C -->|"400ms of silence"| D["Write to database adapter"]
+    D --> E["Clear timer from Map"]
 ```
 
 This gives you:

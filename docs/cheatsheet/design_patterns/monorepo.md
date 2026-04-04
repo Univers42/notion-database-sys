@@ -41,12 +41,10 @@ This tells pnpm that `packages/types`, `packages/core`, and `packages/api` are i
 
 ## Package Dependency Graph
 
-```
-@notion-db/types       (no dependencies)
-       ↓
-@notion-db/core        (depends on types + mongoose + bcrypt)
-       ↓
-@notion-db/api         (depends on core + types + fastify)
+```mermaid
+flowchart TD
+    types["@notion-db/types\n(no dependencies)"] --> core["@notion-db/core\n(types + mongoose + bcrypt)"]
+    core --> api["@notion-db/api\n(core + types + fastify)"]
 ```
 
 `types` is the leaf — it has zero runtime dependencies. Just TypeScript interfaces and type exports. `core` adds Mongoose models and business logic. `api` adds HTTP routes and WebSocket handlers.

@@ -24,8 +24,12 @@ Why this works:
 
 The file watcher monitors data files for changes (to support external edits with another tool). But when the app itself writes to a file, the watcher would see that as an external change and trigger a reload loop:
 
-```
-App writes data.json → Watcher sees change → App reloads data.json → App re-writes → Loop
+```mermaid
+flowchart LR
+    A["App writes data.json"] --> B["Watcher sees change"]
+    B --> C["App reloads data.json"]
+    C --> D["App re-writes"]
+    D -->|"infinite loop"| B
 ```
 
 The fix: mark your own writes.
