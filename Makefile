@@ -7,6 +7,8 @@ GREEN := \033[32m
 RED   := \033[31m
 RESET := \033[0m
 
+NO_PRINT_DIR := --no-print-directory
+
 help: ## Show available targets (root + sub-projects)
 	@echo -e "$(CYAN)── Root (shared infrastructure) ──$(RESET)"
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' Makefile | \
@@ -79,5 +81,19 @@ clean: ## Remove containers, volumes, node_modules, dist
 	rm -rf node_modules dist .vite .turbo packages/*/dist
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
+# ── QA ──────────────────────────────────────────────────────────────────
+lint: ## Run linters
+	@pnpm run lint
+	@echo -e "$(GREEN)✔ Linting passed$(RESET)"
+
+typecheck: ## Run type checkers
+	@pnpm run typecheck
+	@echo -e "$(GREEN)✔ Type check passed$(RESET)"
+
+# ── Utils ──────────────────────────────────────────────────────────────────
+ensure-env: ## Ensure .env file exists
+	@test -f .env || (echo -e "$(RED)✘ .env file not found. $(RESET)" && cp .env.example .env && echo -e "\n$(CYAN)🛈 It has been created based on .env.example.$(RESET)")
+	@echo -e "$(GREEN)✔ .env file exists$(RESET)"
+
 .PHONY: help pull up down restart logs db-reset db-status status psql mongo-shell \
-	build-packages clean
+	build-packages clean lint typecheck ensure-env
