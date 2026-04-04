@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:22 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 02:01:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ import { Sidebar } from './formulaEditor/Sidebar';
 import { DocPanel } from './formulaEditor/DocPanel';
 import { useFormulaEditorPanel } from './useFormulaEditorPanel';
 import { cn } from '../utils/cn';
-
-// ═══════════════════════════════════════════════════════════════════════════════
 
 function getPreviewContainerStyle(hasError: boolean, hasExpression: boolean): string {
   if (hasError) return 'bg-danger-surface-soft border-danger-border';
@@ -33,6 +31,7 @@ interface FormulaEditorPanelProps {
   onClose: () => void;
 }
 
+/** Full-screen modal for editing a formula property with live preview, AI prompt, and function catalog. */
 export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly<FormulaEditorPanelProps>) {
   const {
     db, property, expression, setExpression, aiPrompt, setAiPrompt,
@@ -45,8 +44,6 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly
   } = useFormulaEditorPanel(databaseId, propertyId, onClose);
 
   if (!db || !property) return null;
-
-  // ═══ RENDER ════════════════════════════════════════
 
   return createPortal(
     <div className={cn("fixed inset-0 z-[100] flex items-center justify-center bg-scrim-light backdrop-blur-[2px]")}>

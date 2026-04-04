@@ -1,5 +1,3 @@
-// ─── DbSourceDropdown — database source selector ────────────────────────────
-// Dropdown to switch the active database backend.
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Database, ChevronDown, Check, Loader2, AlertCircle } from 'lucide-react';
@@ -16,6 +14,7 @@ const SOURCE_BADGE: Record<string, string> = {
   postgresql: '#8b5cf6',
 };
 
+/** Dropdown for switching the active database backend (JSON, CSV, MongoDB, PostgreSQL). */
 export function DbSourceDropdown() {
   const activeSource = useDbSource((s) => s.activeSource);
   const switching = useDbSource((s) => s.switching);

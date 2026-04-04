@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:17 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:39:18 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ import { cn } from '../utils/cn';
 interface Props { children: ReactNode; }
 interface State { hasError: boolean; error: Error | null; }
 
+/** Catches rendering errors in child components and displays a recovery UI. */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);

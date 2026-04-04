@@ -6,23 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// DatabaseBlock — THE single reusable database component
-// ═══════════════════════════════════════════════════════════════════════════════
-//
-// This is the entire database experience: TopBar + View body.
-// It's the same component used for:
-//   • Full-page mode (the main app — fills the screen)
-//   • Inline mode (embedded inside a page's markdown content)
-//
-// In full mode it reads/writes the global activeViewId from the store.
-// In inline mode it manages a LOCAL selectedViewId via DatabaseScopeProvider
-// so it never touches global state.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState, useMemo } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
@@ -32,6 +18,7 @@ import { DatabaseView } from './DatabaseView';
 import { Plus, FileText } from 'lucide-react';
 import { cn } from '../utils/cn';
 
+/** Props for {@link DatabaseBlock}. */
 export interface DatabaseBlockProps {
   /** Which database to show. If omitted, uses the database of the global activeViewId. */
   databaseId?: string;
@@ -41,6 +28,7 @@ export interface DatabaseBlockProps {
   mode?: 'full' | 'inline';
 }
 
+/** Renders a complete database experience (TopBar + view body) in full-page or inline mode. */
 export function DatabaseBlock({
   databaseId,
   initialViewId,
@@ -50,8 +38,6 @@ export function DatabaseBlock({
   const databases = useDatabaseStore(s => s.databases);
   const globalActiveViewId = useDatabaseStore(s => s.activeViewId);
 
-  // ─── Resolve which database and view we're working with ──────────
-  // In inline mode: manage our own local view selection
   const [localViewId, setLocalViewId] = useState(initialViewId || '');
 
   // Figure out the effective viewId
@@ -75,7 +61,6 @@ export function DatabaseBlock({
   const resolvedView = resolvedViewId ? views[resolvedViewId] : null;
   const database = resolvedView ? databases[resolvedView.databaseId] : null;
 
-  // ─── Empty state ─────────────────────────────────────────────────
   if (!database || !resolvedView) {
     return (
       <div className={cn(mode === 'inline'
@@ -90,10 +75,8 @@ export function DatabaseBlock({
     );
   }
 
-  // ─── View change handler for inline mode ─────────────────────────
   const handleViewChange = mode === 'inline' ? setLocalViewId : undefined;
 
-  // ─── Render ──────────────────────────────────────────────────────
   if (mode === 'inline') {
     return (
       <DatabaseScopeProvider value={resolvedViewId}>
@@ -116,8 +99,6 @@ export function DatabaseBlock({
     </div>
   );
 }
-
-// ─── Inline footer: + New row, row count ─────────────────────────────────────
 
 function InlineFooter({ databaseId }: Readonly<{ databaseId: string }>) {
   const addPage = useDatabaseStore(s => s.addPage);

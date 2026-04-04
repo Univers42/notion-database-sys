@@ -6,24 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// DatabaseView — unified entry point for rendering any database view
-// ═══════════════════════════════════════════════════════════════════════════════
-//
-// This component is the single entry point for rendering database views.
-// It supports two modes:
-//   1. Full-page: Uses the global activeViewId from the store (default)
-//   2. Inline/embedded: Receives a viewId prop and scopes it via
-//      DatabaseScopeProvider so child views read the overridden viewId
-//      WITHOUT mutating global state.
-//
-// All view components (Table, Board, Calendar, etc.) are rendered through
-// this component, ensuring consistent behavior between inline and full-page.
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
@@ -32,7 +17,6 @@ import { DatabaseScopeProvider } from '../hooks/useDatabaseScope';
 import { ErrorBoundary } from './ErrorBoundary';
 import type { ViewType } from '../types/database';
 
-// View component imports
 import { TableView } from './views/table/TableView';
 import { BoardView } from './views/board/BoardView';
 import { CalendarView } from './views/calendar/CalendarView';
@@ -59,6 +43,7 @@ const VIEW_COMPONENTS: Record<ViewType, React.ComponentType> = {
   map: MapView,
 };
 
+/** Props for {@link DatabaseView}. */
 export interface DatabaseViewProps {
   /** Override: render this specific view instead of the global active one */
   viewId?: string;
@@ -66,6 +51,7 @@ export interface DatabaseViewProps {
   compact?: boolean;
 }
 
+/** Resolves the active view and renders the appropriate view component (Table, Board, etc.). */
 export function DatabaseView({ viewId, compact = false }: Readonly<DatabaseViewProps>) {
   // If a viewId override is provided, scope it via context.
   // Otherwise, use the global activeViewId (from context or store).
