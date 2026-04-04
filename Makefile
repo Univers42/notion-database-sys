@@ -1,3 +1,15 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/04/04 18:15:22 by dlesieur          #+#    #+#              #
+#    Updated: 2026/04/04 18:15:24 by dlesieur         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 SHELL := /bin/bash
 -include .env
 export
@@ -21,7 +33,7 @@ help: ## Show available targets (root + sub-projects)
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' playground/Makefile | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
 
-# ── Docker services (shared) ────────────────────────────────────────────────
+# Docker
 
 pull: ## Pull latest Docker images
 	@docker compose pull --quiet
@@ -85,8 +97,6 @@ mongo-shell: ## Open mongosh shell
 redis-cli: ## Open redis-cli shell
 	docker compose exec redis redis-cli
 
-# ── Packages ─────────────────────────────────────────────────────────────────
-
 install: ## Install all dependencies
 	@echo -e "$(CYAN)Installing dependencies…$(RESET)"
 	pnpm install
@@ -96,8 +106,6 @@ build-packages: ## Build all packages (types → core → api)
 	@echo -e "$(CYAN)Building packages…$(RESET)"
 	pnpm run build
 	@echo -e "$(GREEN)✔ All packages built$(RESET)"
-
-# ── Code quality ─────────────────────────────────────────────────────────────
 
 typecheck: ## Run TypeScript type-checking (no emit)
 	@echo -e "$(CYAN)Type-checking…$(RESET)"
@@ -113,8 +121,6 @@ lint: ## Run ESLint on all source directories
 lint-fix: ## Run ESLint with --fix
 	pnpm eslint src/ packages/ playground/ services/dbms/ --max-warnings=0 --fix
 	@echo -e "$(GREEN)✔ Lint fix complete$(RESET)"
-
-# ── SonarQube audit ──────────────────────────────────────────────────────────
 
 audit: ## Run full static analysis: typecheck + lint + SonarQube scan
 	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
@@ -154,11 +160,7 @@ sonar-status: ## Check SonarQube server status
 		&& echo "" \
 		|| echo -e "$(RED)✘ SonarQube unreachable at $(SONAR_URL)$(RESET)"
 
-# ── CI (local reproduction) ──────────────────────────────────────────────────
-
 ci: typecheck lint build-packages ## Run the same checks as GitHub Actions CI
-
-# ── Cleanup ──────────────────────────────────────────────────────────────────
 
 clean: ## Remove containers, volumes, node_modules, dist
 	docker compose down -v 2>/dev/null || true

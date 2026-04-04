@@ -1,4 +1,22 @@
-name: CI — Build & Lint
+# ============================================================================
+# CI pipeline for notion-database-sys
+#
+# Jobs:
+#   install    — checkout, install deps, cache node_modules
+#   typecheck  — tsc --noEmit on packages + root
+#   lint       — eslint on all source directories (zero warnings)
+#   build      — full Turborepo production build
+#   sonarqube  — SonarCloud static analysis + quality gate + metrics report
+#
+# Submodules are cloned via HTTPS (no deploy key needed).
+# The formula-engine WASM binary is not built in CI; a stub script
+# (.github/scripts/stub-engine.sh) generates no-op TypeScript stubs
+# so typecheck and lint can pass without the real binary.
+#
+# See docs/SONARQUBE.md for SonarCloud setup and troubleshooting.
+# ============================================================================
+
+name: CI
 
 on:
   push:
@@ -9,13 +27,9 @@ on:
 permissions:
   contents: read
 
-# All submodules use public HTTPS URLs so `submodules: recursive` works
-# without deploy keys.  The stub-engine fallback is kept as a safety net
-# for forks that have not initialised the engine submodule.
-# pnpm store cache is handled by setup-node; node_modules is a best-effort
-# optimisation — every job falls back to a full `pnpm install`.
-
 jobs:
+
+  # 1. Install dependencies and cache node_modules for downstream jobs.
   install:
     name: Install
     runs-on: ubuntu-latest
@@ -40,6 +54,8 @@ jobs:
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
+  # 2. TypeScript type-checking (packages first, then root src/).
+  #    The WASM engine is replaced by stubs when the binary is absent.
   typecheck:
     name: TypeScript
     needs: install
@@ -49,7 +65,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Stub engine bridge (WASM pkg not available in CI)
+      - name: Generate engine stubs if WASM binary is missing
         run: |
           if [ ! -f src/lib/engine/pkg/formula_engine.js ]; then
             bash .github/scripts/stub-engine.sh
@@ -69,18 +85,19 @@ jobs:
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: Install dependencies (fallback)
+      - name: Install dependencies (cache miss fallback)
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
+      - name: Build packages (types → core → api)
         run: pnpm turbo run build --filter='./packages/*'
 
       - name: Typecheck packages
         run: pnpm turbo run typecheck --filter='./packages/*'
 
-      - name: Typecheck root (src/)
+      - name: Typecheck root
         run: pnpm tsc --noEmit
 
+  # 3. ESLint — zero warnings enforced on every source directory.
   lint:
     name: ESLint
     needs: install
@@ -104,10 +121,10 @@ jobs:
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: Install dependencies (fallback)
+      - name: Install dependencies (cache miss fallback)
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
+      - name: Build packages (needed for cross-package imports)
         run: pnpm turbo run build --filter='./packages/*'
 
       - name: Lint src/
@@ -122,6 +139,7 @@ jobs:
       - name: Lint services/
         run: pnpm eslint services/ --max-warnings=0
 
+  # 4. Full production build (runs only after typecheck + lint pass).
   build:
     name: Build
     needs: [typecheck, lint]
@@ -131,7 +149,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Stub engine bridge (WASM pkg not available in CI)
+      - name: Generate engine stubs if WASM binary is missing
         run: |
           if [ ! -f src/lib/engine/pkg/formula_engine.js ]; then
             bash .github/scripts/stub-engine.sh
@@ -151,17 +169,26 @@ jobs:
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: Install dependencies (fallback)
+      - name: Install dependencies (cache miss fallback)
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages
         run: pnpm turbo run build
 
+  # --------------------------------------------------------------------------
+  # 5. SonarCloud analysis.
+  #
+  #    Requires the SONAR_TOKEN repository secret (see docs/SONARQUBE.md).
+  #    The job is marked continue-on-error so a missing or invalid token
+  #    does not fail the entire pipeline — other jobs still gate the build.
+  #
+  #    After the scan, a summary step queries the SonarCloud API and prints
+  #    a human-readable metrics table directly in the Actions log.
+  # --------------------------------------------------------------------------
   sonarqube:
-    name: SonarQube
+    name: SonarCloud
     needs: [typecheck, lint]
     runs-on: ubuntu-latest
-    # SonarQube analysis is optional — it won't block CI if no token is set.
     continue-on-error: true
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -171,7 +198,7 @@ jobs:
         id: check
         run: |
           if [ -z "$SONAR_TOKEN" ]; then
-            echo "⚠ SONAR_TOKEN not set — skipping SonarQube analysis"
+            echo "SONAR_TOKEN is not set — skipping analysis"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
@@ -183,28 +210,25 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - uses: SonarSource/sonarqube-scan-action@v6
+      - name: Run SonarCloud scanner
         if: steps.check.outputs.skip != 'true'
+        uses: SonarSource/sonarqube-scan-action@v6
 
-      - name: SonarQube Quality Gate
+      - name: Wait for quality gate result
         if: steps.check.outputs.skip != 'true'
         uses: SonarSource/sonarqube-quality-gate-action@v1
         timeout-minutes: 5
 
-      - name: SonarCloud Analysis Summary
+      - name: Print analysis summary
         if: steps.check.outputs.skip != 'true' && always()
         run: |
-          echo "──────────────────────────────────────────────────"
-          echo "  SonarCloud Analysis Summary"
-          echo "──────────────────────────────────────────────────"
-
           PROJECT_KEY="Univers42_notion-database-sys"
           METRICS="bugs,vulnerabilities,security_hotspots,code_smells,duplicated_lines_density,ncloc,coverage"
 
           RESPONSE=$(curl -sf \
             -u "$SONAR_TOKEN:" \
             "https://sonarcloud.io/api/measures/component?component=${PROJECT_KEY}&metricKeys=${METRICS}" \
-          ) || { echo "⚠ Could not fetch metrics from SonarCloud API"; exit 0; }
+          ) || { echo "Could not fetch metrics from SonarCloud API"; exit 0; }
 
           get_metric() {
             echo "$RESPONSE" | python3 -c "
@@ -239,11 +263,10 @@ jobs:
           echo "  Dashboard: https://sonarcloud.io/dashboard?id=${PROJECT_KEY}&branch=main"
           echo "──────────────────────────────────────────────────"
 
-          # Fail-loud summary
           if [ "$BUGS" != "0" ] || [ "$VULNS" != "0" ]; then
             echo ""
-            echo "⚠ Found $BUGS bug(s) and $VULNS vulnerability(ies)."
+            echo "WARN: $BUGS bug(s) and $VULNS vulnerability(ies) detected."
           else
             echo ""
-            echo "✓ No bugs or vulnerabilities detected."
+            echo "OK: No bugs or vulnerabilities detected."
           fi

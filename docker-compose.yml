@@ -1,5 +1,17 @@
-# Uses stock images directly — configs mounted as volumes.
-# Start time: ~3s (vs 90s+ with custom builds).
+# docker-compose.yml
+#
+# Local development services.  Start everything with `make up`.
+#
+# Services:
+#   postgres   — PostgreSQL 16 (schema in docker/init-databases.sql)
+#   mongodb    — MongoDB 7.0
+#   redis      — Redis 7 (used by SonarQube embedded cache + general purpose)
+#   sonarqube  — SonarQube Community Edition 25.4 (static analysis dashboard)
+#
+# All images use stock upstream tags.  Configuration files are bind-mounted
+# from the services/ directory so you can edit them without rebuilding.
+#
+# Ports, credentials, and database names are read from .env (see .env.example).
 
 services:
   postgres:
@@ -54,7 +66,6 @@ services:
       retries: 5
       start_period: 5s
 
-  # ── Redis (cache for SonarQube & general purpose) ──────────────────────────
   redis:
     build:
       context: ./services/redis
@@ -73,7 +84,6 @@ services:
       retries: 5
       start_period: 3s
 
-  # ── SonarQube (static analysis) ────────────────────────────────────────────
   sonarqube:
     build:
       context: ./services/sonarqube
@@ -107,11 +117,6 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
 
-# ─── API server is run outside Docker via `make dev-api` or `pnpm dev:api` ───
-# It connects to the above containers at localhost:27017 and localhost:5432.
-# To containerize the API, add:
-#   api:
-#     build: { context: ., dockerfile: packages/api/Dockerfile }
-#     ports: ["4000:4000"]
-#     depends_on: [mongodb, postgres]
-#     env_file: .env
+# The API server (packages/api) runs outside Docker.
+# Start it with: make dev-api  or  pnpm dev:api
+# It connects to postgres and mongodb at localhost.

@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# wait-sonarqube.sh — wait for SonarQube to be fully operational
-# Usage: bash services/sonarqube/tools/wait-sonarqube.sh [url] [timeout_secs]
-# ──────────────────────────────────────────────────────────────────────────────
+# wait-sonarqube.sh
+#
+# Polls the SonarQube health endpoint until the server reports UP.
+# Used by `make sonar-up` and `make audit` to avoid running the scanner
+# before the server is ready.  The first boot can take 30-90 seconds.
+#
+# Usage:
+#   bash services/sonarqube/tools/wait-sonarqube.sh [url] [timeout_seconds]
+#
+# Defaults:
+#   url     = http://localhost:9000
+#   timeout = 180
 set -euo pipefail
 
 SONAR_URL="${1:-http://localhost:9000}"
