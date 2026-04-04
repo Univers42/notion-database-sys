@@ -5,34 +5,47 @@
 # Reads sonar-project.properties for source paths, exclusions, etc.
 #
 # Usage:
-#   bash services/sonarqube/tools/run-scan.sh          # local scan (localhost:9000)
-#   bash services/sonarqube/tools/run-scan.sh --ci      # CI mode (skips quality gate wait)
+#   bash services/sonarqube/tools/run-scan.sh            # local scan (localhost:9000)
+#   bash services/sonarqube/tools/run-scan.sh --cloud     # scan against SonarCloud
+#   bash services/sonarqube/tools/run-scan.sh --ci        # CI mode (skips quality gate wait)
 #
 # Environment variables:
-#   SONAR_HOST_URL  Scanner target URL.  Defaults to http://localhost:9000.
-#   SONAR_TOKEN     Authentication token.  Optional for local Community Edition
-#                   (no auth by default), required for SonarCloud.
+#   SONAR_HOST_URL  Scanner target URL.  Defaults to http://localhost:9000
+#                   (overridden to https://sonarcloud.io with --cloud).
+#   SONAR_TOKEN     Authentication token.  Required for SonarCloud,
+#                   optional for local Community Edition.
 #
 # The script installs sonar-scanner via npx if it is not already on PATH.
 set -euo pipefail
 
+# Load .env if present (for SONAR_TOKEN)
+if [ -f .env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+
 SONAR_URL="${SONAR_HOST_URL:-http://localhost:9000}"
 SONAR_TOKEN="${SONAR_TOKEN:-}"
 CI_MODE=false
+CLOUD_MODE=false
 
 for arg in "$@"; do
   case "$arg" in
-    --ci) CI_MODE=true ;;
+    --ci)    CI_MODE=true ;;
+    --cloud) CLOUD_MODE=true ;;
   esac
 done
 
-# Install sonar-scanner if not already available
-if ! command -v sonar-scanner &>/dev/null; then
-  echo "sonar-scanner not found on PATH, using npx"
-  SCANNER="npx -y sonar-scanner"
-else
-  SCANNER="sonar-scanner"
+# --cloud overrides the host to SonarCloud
+if [ "$CLOUD_MODE" = true ]; then
+  SONAR_URL="https://sonarcloud.io"
 fi
+
+# Use the official SonarSource npm package (sonarqube-scanner).
+# The old 'sonar-scanner' 3.x npm package is abandoned and fails on SonarCloud.
+SCANNER="npx -y sonarqube-scanner"
 
 # Build command-line arguments
 ARGS=(
@@ -51,6 +64,7 @@ fi
 echo "Running SonarQube analysis"
 echo "  URL   : ${SONAR_URL}"
 echo "  Token : ${SONAR_TOKEN:+(set)}${SONAR_TOKEN:-(not set)}"
+echo "  Mode  : $([ "$CLOUD_MODE" = true ] && echo "cloud" || echo "local")"
 echo ""
 
 $SCANNER "${ARGS[@]}"
