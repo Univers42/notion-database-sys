@@ -38,3 +38,7 @@ src/lib/rust/*/target/
 
 # SonarQube scanner working directory
 .scannerwork/
+
+# SonarCloud issue reports (generated locally by fetch-sonar-issues.py)
+sonarcloud-issues.json
+sonarcloud-report.txt

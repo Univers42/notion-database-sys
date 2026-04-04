@@ -270,3 +270,55 @@ jobs:
             echo ""
             echo "OK: No bugs or vulnerabilities detected."
           fi
+
+  # --------------------------------------------------------------------------
+  # 6. SonarCloud issue export.
+  #
+  #    Fetches every open issue from the SonarCloud API and saves them as:
+  #      - sonarcloud-report.txt   (human-readable, sorted by severity)
+  #      - sonarcloud-issues.json  (raw API data for scripting)
+  #
+  #    Both files are uploaded as a GitHub Actions artifact named
+  #    "sonarcloud-issues".  Anyone on the team can download the archive from
+  #    the Actions run page, or pull it with the gh CLI:
+  #
+  #      gh run download <run-id> -n sonarcloud-issues
+  #
+  #    This job always runs after the sonarqube job, even if the quality gate
+  #    failed — in fact that is exactly when the report is most useful.
+  # --------------------------------------------------------------------------
+  sonar-issues:
+    name: Export SonarCloud Issues
+    needs: sonarqube
+    if: always() && needs.sonarqube.result != 'skipped'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: Skip if no token
+        id: gate
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "SONAR_TOKEN not set — skipping issue export"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != 'true'
+
+      - name: Fetch all issues from SonarCloud API
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 .github/scripts/fetch-sonar-issues.py
+
+      - name: Upload issue reports as artifact
+        if: steps.gate.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonarcloud-issues
+          path: |
+            sonarcloud-report.txt
+            sonarcloud-issues.json
+          retention-days: 30
