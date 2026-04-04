@@ -1,4 +1,16 @@
-// ─── 01-init-collections.js ──────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init-collections.js                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:10:05 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:10:06 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* global db:writable, print, process */
 // Auto-runs on first MongoDB container start via docker-entrypoint-initdb.d.
 // Creates collections and indexes for the Notion DBMS.
 
