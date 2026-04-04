@@ -251,21 +251,40 @@ TOTAL_ISSUES=$((TOTAL_ISSUES + SONAR_TOTAL))
 # =============================================================================
 header "Code Metrics"
 
-FILE_COUNT=$(find src packages playground -name '*.ts' -o -name '*.tsx' 2>/dev/null | wc -l)
-LARGEST=$(find src packages playground -name '*.ts' -o -name '*.tsx' -exec wc -l {} + 2>/dev/null \
+MAX_LINES=200
+FILE_COUNT=$(find src packages playground services \( -name '*.ts' -o -name '*.tsx' \) 2>/dev/null | wc -l)
+LARGEST=$(find src packages playground services \( -name '*.ts' -o -name '*.tsx' \) -exec wc -l {} + 2>/dev/null \
   | sort -rn | head -2 | tail -1 | awk '{print $1, $2}')
-OVER_200=$(find src packages playground -name '*.ts' -o -name '*.tsx' -exec wc -l {} + 2>/dev/null \
-  | awk '$1 > 200 && !/total$/' | wc -l)
+OVER_LIMIT_LIST=$(find src packages playground services \( -name '*.ts' -o -name '*.tsx' \) -exec wc -l {} + 2>/dev/null \
+  | awk -v max="$MAX_LINES" '$1 > max && !/total$/ {print $1, $2}' | sort -rn)
+if [ -n "$OVER_LIMIT_LIST" ]; then
+  OVER_200=$(echo "$OVER_LIMIT_LIST" | wc -l)
+else
+  OVER_200=0
+fi
 SUPPRESSIONS=$(grep -rl "eslint-disable\|@ts-ignore\|@ts-nocheck\|@ts-expect-error" \
-  src/ packages/ playground/ --include='*.ts' --include='*.tsx' 2>/dev/null | wc -l || echo 0)
+  src/ packages/ playground/ services/ --include='*.ts' --include='*.tsx' 2>/dev/null | wc -l || echo 0)
 
 printf "  Files:               %d\n" "$FILE_COUNT"
 printf "  Largest file:        %s\n" "$LARGEST"
-printf "  Files > 200 lines:   %d\n" "$OVER_200"
+printf "  Max lines per file:  %d\n" "$MAX_LINES"
+printf "  Files > %d lines:   %d\n" "$MAX_LINES" "$OVER_200"
+if [ "$OVER_200" -gt 0 ]; then
+  echo "$OVER_LIMIT_LIST" | while IFS= read -r line; do
+    printf "${RED}    ✗ %s${RST}\n" "$line"
+  done
+fi
 printf "  Suppression comments:%d files\n" "$SUPPRESSIONS"
 
-printf '{"fileCount":%d,"filesOver200Lines":%d,"suppressionFiles":%d}\n' \
-  "$FILE_COUNT" "$OVER_200" "$SUPPRESSIONS" > "$METRICS_JSON"
+if [ -n "$OVER_LIMIT_LIST" ]; then
+  OVER_LIMIT_JSON=$(echo "$OVER_LIMIT_LIST" | awk '{printf "{\"lines\":%s,\"file\":\"%s\"},", $1, $2}' | sed 's/,$//')
+else
+  OVER_LIMIT_JSON=""
+fi
+printf '{"fileCount":%d,"maxLinesPerFile":%d,"filesOverLimit":%d,"overLimitFiles":[%s],"suppressionFiles":%d}\n' \
+  "$FILE_COUNT" "$MAX_LINES" "$OVER_200" "$OVER_LIMIT_JSON" "$SUPPRESSIONS" > "$METRICS_JSON"
+
+TOTAL_ISSUES=$((TOTAL_ISSUES + OVER_200))
 
 # =============================================================================
 # 5. Assemble final JSON report
@@ -290,7 +309,8 @@ jq -n \
       tscErrors: $tsc[0].errorCount,
       eslintErrors: $eslint[0].errorCount,
       eslintWarnings: $eslint[0].warningCount,
-      sonarIssues: $sonar[0].total
+      sonarIssues: $sonar[0].total,
+      filesOverLimit: $metrics[0].filesOverLimit
     },
     typescript: $tsc[0],
     eslint: $eslint[0],
@@ -308,10 +328,11 @@ printf "  TypeScript errors:   %d\n" "$TSC_ERRORS"
 printf "  ESLint errors:       %d\n" "$ESLINT_ERR_COUNT"
 printf "  ESLint warnings:     %d\n" "$ESLINT_WARN_COUNT"
 printf "  SonarCloud issues:   %d\n" "$SONAR_TOTAL"
+printf "  Files > %d lines:   %d\n" "$MAX_LINES" "$OVER_200"
 printf "  ────────────────────────\n"
 printf "  Total issues:        %d\n" "$TOTAL_ISSUES"
 
-if [ "$TSC_ERRORS" -eq 0 ] && [ "$ESLINT_ERR_COUNT" -eq 0 ] && [ "$SONAR_TOTAL" -eq 0 ]; then
+if [ "$TSC_ERRORS" -eq 0 ] && [ "$ESLINT_ERR_COUNT" -eq 0 ] && [ "$SONAR_TOTAL" -eq 0 ] && [ "$OVER_200" -eq 0 ]; then
   printf "\n${GRN}  ✓ AUDIT PASSED — no blocking issues${RST}\n\n"
   exit 0
 else

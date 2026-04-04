@@ -1,11 +1,12 @@
 {
-  "timestamp": "2026-04-04T21:34:04Z",
+  "timestamp": "2026-04-04T23:24:45Z",
   "summary": {
     "totalIssues": 0,
     "tscErrors": 0,
     "eslintErrors": 0,
     "eslintWarnings": 0,
-    "sonarIssues": 0
+    "sonarIssues": 0,
+    "filesOverLimit": 0
   },
   "typescript": {
     "errorCount": 0,
@@ -25,8 +26,10 @@
     "issues": []
   },
   "metrics": {
-    "fileCount": 383,
-    "filesOver200Lines": 10,
+    "fileCount": 474,
+    "maxLinesPerFile": 200,
+    "filesOverLimit": 0,
+    "overLimitFiles": [],
     "suppressionFiles": 17
   }
 }

@@ -6,40 +6,18 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:39:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { ViewConfig, ViewSettings, Filter, Sort, Grouping } from '../../types/database';
+import type { ViewConfig, Filter, Sort } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
+import { createFilterActions } from './viewFilterActions';
+import { createSortActions } from './viewSortActions';
+import { createPropertyActions } from './viewPropertyActions';
 
-export interface ViewSliceState {
-  views: Record<string, ViewConfig>;
-}
-
-export interface ViewSliceActions {
-  addView: (view: Omit<ViewConfig, 'id'>) => void;
-  updateView: (viewId: string, updates: Partial<ViewConfig>) => void;
-  updateViewSettings: (viewId: string, settings: Partial<ViewSettings>) => void;
-  deleteView: (viewId: string) => void;
-  duplicateView: (viewId: string) => void;
-  setActiveView: (viewId: string) => void;
-  addFilter: (viewId: string, filter: Omit<Filter, 'id'>) => void;
-  updateFilter: (viewId: string, filterId: string, updates: Partial<Filter>) => void;
-  removeFilter: (viewId: string, filterId: string) => void;
-  clearFilters: (viewId: string) => void;
-  addSort: (viewId: string, sort: Omit<Sort, 'id'>) => void;
-  setSort: (viewId: string, sort: Omit<Sort, 'id'>) => void;
-  updateSort: (viewId: string, sortId: string, updates: Partial<Sort>) => void;
-  removeSort: (viewId: string, sortId: string) => void;
-  clearSorts: (viewId: string) => void;
-  setGrouping: (viewId: string, grouping: Grouping | undefined) => void;
-  togglePropertyVisibility: (viewId: string, propertyId: string) => void;
-  hideAllProperties: (viewId: string) => void;
-  reorderProperties: (viewId: string, propertyIds: string[]) => void;
-}
-
-export type ViewSlice = ViewSliceState & ViewSliceActions;
+export type { ViewSliceState, ViewSliceActions, ViewSlice } from './viewSliceTypes';
+import type { ViewSliceActions } from './viewSliceTypes';
 
 /**
  * Creates the view CRUD slice for the Zustand store.
@@ -96,134 +74,9 @@ export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions 
     },
 
     setActiveView: (viewId) => set({ activeViewId: viewId }),
-    addFilter: (viewId, filter) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: { ...view, filters: [...view.filters, { ...filter, id: crypto.randomUUID() }] },
-        },
-      };
-    }),
 
-    updateFilter: (viewId, filterId, updates) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: {
-            ...view,
-            filters: view.filters.map((f: Filter) => f.id === filterId ? { ...f, ...updates } : f),
-          },
-        },
-      };
-    }),
-
-    removeFilter: (viewId, filterId) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: { ...view, filters: view.filters.filter((f: Filter) => f.id !== filterId) },
-        },
-      };
-    }),
-
-    clearFilters: (viewId) => set((state: DatabaseState) => ({
-      views: { ...state.views, [viewId]: { ...state.views[viewId], filters: [] } },
-    })),
-
-    addSort: (viewId, sort) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: { ...view, sorts: [...view.sorts, { ...sort, id: crypto.randomUUID() }] },
-        },
-      };
-    }),
-
-    /** Replaces all sorts with a single sort (used by column-header quick-sort). */
-    setSort: (viewId, sort) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: { ...view, sorts: [{ ...sort, id: crypto.randomUUID() }] },
-        },
-      };
-    }),
-
-    updateSort: (viewId, sortId, updates) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: {
-            ...view,
-            sorts: view.sorts.map((s: Sort) => s.id === sortId ? { ...s, ...updates } : s),
-          },
-        },
-      };
-    }),
-
-    removeSort: (viewId, sortId) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: { ...view, sorts: view.sorts.filter((s: Sort) => s.id !== sortId) },
-        },
-      };
-    }),
-
-    clearSorts: (viewId) => set((state: DatabaseState) => ({
-      views: { ...state.views, [viewId]: { ...state.views[viewId], sorts: [] } },
-    })),
-
-    setGrouping: (viewId, grouping) => set((state: DatabaseState) => ({
-      views: { ...state.views, [viewId]: { ...state.views[viewId], grouping } },
-    })),
-
-    togglePropertyVisibility: (viewId, propertyId) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      const isVisible = view.visibleProperties.includes(propertyId);
-      return {
-        views: {
-          ...state.views,
-          [viewId]: {
-            ...view,
-            visibleProperties: isVisible
-              ? view.visibleProperties.filter((id: string) => id !== propertyId)
-              : [...view.visibleProperties, propertyId],
-          },
-        },
-      };
-    }),
-
-    hideAllProperties: (viewId) => set((state: DatabaseState) => {
-      const view = state.views[viewId];
-      if (!view) return state;
-      const db = state.databases[view.databaseId];
-      const titlePropId = db?.titlePropertyId;
-      return {
-        views: {
-          ...state.views,
-          [viewId]: { ...view, visibleProperties: titlePropId ? [titlePropId] : [] },
-        },
-      };
-    }),
-
-    reorderProperties: (viewId, propertyIds) => set((state: DatabaseState) => ({
-      views: { ...state.views, [viewId]: { ...state.views[viewId], visibleProperties: propertyIds } },
-    })),
+    ...createFilterActions(set),
+    ...createSortActions(set),
+    ...createPropertyActions(set),
   };
 }

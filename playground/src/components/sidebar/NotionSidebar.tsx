@@ -6,36 +6,18 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useEffect, useState } from 'react';
-import {
-  Search,
-  Home,
-  Mic,
-  Sparkles,
-  Inbox,
-  BookOpen,
-  Plus,
-  Settings,
-  LayoutGrid,
-  Trash2,
-  Mail,
-  CalendarRange,
-  Monitor,
-  UserPlus,
-  X,
-  File,
-} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { useUserStore }  from '../../store/useUserStore';
 import { usePageStore }  from '../../store/usePageStore';
 import { WorkspaceSwitcher } from './WorkspaceSwitcher';
-import { SidebarNavItem }    from './SidebarNavItem';
-import { SidebarSection }    from './SidebarSection';
-import { PageTreeItem }      from './PageTreeItem';
+import { SidebarTopNav }     from './SidebarTopNav';
+import { SidebarPageTree }   from './SidebarPageTree';
+import { SidebarFooter }     from './SidebarFooter';
 
 interface Props {
   onOpenHome?:     () => void;
@@ -57,16 +39,16 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
 
   const jwt = session?.accessToken ?? '';
 
+  const privateWorkspaces = useMemo(() => session?.privateWorkspaces ?? [], [session?.privateWorkspaces]);
+  const sharedWorkspaces  = useMemo(() => session?.sharedWorkspaces  ?? [], [session?.sharedWorkspaces]);
+
   // Fetch pages whenever the active user's workspaces change
   useEffect(() => {
-    const allWs = [
-      ...(session?.privateWorkspaces  ?? []),
-      ...(session?.sharedWorkspaces   ?? []),
-    ];
+    const allWs = [...privateWorkspaces, ...sharedWorkspaces];
     for (const ws of allWs) {
       if (jwt) fetchPages(ws._id, jwt);
     }
-  }, [session?.privateWorkspaces, session?.sharedWorkspaces, jwt, fetchPages]);
+  }, [privateWorkspaces, sharedWorkspaces, jwt, fetchPages]);
 
 
   function handleAddToWorkspace(wsId: string) {
@@ -83,201 +65,28 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
     >
       <WorkspaceSwitcher />
 
-      <div className="flex flex-col gap-px pb-2 mx-2 cursor-pointer">
-        <SidebarNavItem
-          icon={<Search size={16} />}
-          label="Search"
-          onClick={() => { /* noop — search modal not yet implemented */ }}
-        />
-        <SidebarNavItem
-          icon={<Home size={16} />}
-          label="Home"
-          active={activePage === null}
-          onClick={() => onOpenHome?.()}
-        />
-        <SidebarNavItem
-          icon={<Mic size={16} />}
-          label="Meetings"
-          onClick={() => {/* placeholder */}}
-        />
-        <SidebarNavItem
-          icon={<Sparkles size={16} />}
-          label="Notion AI"
-          onClick={() => {/* placeholder */}}
-        />
-        <SidebarNavItem
-          icon={<Inbox size={16} />}
-          label="Inbox"
-          onClick={() => {/* placeholder */}}
-        />
-        <SidebarNavItem
-          icon={<BookOpen size={16} />}
-          label="Library"
-          onClick={() => {/* placeholder */}}
-        />
-      </div>
+      <SidebarTopNav isHomeActive={activePage === null} onOpenHome={onOpenHome} />
 
       <div className="h-px w-full shrink-0 -mt-px z-[99]" style={{ boxShadow: 'transparent 0px 0px 0px', transition: 'box-shadow 300ms' }} />
 
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1.5 pb-5">
-        <div className="flex flex-col gap-3">
-
-          <SidebarSection label="Recents">
-            {recents.length > 0
-              ? recents.slice(0, 8).map(r => (
-                  <SidebarNavItem
-                    key={r.id}
-                    icon={r.icon
-                      ? <span className="text-sm leading-none">{r.icon}</span>
-                      : <File size={14} className="text-[var(--color-ink-faint)]" />
-                    }
-                    label={r.title ?? 'Untitled'}
-                    active={activePage?.id === r.id}
-                    onClick={() => openPage(r)}
-                  />
-                ))
-              : (
-                <p className="px-2 py-1 text-xs text-[var(--color-ink-faint)] italic">
-                  Pages you visit will appear here
-                </p>
-              )
-            }
-          </SidebarSection>
-
-
-          <SidebarSection label="Agents">
-            <SidebarNavItem
-              icon={<Plus size={14} />}
-              label="New agent"
-              subtle
-              onClick={() => {/* placeholder */}}
-            />
-          </SidebarSection>
-
-
-          {(session?.privateWorkspaces ?? []).map(ws => {
-            const pages = pagesForWs(ws._id).filter(p => !p.parentPageId && !p.archivedAt);
-            return (
-              <SidebarSection
-                key={ws._id}
-                label="Private"
-                defaultOpen
-                onAdd={() => handleAddToWorkspace(ws._id)}
-                onMore={() => {/* placeholder */}}
-              >
-                {pages.length === 0 && (
-                  <p className="px-2 py-1 text-xs text-[var(--color-ink-faint)] italic">
-                    No pages yet
-                  </p>
-                )}
-                {pages.map(page => (
-                  <PageTreeItem
-                    key={page._id}
-                    page={page}
-                    workspaceId={ws._id}
-                    jwt={jwt}
-                    depth={0}
-                    activeId={activePage?.id}
-                  />
-                ))}
-              </SidebarSection>
-            );
-          })}
-
-
-          <SidebarSection label="Shared">
-            {(session?.sharedWorkspaces ?? []).length > 0
-              ? (session?.sharedWorkspaces ?? []).map(ws => {
-                  const pages = pagesForWs(ws._id).filter(p => !p.parentPageId && !p.archivedAt);
-                  return pages.map(page => (
-                    <PageTreeItem
-                      key={page._id}
-                      page={page}
-                      workspaceId={ws._id}
-                      jwt={jwt}
-                      depth={0}
-                      activeId={activePage?.id}
-                    />
-                  ));
-                })
-              : (
-                <SidebarNavItem
-                  icon={<Plus size={14} className="text-[var(--color-accent)]" />}
-                  label="Start collaborating"
-                  subtle
-                  onClick={() => {/* placeholder */}}
-                />
-              )
-            }
-          </SidebarSection>
-
-
-          <SidebarSection label="Notion apps">
-            <SidebarNavItem
-              icon={<Mail size={16} />}
-              label="Notion Mail"
-              onClick={() => {/* placeholder */}}
-            />
-            <SidebarNavItem
-              icon={<CalendarRange size={16} />}
-              label="Notion Calendar"
-              onClick={() => {/* placeholder */}}
-            />
-            <SidebarNavItem
-              icon={<Monitor size={16} />}
-              label="Notion Desktop"
-              onClick={() => {/* placeholder */}}
-            />
-          </SidebarSection>
-
-        </div>
+        <SidebarPageTree
+          recents={recents}
+          activePage={activePage}
+          openPage={openPage}
+          privateWorkspaces={privateWorkspaces}
+          sharedWorkspaces={sharedWorkspaces}
+          pagesForWs={pagesForWs}
+          jwt={jwt}
+          onAddToWorkspace={handleAddToWorkspace}
+        />
       </nav>
 
-      <div className="h-px w-full shrink-0 -mt-px z-[99]" style={{ boxShadow: '0 1px 0 var(--color-line)', transition: 'box-shadow 300ms' }} />
-
-      <div className="px-2 pt-1 flex flex-col gap-px">
-        <SidebarNavItem
-          icon={<Settings size={16} />}
-          label="Settings"
-          onClick={() => onOpenSettings?.()}
-        />
-        <SidebarNavItem
-          icon={<LayoutGrid size={16} />}
-          label="Marketplace"
-          onClick={() => {/* placeholder */}}
-        />
-        <SidebarNavItem
-          icon={<Trash2 size={16} />}
-          label="Trash"
-          onClick={() => {/* placeholder */}}
-        />
-      </div>
-
-
-      {showInviteCTA && (
-        <div className="mx-2 mb-2 mt-1.5 relative">
-          <div
-            className="relative p-2 rounded-lg overflow-hidden cursor-pointer hover:bg-[var(--color-surface-hover)] transition-colors duration-100"
-            style={{ boxShadow: 'var(--color-line) 0 0 0 1px' }}
-          >
-            <div className="flex items-start gap-2">
-              <UserPlus size={20} className="shrink-0 text-[var(--color-ink)] mt-0.5" />
-              <div className="flex-1 min-w-0 pt-1">
-                <p className="text-[12px] font-semibold text-[var(--color-ink)] leading-4">Invite members</p>
-                <p className="text-[12px] text-[var(--color-ink-muted)] leading-4">Collaborate with your team.</p>
-              </div>
-            </div>
-            {/* Dismiss button */}
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setShowInviteCTA(false); }}
-              className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)]"
-            >
-              <X size={12} />
-            </button>
-          </div>
-        </div>
-      )}
+      <SidebarFooter
+        onOpenSettings={onOpenSettings}
+        showInviteCTA={showInviteCTA}
+        onDismissInvite={() => setShowInviteCTA(false)}
+      />
     </aside>
   );
 };

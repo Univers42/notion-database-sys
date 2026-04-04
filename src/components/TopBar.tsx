@@ -15,15 +15,11 @@ import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import { ViewSettingsPanel } from './ViewSettingsPanel';
 import { CURSORS } from './ui/cursors';
-import {
-  Plus, Search, Filter, ArrowUpDown, Settings2, ChevronDown,
-  X, Maximize2, Zap,
-} from 'lucide-react';
-import { ThemeToggle } from './ui/ThemeToggle';
-import { Dropdown, ExtraActionsMenu } from './topBar';
+import { ChevronDown } from 'lucide-react';
+import { Dropdown } from './topBar';
 import { ViewTabsRow } from './topBar/ViewTabsRow';
 import { FilterSortPanels } from './topBar/FilterSortPanels';
-import { DbSourceDropdown } from './DbSourceDropdown';
+import { TopBarActions } from './topBar/TopBarActions';
 import { cn } from '../utils/cn';
 
 /** Props for {@link TopBar}. */
@@ -122,62 +118,21 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
           </div>
 
           {/* Right: Action buttons */}
-          <div className={cn("flex items-center gap-0.5 shrink-0")}>
-            <button ref={filterBtnRef}
-              onClick={() => {
-                if (filters.length === 0) { setShowFilterPropertyPicker(!showFilterPropertyPicker); setShowFilterPanel(false); setShowAdvancedFilter(false); }
-                else { setShowFilterPanel(!showFilterPanel); setShowFilterPropertyPicker(false); }
-                setShowSortPanel(false);
-              }}
-              className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${filters.length > 0
-                ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
-              <Filter className={cn("w-3.5 h-3.5")} /><span className={cn("hidden sm:inline")}>Filter</span>
-              {filters.length > 0 && <span className={cn("text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums")}>{filters.length}</span>}
-            </button>
-            <button onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
-              className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${sorts.length > 0
-                ? 'bg-purple-surface text-purple-text font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
-              <ArrowUpDown className={cn("w-3.5 h-3.5")} /><span className={cn("hidden sm:inline")}>Sort</span>
-              {sorts.length > 0 && <span className={cn("text-xs bg-purple-surface-muted text-purple-text-bold px-1.5 rounded-full tabular-nums")}>{sorts.length}</span>}
-            </button>
-            <button className={cn("flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface transition-colors")}>
-              <Zap className={cn("w-3.5 h-3.5")} /><span className={cn("hidden sm:inline")}>Automations</span>
-            </button>
-
-            {showSearch ? (
-              <div className={cn("flex items-center gap-1 bg-surface-tertiary rounded-lg px-2 py-1")}>
-                <Search className={cn("w-3.5 h-3.5 text-ink-muted")} />
-                <input ref={searchRef} type="text" placeholder="Search..." value={localSearchValue}
-                  onChange={e => { const v = e.target.value; setLocalSearchValue(v); clearTimeout(searchDebounceRef.current); searchDebounceRef.current = setTimeout(() => store.setSearchQuery(v), 200); }}
-                  onKeyDown={e => { if (e.key === 'Escape') { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); store.setSearchQuery(''); setShowSearch(false); } }}
-                  className={cn("bg-transparent text-sm w-40 outline-none placeholder:text-placeholder")} />
-                <button onClick={() => { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); store.setSearchQuery(''); setShowSearch(false); }} className={cn("p-0.5 hover:bg-hover-surface3 rounded")}>
-                  <X className={cn("w-3 h-3 text-ink-muted")} />
-                </button>
-              </div>
-            ) : (
-              <button onClick={() => setShowSearch(true)} className={cn("p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors")} title="Search">
-                <Search className={cn("w-4 h-4")} />
-              </button>
-            )}
-
-            <button onClick={() => setIsFullSize(!isFullSize)}
-              className={cn(`p-2 rounded-lg transition-colors ${isFullSize ? 'bg-surface-tertiary text-ink-body' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)} title="Full-size">
-              <Maximize2 className={cn("w-4 h-4")} />
-            </button>
-            <button onClick={() => setShowViewSettings(!showViewSettings)}
-              className={cn(`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${showViewSettings ? 'bg-surface-tertiary' : ''}`)}>
-              <Settings2 className={cn("w-4 h-4")} />
-            </button>
-            <ExtraActionsMenu show={showExtraActions} onToggle={() => setShowExtraActions(!showExtraActions)} onClose={() => setShowExtraActions(false)} />
-            <DbSourceDropdown />
-            <ThemeToggle />
-            <div className={cn("w-px h-5 bg-surface-muted mx-1")} />
-            <button onClick={() => { const id = addPage(database.id); store.openPage(id); }}
-              className={cn("flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm")}>
-              <Plus className={cn("w-3.5 h-3.5")} /> New
-            </button>
-          </div>
+          <TopBarActions
+            filterBtnRef={filterBtnRef} filters={filters} sorts={sorts}
+            showFilterPropertyPicker={showFilterPropertyPicker} setShowFilterPropertyPicker={setShowFilterPropertyPicker}
+            showFilterPanel={showFilterPanel} setShowFilterPanel={setShowFilterPanel}
+            setShowAdvancedFilter={setShowAdvancedFilter}
+            showSortPanel={showSortPanel} setShowSortPanel={setShowSortPanel}
+            showSearch={showSearch} setShowSearch={setShowSearch}
+            localSearchValue={localSearchValue} setLocalSearchValue={setLocalSearchValue}
+            searchRef={searchRef} searchDebounceRef={searchDebounceRef}
+            onSearchQueryChange={store.setSearchQuery}
+            isFullSize={isFullSize} setIsFullSize={setIsFullSize}
+            showViewSettings={showViewSettings} setShowViewSettings={setShowViewSettings}
+            showExtraActions={showExtraActions} setShowExtraActions={setShowExtraActions}
+            onNewPage={() => { const id = addPage(database.id); store.openPage(id); }}
+          />
         </div>
 
         <ViewTabsRow dbViews={dbViews} activeViewId={activeViewId ?? ''} view={view} database={database}

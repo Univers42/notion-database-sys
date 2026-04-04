@@ -17,3 +17,4 @@ export { SortPanel } from '../sort/SortPanel';
 export { ExtraActionsMenu, ViewDotsMenu, ActiveViewMenu } from './MenuComponents';
 export { ViewTabsRow } from './ViewTabsRow';
 export { FilterSortPanels } from './FilterSortPanels';
+export { TopBarActions } from './TopBarActions';

@@ -6,129 +6,16 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { create } from 'zustand';
 import { api } from '../api/client';
+import type { UserSession, UserStore, Workspace } from './userStore.types';
+import { INITIAL_PERSONAS, loginPersona, fetchWorkspaces, partition } from './userStore.helpers';
 
-/** Pre-defined user profile used for playground login. */
-export interface StaticPersona {
-  /** Filled by init() after first successful login. Empty string until then. */
-  id: string;
-  email: string;
-  password: string;
-  name: string;
-  emoji: string;
-  roleBadge: string;
-}
-
-/** Workspace metadata returned from the API. */
-export interface Workspace {
-  _id: string;
-  name: string;
-  slug: string;
-  ownerId: string;
-  settings?: Record<string, unknown>;
-}
-
-interface UserSession {
-  userId: string;
-  accessToken: string;
-  refreshToken: string;
-  privateWorkspaces: Workspace[];  // workspaces owned by this user
-  sharedWorkspaces: Workspace[];   // workspaces where user is member but not owner
-}
-
-interface UserStore {
-  personas: StaticPersona[];
-  sessions: Record<string, UserSession>;
-  activeUserId: string;
-  initialized: boolean;
-  loading: boolean;
-  error: string | null;
-
-  init: () => Promise<void>;
-  switchUser: (userId: string) => void;
-  refreshWorkspaces: (userId: string) => Promise<void>;
-  createWorkspace: (name: string, slug: string) => Promise<Workspace | null>;
-
-  // Selectors
-  activeSession: () => UserSession | null;
-  activePersona: () => StaticPersona | null;
-  activeJwt: () => string | null;
-  personaById: (id: string) => StaticPersona | undefined;
-}
-
-const INITIAL_PERSONAS: StaticPersona[] = [
-  {
-    id: '',
-    email: 'admin@playground.local',
-    password: 'playground123', // NOSONAR - demo/playground credential
-    name: 'Dylan Admin',
-    emoji: '👑',
-    roleBadge: 'Admin',
-  },
-  {
-    id: '',
-    email: 'alex@playground.local',
-    password: 'playground123', // NOSONAR - demo/playground credential
-    name: 'Alex Collaborator',
-    emoji: '🎨',
-    roleBadge: 'Member',
-  },
-  {
-    id: '',
-    email: 'sam@playground.local',
-    password: 'playground123', // NOSONAR - demo/playground credential
-    name: 'Sam Guest',
-    emoji: '👁️',
-    roleBadge: 'Guest',
-  },
-];
-
-/** Resolved API base URL — empty string means "no API configured → offline" */
-const API_BASE: string = ((import.meta.env as Record<string, string>)['VITE_API_URL'] ?? '').trim();
-
-async function loginPersona(persona: StaticPersona) {
-  if (!API_BASE) return null; // no API configured → skip fetch entirely
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(
-      `${API_BASE}/api/auth/login`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: persona.email, password: persona.password }),
-        signal: controller.signal,
-      },
-    );
-    clearTimeout(timeout);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return { userId: data.user.id as string, accessToken: data.accessToken as string, refreshToken: data.refreshToken as string };
-  } catch {
-    return null;
-  }
-}
-
-async function fetchWorkspaces(jwt: string): Promise<Workspace[]> {
-  if (!jwt || !API_BASE) return [];  // offline mode — skip network call
-  try {
-    return await api.get<Workspace[]>('/api/workspaces', jwt);
-  } catch {
-    return [];
-  }
-}
-
-function partition(workspaces: Workspace[], ownerId: string) {
-  return {
-    privateWorkspaces: workspaces.filter(w => w.ownerId === ownerId),
-    sharedWorkspaces:  workspaces.filter(w => w.ownerId !== ownerId),
-  };
-}
+export type { StaticPersona, Workspace } from './userStore.types';
 
 // Module-level guard against React Strict Mode double-invoke
 let _initInProgress = false;

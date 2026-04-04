@@ -6,12 +6,17 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 18:45:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 21:01:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { SchemaProperty, Page } from '../types/database';
 import { safeString } from '../utils/safeString';
+import { ok, fail } from './validation-result';
+import { validateNumber, validateCheckbox, validateDate } from './validation-primitives';
+import { validateSelect, validateMultiSelect, validateRelation } from './validation-schema';
+
+export type { ValidationResult } from './validation-result';
 
 /** System-managed properties — never overwritten by user edits. */
 const SYSTEM_TYPES = new Set([
@@ -24,15 +29,6 @@ const COMPUTED_TYPES = new Set(['formula', 'rollup']);
 /** Read-only properties — auto-generated. */
 const READONLY_TYPES = new Set(['id']);
 
-export interface ValidationResult {
-  /** Whether the value passed validation (possibly after coercion). */
-  ok: boolean;
-  /** The coerced/cleaned value to store. Only meaningful when `ok` is true. */
-  value: unknown;
-  /** Human-readable reason when `ok` is false. */
-  reason?: string;
-}
-
 /**
  * Validate and coerce a property value to match its schema type.
  *
@@ -44,7 +40,7 @@ export function validatePropertyValue(
   raw: unknown,
   property: SchemaProperty,
   allPages?: Record<string, Page>,
-): ValidationResult {
+): import('./validation-result').ValidationResult {
   const { type } = property;
 
   // Null / empty always accepted (clears the field)
@@ -99,137 +95,4 @@ export function validatePropertyValue(
 
     default: return ok(raw);
   }
-}
-
-function validateNumber(raw: unknown): ValidationResult {
-  if (typeof raw === 'number') {
-    return Number.isFinite(raw) ? ok(raw) : fail('Number must be finite');
-  }
-  if (typeof raw === 'string') {
-    const trimmed = raw.trim();
-    if (trimmed === '') return ok(null);
-    const n = Number(trimmed);
-    return Number.isFinite(n) ? ok(n) : fail(`"${trimmed}" is not a valid number`);
-  }
-  if (typeof raw === 'boolean') return ok(raw ? 1 : 0);
-  return fail(`Expected a number, got ${typeof raw}`);
-}
-
-function validateCheckbox(raw: unknown): ValidationResult {
-  if (typeof raw === 'boolean') return ok(raw);
-  if (raw === 1 || raw === '1' || raw === 'true') return ok(true);
-  if (raw === 0 || raw === '0' || raw === 'false') return ok(false);
-  return fail(`Expected a boolean, got "${safeString(raw)}"`);
-}
-
-function validateDate(raw: unknown): ValidationResult {
-  if (typeof raw !== 'string') return fail(`Expected a date string, got ${typeof raw}`);
-  // Accept ISO 8601 strings and YYYY-MM-DD
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return fail(`"${raw}" is not a valid date`);
-  return ok(raw); // keep the original string format
-}
-
-function validateSelect(raw: unknown, property: SchemaProperty): ValidationResult {
-  const optionId = safeString(raw);
-  const options = property.options ?? [];
-
-  // If no options defined yet, accept any string (schema will be expanded)
-  if (options.length === 0) return ok(optionId);
-
-  // Check the value is a known option ID
-  const match = options.find(o => o.id === optionId);
-  if (match) return ok(optionId);
-
-  // Fallback: maybe the user passed the option *value* (display name) instead of its ID
-  const byValue = options.find(o =>
-    o.value.toLowerCase() === optionId.toLowerCase(),
-  );
-  if (byValue) return ok(byValue.id);
-
-  return fail(
-    `"${optionId}" is not a valid option. ` +
-    `Valid: ${options.map(o => o.value).join(', ')}`,
-  );
-}
-
-function validateMultiSelect(raw: unknown, property: SchemaProperty): ValidationResult {
-  // Coerce single value to array
-  const ids: unknown[] = Array.isArray(raw) ? raw : [raw];
-  const options = property.options ?? [];
-
-  // If no options defined yet, accept anything
-  if (options.length === 0) return ok(ids.map(String));
-
-  const resolved: string[] = [];
-  const seen = new Set<string>();
-  for (const id of ids) {
-    const s = safeString(id);
-    let resolvedId: string | undefined;
-
-    const match = options.find(o => o.id === s);
-    if (match) { resolvedId = s; }
-
-    if (!resolvedId) {
-      // Fallback: match by display value
-      const byValue = options.find(o =>
-        o.value.toLowerCase() === s.toLowerCase(),
-      );
-      if (byValue) { resolvedId = byValue.id; }
-    }
-
-    if (!resolvedId) {
-      return fail(
-        `"${s}" is not a valid multi-select option. ` +
-        `Valid: ${options.map(o => o.value).join(', ')}`,
-      );
-    }
-
-    // Deduplicate: skip if already resolved to this ID
-    if (!seen.has(resolvedId)) {
-      seen.add(resolvedId);
-      resolved.push(resolvedId);
-    }
-  }
-  return ok(resolved);
-}
-
-function validateRelation(
-  raw: unknown,
-  property: SchemaProperty,
-  allPages?: Record<string, Page>,
-): ValidationResult {
-  // Coerce single value to array
-  const ids: unknown[] = Array.isArray(raw) ? raw : [raw];
-  const pageIds = ids.map(String);
-
-  // If no relation config, accept any array of strings
-  if (!property.relationConfig?.databaseId) return ok(pageIds);
-
-  // If we have all pages, validate each reference exists in the target DB
-  if (allPages) {
-    const targetDbId = property.relationConfig.databaseId;
-    for (const pid of pageIds) {
-      const target = allPages[pid];
-      if (!target) {
-        return fail(`Related page "${pid}" does not exist`);
-      }
-      if (target.databaseId !== targetDbId) {
-        return fail(
-          `Page "${pid}" belongs to a different database — ` +
-          `expected target DB "${targetDbId}"`,
-        );
-      }
-    }
-  }
-  return ok(pageIds);
-}
-
-
-function ok(value: unknown): ValidationResult {
-  return { ok: true, value };
-}
-
-function fail(reason: string): ValidationResult {
-  return { ok: false, value: undefined, reason };
 }
