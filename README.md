@@ -61,6 +61,13 @@ Run `make help` at root for the full list. Here are the main ones:
 | `make build-packages` | Build all packages (types → core → api) |
 | `make clean` | Remove containers, volumes, node_modules, dist |
 | `make logs` | Tail container logs |
+| `make typecheck` | TypeScript type-checking (no emit) |
+| `make lint` | ESLint on all source directories (zero warnings) |
+| `make audit` | Typecheck + lint + SonarQube scan (starts SonarQube if needed) |
+| `make sonar-up` | Start SonarQube + Redis containers |
+| `make sonar-scan` | Run SonarQube scanner only |
+| `make ci` | Run the same checks as GitHub Actions locally |
+| `make redis-cli` | Open a redis-cli shell |
 
 ### src/ (run from `src/`)
 
@@ -101,6 +108,10 @@ Copy `.env.example` → `.env` at project root:
 | `JSON_DB_PATH` | `./src/store/dbms/json` | JSON flat-file DB path |
 | `CSV_DB_PATH` | `./src/store/dbms/csv` | CSV flat-file DB path |
 | `ACTIVE_DB_SOURCE` | `json` | Active backend: `json` / `csv` / `mongodb` / `postgresql` |
+| `SONAR_HOST_URL` | `https://sonarcloud.io` | SonarQube/SonarCloud server URL |
+| `SONAR_TOKEN` | (none) | SonarCloud authentication token |
+| `SONAR_PORT` | `9000` | Local SonarQube Docker port |
+| `REDIS_PORT` | `6379` | Redis Docker port |
 
 The API server also reads:
 
@@ -110,6 +121,22 @@ The API server also reads:
 | `JWT_SECRET` | `dev-secret-change-in-production` | JWT signing secret |
 | `JWT_EXPIRES_IN` | `15m` | JWT token lifetime |
 | `VITE_API_URL` | `http://localhost:4000` | API URL for the playground frontend |
+
+## Code quality and static analysis
+
+The CI pipeline runs TypeScript type-checking, ESLint, and SonarCloud analysis
+on every push.  You can run the same checks locally:
+
+```bash
+make ci          # typecheck + lint + build (same as GitHub Actions)
+make audit       # typecheck + lint + SonarQube scan (full analysis)
+```
+
+SonarCloud results are visible at:
+[sonarcloud.io/dashboard?id=Univers42_notion-database-sys](https://sonarcloud.io/dashboard?id=Univers42_notion-database-sys)
+
+For the complete SonarQube/SonarCloud setup guide, configuration reference,
+and troubleshooting instructions, see **[docs/SONARQUBE.md](docs/SONARQUBE.md)**.
 
 ## Sub-READMEs
 
@@ -123,6 +150,7 @@ The API server also reads:
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
+- [SonarQube Guide](docs/SONARQUBE.md)
 - [License](LICENSE)
 - [Issue Templates](.github/ISSUE_TEMPLATE/)
 - [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)

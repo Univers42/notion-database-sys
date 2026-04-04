@@ -1,11 +1,25 @@
 #!/usr/bin/env bash
-# ──────────────────────────────────────────────────────────────────────────────
-# stub-engine.sh — generate no-op stubs for the formula-engine submodule
+# stub-engine.sh
 #
-# Called by CI when the private src/lib/engine submodule cannot be checked out.
-# The stubs export the same public API as the real bridge so TypeScript
-# type-checking and ESLint pass without the WASM binary.
-# ──────────────────────────────────────────────────────────────────────────────
+# Generates no-op TypeScript stubs for the formula-engine submodule.
+#
+# The formula engine lives in src/lib/engine/ and is built from Rust into
+# a WASM binary (pkg/formula_engine.js + .wasm).  That binary is not
+# compiled during CI because the Rust toolchain is not installed on the
+# runner.  Without stubs, TypeScript cannot resolve the imports from
+# bridge.ts and bridgeTypes.ts, and both tsc and eslint fail.
+#
+# This script creates two files:
+#   - bridgeTypes.ts  — interfaces and helper functions
+#   - bridge.ts       — re-exports types and provides no-op implementations
+#
+# Every exported symbol matches the real source so downstream imports
+# compile without modification.
+#
+# Called automatically by the CI workflow:
+#   if [ ! -f src/lib/engine/pkg/formula_engine.js ]; then
+#     bash .github/scripts/stub-engine.sh
+#   fi
 set -euo pipefail
 
 DIR="src/lib/engine"
