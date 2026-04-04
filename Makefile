@@ -6,7 +6,7 @@
 #    By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/04 18:15:22 by dlesieur          #+#    #+#              #
-#    Updated: 2026/04/04 18:55:54 by dlesieur         ###   ########.fr        #
+#    Updated: 2026/04/04 19:01:18 by dlesieur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -124,14 +124,17 @@ lint-fix: ## Run ESLint with --fix
 	pnpm eslint src/ packages/ playground/ services/dbms/ --max-warnings=0 --fix
 	@echo -e "$(GREEN)✔ Lint fix complete$(RESET)"
 
-audit: ## Run full audit: typecheck + lint + SonarCloud issues → audit-report.json
+audit: ## Run full audit: typecheck + lint + SonarCloud scan → audit-report.json
+	@bash scripts/audit.sh || true
+
+audit-strict: ## Same as audit but exit 1 if any issues found
 	@bash scripts/audit.sh
 
-sonar-up: up-sonar ## Alias — start SonarQube + Redis
-	@bash services/sonarqube/tools/wait-sonarqube.sh $(SONAR_URL) 180
+audit-no-scan: ## Audit without re-scanning (fetch cached SonarCloud results only)
+	@bash scripts/audit.sh --no-scan || true
 
-sonar-scan: ## Run SonarQube scanner only (SonarQube must be running)
-	@bash services/sonarqube/tools/run-scan.sh
+sonar-scan: ## Push a fresh analysis to SonarCloud (no Docker needed)
+	@bash services/sonarqube/tools/run-scan.sh --cloud
 
 sonar-status: ## Check SonarQube server status
 	@curl -sf $(SONAR_URL)/api/system/status 2>/dev/null \
@@ -152,4 +155,4 @@ sonar-issues: ## Fetch all SonarCloud issues into sonarcloud-report.txt + sonarc
 
 .PHONY: help pull up up-db up-sonar down restart logs db-reset db-status status \
 	psql mongo-shell redis-cli install build-packages typecheck lint lint-fix \
-	audit sonar-up sonar-scan sonar-issues sonar-status ci clean
+	audit audit-strict audit-no-scan sonar-scan sonar-issues sonar-status ci clean

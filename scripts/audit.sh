@@ -2,14 +2,17 @@
 # scripts/audit.sh
 #
 # Unified code quality audit.
-# Runs TypeScript type-check, ESLint, and fetches SonarCloud issues,
-# then writes a combined JSON report to audit-report.json.
+# Runs TypeScript type-check, ESLint, pushes a fresh SonarCloud analysis,
+# then fetches the results — all into a single audit-report.json.
 #
-# No Docker required — SonarCloud issues are pulled via REST API.
+# No Docker required.  The sonar-scanner uploads source directly to
+# SonarCloud for analysis.  Results are fetched via REST API after the
+# scanner reports the quality gate status.
 #
 # Usage:
-#   bash scripts/audit.sh           # full audit
-#   bash scripts/audit.sh --fix     # run ESLint with --fix
+#   bash scripts/audit.sh           # full audit (scan + fetch)
+#   bash scripts/audit.sh --fix     # run ESLint with --fix before scanning
+#   bash scripts/audit.sh --no-scan # skip the scan, only fetch cached issues
 #
 # Output:
 #   audit-report.json  — machine-readable combined report
@@ -28,7 +31,13 @@ fi
 
 # ── Options ───────────────────────────────────────────────────────────────────
 FIX_FLAG=""
-[[ "${1:-}" == "--fix" ]] && FIX_FLAG="--fix"
+SKIP_SCAN=false
+for arg in "$@"; do
+  case "$arg" in
+    --fix)     FIX_FLAG="--fix" ;;
+    --no-scan) SKIP_SCAN=true ;;
+  esac
+done
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -128,7 +137,7 @@ printf '{"errorCount":%d,"warningCount":%d,"messages":%s}\n' \
 TOTAL_ISSUES=$((TOTAL_ISSUES + ESLINT_ERR_COUNT))
 
 # =============================================================================
-# 3. SonarCloud (API fetch — no Docker needed)
+# 3. SonarCloud — scan + fetch (no Docker needed)
 # =============================================================================
 header "SonarCloud"
 
@@ -136,12 +145,45 @@ SONAR_TOKEN="${SONAR_TOKEN:-}"
 SONAR_HOST="${SONAR_HOST_URL:-https://sonarcloud.io}"
 SONAR_PROJECT="${SONAR_PROJECT_KEY:-Univers42_notion-database-sys}"
 SONAR_TOTAL=0
+SCAN_OK=false
 
 if [ -z "$SONAR_TOKEN" ]; then
-  printf "${YEL}  ⚠ SONAR_TOKEN not set — skipping SonarCloud fetch${RST}\n"
+  printf "${YEL}  ⚠ SONAR_TOKEN not set — skipping SonarCloud${RST}\n"
   printf "${YEL}    Set it in .env or export SONAR_TOKEN=...${RST}\n"
-  printf '{"skipped":true,"reason":"SONAR_TOKEN not set","total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
+  printf '{"skipped":true,"reason":"SONAR_TOKEN not set","scanned":false,"total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
 else
+  # ── 3a. Push a fresh analysis to SonarCloud ──────────────────────────────
+  if [ "$SKIP_SCAN" = true ]; then
+    printf "${YEL}  ⏭ Skipping scan (--no-scan), fetching cached results${RST}\n"
+  else
+    printf "  Pushing analysis to %s…\n" "$SONAR_HOST"
+
+    # Use 'sonarqube-scanner' (official SonarSource npm package).
+    # The old 'sonar-scanner' 3.x is abandoned and fails on SonarCloud.
+    SCANNER="npx -y sonarqube-scanner"
+
+    # Run the scanner against SonarCloud (not local Docker).
+    # The sonarqube-scanner npm package auto-reads SONAR_TOKEN env var and sets
+    # sonar.token, so we unset the env var and pass it explicitly to avoid
+    # the deprecated sonar.login conflict.
+    if SONAR_TOKEN= $SCANNER \
+        -Dsonar.host.url="$SONAR_HOST" \
+        -Dsonar.token="$SONAR_TOKEN" \
+        -Dsonar.qualitygate.wait=false \
+        2>&1 | sed 's/^/  /'; then
+      SCAN_OK=true
+      printf "${GRN}  ✓ Analysis pushed successfully${RST}\n"
+    else
+      printf "${YEL}  ⚠ Scanner exited with errors — continuing to fetch results${RST}\n"
+      SCAN_OK=true  # still fetch — partial results are useful
+    fi
+
+    # SonarCloud needs time to process the uploaded report
+    printf "  Waiting 15s for SonarCloud to finalize…\n"
+    sleep 15
+  fi
+
+  # ── 3b. Fetch fresh issues from the API ──────────────────────────────────
   printf "  Fetching issues from %s…\n" "$SONAR_HOST"
 
   if [ -f scripts/fetch-sonar-issues.py ]; then
@@ -177,7 +219,8 @@ else
         --argjson bySeverity "$SONAR_BY_SEV" \
         --argjson byType "$SONAR_BY_TYPE" \
         --argjson issues "$SONAR_COMPACT" \
-        '{skipped:false,total:$total,bySeverity:$bySeverity,byType:$byType,issues:$issues}' \
+        --argjson scanned "$([ "$SKIP_SCAN" = true ] && echo false || echo true)" \
+        '{skipped:false,scanned:$scanned,total:$total,bySeverity:$bySeverity,byType:$byType,issues:$issues}' \
         > "$SONAR_JSON"
 
       BLOCKERS=$(echo "$SONAR_BY_SEV" | jq '.BLOCKER // 0')
@@ -193,11 +236,11 @@ else
       fi
     else
       printf "${RED}  ✗ Failed to fetch issues${RST}\n"
-      printf '{"skipped":true,"reason":"fetch failed","total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
+      printf '{"skipped":true,"reason":"fetch failed","scanned":false,"total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
     fi
   else
     printf "${RED}  ✗ scripts/fetch-sonar-issues.py not found${RST}\n"
-    printf '{"skipped":true,"reason":"script missing","total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
+    printf '{"skipped":true,"reason":"script missing","scanned":false,"total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
   fi
 fi
 
@@ -231,26 +274,28 @@ header "Writing Report"
 
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
+# Use file-based inputs to avoid "Argument list too long" when SonarCloud
+# returns hundreds of issues (which can exceed shell argument limits).
 jq -n \
   --arg ts "$TIMESTAMP" \
-  --argjson tsc "$(cat "$TSC_JSON")" \
-  --argjson eslint "$(cat "$ESLINT_JSON")" \
-  --argjson sonar "$(cat "$SONAR_JSON")" \
-  --argjson metrics "$(cat "$METRICS_JSON")" \
   --argjson totalIssues "$TOTAL_ISSUES" \
+  --slurpfile tsc "$TSC_JSON" \
+  --slurpfile eslint "$ESLINT_JSON" \
+  --slurpfile sonar "$SONAR_JSON" \
+  --slurpfile metrics "$METRICS_JSON" \
   '{
     timestamp: $ts,
     summary: {
       totalIssues: $totalIssues,
-      tscErrors: $tsc.errorCount,
-      eslintErrors: $eslint.errorCount,
-      eslintWarnings: $eslint.warningCount,
-      sonarIssues: $sonar.total
+      tscErrors: $tsc[0].errorCount,
+      eslintErrors: $eslint[0].errorCount,
+      eslintWarnings: $eslint[0].warningCount,
+      sonarIssues: $sonar[0].total
     },
-    typescript: $tsc,
-    eslint: $eslint,
-    sonarcloud: $sonar,
-    metrics: $metrics
+    typescript: $tsc[0],
+    eslint: $eslint[0],
+    sonarcloud: $sonar[0],
+    metrics: $metrics[0]
   }' > "$REPORT_FILE"
 
 printf "  ${GRN}→ %s${RST}\n" "$REPORT_FILE"
