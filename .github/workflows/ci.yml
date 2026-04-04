@@ -2,7 +2,7 @@ name: CI — Build & Lint
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [main, master, develop, 'fix/**', 'feat/**']
   pull_request:
     branches: [main, master, develop]
 
@@ -161,28 +161,23 @@ jobs:
     name: SonarQube
     needs: [typecheck, lint]
     runs-on: ubuntu-latest
+    # Only run when SONAR_TOKEN is configured in repository secrets.
+    # Without a token the scanner cannot authenticate — skip gracefully.
+    if: ${{ secrets.SONAR_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - uses: SonarSource/sonarqube-scan-action@v5
+      - uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          args: >
-            -Dsonar.projectKey=notion-database-sys
-            -Dsonar.sources=src,packages,playground,services/dbms
-            -Dsonar.inclusions=**/*.ts,**/*.tsx
-            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,src/lib/engine/**,src/lib/libcpp/**,vendor/**,**/pkg/**
-            -Dsonar.qualitygate.wait=false
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'https://sonarcloud.io' }}
 
       - name: SonarQube Quality Gate
-        if: always()
         uses: SonarSource/sonarqube-quality-gate-action@v1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'https://sonarcloud.io' }}
         timeout-minutes: 5
