@@ -130,3 +130,4 @@ The API server also reads:
 ## Tech stack
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · Zustand · Fastify · Mongoose · @fastify/jwt · @fastify/websocket · Rust/WASM · Docker · pnpm workspaces · Turborepo
+test
