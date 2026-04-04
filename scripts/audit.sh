@@ -1,0 +1,275 @@
+#!/usr/bin/env bash
+# scripts/audit.sh
+#
+# Unified code quality audit.
+# Runs TypeScript type-check, ESLint, and fetches SonarCloud issues,
+# then writes a combined JSON report to audit-report.json.
+#
+# No Docker required — SonarCloud issues are pulled via REST API.
+#
+# Usage:
+#   bash scripts/audit.sh           # full audit
+#   bash scripts/audit.sh --fix     # run ESLint with --fix
+#
+# Output:
+#   audit-report.json  — machine-readable combined report
+#
+# Exit codes: 0 = clean, 1 = issues found
+set -uo pipefail
+cd "$(dirname "$0")/.."
+
+# ── Load .env if present ──────────────────────────────────────────────────────
+if [ -f .env ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+
+# ── Options ───────────────────────────────────────────────────────────────────
+FIX_FLAG=""
+[[ "${1:-}" == "--fix" ]] && FIX_FLAG="--fix"
+
+# ── Colors ────────────────────────────────────────────────────────────────────
+RED='\033[0;31m'
+YEL='\033[0;33m'
+GRN='\033[0;32m'
+CYN='\033[0;36m'
+RST='\033[0m'
+
+REPORT_FILE="audit-report.json"
+TOTAL_ISSUES=0
+
+header() { printf "\n${CYN}═══ %s ═══${RST}\n" "$1"; }
+
+# ── Temp files for collecting JSON fragments ──────────────────────────────────
+TSC_JSON=$(mktemp)
+ESLINT_JSON=$(mktemp)
+SONAR_JSON=$(mktemp)
+METRICS_JSON=$(mktemp)
+trap 'rm -f "$TSC_JSON" "$ESLINT_JSON" "$SONAR_JSON" "$METRICS_JSON"' EXIT
+
+# =============================================================================
+# 1. TypeScript
+# =============================================================================
+header "TypeScript (tsc --noEmit)"
+
+# Build packages first so cross-package imports resolve
+pnpm turbo run build --filter='./packages/*' >/dev/null 2>&1 || true
+
+TSC_OUT=$(pnpm tsc --noEmit 2>&1 || true)
+TSC_ERRORS=0
+
+if echo "$TSC_OUT" | grep -q "error TS"; then
+  TSC_ITEMS=$(echo "$TSC_OUT" | grep "error TS" | head -200 | while IFS= read -r line; do
+    file=$(echo "$line" | sed 's/(.*//')
+    code=$(echo "$line" | grep -oP 'error TS\d+' || echo "TS????")
+    msg=$(echo "$line" | sed 's/.*: error TS[0-9]*: //')
+    printf '{"file":"%s","code":"%s","message":"%s"}\n' \
+      "$(echo "$file" | sed 's/"/\\"/g')" \
+      "$code" \
+      "$(echo "$msg" | sed 's/"/\\"/g')"
+  done | jq -s '.')
+  TSC_ERRORS=$(echo "$TSC_ITEMS" | jq 'length')
+  printf "${RED}  ✗ %d type errors${RST}\n" "$TSC_ERRORS"
+  echo "$TSC_OUT" | grep "error TS" | head -10
+else
+  TSC_ITEMS="[]"
+  printf "${GRN}  ✓ 0 type errors${RST}\n"
+fi
+
+printf '{"errorCount":%d,"errors":%s}\n' "$TSC_ERRORS" "$TSC_ITEMS" > "$TSC_JSON"
+TOTAL_ISSUES=$((TOTAL_ISSUES + TSC_ERRORS))
+
+# =============================================================================
+# 2. ESLint
+# =============================================================================
+header "ESLint"
+
+ESLINT_DIRS="src/ packages/ playground/ services/dbms/"
+
+# Run ESLint with JSON formatter for machine-readable output
+ESLINT_RAW=$(pnpm eslint $ESLINT_DIRS --format json $FIX_FLAG 2>/dev/null || true)
+
+ESLINT_ERR_COUNT=0
+ESLINT_WARN_COUNT=0
+ESLINT_MESSAGES="[]"
+
+if echo "$ESLINT_RAW" | jq empty 2>/dev/null; then
+  ESLINT_ERR_COUNT=$(echo "$ESLINT_RAW" | jq '[.[].errorCount] | add // 0')
+  ESLINT_WARN_COUNT=$(echo "$ESLINT_RAW" | jq '[.[].warningCount] | add // 0')
+
+  ESLINT_MESSAGES=$(echo "$ESLINT_RAW" | jq '
+    [ .[] | select(.messages | length > 0) |
+      .filePath as $f |
+      .messages[] |
+      {
+        file: ($f | sub(".*/notion-database-sys/"; "")),
+        line: .line,
+        column: .column,
+        severity: (if .severity == 2 then "error" else "warning" end),
+        rule: (.ruleId // "unknown"),
+        message: .message
+      }
+    ]')
+
+  if [ "$ESLINT_ERR_COUNT" -gt 0 ] || [ "$ESLINT_WARN_COUNT" -gt 0 ]; then
+    printf "${RED}  ✗ %d errors, %d warnings${RST}\n" "$ESLINT_ERR_COUNT" "$ESLINT_WARN_COUNT"
+    echo "$ESLINT_MESSAGES" | jq -r '.[:10][] | "  \(.severity): \(.file):\(.line) — \(.rule): \(.message)"'
+  else
+    printf "${GRN}  ✓ 0 errors, 0 warnings${RST}\n"
+  fi
+else
+  printf "${GRN}  ✓ 0 errors, 0 warnings${RST}\n"
+fi
+
+printf '{"errorCount":%d,"warningCount":%d,"messages":%s}\n' \
+  "$ESLINT_ERR_COUNT" "$ESLINT_WARN_COUNT" "$ESLINT_MESSAGES" > "$ESLINT_JSON"
+TOTAL_ISSUES=$((TOTAL_ISSUES + ESLINT_ERR_COUNT))
+
+# =============================================================================
+# 3. SonarCloud (API fetch — no Docker needed)
+# =============================================================================
+header "SonarCloud"
+
+SONAR_TOKEN="${SONAR_TOKEN:-}"
+SONAR_HOST="${SONAR_HOST_URL:-https://sonarcloud.io}"
+SONAR_PROJECT="${SONAR_PROJECT_KEY:-Univers42_notion-database-sys}"
+SONAR_TOTAL=0
+
+if [ -z "$SONAR_TOKEN" ]; then
+  printf "${YEL}  ⚠ SONAR_TOKEN not set — skipping SonarCloud fetch${RST}\n"
+  printf "${YEL}    Set it in .env or export SONAR_TOKEN=...${RST}\n"
+  printf '{"skipped":true,"reason":"SONAR_TOKEN not set","total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
+else
+  printf "  Fetching issues from %s…\n" "$SONAR_HOST"
+
+  if [ -f scripts/fetch-sonar-issues.py ]; then
+    OUTPUT_DIR="." SONAR_TOKEN="$SONAR_TOKEN" SONAR_HOST_URL="$SONAR_HOST" \
+      python3 scripts/fetch-sonar-issues.py 2>&1 | sed 's/^/  /'
+
+    if [ -f sonarcloud-issues.json ]; then
+      SONAR_TOTAL=$(jq '.total // 0' sonarcloud-issues.json)
+
+      SONAR_BY_SEV=$(jq '
+        [.issues[].severity] | group_by(.) |
+        map({key: .[0], value: length}) |
+        from_entries' sonarcloud-issues.json)
+
+      SONAR_BY_TYPE=$(jq '
+        [.issues[].type] | group_by(.) |
+        map({key: .[0], value: length}) |
+        from_entries' sonarcloud-issues.json)
+
+      SONAR_COMPACT=$(jq '
+        [.issues[] | {
+          file: (.component | sub(".*:"; "")),
+          line: .line,
+          severity: .severity,
+          type: .type,
+          rule: .rule,
+          message: .message,
+          effort: .effort
+        }]' sonarcloud-issues.json)
+
+      jq -n \
+        --argjson total "$SONAR_TOTAL" \
+        --argjson bySeverity "$SONAR_BY_SEV" \
+        --argjson byType "$SONAR_BY_TYPE" \
+        --argjson issues "$SONAR_COMPACT" \
+        '{skipped:false,total:$total,bySeverity:$bySeverity,byType:$byType,issues:$issues}' \
+        > "$SONAR_JSON"
+
+      BLOCKERS=$(echo "$SONAR_BY_SEV" | jq '.BLOCKER // 0')
+      CRITICALS=$(echo "$SONAR_BY_SEV" | jq '.CRITICAL // 0')
+      MAJORS=$(echo "$SONAR_BY_SEV" | jq '.MAJOR // 0')
+      MINORS=$(echo "$SONAR_BY_SEV" | jq '.MINOR // 0')
+
+      if [ "$SONAR_TOTAL" -gt 0 ]; then
+        printf "${YEL}  ⚠ %d issues: %d blockers, %d critical, %d major, %d minor${RST}\n" \
+          "$SONAR_TOTAL" "$BLOCKERS" "$CRITICALS" "$MAJORS" "$MINORS"
+      else
+        printf "${GRN}  ✓ 0 issues${RST}\n"
+      fi
+    else
+      printf "${RED}  ✗ Failed to fetch issues${RST}\n"
+      printf '{"skipped":true,"reason":"fetch failed","total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
+    fi
+  else
+    printf "${RED}  ✗ scripts/fetch-sonar-issues.py not found${RST}\n"
+    printf '{"skipped":true,"reason":"script missing","total":0,"issues":[],"bySeverity":{},"byType":{}}\n' > "$SONAR_JSON"
+  fi
+fi
+
+TOTAL_ISSUES=$((TOTAL_ISSUES + SONAR_TOTAL))
+
+# =============================================================================
+# 4. Code Metrics
+# =============================================================================
+header "Code Metrics"
+
+FILE_COUNT=$(find src packages playground -name '*.ts' -o -name '*.tsx' 2>/dev/null | wc -l)
+LARGEST=$(find src packages playground -name '*.ts' -o -name '*.tsx' -exec wc -l {} + 2>/dev/null \
+  | sort -rn | head -2 | tail -1 | awk '{print $1, $2}')
+OVER_200=$(find src packages playground -name '*.ts' -o -name '*.tsx' -exec wc -l {} + 2>/dev/null \
+  | awk '$1 > 200 && !/total$/' | wc -l)
+SUPPRESSIONS=$(grep -rl "eslint-disable\|@ts-ignore\|@ts-nocheck\|@ts-expect-error" \
+  src/ packages/ playground/ --include='*.ts' --include='*.tsx' 2>/dev/null | wc -l || echo 0)
+
+printf "  Files:               %d\n" "$FILE_COUNT"
+printf "  Largest file:        %s\n" "$LARGEST"
+printf "  Files > 200 lines:   %d\n" "$OVER_200"
+printf "  Suppression comments:%d files\n" "$SUPPRESSIONS"
+
+printf '{"fileCount":%d,"filesOver200Lines":%d,"suppressionFiles":%d}\n' \
+  "$FILE_COUNT" "$OVER_200" "$SUPPRESSIONS" > "$METRICS_JSON"
+
+# =============================================================================
+# 5. Assemble final JSON report
+# =============================================================================
+header "Writing Report"
+
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+jq -n \
+  --arg ts "$TIMESTAMP" \
+  --argjson tsc "$(cat "$TSC_JSON")" \
+  --argjson eslint "$(cat "$ESLINT_JSON")" \
+  --argjson sonar "$(cat "$SONAR_JSON")" \
+  --argjson metrics "$(cat "$METRICS_JSON")" \
+  --argjson totalIssues "$TOTAL_ISSUES" \
+  '{
+    timestamp: $ts,
+    summary: {
+      totalIssues: $totalIssues,
+      tscErrors: $tsc.errorCount,
+      eslintErrors: $eslint.errorCount,
+      eslintWarnings: $eslint.warningCount,
+      sonarIssues: $sonar.total
+    },
+    typescript: $tsc,
+    eslint: $eslint,
+    sonarcloud: $sonar,
+    metrics: $metrics
+  }' > "$REPORT_FILE"
+
+printf "  ${GRN}→ %s${RST}\n" "$REPORT_FILE"
+
+# =============================================================================
+# Summary
+# =============================================================================
+header "Summary"
+printf "  TypeScript errors:   %d\n" "$TSC_ERRORS"
+printf "  ESLint errors:       %d\n" "$ESLINT_ERR_COUNT"
+printf "  ESLint warnings:     %d\n" "$ESLINT_WARN_COUNT"
+printf "  SonarCloud issues:   %d\n" "$SONAR_TOTAL"
+printf "  ────────────────────────\n"
+printf "  Total issues:        %d\n" "$TOTAL_ISSUES"
+
+if [ "$TSC_ERRORS" -eq 0 ] && [ "$ESLINT_ERR_COUNT" -eq 0 ] && [ "$SONAR_TOTAL" -eq 0 ]; then
+  printf "\n${GRN}  ✓ AUDIT PASSED — no blocking issues${RST}\n\n"
+  exit 0
+else
+  printf "\n${YEL}  ⚠ AUDIT COMPLETE — %d issues logged to %s${RST}\n\n" "$TOTAL_ISSUES" "$REPORT_FILE"
+  exit 1
+fi
