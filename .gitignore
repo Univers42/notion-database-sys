@@ -35,3 +35,6 @@ generate-history.sh
 
 # Rust CLI tools build artifacts
 src/lib/rust/*/target/
+
+# SonarQube scanner working directory
+.scannerwork/

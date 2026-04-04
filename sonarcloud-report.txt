@@ -1,0 +1,3624 @@
+# SonarCloud Issue Report
+# Project: Univers42_notion-database-sys
+# Host: https://sonarcloud.io
+# Total open issues: 451
+# Generated: 2026-04-04T17:15:09Z
+
+## Summary by Severity
+  BLOCKER   : 1
+  CRITICAL  : 39
+  MAJOR     : 132
+  MINOR     : 278
+  INFO      : 1
+
+## Summary by Type
+  BUG                 : 22
+  VULNERABILITY       : 3
+  CODE_SMELL          : 426
+
+====================================================================================================
+
+[  1] BLOCKER | CODE_SMELL
+      File:    src/components/views/table/useFillDrag.ts:37
+      Rule:    typescript:S3516
+      Message: Refactor this function to not always return the same value.
+      Effort:  6min  Status: OPEN
+      Created: 2026-04-01T18:09:36+0000
+
+[  2] CRITICAL | CODE_SMELL
+      File:    playground/src/hooks/usePlaygroundBlockEditor.ts:104
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 27 to the 15 allowed.
+      Effort:  17min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T23:59:02+0000
+
+[  3] CRITICAL | CODE_SMELL
+      File:    playground/src/store/usePageStore.ts:376
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T23:59:02+0000
+
+[  4] CRITICAL | CODE_SMELL
+      File:    playground/src/store/usePageStore.ts:386
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T23:59:02+0000
+
+[  5] CRITICAL | CODE_SMELL
+      File:    playground/src/store/usePageStore.ts:399
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T23:59:02+0000
+
+[  6] CRITICAL | CODE_SMELL
+      File:    playground/src/store/usePageStore.ts:409
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T23:59:02+0000
+
+[  7] CRITICAL | CODE_SMELL
+      File:    services/dbms/inferSchema.ts:34
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed.
+      Effort:  9min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:25:14+0000
+
+[  8] CRITICAL | CODE_SMELL
+      File:    services/dbms/smoke-test.ts:47
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.
+      Effort:  8min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:25:14+0000
+
+[  9] CRITICAL | CODE_SMELL
+      File:    src/components/views/board/BoardCardHelpers.tsx:32
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.
+      Effort:  6min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T15:10:18+0000
+
+[ 10] CRITICAL | CODE_SMELL
+      File:    src/components/views/dashboard/DashboardView.tsx:54
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-01T02:33:36+0000
+
+[ 11] CRITICAL | BUG
+      File:    src/components/views/dashboard/MultiLineChart.tsx:60
+      Rule:    typescript:S2871
+      Message: Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.
+      Effort:  10min  Status: OPEN
+      Tags:    bad-practice, type-dependent
+      Created: 2026-04-01T15:31:12+0000
+
+[ 12] CRITICAL | CODE_SMELL
+      File:    src/components/views/feed/FeedView.tsx:115
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-22T19:05:39+0000
+
+[ 13] CRITICAL | CODE_SMELL
+      File:    src/components/views/gallery/GalleryViewHelpers.tsx:21
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed.
+      Effort:  9min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T15:10:18+0000
+
+[ 14] CRITICAL | CODE_SMELL
+      File:    src/components/views/list/ListView.tsx:67
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T10:34:06+0000
+
+[ 15] CRITICAL | CODE_SMELL
+      File:    src/components/views/table/useTableKeyboard.ts:37
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 26 to the 15 allowed.
+      Effort:  16min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T10:34:06+0000
+
+[ 16] CRITICAL | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:89
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.
+      Effort:  6min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T17:55:00+0000
+
+[ 17] CRITICAL | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:274
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed.
+      Effort:  15min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T17:55:00+0000
+
+[ 18] CRITICAL | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:547
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 21 to the 15 allowed.
+      Effort:  11min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T00:32:56+0000
+
+[ 19] CRITICAL | CODE_SMELL
+      File:    src/hooks/useBlockEditor.ts:113
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 27 to the 15 allowed.
+      Effort:  17min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-01T19:36:00+0000
+
+[ 20] CRITICAL | CODE_SMELL
+      File:    src/lib/filter/evaluateFilter.ts:18
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.
+      Effort:  6min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-31T07:46:00+0000
+
+[ 21] CRITICAL | CODE_SMELL
+      File:    src/lib/markdown/parser.ts:24
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 37 to the 15 allowed.
+      Effort:  27min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T10:34:06+0000
+
+[ 22] CRITICAL | CODE_SMELL
+      File:    src/lib/markdown/parserBlockHelpers.ts:160
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 33 to the 15 allowed.
+      Effort:  23min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-31T08:14:00+0000
+
+[ 23] CRITICAL | CODE_SMELL
+      File:    src/lib/markdown/parserBlockNested.ts:87
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 22 to the 15 allowed.
+      Effort:  12min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-31T08:20:00+0000
+
+[ 24] CRITICAL | CODE_SMELL
+      File:    src/lib/markdown/parserBlockNested.ts:152
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 22 to the 15 allowed.
+      Effort:  12min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-31T08:20:00+0000
+
+[ 25] CRITICAL | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:4
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 33 to the 15 allowed.
+      Effort:  23min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-31T08:02:00+0000
+
+[ 26] CRITICAL | CODE_SMELL
+      File:    src/lib/markdown/shortcutsDetect.ts:61
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 21 to the 15 allowed.
+      Effort:  11min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-31T08:30:00+0000
+
+[ 27] CRITICAL | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:37
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed.
+      Effort:  10min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-01T20:48:00+0000
+
+[ 28] CRITICAL | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:165
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.
+      Effort:  7min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T00:32:31+0000
+
+[ 29] CRITICAL | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:290
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.
+      Effort:  7min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:25:14+0000
+
+[ 30] CRITICAL | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:325
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 30 to the 15 allowed.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:25:14+0000
+
+[ 31] CRITICAL | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:378
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.
+      Effort:  6min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:25:14+0000
+
+[ 32] CRITICAL | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:440
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 181 to the 15 allowed.
+      Effort:  2h51min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-03T00:32:31+0000
+
+[ 33] CRITICAL | CODE_SMELL
+      File:    src/server/fileWatcher.ts:75
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.
+      Effort:  6min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:25:14+0000
+
+[ 34] CRITICAL | CODE_SMELL
+      File:    src/server/fileWatcher.ts:108
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 22 to the 15 allowed.
+      Effort:  12min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:44:24+0000
+
+[ 35] CRITICAL | CODE_SMELL
+      File:    src/server/fileWatcher.ts:152
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 31 to the 15 allowed.
+      Effort:  21min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:44:24+0000
+
+[ 36] CRITICAL | CODE_SMELL
+      File:    src/server/ops/helpers.ts:14
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.
+      Effort:  6min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:44:24+0000
+
+[ 37] CRITICAL | CODE_SMELL
+      File:    src/store/slices/databaseSlice.ts:135
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T10:34:06+0000
+
+[ 38] CRITICAL | CODE_SMELL
+      File:    src/store/slices/storeHelpers.ts:115
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.
+      Effort:  7min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-03-31T10:16:00+0000
+
+[ 39] CRITICAL | CODE_SMELL
+      File:    src/store/useDatabaseStore.ts:95
+      Rule:    typescript:S3776
+      Message: Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed.
+      Effort:  9min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T20:56:34+0000
+
+[ 40] CRITICAL | CODE_SMELL
+      File:    src/store/useDatabaseStore.ts:172
+      Rule:    typescript:S2004
+      Message: Refactor this code to not nest functions more than 4 levels deep.
+      Effort:  20min  Status: OPEN
+      Tags:    brain-overload
+      Created: 2026-04-02T15:25:14+0000
+
+[ 41] MAJOR | CODE_SMELL
+      File:    packages/api/src/index.ts:31
+      Rule:    typescript:S7785
+      Message: Prefer top-level await over an async function `main` call.
+      Effort:  5min  Status: OPEN
+      Tags:    async, es2022, esm-only, modernize
+      Created: 2026-04-03T17:50:03+0000
+
+[ 42] MAJOR | CODE_SMELL
+      File:    packages/types/src/common.ts:14
+      Rule:    typescript:S6564
+      Message: Remove this redundant type alias and replace its occurrences with "string".
+      Effort:  5min  Status: OPEN
+      Created: 2026-04-03T17:42:29+0000
+
+[ 43] MAJOR | CODE_SMELL
+      File:    packages/types/src/common.ts:17
+      Rule:    typescript:S6564
+      Message: Remove this redundant type alias and replace its occurrences with "string".
+      Effort:  5min  Status: OPEN
+      Created: 2026-04-03T17:42:29+0000
+
+[ 44] MAJOR | CODE_SMELL
+      File:    packages/types/src/common.ts:21
+      Rule:    typescript:S6564
+      Message: Remove this redundant type alias and replace its occurrences with "any".
+      Effort:  5min  Status: OPEN
+      Created: 2026-04-03T17:42:29+0000
+
+[ 45] MAJOR | CODE_SMELL
+      File:    playground/src/components/MainContent.tsx:128
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[ 46] MAJOR | CODE_SMELL
+      File:    playground/src/components/MainContent.tsx:143
+      Rule:    typescript:S6847
+      Message: Non-interactive elements should not be assigned mouse or keyboard event listeners.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T23:59:02+0000
+
+[ 47] MAJOR | CODE_SMELL
+      File:    playground/src/components/MainContent.tsx:143
+      Rule:    typescript:S6850
+      Message: Headings must have content and the content must be accessible by a screen reader.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T23:59:02+0000
+
+[ 48] MAJOR | CODE_SMELL
+      File:    playground/src/components/PageBlocksRenderer.tsx:192
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T23:59:02+0000
+
+[ 49] MAJOR | CODE_SMELL
+      File:    playground/src/components/PlaygroundPageEditor.tsx:76
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T23:59:02+0000
+
+[ 50] MAJOR | CODE_SMELL
+      File:    playground/src/components/sidebar/PageTreeItem.tsx:89
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T20:23:34+0000
+
+[ 51] MAJOR | CODE_SMELL
+      File:    playground/src/components/sidebar/PageTreeItem.tsx:114
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T20:23:34+0000
+
+[ 52] MAJOR | CODE_SMELL
+      File:    playground/src/components/sidebar/PageTreeItem.tsx:121
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T20:23:34+0000
+
+[ 53] MAJOR | CODE_SMELL
+      File:    playground/src/components/sidebar/SidebarNavItem.tsx:45
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T23:59:02+0000
+
+[ 54] MAJOR | CODE_SMELL
+      File:    playground/src/components/sidebar/UserSwitcherPanel.tsx:76
+      Rule:    typescript:S2681
+      Message: This statement will not be executed conditionally; only the first statement will be. The rest will execute unconditionally.
+      Effort:  5min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-04-03T20:23:34+0000
+
+[ 55] MAJOR | CODE_SMELL
+      File:    playground/src/main.tsx:22
+      Rule:    typescript:S7785
+      Message: Prefer top-level await over using a promise chain.
+      Effort:  5min  Status: OPEN
+      Tags:    async, es2022, esm-only, modernize
+      Created: 2026-04-03T20:23:34+0000
+
+[ 56] MAJOR | VULNERABILITY
+      File:    playground/src/store/useUserStore.ts:68
+      Rule:    typescript:S2068
+      Message: Review this potentially hard-coded password.
+      Effort:  30min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-04-03T20:23:34+0000
+
+[ 57] MAJOR | VULNERABILITY
+      File:    playground/src/store/useUserStore.ts:76
+      Rule:    typescript:S2068
+      Message: Review this potentially hard-coded password.
+      Effort:  30min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-04-03T20:23:34+0000
+
+[ 58] MAJOR | VULNERABILITY
+      File:    playground/src/store/useUserStore.ts:84
+      Rule:    typescript:S2068
+      Message: Review this potentially hard-coded password.
+      Effort:  30min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-04-03T20:23:34+0000
+
+[ 59] MAJOR | CODE_SMELL
+      File:    services/dbms/CsvDbAdapter.ts:37
+      Rule:    typescript:S2933
+      Message: Member 'basePath' is never reassigned; mark it as `readonly`.
+      Effort:  2min  Status: OPEN
+      Tags:    confusing, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[ 60] MAJOR | CODE_SMELL
+      File:    services/dbms/JsonDbAdapter.ts:39
+      Rule:    typescript:S2933
+      Message: Member 'basePath' is never reassigned; mark it as `readonly`.
+      Effort:  2min  Status: OPEN
+      Tags:    confusing, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[ 61] MAJOR | CODE_SMELL
+      File:    services/dbms/smoke-test.ts:84
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[ 62] MAJOR | CODE_SMELL
+      File:    services/dbms/smoke-test.ts:137
+      Rule:    typescript:S7785
+      Message: Prefer top-level await over using a promise chain.
+      Effort:  5min  Status: OPEN
+      Tags:    async, es2022, esm-only, modernize
+      Created: 2026-04-02T15:25:14+0000
+
+[ 63] MAJOR | CODE_SMELL
+      File:    src/App.tsx:65
+      Rule:    typescript:S7761
+      Message: Prefer `.dataset` over `setAttribute(…)`.
+      Effort:  5min  Status: OPEN
+      Tags:    api, dom, html
+      Created: 2026-04-02T15:25:14+0000
+
+[ 64] MAJOR | CODE_SMELL
+      File:    src/components/DbSourceDropdown.tsx:55
+      Rule:    typescript:S7761
+      Message: Prefer `.dataset` over `setAttribute(…)`.
+      Effort:  5min  Status: OPEN
+      Tags:    api, dom, html
+      Created: 2026-04-02T15:25:14+0000
+
+[ 65] MAJOR | CODE_SMELL
+      File:    src/components/PageContentEditorHelpers.tsx:67
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:12+0000
+
+[ 66] MAJOR | CODE_SMELL
+      File:    src/components/PageContentEditorHelpers.tsx:149
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:12+0000
+
+[ 67] MAJOR | CODE_SMELL
+      File:    src/components/PageContentEditorHelpers.tsx:167
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:12+0000
+
+[ 68] MAJOR | CODE_SMELL
+      File:    src/components/PageModal.tsx:55
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:12+0000
+
+[ 69] MAJOR | CODE_SMELL
+      File:    src/components/TopBar.tsx:77
+      Rule:    typescript:S2681
+      Message: This statement will not be executed conditionally; only the first statement will be. The rest will execute unconditionally.
+      Effort:  5min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-03-31T23:40:48+0000
+
+[ 70] MAJOR | CODE_SMELL
+      File:    src/components/TopBar.tsx:113
+      Rule:    typescript:S2681
+      Message: This statement will not be executed conditionally; only the first statement will be. The rest will execute unconditionally.
+      Effort:  5min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-03-31T23:40:48+0000
+
+[ 71] MAJOR | CODE_SMELL
+      File:    src/components/TopBar.tsx:198
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:12+0000
+
+[ 72] MAJOR | CODE_SMELL
+      File:    src/components/blocks/ColumnResizeHandle.tsx:44
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:55+0000
+
+[ 73] MAJOR | CODE_SMELL
+      File:    src/components/blocks/EditableContent.tsx:66
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:55+0000
+
+[ 74] MAJOR | CODE_SMELL
+      File:    src/components/blocks/SpacerBlock.tsx:52
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:55+0000
+
+[ 75] MAJOR | CODE_SMELL
+      File:    src/components/cellEditors/CellPortal.tsx:40
+      Rule:    typescript:S6847
+      Message: Non-interactive elements should not be assigned mouse or keyboard event listeners.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:08:58+0000
+
+[ 76] MAJOR | CODE_SMELL
+      File:    src/components/cellEditors/CellPortal.tsx:40
+      Rule:    typescript:S6819
+      Message: Use <dialog> instead of the "dialog" role to ensure accessibility across all devices.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:08:58+0000
+
+[ 77] MAJOR | CODE_SMELL
+      File:    src/components/formulaEditor/DocPanel.tsx:114
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-01T11:26:24+0000
+
+[ 78] MAJOR | CODE_SMELL
+      File:    src/components/pageModal/PeekViews.tsx:27
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:22+0000
+
+[ 79] MAJOR | CODE_SMELL
+      File:    src/components/pageModal/PeekViews.tsx:50
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:22+0000
+
+[ 80] MAJOR | CODE_SMELL
+      File:    src/components/pageModal/PeekViews.tsx:77
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:22+0000
+
+[ 81] MAJOR | CODE_SMELL
+      File:    src/components/propertyConfig/IdFormatConfig.tsx:65
+      Rule:    typescript:S6853
+      Message: A form label must be associated with a control.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:42+0000
+
+[ 82] MAJOR | CODE_SMELL
+      File:    src/components/topBar/FilterSortPanels.tsx:68
+      Rule:    typescript:S2681
+      Message: This statement will not be executed conditionally; only the first statement will be. The rest will execute unconditionally.
+      Effort:  5min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-03-31T14:10:00+0000
+
+[ 83] MAJOR | CODE_SMELL
+      File:    src/components/topBar/ViewTabsRow.tsx:91
+      Rule:    typescript:S2681
+      Message: This statement will not be executed conditionally; only the first statement will be. The rest will execute unconditionally.
+      Effort:  5min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-03-31T14:10:00+0000
+
+[ 84] MAJOR | CODE_SMELL
+      File:    src/components/topBar/ViewTabsRow.tsx:92
+      Rule:    typescript:S2681
+      Message: This statement will not be executed conditionally; only the first statement will be. The rest will execute unconditionally.
+      Effort:  5min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-03-31T14:10:00+0000
+
+[ 85] MAJOR | CODE_SMELL
+      File:    src/components/ui/ActionPanelRows.tsx:34
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:08:20+0000
+
+[ 86] MAJOR | CODE_SMELL
+      File:    src/components/ui/ActionPanelRows.tsx:96
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:08:20+0000
+
+[ 87] MAJOR | BUG
+      File:    src/components/ui/ToggleSwitch.tsx:45
+      Rule:    typescript:S3923
+      Message: This conditional operation returns the same value whether the condition is "true" or "false".
+      Effort:  15min  Status: OPEN
+      Created: 2026-04-03T14:24:39+0000
+
+[ 88] MAJOR | CODE_SMELL
+      File:    src/components/useFormulaEditorPanel.ts:47
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-31T16:10:00+0000
+
+[ 89] MAJOR | CODE_SMELL
+      File:    src/components/useFormulaEditorPanel.ts:109
+      Rule:    typescript:S2681
+      Message: This statement will not be executed conditionally; only the first statement will be. The rest will execute unconditionally.
+      Effort:  5min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-03-31T16:10:00+0000
+
+[ 90] MAJOR | CODE_SMELL
+      File:    src/components/viewSettings/LayoutScreen.tsx:131
+      Rule:    typescript:S1871
+      Message: This case's code block is the same as the block for the case on line 90.
+      Effort:  10min  Status: OPEN
+      Tags:    design, suspicious
+      Created: 2026-04-01T14:19:12+0000
+
+[ 91] MAJOR | CODE_SMELL
+      File:    src/components/views/board/BoardCardHelpers.tsx:87
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:10:18+0000
+
+[ 92] MAJOR | CODE_SMELL
+      File:    src/components/views/board/BoardCardHelpers.tsx:144
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[ 93] MAJOR | CODE_SMELL
+      File:    src/components/views/board/BoardView.tsx:92
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[ 94] MAJOR | CODE_SMELL
+      File:    src/components/views/calendar/CalendarView.tsx:132
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[ 95] MAJOR | CODE_SMELL
+      File:    src/components/views/calendar/CalendarView.tsx:160
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[ 96] MAJOR | CODE_SMELL
+      File:    src/components/views/chart/DonutPieChart.tsx:66
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-31T14:34:00+0000
+
+[ 97] MAJOR | CODE_SMELL
+      File:    src/components/views/chart/LineChart.tsx:67
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-31T14:34:00+0000
+
+[ 98] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/DashboardView.tsx:101
+      Rule:    typescript:S4043
+      Message: Move this array "sort" operation to a separate statement or replace it with "toSorted".
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-22T18:55:14+0000
+
+[ 99] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/FormulaAnalyticsDashboard.tsx:117
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-27T16:24:56+0000
+
+[100] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/FormulaAnalyticsDashboard.tsx:120
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-27T16:24:56+0000
+
+[101] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/FormulaAnalyticsDashboard.tsx:123
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-27T16:24:56+0000
+
+[102] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/FormulaAnalyticsDashboard.tsx:126
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-27T16:24:56+0000
+
+[103] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:107
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-01T15:31:12+0000
+
+[104] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:114
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-01T15:31:12+0000
+
+[105] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:130
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-01T15:31:12+0000
+
+[106] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:138
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-01T15:31:12+0000
+
+[107] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/widgets/StatWidget.tsx:33
+      Rule:    typescript:S6477
+      Message: Missing "key" prop for element in array
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[108] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/widgets/StatWidget.tsx:33
+      Rule:    typescript:S6477
+      Message: Missing "key" prop for element in array
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[109] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/widgets/StatWidget.tsx:34
+      Rule:    typescript:S6477
+      Message: Missing "key" prop for element in array
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[110] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/widgets/StatWidget.tsx:34
+      Rule:    typescript:S6477
+      Message: Missing "key" prop for element in array
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[111] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/widgets/StatWidget.tsx:35
+      Rule:    typescript:S6477
+      Message: Missing "key" prop for element in array
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[112] MAJOR | CODE_SMELL
+      File:    src/components/views/dashboard/widgets/StatWidget.tsx:35
+      Rule:    typescript:S6477
+      Message: Missing "key" prop for element in array
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[113] MAJOR | CODE_SMELL
+      File:    src/components/views/feed/FeedView.tsx:52
+      Rule:    typescript:S6847
+      Message: Non-interactive elements should not be assigned mouse or keyboard event listeners.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[114] MAJOR | CODE_SMELL
+      File:    src/components/views/feed/FeedView.tsx:63
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:10:18+0000
+
+[115] MAJOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/NumericFormulaCard.tsx:94
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[116] MAJOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/SampleResultsTable.tsx:59
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:10:18+0000
+
+[117] MAJOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/SampleResultsTable.tsx:61
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:10:18+0000
+
+[118] MAJOR | CODE_SMELL
+      File:    src/components/views/relationRollup/RelationRollupTables.tsx:146
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-03-31T13:08:00+0000
+
+[119] MAJOR | CODE_SMELL
+      File:    src/components/views/relationRollup/RelationRollupTables.tsx:158
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:18+0000
+
+[120] MAJOR | CODE_SMELL
+      File:    src/components/views/table/SelectEditors.tsx:62
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:06+0000
+
+[121] MAJOR | CODE_SMELL
+      File:    src/components/views/table/SelectEditors.tsx:136
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:06+0000
+
+[122] MAJOR | CODE_SMELL
+      File:    src/components/views/table/TableHeader.tsx:86
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:06+0000
+
+[123] MAJOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/BasicCellRenderers.tsx:34
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-02T15:25:14+0000
+
+[124] MAJOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/RelationCellRenderers.tsx:48
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:06+0000
+
+[125] MAJOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/RelationCellRenderers.tsx:53
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-03-31T13:34:00+0000
+
+[126] MAJOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/RelationCellRenderers.tsx:87
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:06+0000
+
+[127] MAJOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/RelationCellRenderers.tsx:165
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-04-03T15:10:06+0000
+
+[128] MAJOR | CODE_SMELL
+      File:    src/components/views/table/useFillDrag.ts:31
+      Rule:    typescript:S7761
+      Message: Prefer `.dataset` over `getAttribute(…)`.
+      Effort:  5min  Status: OPEN
+      Tags:    api, dom, html
+      Created: 2026-04-01T18:09:36+0000
+
+[129] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineDatePicker.tsx:225
+      Rule:    typescript:S6847
+      Message: Non-interactive elements should not be assigned mouse or keyboard event listeners.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[130] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineDatePicker.tsx:225
+      Rule:    typescript:S6819
+      Message: Use <dialog> instead of the "dialog" role to ensure accessibility across all devices.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[131] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineDatePicker.tsx:293
+      Rule:    typescript:S6842
+      Message: Non-interactive elements should not be assigned interactive roles.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[132] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:344
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T00:32:56+0000
+
+[133] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:348
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T00:32:56+0000
+
+[134] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:434
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[135] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:514
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:10:18+0000
+
+[136] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:580
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[137] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:592
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[138] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:637
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[139] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:662
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:10:18+0000
+
+[140] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:666
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-03T15:10:18+0000
+
+[141] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:717
+      Rule:    typescript:S6848
+      Message: Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[142] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineViewHelpers.tsx:74
+      Rule:    typescript:S1871
+      Message: This case's code block is the same as the block for the case on line 58.
+      Effort:  10min  Status: OPEN
+      Tags:    design, suspicious
+      Created: 2026-04-03T00:32:56+0000
+
+[143] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineViewHelpers.tsx:92
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[144] MAJOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineViewHelpers.tsx:148
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-04-03T00:32:56+0000
+
+[145] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockHelpers.ts:148
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-31T08:14:00+0000
+
+[146] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/react.tsx:84
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-30T00:42:41+0000
+
+[147] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/react.tsx:91
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-30T00:42:41+0000
+
+[148] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/react.tsx:107
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-30T00:42:41+0000
+
+[149] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/react.tsx:150
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-30T00:42:41+0000
+
+[150] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/reactHelpers.tsx:6
+      Rule:    typescript:S6564
+      Message: Remove this redundant type alias and replace its occurrences with "any".
+      Effort:  5min  Status: OPEN
+      Created: 2026-03-31T08:46:00+0000
+
+[151] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/reactHelpers.tsx:21
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-31T08:46:00+0000
+
+[152] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/reactHelpers.tsx:28
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-31T08:46:00+0000
+
+[153] MAJOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/reactHelpers.tsx:30
+      Rule:    typescript:S6479
+      Message: Do not use Array index in keys
+      Effort:  5min  Status: OPEN
+      Tags:    jsx, performance, react
+      Created: 2026-03-31T08:46:00+0000
+
+[154] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:55
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-04-01T20:48:00+0000
+
+[155] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:69
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-04-01T20:48:00+0000
+
+[156] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRules.ts:30
+      Rule:    typescript:S5843
+      Message: Simplify this regular expression to reduce its complexity from 24 to the 20 allowed.
+      Effort:  16min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:02:00+0000
+
+[157] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRules.ts:130
+      Rule:    typescript:S5843
+      Message: Simplify this regular expression to reduce its complexity from 27 to the 20 allowed.
+      Effort:  22min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:02:00+0000
+
+[158] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRulesExt.ts:18
+      Rule:    typescript:S5843
+      Message: Simplify this regular expression to reduce its complexity from 23 to the 20 allowed.
+      Effort:  14min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:08:00+0000
+
+[159] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRulesExt.ts:56
+      Rule:    typescript:S5843
+      Message: Simplify this regular expression to reduce its complexity from 21 to the 20 allowed.
+      Effort:  10min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:08:00+0000
+
+[160] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRulesExt.ts:60
+      Rule:    typescript:S5843
+      Message: Simplify this regular expression to reduce its complexity from 25 to the 20 allowed.
+      Effort:  18min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:08:00+0000
+
+[161] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRulesMore.ts:11
+      Rule:    typescript:S5843
+      Message: Simplify this regular expression to reduce its complexity from 69 to the 20 allowed.
+      Effort:  1h46min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:12:00+0000
+
+[162] MAJOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRulesMore.ts:12
+      Rule:    typescript:S5843
+      Message: Simplify this regular expression to reduce its complexity from 26 to the 20 allowed.
+      Effort:  20min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:12:00+0000
+
+[163] MAJOR | CODE_SMELL
+      File:    src/main.tsx:50
+      Rule:    typescript:S7785
+      Message: Prefer top-level await over using a promise chain.
+      Effort:  5min  Status: OPEN
+      Tags:    async, es2022, esm-only, modernize
+      Created: 2026-03-22T07:48:14+0000
+
+[164] MAJOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:68
+      Rule:    typescript:S7767
+      Message: Use `Math.trunc` instead of `|= 0`.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing, es2015
+      Created: 2026-03-31T11:24:00+0000
+
+[165] MAJOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:68
+      Rule:    typescript:S7767
+      Message: Use `Math.trunc` instead of `| 0`.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing, es2015
+      Created: 2026-03-31T11:24:00+0000
+
+[166] MAJOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/useThemeStore.ts:37
+      Rule:    typescript:S7761
+      Message: Prefer `.dataset` over `getAttribute(…)`.
+      Effort:  5min  Status: OPEN
+      Tags:    api, dom, html
+      Created: 2026-03-31T17:00:24+0000
+
+[167] MAJOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/useThemeStore.ts:38
+      Rule:    typescript:S7761
+      Message: Prefer `.dataset` over `setAttribute(…)`.
+      Effort:  5min  Status: OPEN
+      Tags:    api, dom, html
+      Created: 2026-03-31T16:26:41+0000
+
+[168] MAJOR | CODE_SMELL
+      File:    src/store/slices/computedSlice.ts:20
+      Rule:    typescript:S7785
+      Message: Prefer top-level await over using a promise chain.
+      Effort:  5min  Status: OPEN
+      Tags:    async, es2022, esm-only, modernize
+      Created: 2026-03-31T10:28:00+0000
+
+[169] MAJOR | CODE_SMELL
+      File:    src/store/slices/databaseSlice.ts:62
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-31T09:40:00+0000
+
+[170] MAJOR | CODE_SMELL
+      File:    src/store/slices/databaseSlice.ts:109
+      Rule:    typescript:S6582
+      Message: Prefer using an optional chain expression instead, as it's more concise and easier to read.
+      Effort:  5min  Status: OPEN
+      Tags:    type-dependent
+      Created: 2026-03-31T09:40:00+0000
+
+[171] MAJOR | CODE_SMELL
+      File:    src/store/useDatabaseStore.ts:134
+      Rule:    typescript:S3358
+      Message: Extract this nested ternary operation into an independent statement.
+      Effort:  5min  Status: OPEN
+      Tags:    confusing
+      Created: 2026-04-02T20:56:34+0000
+
+[172] MAJOR | CODE_SMELL
+      File:    src/types/database.ts:19
+      Rule:    typescript:S6564
+      Message: Remove this redundant type alias and replace its occurrences with "any".
+      Effort:  5min  Status: OPEN
+      Created: 2026-04-02T10:34:06+0000
+
+[173] MINOR | CODE_SMELL
+      File:    packages/api/src/app.ts:30
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-04-03T17:49:00+0000
+
+[174] MINOR | CODE_SMELL
+      File:    packages/api/src/index.ts:16
+      Rule:    typescript:S7773
+      Message: Prefer `Number.parseInt` over `parseInt`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T17:50:03+0000
+
+[175] MINOR | CODE_SMELL
+      File:    packages/api/src/routes/ws.routes.ts:61
+      Rule:    typescript:S6551
+      Message: 'raw' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[176] MINOR | CODE_SMELL
+      File:    packages/core/src/abac/engine.ts:31
+      Rule:    typescript:S4323
+      Message: Replace this union type with a type alias.
+      Effort:  5min  Status: OPEN
+      Tags:    proficiency
+      Created: 2026-04-03T17:46:30+0000
+
+[177] MINOR | CODE_SMELL
+      File:    packages/core/src/services/auth.service.ts:13
+      Rule:    typescript:S7772
+      Message: Prefer `node:crypto` over `crypto`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, import, nodejs
+      Created: 2026-04-03T17:47:16+0000
+
+[178] MINOR | CODE_SMELL
+      File:    playground/src/api/client.ts:27
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-04-03T20:23:34+0000
+
+[179] MINOR | BUG
+      File:    playground/src/components/PageBlocksRenderer.tsx:192
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T23:59:02+0000
+
+[180] MINOR | BUG
+      File:    playground/src/components/PlaygroundPageEditor.tsx:76
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T23:59:02+0000
+
+[181] MINOR | BUG
+      File:    playground/src/components/sidebar/PageTreeItem.tsx:89
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T20:23:34+0000
+
+[182] MINOR | BUG
+      File:    playground/src/components/sidebar/PageTreeItem.tsx:114
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T20:23:34+0000
+
+[183] MINOR | BUG
+      File:    playground/src/components/sidebar/PageTreeItem.tsx:121
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T20:23:34+0000
+
+[184] MINOR | CODE_SMELL
+      File:    playground/src/hooks/usePlaygroundBlockEditor.ts:47
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-03T23:59:02+0000
+
+[185] MINOR | CODE_SMELL
+      File:    playground/src/hooks/usePlaygroundBlockEditor.ts:59
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-03T23:59:02+0000
+
+[186] MINOR | CODE_SMELL
+      File:    playground/src/hooks/usePlaygroundBlockEditor.ts:127
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-03T23:59:02+0000
+
+[187] MINOR | CODE_SMELL
+      File:    playground/src/hooks/usePlaygroundBlockEditor.ts:140
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-03T23:59:02+0000
+
+[188] MINOR | CODE_SMELL
+      File:    playground/src/hooks/usePlaygroundBlockEditor.ts:167
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-04-03T23:59:02+0000
+
+[189] MINOR | CODE_SMELL
+      File:    playground/src/main.tsx:23
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[190] MINOR | CODE_SMELL
+      File:    playground/src/store/usePageStore.ts:154
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis.window` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-03T23:59:02+0000
+
+[191] MINOR | CODE_SMELL
+      File:    playground/src/store/useUserStore.ts:198
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-03T23:59:02+0000
+
+[192] MINOR | CODE_SMELL
+      File:    playground/vite.config.ts:3
+      Rule:    typescript:S7772
+      Message: Prefer `node:path` over `path`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, import, nodejs
+      Created: 2026-04-03T21:08:58+0000
+
+[193] MINOR | CODE_SMELL
+      File:    services/dbms/CsvDbAdapter.ts:141
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[194] MINOR | CODE_SMELL
+      File:    services/dbms/CsvDbAdapter.ts:143
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-02T15:25:14+0000
+
+[195] MINOR | CODE_SMELL
+      File:    services/dbms/MongoDbAdapter.ts:64
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[196] MINOR | CODE_SMELL
+      File:    services/dbms/MongoDbAdapter.ts:76
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[197] MINOR | CODE_SMELL
+      File:    services/dbms/MongoDbAdapter.ts:84
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[198] MINOR | CODE_SMELL
+      File:    services/dbms/MongoDbAdapter.ts:92
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[199] MINOR | CODE_SMELL
+      File:    services/dbms/MongoDbAdapter.ts:105
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[200] MINOR | CODE_SMELL
+      File:    services/dbms/MongoDbAdapter.ts:122
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[201] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:67
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[202] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:83
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[203] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:91
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[204] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:101
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[205] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:119
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[206] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:131
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[207] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:139
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[208] MINOR | CODE_SMELL
+      File:    services/dbms/PostgresDbAdapter.ts:167
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[209] MINOR | CODE_SMELL
+      File:    services/dbms/smoke-test.ts:44
+      Rule:    typescript:S6551
+      Message: 'err' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[210] MINOR | CODE_SMELL
+      File:    src/components/DatabaseView.tsx:15
+      Rule:    typescript:S3863
+      Message: '../hooks/useDatabaseScope' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-04-01T05:55:12+0000
+
+[211] MINOR | CODE_SMELL
+      File:    src/components/DatabaseView.tsx:16
+      Rule:    typescript:S3863
+      Message: '../hooks/useDatabaseScope' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-04-01T05:55:12+0000
+
+[212] MINOR | CODE_SMELL
+      File:    src/components/FormulaEditorPanel.tsx:127
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-04-03T15:09:12+0000
+
+[213] MINOR | CODE_SMELL
+      File:    src/components/FormulaEditorPanel.tsx:141
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-27T15:43:16+0000
+
+[214] MINOR | CODE_SMELL
+      File:    src/components/PageModal.tsx:16
+      Rule:    typescript:S3863
+      Message: './pageModal/PeekViews' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-03-31T14:50:00+0000
+
+[215] MINOR | CODE_SMELL
+      File:    src/components/PageModal.tsx:17
+      Rule:    typescript:S3863
+      Message: './pageModal/PeekViews' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-03-31T14:50:00+0000
+
+[216] MINOR | BUG
+      File:    src/components/PageModal.tsx:55
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:12+0000
+
+[217] MINOR | CODE_SMELL
+      File:    src/components/PropertyRowEditors.tsx:44
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T06:42:00+0000
+
+[218] MINOR | CODE_SMELL
+      File:    src/components/PropertyRowEditors.tsx:62
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T06:42:00+0000
+
+[219] MINOR | CODE_SMELL
+      File:    src/components/TopBar.tsx:183
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[220] MINOR | BUG
+      File:    src/components/TopBar.tsx:198
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:12+0000
+
+[221] MINOR | CODE_SMELL
+      File:    src/components/ViewSettingsPanel.tsx:19
+      Rule:    typescript:S3863
+      Message: './ui/Icons' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-03-22T11:25:59+0000
+
+[222] MINOR | CODE_SMELL
+      File:    src/components/ViewSettingsPanel.tsx:23
+      Rule:    typescript:S3863
+      Message: './ui/Icons' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-03-31T23:55:12+0000
+
+[223] MINOR | CODE_SMELL
+      File:    src/components/blocks/EditableContent.tsx:82
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-29T23:55:51+0000
+
+[224] MINOR | CODE_SMELL
+      File:    src/components/blocks/EditableContent.tsx:83
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-29T23:55:51+0000
+
+[225] MINOR | CODE_SMELL
+      File:    src/components/blocks/EditableContent.tsx:84
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-29T23:55:51+0000
+
+[226] MINOR | CODE_SMELL
+      File:    src/components/blocks/EmbedBlock.tsx:78
+      Rule:    typescript:S1874
+      Message: 'frameBorder' is deprecated.
+      Effort:  15min  Status: OPEN
+      Tags:    cwe, obsolete, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[227] MINOR | CODE_SMELL
+      File:    src/components/blocks/MediaBlock.tsx:64
+      Rule:    typescript:S4084
+      Message: Media elements such as <audio> and <video> must have a <track> for captions.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-03-29T23:56:30+0000
+
+[228] MINOR | CODE_SMELL
+      File:    src/components/blocks/MediaBlock.tsx:75
+      Rule:    typescript:S4084
+      Message: Media elements such as <audio> and <video> must have a <track> for captions.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:55+0000
+
+[229] MINOR | CODE_SMELL
+      File:    src/components/blocks/SpacerBlock.tsx:18
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T08:04:48+0000
+
+[230] MINOR | CODE_SMELL
+      File:    src/components/blocks/ToggleBlock.tsx:38
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-29T23:56:14+0000
+
+[231] MINOR | CODE_SMELL
+      File:    src/components/cellEditors/RollupCellEditorSections.tsx:111
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-03T14:28:56+0000
+
+[232] MINOR | CODE_SMELL
+      File:    src/components/filters/AdvancedFilterGrid.tsx:95
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-03T15:08:30+0000
+
+[233] MINOR | CODE_SMELL
+      File:    src/components/filters/FilterBar.tsx:37
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-03T15:08:30+0000
+
+[234] MINOR | CODE_SMELL
+      File:    src/components/filters/FilterSettingsSubpanel.tsx:39
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-03T15:08:30+0000
+
+[235] MINOR | CODE_SMELL
+      File:    src/components/formulaEditor/DocPanel.tsx:58
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-03T15:09:42+0000
+
+[236] MINOR | CODE_SMELL
+      File:    src/components/formulaEditor/catalog.tsx:48
+      Rule:    typescript:S7780
+      Message: `String.raw` should be used to avoid escaping `\`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2015, readability
+      Created: 2026-04-01T12:24:00+0000
+
+[237] MINOR | CODE_SMELL
+      File:    src/components/formulaEditor/catalog.tsx:51
+      Rule:    typescript:S7780
+      Message: `String.raw` should be used to avoid escaping `\`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2015, readability
+      Created: 2026-04-01T12:24:00+0000
+
+[238] MINOR | CODE_SMELL
+      File:    src/components/pageModal/FullPageView.tsx:56
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-03-31T14:46:00+0000
+
+[239] MINOR | CODE_SMELL
+      File:    src/components/pageModal/PageInnerContent.tsx:48
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-03-31T14:46:00+0000
+
+[240] MINOR | CODE_SMELL
+      File:    src/components/pageModal/PageInnerContent.tsx:69
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-03-31T14:46:00+0000
+
+[241] MINOR | BUG
+      File:    src/components/pageModal/PeekViews.tsx:50
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:22+0000
+
+[242] MINOR | BUG
+      File:    src/components/pageModal/PeekViews.tsx:77
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:09:22+0000
+
+[243] MINOR | CODE_SMELL
+      File:    src/components/propertyConfig/constants.ts:16
+      Rule:    typescript:S7763
+      Message: Use `export…from` to re-export `DEFAULT_PROPERTY_ICONS`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T14:26:30+0000
+
+[244] MINOR | CODE_SMELL
+      File:    src/components/propertyConfig/constants.ts:16
+      Rule:    typescript:S7763
+      Message: Use `export…from` to re-export `TYPE_OPTIONS`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T14:26:30+0000
+
+[245] MINOR | CODE_SMELL
+      File:    src/components/ui/ActionPanelRows.tsx:77
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-31T15:20:00+0000
+
+[246] MINOR | CODE_SMELL
+      File:    src/components/ui/ActionPanelRows.tsx:78
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-31T15:20:00+0000
+
+[247] MINOR | CODE_SMELL
+      File:    src/components/ui/MenuPrimitives.tsx:18
+      Rule:    typescript:S7763
+      Message: Use `export…from` to re-export `ToggleSwitch`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T14:27:47+0000
+
+[248] MINOR | CODE_SMELL
+      File:    src/components/ui/cursors.ts:21
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-27T16:35:21+0000
+
+[249] MINOR | CODE_SMELL
+      File:    src/components/ui/cursors.ts:29
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-27T16:35:21+0000
+
+[250] MINOR | CODE_SMELL
+      File:    src/components/ui/cursors.ts:30
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-27T16:35:21+0000
+
+[251] MINOR | CODE_SMELL
+      File:    src/components/ui/cursors.ts:31
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-27T16:35:21+0000
+
+[252] MINOR | CODE_SMELL
+      File:    src/components/ui/cursors.ts:32
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-27T16:35:21+0000
+
+[253] MINOR | CODE_SMELL
+      File:    src/components/ui/cursors.ts:33
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-27T16:35:21+0000
+
+[254] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/ChartScreens.tsx:37
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T14:04:48+0000
+
+[255] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/LayoutScreen.tsx:144
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T14:19:12+0000
+
+[256] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/LayoutScreen.tsx:171
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-01T14:19:12+0000
+
+[257] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/PropertyScreens.tsx:33
+      Rule:    typescript:S7770
+      Message: method 'transform' is equivalent to `Number`. Use `Number` directly.
+      Effort:  5min  Status: OPEN
+      Tags:    performance, unnecessary
+      Created: 2026-03-31T14:56:00+0000
+
+[258] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/PropertyScreens.tsx:136
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-31T14:56:00+0000
+
+[259] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/SubComponents.tsx:24
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T14:33:36+0000
+
+[260] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/SubComponents.tsx:44
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T14:33:36+0000
+
+[261] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/SubComponents.tsx:55
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-04-01T14:33:36+0000
+
+[262] MINOR | CODE_SMELL
+      File:    src/components/viewSettings/constants.tsx:24
+      Rule:    typescript:S7763
+      Message: Use `export…from` to re-export `DEFAULT_PROPERTY_ICONS`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T14:26:39+0000
+
+[263] MINOR | BUG
+      File:    src/components/views/board/BoardCardHelpers.tsx:144
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[264] MINOR | CODE_SMELL
+      File:    src/components/views/board/BoardView.tsx:27
+      Rule:    typescript:S6754
+      Message: useState call is not destructured into value + setter pair
+      Effort:  5min  Status: OPEN
+      Tags:    react
+      Created: 2026-04-02T10:34:06+0000
+
+[265] MINOR | CODE_SMELL
+      File:    src/components/views/calendar/CalendarView.tsx:33
+      Rule:    typescript:S6754
+      Message: useState call is not destructured into value + setter pair
+      Effort:  5min  Status: OPEN
+      Tags:    react
+      Created: 2026-04-02T10:34:06+0000
+
+[266] MINOR | CODE_SMELL
+      File:    src/components/views/calendar/CalendarView.tsx:134
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-31T16:12:58+0000
+
+[267] MINOR | BUG
+      File:    src/components/views/calendar/CalendarView.tsx:160
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[268] MINOR | CODE_SMELL
+      File:    src/components/views/chart/LineChart.tsx:37
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T14:34:00+0000
+
+[269] MINOR | CODE_SMELL
+      File:    src/components/views/chart/useChartData.ts:65
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-31T14:34:00+0000
+
+[270] MINOR | CODE_SMELL
+      File:    src/components/views/chart/useChartData.ts:76
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isNaN` over `isNaN`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T14:34:00+0000
+
+[271] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/DashboardView.tsx:66
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-02T10:34:06+0000
+
+[272] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/DashboardView.tsx:91
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T02:33:36+0000
+
+[273] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/DataComponents.tsx:21
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T15:16:48+0000
+
+[274] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/DataComponents.tsx:43
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T15:16:48+0000
+
+[275] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/DataComponents.tsx:76
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T15:16:48+0000
+
+[276] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/FormulaAnalyticsDashboard.tsx:46
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[277] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/FormulaAnalyticsDashboard.tsx:55
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[278] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:48
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[279] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:63
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[280] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:63
+      Rule:    typescript:S7773
+      Message: Prefer `Number.parseInt` over `parseInt`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-01T15:31:12+0000
+
+[281] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:84
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-04-01T15:31:12+0000
+
+[282] MINOR | CODE_SMELL
+      File:    src/components/views/dashboard/MultiLineChart.tsx:123
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-04-01T15:31:12+0000
+
+[283] MINOR | BUG
+      File:    src/components/views/feed/FeedView.tsx:52
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[284] MINOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/FormulaCharts.tsx:17
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-03-31T12:52:00+0000
+
+[285] MINOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/FormulaCharts.tsx:76
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-03-31T12:52:00+0000
+
+[286] MINOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/FormulaCharts.tsx:111
+      Rule:    typescript:S6759
+      Message: Mark the props of the component as read-only.
+      Effort:  5min  Status: OPEN
+      Tags:    react, type-dependent
+      Created: 2026-03-31T12:52:00+0000
+
+[287] MINOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/FormulaCharts.tsx:118
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T12:52:00+0000
+
+[288] MINOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/FormulaCharts.tsx:119
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T12:52:00+0000
+
+[289] MINOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/NumericFormulaCard.tsx:40
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T12:52:00+0000
+
+[290] MINOR | CODE_SMELL
+      File:    src/components/views/formulaAnalytics/useFormulaAnalytics.ts:40
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isFinite` over `isFinite`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T12:52:00+0000
+
+[291] MINOR | CODE_SMELL
+      File:    src/components/views/gallery/GalleryViewHelpers.tsx:18
+      Rule:    typescript:S7763
+      Message: Use `export…from` to re-export `coverColors`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T14:25:51+0000
+
+[292] MINOR | CODE_SMELL
+      File:    src/components/views/list/ListView.tsx:124
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[293] MINOR | CODE_SMELL
+      File:    src/components/views/map/MapView.tsx:142
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-03-22T19:16:04+0000
+
+[294] MINOR | CODE_SMELL
+      File:    src/components/views/map/MapView.tsx:144
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-03-22T19:16:04+0000
+
+[295] MINOR | CODE_SMELL
+      File:    src/components/views/map/MapView.tsx:170
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-22T19:16:04+0000
+
+[296] MINOR | CODE_SMELL
+      File:    src/components/views/relationRollup/RelationRollupCards.tsx:17
+      Rule:    typescript:S7763
+      Message: Use `export…from` to re-export `COLORS`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T14:25:26+0000
+
+[297] MINOR | CODE_SMELL
+      File:    src/components/views/relationRollup/RelationRollupCharts.tsx:164
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[298] MINOR | CODE_SMELL
+      File:    src/components/views/relationRollup/useRelationRollupAnalytics.ts:93
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isNaN` over `isNaN`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T13:08:00+0000
+
+[299] MINOR | BUG
+      File:    src/components/views/table/SelectEditors.tsx:62
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:06+0000
+
+[300] MINOR | BUG
+      File:    src/components/views/table/SelectEditors.tsx:136
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:06+0000
+
+[301] MINOR | CODE_SMELL
+      File:    src/components/views/table/TableGroupRows.tsx:72
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-03-31T13:46:00+0000
+
+[302] MINOR | CODE_SMELL
+      File:    src/components/views/table/TableGroupRows.tsx:73
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-03-31T13:46:00+0000
+
+[303] MINOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/BasicCellRenderers.tsx:122
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isNaN` over `isNaN`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T00:33:09+0000
+
+[304] MINOR | BUG
+      File:    src/components/views/table/cellRenderers/RelationCellRenderers.tsx:48
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:06+0000
+
+[305] MINOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/SpecialCellRenderers.tsx:92
+      Rule:    typescript:S7773
+      Message: Prefer `Number.parseInt` over `parseInt`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T13:34:00+0000
+
+[306] MINOR | CODE_SMELL
+      File:    src/components/views/table/cellRenderers/SpecialCellRenderers.tsx:93
+      Rule:    typescript:S7773
+      Message: Prefer `Number.parseFloat` over `parseFloat`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T13:34:00+0000
+
+[307] MINOR | CODE_SMELL
+      File:    src/components/views/table/useColumnResize.ts:40
+      Rule:    typescript:S7744
+      Message: The empty object is useless.
+      Effort:  5min  Status: OPEN
+      Tags:    spread-operator, unnecessary
+      Created: 2026-04-01T17:55:12+0000
+
+[308] MINOR | CODE_SMELL
+      File:    src/components/views/table/useColumnResize.ts:54
+      Rule:    typescript:S7744
+      Message: The empty object is useless.
+      Effort:  5min  Status: OPEN
+      Tags:    spread-operator, unnecessary
+      Created: 2026-04-01T17:55:12+0000
+
+[309] MINOR | CODE_SMELL
+      File:    src/components/views/table/useColumnResize.ts:73
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[310] MINOR | CODE_SMELL
+      File:    src/components/views/table/useFillDrag.ts:32
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isNaN` over `isNaN`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-01T18:09:36+0000
+
+[311] MINOR | BUG
+      File:    src/components/views/timeline/TimelineDatePicker.tsx:225
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[312] MINOR | BUG
+      File:    src/components/views/timeline/TimelineView.tsx:434
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[313] MINOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:571
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[314] MINOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineView.tsx:572
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[315] MINOR | BUG
+      File:    src/components/views/timeline/TimelineView.tsx:592
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[316] MINOR | BUG
+      File:    src/components/views/timeline/TimelineView.tsx:637
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[317] MINOR | BUG
+      File:    src/components/views/timeline/TimelineView.tsx:717
+      Rule:    typescript:S1082
+      Message: Visible, non-interactive elements with click handlers must have at least one keyboard listener.
+      Effort:  5min  Status: OPEN
+      Tags:    accessibility, react
+      Created: 2026-04-03T15:10:18+0000
+
+[318] MINOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineViewHelpers.tsx:137
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[319] MINOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineViewHelpers.tsx:174
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isNaN` over `isNaN`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T00:32:56+0000
+
+[320] MINOR | CODE_SMELL
+      File:    src/components/views/timeline/TimelineViewHelpers.tsx:181
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isNaN` over `isNaN`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-04-03T00:32:56+0000
+
+[321] MINOR | CODE_SMELL
+      File:    src/hooks/useBlockEditor.ts:56
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-01T19:36:00+0000
+
+[322] MINOR | CODE_SMELL
+      File:    src/hooks/useBlockEditor.ts:68
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-01T19:36:00+0000
+
+[323] MINOR | CODE_SMELL
+      File:    src/hooks/useBlockEditor.ts:136
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-01T19:36:00+0000
+
+[324] MINOR | CODE_SMELL
+      File:    src/hooks/useBlockEditor.ts:149
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-01T19:36:00+0000
+
+[325] MINOR | CODE_SMELL
+      File:    src/hooks/useBlockEditor.ts:171
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-04-01T19:36:00+0000
+
+[326] MINOR | CODE_SMELL
+      File:    src/hooks/useDbSource.ts:21
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-02T20:56:34+0000
+
+[327] MINOR | CODE_SMELL
+      File:    src/hooks/useDbSource.ts:31
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-02T20:56:34+0000
+
+[328] MINOR | CODE_SMELL
+      File:    src/hooks/useDbSource.ts:42
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-02T20:56:34+0000
+
+[329] MINOR | CODE_SMELL
+      File:    src/hooks/useSlashSelect.ts:115
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-03-31T12:04:00+0000
+
+[330] MINOR | CODE_SMELL
+      File:    src/hooks/useUndoRedo.ts:106
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[331] MINOR | CODE_SMELL
+      File:    src/hooks/useUndoRedo.ts:119
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[332] MINOR | CODE_SMELL
+      File:    src/lib/filter/compareValues.ts:18
+      Rule:    typescript:S6551
+      Message: 'a' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-03-31T07:40:00+0000
+
+[333] MINOR | CODE_SMELL
+      File:    src/lib/filter/compareValues.ts:18
+      Rule:    typescript:S6551
+      Message: 'b' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-03-31T07:40:00+0000
+
+[334] MINOR | CODE_SMELL
+      File:    src/lib/filter/evaluateFilter.ts:26
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-03-31T07:46:00+0000
+
+[335] MINOR | CODE_SMELL
+      File:    src/lib/filter/evaluateFilter.ts:36
+      Rule:    typescript:S6551
+      Message: 'fv' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[336] MINOR | CODE_SMELL
+      File:    src/lib/filter/evaluateFilter.ts:38
+      Rule:    typescript:S6551
+      Message: 'fv' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[337] MINOR | CODE_SMELL
+      File:    src/lib/filter/filterHelpers.ts:7
+      Rule:    typescript:S6551
+      Message: 'fv' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[338] MINOR | CODE_SMELL
+      File:    src/lib/formula/formulaCache.ts:31
+      Rule:    typescript:S6571
+      Message: 'unknown' overrides all other types in this union type.
+      Effort:  5min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-03-31T07:54:00+0000
+
+[339] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parser.ts:28
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[340] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parser.ts:35
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:26:00+0000
+
+[341] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parser.ts:58
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-03-31T08:26:00+0000
+
+[342] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockHelpers.ts:20
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-31T08:14:00+0000
+
+[343] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockHelpers.ts:77
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:14:00+0000
+
+[344] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockHelpers.ts:107
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T08:14:00+0000
+
+[345] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockHelpers.ts:128
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-31T08:14:00+0000
+
+[346] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockNested.ts:32
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:20:00+0000
+
+[347] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockNested.ts:62
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:20:00+0000
+
+[348] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockNested.ts:93
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:20:00+0000
+
+[349] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockNested.ts:96
+      Rule:    typescript:S7773
+      Message: Prefer `Number.parseInt` over `parseInt`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T08:20:00+0000
+
+[350] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserBlockNested.ts:133
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:20:00+0000
+
+[351] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:25
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T08:02:00+0000
+
+[352] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:41
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T08:02:00+0000
+
+[353] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:79
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-31T08:02:00+0000
+
+[354] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:96
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:02:00+0000
+
+[355] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:109
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:02:00+0000
+
+[356] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:124
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T08:02:00+0000
+
+[357] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:194
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-31T08:02:00+0000
+
+[358] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:195
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-31T08:02:00+0000
+
+[359] MINOR | CODE_SMELL
+      File:    src/lib/markdown/parserInline.ts:196
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-31T08:02:00+0000
+
+[360] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/html.ts:61
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-30T00:42:30+0000
+
+[361] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/html.ts:192
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:30+0000
+
+[362] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/html.ts:193
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:30+0000
+
+[363] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/html.ts:194
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:30+0000
+
+[364] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/html.ts:195
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:30+0000
+
+[365] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/react.tsx:64
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-03-30T00:42:41+0000
+
+[366] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/react.tsx:89
+      Rule:    typescript:S7735
+      Message: Unexpected negated condition.
+      Effort:  2min  Status: OPEN
+      Tags:    readability
+      Created: 2026-03-30T00:42:41+0000
+
+[367] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/react.tsx:103
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[368] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/terminalHelpers.ts:70
+      Rule:    typescript:S7723
+      Message: Use `new Array()` instead of `Array()`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention
+      Created: 2026-03-31T08:38:00+0000
+
+[369] MINOR | CODE_SMELL
+      File:    src/lib/markdown/renderers/terminalHelpers.ts:181
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-31T08:38:00+0000
+
+[370] MINOR | CODE_SMELL
+      File:    src/lib/markdown/shortcuts.ts:38
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:58+0000
+
+[371] MINOR | CODE_SMELL
+      File:    src/lib/markdown/shortcuts.ts:38
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:58+0000
+
+[372] MINOR | CODE_SMELL
+      File:    src/lib/markdown/shortcuts.ts:38
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:58+0000
+
+[373] MINOR | CODE_SMELL
+      File:    src/lib/markdown/shortcuts.ts:38
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-03-30T00:42:58+0000
+
+[374] MINOR | CODE_SMELL
+      File:    src/lib/markdown/shortcutsDetect.ts:41
+      Rule:    typescript:S4138
+      Message: Expected a `for-of` loop instead of a `for` loop with this simple iteration.
+      Effort:  5min  Status: OPEN
+      Tags:    clumsy
+      Created: 2026-03-31T08:30:00+0000
+
+[375] MINOR | CODE_SMELL
+      File:    src/lib/markdown/shortcutsDetect.ts:52
+      Rule:    typescript:S7773
+      Message: Prefer `Number.parseInt` over `parseInt`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T08:30:00+0000
+
+[376] MINOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:68
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-04-01T20:48:00+0000
+
+[377] MINOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:96
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-01T20:48:00+0000
+
+[378] MINOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:97
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-01T20:48:00+0000
+
+[379] MINOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:98
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-01T20:48:00+0000
+
+[380] MINOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizer.ts:99
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-01T20:48:00+0000
+
+[381] MINOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRules.ts:20
+      Rule:    typescript:S7780
+      Message: `String.raw` should be used to avoid escaping `\`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2015, readability
+      Created: 2026-03-31T09:02:00+0000
+
+[382] MINOR | CODE_SMELL
+      File:    src/lib/syntax/tokenizerRules.ts:86
+      Rule:    typescript:S6353
+      Message: Use concise character class syntax '\w' instead of '[a-zA-Z0-9_]'.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-03-31T09:02:00+0000
+
+[383] MINOR | CODE_SMELL
+      File:    src/main.tsx:51
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-03-22T07:48:14+0000
+
+[384] MINOR | CODE_SMELL
+      File:    src/server/db/mongoLoader.ts:37
+      Rule:    typescript:S6551
+      Message: 'doc._id ?? doc.id' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T18:57:56+0000
+
+[385] MINOR | CODE_SMELL
+      File:    src/server/db/pgLoader.ts:36
+      Rule:    typescript:S6551
+      Message: 'row.id' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T18:57:56+0000
+
+[386] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:50
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-03T00:32:31+0000
+
+[387] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:52
+      Rule:    typescript:S7754
+      Message: Prefer `.some(…)` over `.find(…)`.
+      Effort:  5min  Status: OPEN
+      Tags:    performance, readability
+      Created: 2026-04-03T00:32:31+0000
+
+[388] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:68
+      Rule:    typescript:S7754
+      Message: Prefer `.some(…)` over `.find(…)`.
+      Effort:  5min  Status: OPEN
+      Tags:    performance, readability
+      Created: 2026-04-03T00:32:31+0000
+
+[389] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:103
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-03T00:32:31+0000
+
+[390] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:149
+      Rule:    typescript:S7772
+      Message: Prefer `node:http` over `http`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, import, nodejs
+      Created: 2026-04-02T20:04:19+0000
+
+[391] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:271
+      Rule:    typescript:S6551
+      Message: 'page.properties[propId]' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[392] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:283
+      Rule:    typescript:S6551
+      Message: 'page.properties[propId]' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[393] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:300
+      Rule:    typescript:S6551
+      Message: 'r.id' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[394] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:350
+      Rule:    typescript:S6551
+      Message: 'page.properties[propId] ?? ''' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[395] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:410
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-02T15:25:14+0000
+
+[396] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:479
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[397] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:512
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[398] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:567
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-03T00:32:31+0000
+
+[399] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:599
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[400] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:661
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[401] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:691
+      Rule:    typescript:S6594
+      Message: Use the "RegExp.exec()" method instead.
+      Effort:  5min  Status: OPEN
+      Tags:    regex, type-dependent
+      Created: 2026-04-04T17:02:20+0000
+
+[402] MINOR | CODE_SMELL
+      File:    src/server/dbmsMiddleware.ts:755
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-03T00:32:31+0000
+
+[403] MINOR | CODE_SMELL
+      File:    src/server/fileWatcher.ts:123
+      Rule:    typescript:S6551
+      Message: 'rec.id ?? ''' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[404] MINOR | CODE_SMELL
+      File:    src/server/fileWatcher.ts:128
+      Rule:    typescript:S6551
+      Message: 'p.properties[propId]' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[405] MINOR | CODE_SMELL
+      File:    src/server/fileWatcher.ts:176
+      Rule:    typescript:S6551
+      Message: 'p.properties[propId]' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[406] MINOR | CODE_SMELL
+      File:    src/server/fileWatcher.ts:254
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-02T15:25:14+0000
+
+[407] MINOR | CODE_SMELL
+      File:    src/server/ops/csvOps.ts:56
+      Rule:    typescript:S6551
+      Message: 'flatRecord[h] ?? ''' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[408] MINOR | CODE_SMELL
+      File:    src/server/ops/csvOps.ts:93
+      Rule:    typescript:S6551
+      Message: 'value ?? ''' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[409] MINOR | CODE_SMELL
+      File:    src/server/ops/helpers.ts:36
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-02T15:44:24+0000
+
+[410] MINOR | CODE_SMELL
+      File:    src/server/ops/helpers.ts:43
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-02T15:44:24+0000
+
+[411] MINOR | CODE_SMELL
+      File:    src/server/ops/helpers.ts:52
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[412] MINOR | CODE_SMELL
+      File:    src/server/ops/helpers.ts:52
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-02T15:44:24+0000
+
+[413] MINOR | CODE_SMELL
+      File:    src/server/ops/helpers.ts:62
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[414] MINOR | CODE_SMELL
+      File:    src/server/ops/jsonOps.ts:60
+      Rule:    typescript:S6551
+      Message: 'r.id' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[415] MINOR | CODE_SMELL
+      File:    src/server/ops/jsonOps.ts:72
+      Rule:    typescript:S6551
+      Message: 'rec.id' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[416] MINOR | CODE_SMELL
+      File:    src/server/ops/jsonOps.ts:125
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[417] MINOR | CODE_SMELL
+      File:    src/server/ops/jsonOps.ts:127
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[418] MINOR | CODE_SMELL
+      File:    src/server/ops/jsonOps.ts:128
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[419] MINOR | CODE_SMELL
+      File:    src/server/ops/jsonOps.ts:129
+      Rule:    typescript:S6551
+      Message: 'val' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T15:44:24+0000
+
+[420] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:31
+      Rule:    typescript:S7748
+      Message: Don't use a zero fraction in the number.
+      Effort:  1min  Status: OPEN
+      Tags:    consistency, formatting
+      Created: 2026-03-31T11:24:00+0000
+
+[421] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:43
+      Rule:    typescript:S7748
+      Message: Don't use a zero fraction in the number.
+      Effort:  1min  Status: OPEN
+      Tags:    consistency, formatting
+      Created: 2026-03-31T11:24:00+0000
+
+[422] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:45
+      Rule:    typescript:S7748
+      Message: Don't use a zero fraction in the number.
+      Effort:  1min  Status: OPEN
+      Tags:    consistency, formatting
+      Created: 2026-03-31T11:24:00+0000
+
+[423] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:48
+      Rule:    typescript:S7748
+      Message: Don't use a zero fraction in the number.
+      Effort:  1min  Status: OPEN
+      Tags:    consistency, formatting
+      Created: 2026-03-31T11:24:00+0000
+
+[424] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:48
+      Rule:    typescript:S7748
+      Message: Don't use a zero fraction in the number.
+      Effort:  1min  Status: OPEN
+      Tags:    consistency, formatting
+      Created: 2026-03-31T11:24:00+0000
+
+[425] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:56
+      Rule:    typescript:S7748
+      Message: Don't use a zero fraction in the number.
+      Effort:  1min  Status: OPEN
+      Tags:    consistency, formatting
+      Created: 2026-03-31T11:24:00+0000
+
+[426] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:57
+      Rule:    typescript:S7748
+      Message: Don't use a zero fraction in the number.
+      Effort:  1min  Status: OPEN
+      Tags:    consistency, formatting
+      Created: 2026-03-31T11:24:00+0000
+
+[427] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/productSeedPages.ts:78
+      Rule:    typescript:S7755
+      Message: Prefer `.at(…)` over `[….length - index]`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2022, performance, readability, type-dependent
+      Created: 2026-03-31T11:24:00+0000
+
+[428] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/relationSeedViews.ts:14
+      Rule:    typescript:S3863
+      Message: '../../../types/database' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-04-02T15:25:14+0000
+
+[429] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/relationSeedViews.ts:18
+      Rule:    typescript:S3863
+      Message: '../../../types/database' imported multiple times.
+      Effort:  1min  Status: OPEN
+      Tags:    es2015
+      Created: 2026-04-02T15:25:14+0000
+
+[430] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/useThemeStore.ts:22
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis.window` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-03-31T16:19:06+0000
+
+[431] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/useThemeStore.ts:23
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-03-31T16:19:06+0000
+
+[432] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/useThemeStore.ts:76
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis.window` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-03-31T16:19:06+0000
+
+[433] MINOR | CODE_SMELL
+      File:    src/store/dbms/hardcoded/useThemeStore.ts:77
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-03-31T16:19:06+0000
+
+[434] MINOR | CODE_SMELL
+      File:    src/store/slices/storeHelpers.ts:53
+      Rule:    typescript:S6551
+      Message: 'v' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[435] MINOR | CODE_SMELL
+      File:    src/store/slices/storeHelpers.ts:75
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[436] MINOR | CODE_SMELL
+      File:    src/store/slices/storeHelpers.ts:97
+      Rule:    typescript:S4325
+      Message: This assertion is unnecessary since it does not change the type of the expression.
+      Effort:  1min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[437] MINOR | CODE_SMELL
+      File:    src/store/slices/storeHelpers.ts:107
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isFinite` over `isFinite`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T10:16:00+0000
+
+[438] MINOR | CODE_SMELL
+      File:    src/store/slices/storeHelpers.ts:118
+      Rule:    typescript:S7773
+      Message: Prefer `Number.isNaN` over `isNaN`.
+      Effort:  2min  Status: OPEN
+      Tags:    convention, es2015
+      Created: 2026-03-31T10:16:00+0000
+
+[439] MINOR | CODE_SMELL
+      File:    src/store/useDatabaseStore.ts:28
+      Rule:    typescript:S7764
+      Message: Prefer `globalThis` over `window`.
+      Effort:  2min  Status: OPEN
+      Tags:    es2020, portability
+      Created: 2026-04-02T20:56:34+0000
+
+[440] MINOR | CODE_SMELL
+      File:    src/store/useDatabaseStore.ts:287
+      Rule:    typescript:S7781
+      Message: Prefer `String#replaceAll()` over `String#replace()`.
+      Effort:  5min  Status: OPEN
+      Tags:    es2021, readability
+      Created: 2026-04-02T16:28:27+0000
+
+[441] MINOR | CODE_SMELL
+      File:    src/store/validation.ts:73
+      Rule:    typescript:S6551
+      Message: 'raw' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T16:45:32+0000
+
+[442] MINOR | CODE_SMELL
+      File:    src/store/validation.ts:93
+      Rule:    typescript:S6551
+      Message: 'raw' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-02T16:45:32+0000
+
+[443] MINOR | CODE_SMELL
+      File:    src/store/validation.ts:121
+      Rule:    typescript:S6551
+      Message: 'raw' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[444] MINOR | CODE_SMELL
+      File:    src/store/validation.ts:133
+      Rule:    typescript:S6551
+      Message: 'raw' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[445] MINOR | CODE_SMELL
+      File:    src/store/validation.ts:166
+      Rule:    typescript:S6551
+      Message: 'id' will use Object's default stringification format ('[object Object]') when stringified.
+      Effort:  5min  Status: OPEN
+      Tags:    object, string, type-dependent
+      Created: 2026-04-04T15:55:50+0000
+
+[446] MINOR | CODE_SMELL
+      File:    src/utils/format.ts:35
+      Rule:    typescript:S4323
+      Message: Replace this union type with a type alias.
+      Effort:  5min  Status: OPEN
+      Tags:    proficiency
+      Created: 2026-04-03T14:22:27+0000
+
+[447] MINOR | CODE_SMELL
+      File:    src/utils/propertyIcons.ts:54
+      Rule:    typescript:S6571
+      Message: "number" | "url" | "date" | "email" | "user" | "id" | "title" | "status" | "text" | "select" | "custom" | "multi_select" | "checkbox" | "person" | "phone" | "files_media" | "relation" | "formula" | "rollup" | "button" | "place" | "created_time" | "last_edited_time" | "created_by" | "last_edited_by" | "assigned_to" | "due_date" is overridden by string in this union type.
+      Effort:  5min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-03T14:22:50+0000
+
+[448] MINOR | CODE_SMELL
+      File:    src/utils/propertyTypes.tsx:63
+      Rule:    typescript:S6571
+      Message: "number" | "url" | "date" | "email" | "user" | "id" | "title" | "status" | "text" | "select" | "custom" | "multi_select" | "checkbox" | "person" | "phone" | "files_media" | "relation" | "formula" | "rollup" | "button" | "place" | "created_time" | "last_edited_time" | "created_by" | "last_edited_by" | "assigned_to" | "due_date" is overridden by string in this union type.
+      Effort:  5min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-03T14:23:13+0000
+
+[449] MINOR | CODE_SMELL
+      File:    src/utils/propertyTypes.tsx:68
+      Rule:    typescript:S6571
+      Message: "number" | "url" | "date" | "email" | "user" | "id" | "title" | "status" | "text" | "select" | "custom" | "multi_select" | "checkbox" | "person" | "phone" | "files_media" | "relation" | "formula" | "rollup" | "button" | "place" | "created_time" | "last_edited_time" | "created_by" | "last_edited_by" | "assigned_to" | "due_date" is overridden by string in this union type.
+      Effort:  5min  Status: OPEN
+      Tags:    redundant, type-dependent
+      Created: 2026-04-03T14:23:13+0000
+
+[450] MINOR | CODE_SMELL
+      File:    src/vite.config.ts:3
+      Rule:    typescript:S7772
+      Message: Prefer `node:path` over `path`.
+      Effort:  5min  Status: OPEN
+      Tags:    convention, import, nodejs
+      Created: 2026-04-03T21:08:58+0000
+
+[451] INFO | CODE_SMELL
+      File:    playground/src/components/sidebar/NotionSidebar.tsx:90
+      Rule:    typescript:S1135
+      Message: Complete the task associated to this "TODO" comment.
+      Effort:  0min  Status: OPEN
+      Tags:    cwe
+      Created: 2026-04-03T20:23:34+0000
+
+====================================================================================================
+# Dashboard: https://sonarcloud.io/dashboard?id=Univers42_notion-database-sys
+# Issues: https://sonarcloud.io/project/issues?id=Univers42_notion-database-sys&resolved=false
