@@ -1,4 +1,3 @@
-# ─── Zero-build Docker Compose ─────────────────────────────────────────────
 # Uses stock images directly — configs mounted as volumes.
 # Start time: ~3s (vs 90s+ with custom builds).
 
