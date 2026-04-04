@@ -139,13 +139,15 @@ export function EdgeCasesSection({ analytics }: Readonly<{ analytics: RelationRo
                   <td className={cn("py-1.5 px-3 font-medium text-ink-strong whitespace-nowrap")}>{pg.icon} {title}</td>
                   {relationTargets.map(rt => {
                     const ids: string[] = pg.properties[rt.prop.id] || [];
+
+                    let badgeClass: string;
+                    if (ids.length === 0) badgeClass = 'bg-danger-surface-muted text-danger-text';
+                    else if (ids.length === 1) badgeClass = 'bg-warning-surface-muted text-warning-text-bold';
+                    else badgeClass = 'bg-success-surface-muted text-success-text-bold';
+
                     return (
                       <td key={rt.prop.id} className={cn("py-1.5 px-3 text-center")}>
-                        <span className={cn(`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                          ids.length === 0 ? 'bg-danger-surface-muted text-danger-text' :
-                          ids.length === 1 ? 'bg-warning-surface-muted text-warning-text-bold' :
-                          'bg-success-surface-muted text-success-text-bold'
-                        }`)}>
+                        <span className={cn(`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${badgeClass}`)}>
                           {ids.length}
                         </span>
                       </td>
@@ -154,8 +156,8 @@ export function EdgeCasesSection({ analytics }: Readonly<{ analytics: RelationRo
                   <td className={cn("py-1.5 px-3 text-center")}>
                     {edgeCases.length > 0 ? (
                       <div className={cn("flex flex-wrap gap-1 justify-center")}>
-                        {edgeCases.map((ec, i) => (
-                          <span key={i} className={cn("px-1.5 py-0.5 rounded text-[10px] bg-amber-surface text-amber-text-bold border border-amber-border whitespace-nowrap")}>{ec}</span>
+                        {edgeCases.map((ec) => (
+                          <span key={ec} className={cn("px-1.5 py-0.5 rounded text-[10px] bg-amber-surface text-amber-text-bold border border-amber-border whitespace-nowrap")}>{ec}</span>
                         ))}
                       </div>
                     ) : (

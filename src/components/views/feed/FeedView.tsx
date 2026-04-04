@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:13 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,35 @@ import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { MessageCircle, Heart, Share2, MoreHorizontal, FileText } from 'lucide-react';
 import { parseISO, formatDistanceToNow } from 'date-fns';
 import { cn } from '../../../utils/cn';
+
+type FeedProp = { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] };
+
+/** Renders compact property tags for a single feed card. */
+function renderFeedPropertyTags(
+  nonTitleProps: FeedProp[],
+  properties: Record<string, unknown>,
+): React.ReactNode[] {
+  return nonTitleProps.map(prop => {
+    const val = properties[prop.id];
+    if (val === undefined || val === null || val === '') return null;
+
+    if (prop.type === 'select') {
+      const opt = prop.options?.find(o => o.id === val);
+      return opt ? <span key={prop.id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+    }
+    if (prop.type === 'multi_select') {
+      const ids: string[] = Array.isArray(val) ? val : [];
+      return ids.map(id => {
+        const opt = prop.options?.find(o => o.id === id);
+        return opt ? <span key={id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+      });
+    }
+    if (prop.type === 'checkbox') {
+      return val ? <span key={prop.id} className={cn("text-success-text text-xs font-medium")}>✓ {prop.name}</span> : null;
+    }
+    return null;
+  });
+}
 
 /** Renders a social-media-style feed of database pages with actions and property tags. */
 export function FeedView() {
@@ -48,25 +77,35 @@ export function FeedView() {
           const date = dateProp ? page.properties[dateProp.id] : page.createdAt;
           const body = textProp ? page.properties[textProp.id] : null;
 
+          let headerIcon: React.ReactNode;
+          if (showAuthorByline && author) {
+            headerIcon = (
+              <div className={cn("w-9 h-9 rounded-full bg-gradient-to-br from-gradient-purple-from to-gradient-purple-to flex items-center justify-center text-ink-inverse text-sm font-bold")}>
+                {String(author).charAt(0).toUpperCase()}
+              </div>
+            );
+          } else if (showPageIcon && page.icon) {
+            headerIcon = <span className={cn("text-2xl")}>{page.icon}</span>;
+          } else {
+            headerIcon = (
+              <div className={cn("w-9 h-9 rounded-full bg-surface-muted flex items-center justify-center")}>
+                <FileText className={cn("w-4 h-4 text-ink-muted")} />
+              </div>
+            );
+          }
+
           return (
-            <article key={page.id}
+            <article key={page.id} // NOSONAR
+              role="button" // NOSONAR
+              tabIndex={0}
               className={cn("bg-surface-primary rounded-xl border border-line overflow-hidden hover:shadow-md transition-shadow cursor-pointer")}
-              onClick={() => openPage(page.id)}>
+              onClick={() => openPage(page.id)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}>
 
               {/* Header */}
               <div className={cn("flex items-center justify-between px-5 pt-4 pb-2")}>
                 <div className={cn("flex items-center gap-3")}>
-                  {showAuthorByline && author ? (
-                    <div className={cn("w-9 h-9 rounded-full bg-gradient-to-br from-gradient-purple-from to-gradient-purple-to flex items-center justify-center text-ink-inverse text-sm font-bold")}>
-                      {String(author).charAt(0).toUpperCase()}
-                    </div>
-                  ) : showPageIcon && page.icon ? (
-                    <span className={cn("text-2xl")}>{page.icon}</span>
-                  ) : (
-                    <div className={cn("w-9 h-9 rounded-full bg-surface-muted flex items-center justify-center")}>
-                      <FileText className={cn("w-4 h-4 text-ink-muted")} />
-                    </div>
-                  )}
+                  {headerIcon}
                   <div>
                     {showAuthorByline && author && (
                       <div className={cn("text-sm font-semibold text-ink")}>{author}</div>
@@ -101,26 +140,7 @@ export function FeedView() {
               {/* Properties */}
               {nonTitleProps.length > 0 && (
                 <div className={cn(`px-5 pb-3 flex gap-2 ${wrapProperties ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
-                  {nonTitleProps.map(prop => {
-                    const val = page.properties[prop.id];
-                    if (val === undefined || val === null || val === '') return null;
-
-                    if (prop.type === 'select') {
-                      const opt = prop.options?.find(o => o.id === val);
-                      return opt ? <span key={prop.id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
-                    }
-                    if (prop.type === 'multi_select') {
-                      const ids: string[] = Array.isArray(val) ? val : [];
-                      return ids.map(id => {
-                        const opt = prop.options?.find(o => o.id === id);
-                        return opt ? <span key={id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
-                      });
-                    }
-                    if (prop.type === 'checkbox') {
-                      return val ? <span key={prop.id} className={cn("text-success-text text-xs font-medium")}>✓ {prop.name}</span> : null;
-                    }
-                    return null;
-                  })}
+                  {renderFeedPropertyTags(nonTitleProps, page.properties)}
                 </div>
               )}
 

@@ -17,7 +17,7 @@ export function advance(ctx: ParseContext): string {
 }
 
 export function isThematicBreak(line: string): boolean {
-  const stripped = line.replace(/\s/g, '');
+  const stripped = line.replaceAll(/\s/g, '');
   if (stripped.length < 3) return false;
   return /^-{3,}$/.test(stripped) || /^\*{3,}$/.test(stripped) || /^_{3,}$/.test(stripped);
 }
@@ -74,7 +74,7 @@ export const HTML_BLOCK_TAGS = new Set([
   'thead', 'title', 'tr', 'track', 'ul',
 ]);
 export function isHtmlBlockTag(line: string): boolean {
-  const match = line.match(/^<\/?([a-zA-Z][a-zA-Z0-9-]*)/);
+  const match = /^<\/?([a-zA-Z][a-zA-Z0-9-]*)/.exec(line);
   return match ? HTML_BLOCK_TAGS.has(match[1].toLowerCase()) : false;
 }
 
@@ -104,7 +104,7 @@ export function parseIndentedCode(ctx: ParseContext): BlockNode {
     }
   }
 
-  while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+  while (lines.length > 0 && lines.at(-1) === '') lines.pop();
   return { type: 'code_block', lang: '', value: lines.join('\n') };
 }
 
@@ -125,7 +125,7 @@ function parseTableRow(line: string): string[] {
 
 function parseAlignments(line: string): TableAlign[] {
   return parseTableRow(line).map(cell => {
-    const trimmed = cell.trim().replace(/\s/g, '');
+    const trimmed = cell.trim().replaceAll(/\s/g, '');
     if (trimmed.startsWith(':') && trimmed.endsWith(':')) return 'center';
     if (trimmed.endsWith(':')) return 'right';
     if (trimmed.startsWith(':')) return 'left';
@@ -145,7 +145,7 @@ export function parseTable(ctx: ParseContext): BlockNode {
   const rows: TableRowNode[] = [];
   while (ctx.pos < ctx.lines.length) {
     const line = ctx.lines[ctx.pos].trim();
-    if (!line || !line.includes('|')) break;
+    if (!line?.includes('|')) break;
     const cells = parseTableRow(line).map(cell => ({
       type: 'table_cell' as const,
       children: parseInline(cell),
@@ -157,30 +157,37 @@ export function parseTable(ctx: ParseContext): BlockNode {
   return { type: 'table', head, rows, alignments };
 }
 
+function isParagraphBreak(ctx: ParseContext, trimmed: string): boolean {
+  if (trimmed === '') return true;
+  if (isThematicBreak(trimmed)) return true;
+  if (/^#{1,6}\s/.test(trimmed)) return true;
+  if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) return true;
+  if (trimmed.startsWith('$$')) return true;
+  if (/^>\s/.test(trimmed) || trimmed === '>') return true;
+  if (/^[-*+]\s+/.test(trimmed)) return true;
+  if (/^\d{1,9}[.)]\s+/.test(trimmed)) return true;
+  if (/^\[\^([^\]]+)\]:\s/.test(trimmed)) return true;
+  if (isTableStart(ctx)) return true;
+  if (/^<([a-zA-Z])/.test(trimmed) && isHtmlBlockTag(trimmed)) return true;
+  return false;
+}
+
+function isSetextBreak(ctx: ParseContext, linesCollected: number): boolean {
+  if (ctx.pos + 1 >= ctx.lines.length) return false;
+  const nextLine = ctx.lines[ctx.pos + 1].trim();
+  if (/^={3,}\s*$/.test(nextLine) || /^-{3,}\s*$/.test(nextLine)) {
+    return linesCollected === 0;
+  }
+  return false;
+}
+
 export function parseParagraph(ctx: ParseContext): BlockNode {
   const lines: string[] = [];
   while (ctx.pos < ctx.lines.length) {
     const line = ctx.lines[ctx.pos];
     const trimmed = line.trim();
-    if (trimmed === '') break;
-    if (isThematicBreak(trimmed)) break;
-    if (/^#{1,6}\s/.test(trimmed)) break;
-    if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) break;
-    if (trimmed.startsWith('$$')) break;
-    if (/^>\s/.test(trimmed) || trimmed === '>') break;
-    if (/^[-*+]\s+/.test(trimmed)) break;
-    if (/^\d{1,9}[.)]\s+/.test(trimmed)) break;
-    if (/^\[\^([^\]]+)\]:\s/.test(trimmed)) break;
-    if (isTableStart(ctx)) break;
-    if (/^<([a-zA-Z])/.test(trimmed) && isHtmlBlockTag(trimmed)) break;
-    if (ctx.pos + 1 < ctx.lines.length) {
-      const nextLine = ctx.lines[ctx.pos + 1].trim();
-      if (/^={3,}\s*$/.test(nextLine) || /^-{3,}\s*$/.test(nextLine)) {
-        if (lines.length === 0) break;
-        break;
-      }
-    }
-
+    if (isParagraphBreak(ctx, trimmed)) break;
+    if (isSetextBreak(ctx, lines.length)) break;
     lines.push(trimmed);
     advance(ctx);
   }

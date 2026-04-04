@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   user.ts                                            :+:      :+:    :+:   */
+/*   logger.ts                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:07:44 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Created: 2026/04/04 22:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Timestamps } from './common';
+// Server-side logger for the DBMS middleware
 
-export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
-  locale: string;
-  startPage?: string;
-  sidebarCollapsed: boolean;
+const PREFIX = '[dbms]';
+
+/** Initialize the logger with the active source label. */
+export function initLogger(source: string): void {
+  console.log(`${PREFIX} Logger initialized for source: ${source}`);
 }
 
-export interface User extends Timestamps {
-  _id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  passwordHash: string;
-  preferences: UserPreferences;
-  lastLoginAt?: string;
+/** Log a lifecycle event (source switch, init, shutdown). */
+export function logLifecycle(message: string): void {
+  console.log(`${PREFIX} ${message}`);
 }

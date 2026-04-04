@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:44:03 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 17:44:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,15 @@ if (import.meta.hot) {
 }
 
 // Await WASM formula engine before first render to avoid #ERROR flash
-initFormulaEngine().finally(() => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  );
-});
+try {
+  await initFormulaEngine();
+} finally {
+  const root = document.getElementById('root');
+  if (root) {
+    createRoot(root).render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
+  }
+}

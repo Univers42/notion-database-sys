@@ -2,12 +2,10 @@
 import React from 'react';
 import type { BlockNode, InlineNode } from '../ast';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type O = any;
-
 export function renderTable(
   node: Extract<BlockNode, { type: 'table' }>,
-  o: O,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  o: any,
   key: number | string,
 ): React.ReactElement {
   const alignStyle = (i: number): React.CSSProperties | undefined => {
@@ -15,19 +13,21 @@ export function renderTable(
     return a ? { textAlign: a } : undefined;
   };
 
+  const headCells = node.head.cells.map((c, idx) => ({ c, idx }));
   const thead = React.createElement('thead', null,
     React.createElement('tr', null,
-      ...node.head.cells.map((c, i) =>
-        React.createElement('th', { key: i, style: alignStyle(i) }, ...renderInlines(c.children, o))
+      ...headCells.map(({ c, idx }) =>
+        React.createElement('th', { key: `h-${idx}`, style: alignStyle(idx) }, ...renderInlines(c.children, o))
       )
     )
   );
 
+  const rowEntries = node.rows.map((row, idx) => ({ idx, cells: row.cells.map((c, ci) => ({ c, ci })) }));
   const tbody = React.createElement('tbody', null,
-    ...node.rows.map((row, ri) =>
-      React.createElement('tr', { key: ri },
-        ...row.cells.map((c, ci) =>
-          React.createElement('td', { key: ci, style: alignStyle(ci) }, ...renderInlines(c.children, o))
+    ...rowEntries.map(({ idx: ri, cells }) =>
+      React.createElement('tr', { key: `r-${ri}` },
+        ...cells.map(({ c, ci }) =>
+          React.createElement('td', { key: `c-${ci}`, style: alignStyle(ci) }, ...renderInlines(c.children, o))
         )
       )
     )
@@ -40,14 +40,16 @@ export function renderTable(
 
 export function renderInlines(
   nodes: InlineNode[],
-  o: O,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  o: any,
 ): React.ReactNode[] {
   return nodes.map((n, i) => renderInlineNode(n, o, i));
 }
 
 export function renderInlineNode(
   node: InlineNode,
-  o: O,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  o: any,
   key: number | string,
 ): React.ReactNode {
   switch (node.type) {

@@ -1,53 +1,60 @@
 // Markdown parser — inline formatting parser
 import type { InlineNode } from './ast';
 import { EMOJI_MAP } from './parserEmoji';
+
+function handleNewline(nodes: InlineNode[], text: string, pos: number): void {
+  const lastNode = nodes.at(-1);
+  if (lastNode?.type === 'text' && lastNode.value.endsWith('  ')) {
+    lastNode.value = lastNode.value.slice(0, -2);
+    nodes.push({ type: 'line_break' });
+  } else if (pos > 0 && text[pos - 1] === '\\') {
+    if (lastNode?.type === 'text') {
+      lastNode.value = lastNode.value.slice(0, -1);
+    }
+    nodes.push({ type: 'line_break' });
+  } else {
+    nodes.push({ type: 'text', value: ' ' });
+  }
+}
+
+function appendChar(nodes: InlineNode[], ch: string): void {
+  const lastNode = nodes.at(-1);
+  if (lastNode?.type === 'text') {
+    lastNode.value += ch;
+  } else {
+    nodes.push({ type: 'text', value: ch });
+  }
+}
+
+/** Attempt to match an inline pattern at the given position. */
+function tryMatchInline(text: string, pos: number): { start: number; end: number; node: InlineNode } | null {
+  for (const matcher of INLINE_MATCHERS) {
+    const result = matcher(text, pos);
+    if (result) return result;
+  }
+  return null;
+}
+
 export function parseInline(text: string): InlineNode[] {
   if (!text) return [];
   const nodes: InlineNode[] = [];
   let pos = 0;
   while (pos < text.length) {
-    let matched = false;
-    for (const matcher of INLINE_MATCHERS) {
-      const result = matcher(text, pos);
-      if (result) {
-        if (result.start > pos) {
-          nodes.push({ type: 'text', value: text.slice(pos, result.start) });
-        }
-        nodes.push(result.node);
-        pos = result.end;
-        matched = true;
-        break;
+    const result = tryMatchInline(text, pos);
+    if (result) {
+      if (result.start > pos) {
+        nodes.push({ type: 'text', value: text.slice(pos, result.start) });
       }
-    }
-
-    if (!matched) {
-      if (text[pos] === '\n') {
-        const lastNode = nodes[nodes.length - 1];
-        if (lastNode?.type === 'text' && lastNode.value.endsWith('  ')) {
-          lastNode.value = lastNode.value.slice(0, -2);
-          nodes.push({ type: 'line_break' });
-        } else if (pos > 0 && text[pos - 1] === '\\') {
-          if (lastNode?.type === 'text') {
-            lastNode.value = lastNode.value.slice(0, -1);
-          }
-          nodes.push({ type: 'line_break' });
-        } else {
-          nodes.push({ type: 'text', value: ' ' });
-        }
-        pos++;
-        continue;
-      }
-
-      const lastNode = nodes[nodes.length - 1];
-      if (lastNode?.type === 'text') {
-        lastNode.value += text[pos];
-      } else {
-        nodes.push({ type: 'text', value: text[pos] });
-      }
+      nodes.push(result.node);
+      pos = result.end;
+    } else if (text[pos] === '\n') {
+      handleNewline(nodes, text, pos);
+      pos++;
+    } else {
+      appendChar(nodes, text[pos]);
       pos++;
     }
   }
-
   return nodes;
 }
 
@@ -76,7 +83,7 @@ const INLINE_MATCHERS: InlineMatcher[] = [
     const closeIdx = text.indexOf(closePattern, i);
     if (closeIdx === -1) return null;
     if (closeIdx + ticks < text.length && text[closeIdx + ticks] === '`') return null;
-    const value = text.slice(i, closeIdx).replace(/\n/g, ' ').replace(/^ (.+) $/, '$1');
+    const value = text.slice(i, closeIdx).replaceAll('\n', ' ').replace(/^ (.+) $/, '$1');
     return { start: pos, end: closeIdx + ticks, node: { type: 'code', value } };
   },
   (text, pos) => {
@@ -93,7 +100,7 @@ const INLINE_MATCHERS: InlineMatcher[] = [
     if (parenClose === -1) return null;
     const alt = text.slice(pos + 2, altClose);
     const inside = text.slice(altClose + 2, parenClose).trim();
-    const titleMatch = inside.match(/^(.*?)\s+"([^"]*)"$/);
+    const titleMatch = /^(.*?)\s+"([^"]*)"$/.exec(inside);
     const src = titleMatch ? titleMatch[1] : inside;
     const title = titleMatch ? titleMatch[2] : undefined;
     return { start: pos, end: parenClose + 1, node: { type: 'image', src, alt, title } };
@@ -106,7 +113,7 @@ const INLINE_MATCHERS: InlineMatcher[] = [
     if (parenClose === -1) return null;
     const label = text.slice(pos + 1, labelClose);
     const inside = text.slice(labelClose + 2, parenClose).trim();
-    const titleMatch = inside.match(/^(.*?)\s+"([^"]*)"$/);
+    const titleMatch = /^(.*?)\s+"([^"]*)"$/.exec(inside);
     const href = titleMatch ? titleMatch[1] : inside;
     const title = titleMatch ? titleMatch[2] : undefined;
     return { start: pos, end: parenClose + 1, node: { type: 'link', href, title, children: parseInline(label) } };
@@ -121,7 +128,7 @@ const INLINE_MATCHERS: InlineMatcher[] = [
   },
   (text, pos) => {
     if (text[pos] !== ':') return null;
-    const match = text.slice(pos).match(/^:([a-zA-Z0-9_+-]+):/);
+    const match = /^:([a-zA-Z0-9_+-]+):/.exec(text.slice(pos));
     if (!match) return null;
     const name = match[1];
     const emoji = EMOJI_MAP[name];
@@ -191,9 +198,9 @@ function matchDelimited(
 export function slugify(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replaceAll(/[^\w\s-]/g, '')
+    .replaceAll(/\s+/g, '-')
+    .replaceAll(/-+/g, '-')
     .trim();
 }
 

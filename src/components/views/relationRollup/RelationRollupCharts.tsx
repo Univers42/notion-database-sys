@@ -161,7 +161,7 @@ export function DataFlowSection({ analytics, pages }: Readonly<{ analytics: Rela
         <div className={cn("flex-1 flex flex-wrap gap-3 ml-4")}>
           {relationTargets.map((rt, i) => {
             if (!rt.targetDb) return null;
-            const targetPageCount = Object.values(pages).filter(p => p.databaseId === rt.targetDb!.id).length;
+            const targetPageCount = Object.values(pages).filter(p => p.databaseId === rt.targetDb?.id).length;
             return (
               <div key={rt.prop.id} className={cn("flex items-center gap-2")}>
                 <div className={cn("flex flex-col items-center")}>

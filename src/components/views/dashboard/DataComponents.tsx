@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ import { COLORS } from './constants';
 import { cn } from '../../../utils/cn';
 
 /** Renders a horizontal bar chart with percentage labels for categorical data. */
-export function BarChartWidget({ data, total }: { data: { count: number; color: string; label: string }[]; total: number }) {
+export function BarChartWidget({ data, total }: Readonly<{ data: { count: number; color: string; label: string }[]; total: number }>) {
   return (
     <div className={cn("flex flex-col gap-3")}>
       {data.map((item, i) => {
@@ -40,10 +40,10 @@ export function BarChartWidget({ data, total }: { data: { count: number; color: 
 }
 
 /** Renders aggregate statistics (sum, avg, min, max) for number properties. */
-export function NumberSummaryWidget({ numberProps, numberAggs }: {
+export function NumberSummaryWidget({ numberProps, numberAggs }: Readonly<{
   numberProps: SchemaProperty[];
   numberAggs: Record<string, { sum: number; count: number; min: number; max: number }>;
-}) {
+}>) {
   return (
     <div className={cn("flex flex-col gap-4")}>
       {numberProps.map(prop => {
@@ -73,11 +73,11 @@ export function NumberSummaryWidget({ numberProps, numberAggs }: {
 }
 
 /** Renders a clickable list of recently updated pages. */
-export function RecentList({ pages, openPage, getPageTitle }: {
+export function RecentList({ pages, openPage, getPageTitle }: Readonly<{
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
   openPage: (id: string) => void;
   getPageTitle: (p: unknown) => string;
-}) {
+}>) {
   return (
     <div className={cn("flex flex-col gap-1")}>
       {pages.map(page => {

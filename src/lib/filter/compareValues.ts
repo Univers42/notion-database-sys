@@ -1,5 +1,7 @@
 // ─── compareValues — pure sort comparator for property values ────────────────
 
+import { safeString } from '../../utils/safeString';
+
 /**
  * Compare two property values for sorting.
  *
@@ -15,5 +17,5 @@ export function compareValues(a: unknown, b: unknown, direction: 'asc' | 'desc')
   if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b) * mult;
   if (typeof a === 'number' && typeof b === 'number') return (a - b) * mult;
   if (typeof a === 'boolean' && typeof b === 'boolean') return ((a ? 1 : 0) - (b ? 1 : 0)) * mult;
-  return String(a).localeCompare(String(b)) * mult;
+  return safeString(a).localeCompare(safeString(b)) * mult;
 }

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:10:55 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:10:56 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,39 +57,39 @@ export class MongoDbAdapter implements DbAdapter {
   }
 
   async listEntities(): Promise<string[]> {
-    this.ensureConnected();
+    const db = this.ensureConnected();
     const cached = this.cache.get<string[]>('entities');
     if (cached) return cached;
 
-    const collections = await this.db!.listCollections().toArray();
+    const collections = await db.listCollections().toArray();
     const names = collections.map((c) => c.name).filter((n) => !n.startsWith('system.'));
     this.cache.set('entities', names);
     return names;
   }
 
   async getRecords(entity: string): Promise<DbRecord[]> {
-    this.ensureConnected();
+    const db = this.ensureConnected();
     const key = `records:${entity}`;
     const cached = this.cache.get<DbRecord[]>(key);
     if (cached) return cached;
 
-    const docs = await this.db!.collection(entity).find().toArray();
+    const docs = await db.collection(entity).find().toArray();
     const records = docs.map(docToRecord);
     this.cache.set(key, records);
     return records;
   }
 
   async getRecord(entity: string, id: string): Promise<DbRecord | null> {
-    this.ensureConnected();
-    const doc = await this.db!.collection(entity).findOne({ _id: id as unknown as Document['_id'] });
+    const db = this.ensureConnected();
+    const doc = await db.collection(entity).findOne({ _id: id as unknown as Document['_id'] });
     return doc ? docToRecord(doc) : null;
   }
 
   async updateRecord(
     entity: string, id: string, field: string, value: unknown,
   ): Promise<DbRecord> {
-    this.ensureConnected();
-    const result = await this.db!.collection(entity).findOneAndUpdate(
+    const db = this.ensureConnected();
+    const result = await db.collection(entity).findOneAndUpdate(
       { _id: id as unknown as Document['_id'] },
       { $set: { [field]: value } },
       { returnDocument: 'after' },
@@ -100,9 +100,9 @@ export class MongoDbAdapter implements DbAdapter {
   }
 
   async insertRecord(entity: string, record: Omit<DbRecord, 'id'>): Promise<DbRecord> {
-    this.ensureConnected();
+    const db = this.ensureConnected();
     const doc = { ...record };
-    const result = await this.db!.collection(entity).insertOne(doc);
+    const result = await db.collection(entity).insertOne(doc);
     this.cache.invalidatePrefix(`records:${entity}`);
     return { id: String(result.insertedId), ...record } as DbRecord;
   }
@@ -118,15 +118,16 @@ export class MongoDbAdapter implements DbAdapter {
 
   async ping(): Promise<boolean> {
     try {
-      this.ensureConnected();
-      await this.db!.command({ ping: 1 });
+      const db = this.ensureConnected();
+      await db.command({ ping: 1 });
       return true;
     } catch {
       return false;
     }
   }
 
-  private ensureConnected(): void {
+  private ensureConnected(): Db {
     if (!this.db) throw new Error('MongoDbAdapter: not connected. Call connect() first.');
+    return this.db;
   }
 }

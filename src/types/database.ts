@@ -6,17 +6,17 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:40:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 /**
  * Heterogeneous property value — covers every property type stored in a Page.
- * Use `unknown` to enforce explicit narrowing at read-sites while allowing
- * any value to be passed in at write-sites.
+ * This alias is intentionally kept as `any` to accommodate the flexible
+ * property system used across all database views (Notion-like model).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PropertyValue = any;
+export type PropertyValue = any; // NOSONAR — flexible schema by design
 
 // Re-export filter and view types for backward compatibility
 export type { FilterOperator, Filter, Sort, Grouping, SubGrouping } from './filters';

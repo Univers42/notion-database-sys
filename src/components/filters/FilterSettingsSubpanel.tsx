@@ -36,7 +36,7 @@ export type FilterSettingsSubpanelSlots = {
 };
 
 /** Renders the filter management sub-panel within ViewSettings with add/remove/edit support. */
-export function FilterSettingsSubpanel({ viewId, properties, filters, conjunction: _conjunction, onBack, onClose, slots }: {
+export function FilterSettingsSubpanel({ viewId, properties, filters, conjunction: _conjunction, onBack, onClose, slots }: Readonly<{
   viewId: string;
   properties: Record<string, SchemaProperty>;
   filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
@@ -44,7 +44,7 @@ export function FilterSettingsSubpanel({ viewId, properties, filters, conjunctio
   onBack: () => void;
   onClose: () => void;
   slots?: Partial<FilterSettingsSubpanelSlots>;
-}) {
+}>) {
   const [showAddPicker, setShowAddPicker] = useState(false);
   const { addFilter } = useDatabaseStore();
   const allProps = Object.values(properties);

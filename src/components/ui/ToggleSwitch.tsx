@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ export function ToggleSwitch({
 }: Readonly<ToggleSwitchProps>) {
   const trackW = size === 'sm' ? 26 : 32;
   const trackH = size === 'sm' ? 14 : 18;
-  const thumbW = size === 'sm' ? 14 : 14;
+  const thumbW = 14;
   const thumbOffset = size === 'sm' ? 12 : 14;
 
   const track = (

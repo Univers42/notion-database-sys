@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:29 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:40:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ function buildKey(expression: string, pageId: string, updatedAt: string): string
  * @param updatedAt - Timestamp for cache invalidation
  * @returns The cached value, or undefined if not cached
  */
-export function getCachedFormula(expression: string, pageId: string, updatedAt: string): unknown | undefined {
+export function getCachedFormula(expression: string, pageId: string, updatedAt: string): unknown {
   return formulaCache.get(buildKey(expression, pageId, updatedAt));
 }
 

@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Blocks are stored as a standalone collection (not embedded in pages)
 // to avoid the 16MB BSON document limit on large databases.
 
-import type { ObjectId, Timestamps, SoftDeletable } from './common';
+import type { Timestamps, SoftDeletable } from './common';
 
 export type BlockType =
   | 'paragraph'
@@ -59,10 +59,10 @@ export type BlockType =
  * `order` is a fractional index (e.g. "a0", "a1") for efficient reordering.
  */
 export interface Block extends Timestamps, SoftDeletable {
-  _id: ObjectId;
-  pageId: ObjectId;
-  workspaceId: ObjectId;
-  parentBlockId?: ObjectId;
+  _id: string;
+  pageId: string;
+  workspaceId: string;
+  parentBlockId?: string;
   type: BlockType;
   content: string;
   order: string;

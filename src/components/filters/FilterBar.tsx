@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,14 @@ export type FilterBarSlots = {
 };
 
 /** Renders the horizontal filter pill bar below the top bar with add/edit/remove support. */
-export function FilterBar({ filters, properties, conjunction: _conjunction, viewId, onOpenAdvanced, slots }: {
+export function FilterBar({ filters, properties, conjunction: _conjunction, viewId, onOpenAdvanced, slots }: Readonly<{
   filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   properties: Record<string, SchemaProperty>;
   conjunction: 'and' | 'or';
   viewId: string;
   onOpenAdvanced: () => void;
   slots?: Partial<FilterBarSlots>;
-}) {
+}>) {
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
   const [showAddPicker, setShowAddPicker] = useState(false);
   const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({});

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,17 @@ export function PanelItemRow({ item }: Readonly<{ item: PanelItem }>) {
 
 /* Action row: icon + label + optional shortcut */
 function ActionRow({ item }: Readonly<{ item: ActionItem }>) {
+  let variantClass: string;
+  if (item.danger) variantClass = 'text-danger-text hover:bg-hover-danger';
+  else if (item.active) variantClass = 'bg-surface-tertiary-soft2 text-ink';
+  else variantClass = 'text-ink-body hover:bg-hover-surface-soft2';
+
   return (
     <button
       onClick={item.onClick}
       className={cn(
         'w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md transition-colors',
-        item.danger
-          ? 'text-danger-text hover:bg-hover-danger'
-          : item.active
-            ? 'bg-surface-tertiary-soft2 text-ink'
-            : 'text-ink-body hover:bg-hover-surface-soft2',
+        variantClass,
       )}
     >
       {item.icon && (
@@ -74,8 +75,8 @@ function LinkRow({ item }: Readonly<{ item: LinkItem }>) {
   return (
     <a
       href={item.href}
-      target={item.external !== false ? '_blank' : undefined}
-      rel={item.external !== false ? 'noopener noreferrer' : undefined}
+      target={item.external === false ? undefined : '_blank'}
+      rel={item.external === false ? undefined : 'noopener noreferrer'}
       className={cn("w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md text-ink-body hover:bg-hover-surface-soft2 transition-colors no-underline")}
     >
       {item.icon && (
@@ -92,8 +93,8 @@ function LinkRow({ item }: Readonly<{ item: LinkItem }>) {
 function InfoRow({ item }: Readonly<{ item: InfoItem }>) {
   return (
     <div className={cn("px-2 py-1")}>
-      {item.lines.map((line, i) => (
-        <div key={i} className={cn("text-xs text-ink-muted leading-5 truncate")}>{line}</div>
+      {item.lines.map((line, idx) => ({ line, _key: `line-${idx}-${line}` })).map(({ line, _key }) => (
+        <div key={_key} className={cn("text-xs text-ink-muted leading-5 truncate")}>{line}</div>
       ))}
     </div>
   );

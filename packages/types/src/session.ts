@@ -6,16 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:39 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:07:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { ObjectId } from './common';
-
 /** Refresh token stored in MongoDB with TTL */
 export interface Session {
-  _id: ObjectId;
-  userId: ObjectId;
+  _id: string;
+  userId: string;
   refreshToken: string;
   userAgent?: string;
   ip?: string;
@@ -26,9 +24,9 @@ export interface Session {
 
 /** Ephemeral cursor presence (not persisted — managed in-memory or Redis) */
 export interface CursorPresence {
-  userId: ObjectId;
-  pageId: ObjectId;
-  blockId?: ObjectId;
+  userId: string;
+  pageId: string;
+  blockId?: string;
   cursor?: { line: number; column: number };
   color: string;
   name: string;

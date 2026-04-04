@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ export function FilterSortPanels({
         <div className={cn("fixed z-[9999]")}
           style={{ top: filterBtnRef.current.getBoundingClientRect().bottom + 4, left: filterBtnRef.current.getBoundingClientRect().left }}>
           <div className={cn("bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden", slots?.pickerPanel)}
-            ref={el => { if (!el) return; const handler = (e: MouseEvent) => { if (!el.contains(e.target as Node)) setShowFilterPropertyPicker(false); };
+            ref={el => { if (!el) { return; } const handler = (e: MouseEvent) => { if (!el.contains(e.target as Node)) setShowFilterPropertyPicker(false); };
               if (!el.dataset.listening) { el.dataset.listening = '1'; setTimeout(() => document.addEventListener('mousedown', handler), 0); } }}>
             <FilterPropertyPicker properties={Object.values(database.properties) as SchemaProperty[]}
               onSelect={propId => { const prop = database.properties[propId]; const ops = getOperatorsForType(prop?.type || 'text');

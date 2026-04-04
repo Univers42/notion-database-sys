@@ -6,29 +6,19 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:07:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-/** MongoDB ObjectId string representation */
-export type ObjectId = string;
-
-/** ISO 8601 date string */
-export type ISODateString = string;
-
-/** Heterogeneous property value — use `unknown` to enforce narrowing */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PropertyValue = any;
-
 /** Timestamp fields shared by most documents */
 export interface Timestamps {
-  createdAt: ISODateString;
-  updatedAt: ISODateString;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /** Soft-delete marker */
 export interface SoftDeletable {
   archived?: boolean;
-  archivedAt?: ISODateString;
-  archivedBy?: ObjectId;
+  archivedAt?: string;
+  archivedBy?: string;
 }

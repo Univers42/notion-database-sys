@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:39:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:49:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ const WAREHOUSES: { address: string; lat: number; lng: number }[] = [
   { address: 'London, United Kingdom',       lat: 51.5074,  lng: -0.1278 },
   { address: 'Sydney, Australia',            lat: -33.8688, lng: 151.2093 },
   { address: 'São Paulo, Brazil',           lat: -23.5505, lng: -46.6333 },
-  { address: 'Mumbai, India',               lat: 19.0760,  lng: 72.8777 },
+  { address: 'Mumbai, India',               lat: 19.076,   lng: 72.8777 },
   { address: 'Toronto, Canada',             lat: 43.6532,  lng: -79.3832 },
   { address: 'Singapore',                    lat: 1.3521,   lng: 103.8198 },
   { address: 'Dubai, UAE',                  lat: 25.2048,  lng: 55.2708 },
@@ -40,12 +40,12 @@ const WAREHOUSES: { address: string; lat: number; lng: number }[] = [
 const ORIGINS: { address: string; lat: number; lng: number }[] = [
   { address: 'Shenzhen, China',       lat: 22.5431, lng: 114.0579 },
   { address: 'Dhaka, Bangladesh',     lat: 23.8103, lng: 90.4125 },
-  { address: 'Milan, Italy',          lat: 45.4642, lng: 9.1900 },
+  { address: 'Milan, Italy',          lat: 45.4642, lng: 9.19 },
   { address: 'Osaka, Japan',          lat: 34.6937, lng: 135.5023 },
-  { address: 'Seoul, South Korea',    lat: 37.5665, lng: 126.9780 },
+  { address: 'Seoul, South Korea',    lat: 37.5665, lng: 126.978 },
   { address: 'Ho Chi Minh, Vietnam',  lat: 10.8231, lng: 106.6297 },
   { address: 'Guadalajara, Mexico',   lat: 20.6597, lng: -103.3496 },
-  { address: 'Berlin, Germany',       lat: 52.5200, lng: 13.4050 },
+  { address: 'Berlin, Germany',       lat: 52.52,   lng: 13.405 },
   { address: 'Istanbul, Turkey',      lat: 41.0082, lng: 28.9784 },
   { address: 'Portland, OR, USA',     lat: 45.5152, lng: -122.6784 },
 ];
@@ -53,8 +53,8 @@ const ORIGINS: { address: string; lat: number; lng: number }[] = [
 const MANAGERS = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry'];
 const BASE_PRICES = [149.99, 59.99, 39.99, 24.99, 44.99, 29.99, 12.99, 34.99, 59.99, 49.99];
 const PRICE_MULT = [
-  1.0, 0.6, 2.2, 0.8, 0.5, 1.4, 0.3, 1.8, 1.1, 0.7,
-  0.9, 1.5, 0.4, 1.2, 0.65, 1.3, 0.55, 2.0, 0.75, 1.6,
+  1, 0.6, 2.2, 0.8, 0.5, 1.4, 0.3, 1.8, 1.1, 0.7,
+  0.9, 1.5, 0.4, 1.2, 0.65, 1.3, 0.55, 2, 0.75, 1.6,
   0.45, 1.7, 0.85, 1.15, 0.35, 1.9, 0.95, 0.5, 1.05, 0.72,
 ];
 const STOCK_IDS = STOCK_OPTIONS.map(o => o.id);
@@ -65,7 +65,7 @@ const _BRAND_TAG_IDS = BRAND_TAG_OPTIONS.map(o => o.id);
 
 function mulberry32(seed: number): () => number {
   return () => {
-    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    seed = Math.trunc(seed); seed = Math.trunc(seed + 0x6D2B79F5);
     let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
@@ -75,7 +75,7 @@ function weightedPick<T>(items: T[], weights: number[], rng: () => number): T {
   const total = weights.reduce((s, w) => s + w, 0);
   let r = rng() * total;
   for (let i = 0; i < items.length; i++) { r -= weights[i]; if (r <= 0) return items[i]; }
-  return items[items.length - 1];
+  return items.at(-1)!; // NOSONAR
 }
 const STOCK_WEIGHTS   = [45, 22, 12, 5, 16];
 const CONDITION_WEIGHTS = [58, 18, 8, 16];

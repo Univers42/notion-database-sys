@@ -52,7 +52,7 @@ export function DbSourceDropdown() {
     try {
       await loadFromSource(type);
       setActiveSource(type);
-      document.documentElement.setAttribute('data-dbms-source', type);
+      document.documentElement.dataset.dbmsSource = type;
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {

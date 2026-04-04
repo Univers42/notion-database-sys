@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:51 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:28:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,124 @@ const BAR_V_PADDING = 6; // top+bottom inside the row
 const EDGE_SCROLL_ZONE = 40; // px from viewport edge to trigger auto-scroll
 const EDGE_SCROLL_SPEED = 12; // px per frame
 
+/** Handle edge auto-scrolling during a drag operation. */
+function handleAutoScroll(
+  clientX: number,
+  scrollEl: HTMLDivElement | null,
+  autoScrollRef: React.RefObject<number | null>,
+  dragActive: boolean,
+): void {
+  if (!scrollEl) return;
+  const rect = scrollEl.getBoundingClientRect();
+  const xInContainer = clientX - rect.left;
+  if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current);
+
+  if (xInContainer < EDGE_SCROLL_ZONE) {
+    const step = () => {
+      if (!scrollEl || !dragActive) return;
+      scrollEl.scrollLeft = Math.max(0, scrollEl.scrollLeft - EDGE_SCROLL_SPEED);
+      autoScrollRef.current = requestAnimationFrame(step);
+    };
+    autoScrollRef.current = requestAnimationFrame(step);
+  } else if (xInContainer > rect.width - EDGE_SCROLL_ZONE) {
+    const step = () => {
+      if (!scrollEl || !dragActive) return;
+      scrollEl.scrollLeft += EDGE_SCROLL_SPEED;
+      autoScrollRef.current = requestAnimationFrame(step);
+    };
+    autoScrollRef.current = requestAnimationFrame(step);
+  } else {
+    autoScrollRef.current = null;
+  }
+}
+
+/** Compute the drag position (left/width) based on drag kind and delta. */
+function computeDragPosition(
+  kind: DragKind,
+  originBar: BarGeometry,
+  delta: number,
+  cellWidth: number,
+): { liveLeft: number; liveWidth: number } {
+  if (kind === 'move') {
+    return {
+      liveLeft: (originBar.startDay + delta) * cellWidth,
+      liveWidth: originBar.width,
+    };
+  }
+  if (kind === 'resize-left') {
+    const { s, e } = clampDuration(originBar.startDay + delta, originBar.endDay);
+    return { liveLeft: s * cellWidth, liveWidth: (e - s) * cellWidth };
+  }
+  // resize-right
+  const { s, e } = clampDuration(originBar.startDay, originBar.endDay + delta);
+  return { liveLeft: s * cellWidth, liveWidth: (e - s) * cellWidth };
+}
+
+/** Renders the vertical "today" marker line. */
+function TodayMarker({ todayIdx, cellWidth }: Readonly<{ todayIdx: number; cellWidth: number }>) {
+  return (
+    <div
+      className={cn("absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none")}
+      style={{ left: todayIdx * cellWidth + cellWidth / 2 }}
+    />
+  );
+}
+
+/** Compute status/title/date metadata for a timeline bar. */
+function computeBarMeta(
+  pageProps: Record<string, unknown>,
+  startPropId: string | null,
+  endPropId: string | null,
+  statusProp: { id: string; options?: { id: string; value: string; color: string }[] } | undefined,
+  _title: string,
+): { colorSet: BarColorSet; statusLabel: string; dateLabel: string } {
+  const statusVal = statusProp ? pageProps[statusProp.id] : null;
+  const statusOpt = statusProp?.options?.find(o => o.id === statusVal);
+  const colorSet = getBarColorSet(statusOpt);
+  const statusLabel = statusOpt?.value ?? '';
+  const pgStart = startPropId && pageProps[startPropId]
+    ? new Date(pageProps[startPropId] as string) : null;
+  const pgEnd = endPropId && pageProps[endPropId]
+    ? new Date(pageProps[endPropId] as string) : null;
+  const dateLabel = pgStart ? compactDateRange(pgStart, pgEnd ?? null) : '';
+  return { colorSet, statusLabel, dateLabel };
+}
+
+/** Compute drag-override display values for a timeline bar. */
+function computeDragOverrides(
+  pageId: string, dragState: DragState | null, bar: BarGeometry | null,
+): { isDragging: boolean; displayLeft: number; displayWidth: number } {
+  const isDragging = dragState?.pageId === pageId;
+  const displayLeft = isDragging && dragState ? dragState.liveLeft : bar?.left ?? 0;
+  const displayWidth = isDragging && dragState ? dragState.liveWidth : bar?.width ?? 0;
+  return { isDragging, displayLeft, displayWidth };
+}
+
+/** Renders adaptive bar content based on available width. */
+function BarContent({ verbosity, statusLabel, dateLabel, icon }: Readonly<{
+  verbosity: string; statusLabel: string; dateLabel: string; icon?: string;
+}>) {
+  if (verbosity === 'color-only') return null;
+  if (verbosity === 'status') {
+    return <span className={cn("text-[10px] font-semibold truncate px-1")}>{statusLabel || '\u25CF'}</span>;
+  }
+  if (verbosity === 'status+dates') {
+    return (
+      <div className={cn("flex items-center gap-1 px-1 min-w-0")}>
+        <span className={cn("text-[10px] font-semibold truncate")}>{statusLabel}</span>
+        <span className={cn("text-[9px] opacity-70 shrink-0")}>{dateLabel}</span>
+      </div>
+    );
+  }
+  return (
+    <div className={cn("flex items-center gap-1.5 px-1.5 min-w-0")}>
+      {icon && <span className={cn("text-xs shrink-0")}>{icon}</span>}
+      <span className={cn("text-[11px] font-semibold truncate")}>{statusLabel}</span>
+      <span className={cn("text-[9px] opacity-70 shrink-0 ml-auto")}>{dateLabel}</span>
+    </div>
+  );
+}
+
 
 function BarTooltip({
   title,
@@ -83,6 +201,50 @@ function BarTooltip({
       <div className={cn("text-[10px] text-gray-400")}>{dateLabel}</div>
     </div>
   );
+}
+
+/** Apply drag delta for the 'move' kind. */
+function applyMoveDrag(
+  originBar: BarGeometry, delta: number, pageId: string,
+  startDate: Date, startPropId: string,
+  updateProp: (pid: string, propId: string, val: string) => void,
+  ensureEndProp: () => { id: string } | null,
+): void {
+  const newStart = addDays(startDate, originBar.startDay + delta);
+  updateProp(pageId, startPropId, newStart.toISOString());
+  if (!originBar.hasEndDate) return;
+  const ep = ensureEndProp();
+  if (!ep) return;
+  const newEnd = addDays(startDate, originBar.endDay + delta);
+  updateProp(pageId, ep.id, newEnd.toISOString());
+}
+
+/** Apply drag delta for the 'resize-left' kind. */
+function applyResizeLeftDrag(
+  originBar: BarGeometry, delta: number, pageId: string,
+  startDate: Date, startPropId: string,
+  updateProp: (pid: string, propId: string, val: string) => void,
+  ensureEndProp: () => { id: string } | null,
+): void {
+  const { s } = clampDuration(originBar.startDay + delta, originBar.endDay);
+  updateProp(pageId, startPropId, addDays(startDate, s).toISOString());
+  if (originBar.hasEndDate) return;
+  const ep = ensureEndProp();
+  if (!ep) return;
+  updateProp(pageId, ep.id, addDays(startDate, originBar.endDay).toISOString());
+}
+
+/** Apply drag delta for the 'resize-right' kind. */
+function applyResizeRightDrag(
+  originBar: BarGeometry, delta: number, pageId: string,
+  startDate: Date,
+  updateProp: (pid: string, propId: string, val: string) => void,
+  ensureEndProp: () => { id: string } | null,
+): void {
+  const { e: end } = clampDuration(originBar.startDay, originBar.endDay + delta);
+  const ep = ensureEndProp();
+  if (!ep) return;
+  updateProp(pageId, ep.id, addDays(startDate, end).toISOString());
 }
 
 /** Renders a drag-and-drop timeline (Gantt) view for date-based database pages. */
@@ -201,71 +363,10 @@ export function TimelineView() {
       const delta = currentDay - dragState.originDayIdx;
       if (delta === 0 && !dragState.hasMoved) return;
 
-      if (scrollRef.current) {
-        const rect = scrollRef.current.getBoundingClientRect();
-        const xInContainer = e.clientX - rect.left;
-        if (autoScrollRef.current) cancelAnimationFrame(autoScrollRef.current);
-        if (xInContainer < EDGE_SCROLL_ZONE) {
-          // Scroll left
-          const step = () => {
-            if (!scrollRef.current || !dragState) return;
-            scrollRef.current.scrollLeft = Math.max(0, scrollRef.current.scrollLeft - EDGE_SCROLL_SPEED);
-            autoScrollRef.current = requestAnimationFrame(step);
-          };
-          autoScrollRef.current = requestAnimationFrame(step);
-        } else if (xInContainer > rect.width - EDGE_SCROLL_ZONE) {
-          // Scroll right
-          const step = () => {
-            if (!scrollRef.current || !dragState) return;
-            scrollRef.current.scrollLeft += EDGE_SCROLL_SPEED;
-            autoScrollRef.current = requestAnimationFrame(step);
-          };
-          autoScrollRef.current = requestAnimationFrame(step);
-        } else {
-          autoScrollRef.current = null;
-        }
-      }
+      handleAutoScroll(e.clientX, scrollRef.current, autoScrollRef, !!dragState);
 
-      const { originBar } = dragState;
-
-      if (dragState.kind === 'move') {
-        setDragState(prev =>
-          prev
-            ? {
-                ...prev,
-                liveLeft: (originBar.startDay + delta) * config.cellWidth,
-                hasMoved: true,
-              }
-            : null,
-        );
-      } else if (dragState.kind === 'resize-left') {
-        const newStart = originBar.startDay + delta;
-        const { s, e: end } = clampDuration(newStart, originBar.endDay);
-        setDragState(prev =>
-          prev
-            ? {
-                ...prev,
-                liveLeft: s * config.cellWidth,
-                liveWidth: (end - s) * config.cellWidth,
-                hasMoved: true,
-              }
-            : null,
-        );
-      } else {
-        // resize-right
-        const newEnd = originBar.endDay + delta;
-        const { s, e: end } = clampDuration(originBar.startDay, newEnd);
-        setDragState(prev =>
-          prev
-            ? {
-                ...prev,
-                liveLeft: s * config.cellWidth,
-                liveWidth: (end - s) * config.cellWidth,
-                hasMoved: true,
-              }
-            : null,
-        );
-      }
+      const pos = computeDragPosition(dragState.kind, dragState.originBar, delta, config.cellWidth);
+      setDragState(prev => prev ? { ...prev, ...pos, hasMoved: true } : null);
     },
     [dragState, getDayFromMouse, config.cellWidth],
   );
@@ -287,31 +388,11 @@ export function TimelineView() {
 
       if (hasMoved && delta !== 0) {
         if (kind === 'move') {
-          const newStart = addDays(startDate, originBar.startDay + delta);
-          updatePageProperty(pageId, startProp.id, newStart.toISOString());
-          if (originBar.hasEndDate) {
-            const ep = ensureEndProp();
-            if (ep) {
-              const newEnd = addDays(startDate, originBar.endDay + delta);
-              updatePageProperty(pageId, ep.id, newEnd.toISOString());
-            }
-          }
+          applyMoveDrag(originBar, delta, pageId, startDate, startProp.id, updatePageProperty, ensureEndProp);
         } else if (kind === 'resize-left') {
-          const { s } = clampDuration(originBar.startDay + delta, originBar.endDay);
-          updatePageProperty(pageId, startProp.id, addDays(startDate, s).toISOString());
-          if (!originBar.hasEndDate) {
-            const ep = ensureEndProp();
-            if (ep) {
-              updatePageProperty(pageId, ep.id, addDays(startDate, originBar.endDay).toISOString());
-            }
-          }
+          applyResizeLeftDrag(originBar, delta, pageId, startDate, startProp.id, updatePageProperty, ensureEndProp);
         } else {
-          // resize-right — auto-create end-date property if needed
-          const { e: end } = clampDuration(originBar.startDay, originBar.endDay + delta);
-          const ep = ensureEndProp();
-          if (ep) {
-            updatePageProperty(pageId, ep.id, addDays(startDate, end).toISOString());
-          }
+          applyResizeRightDrag(originBar, delta, pageId, startDate, updatePageProperty, ensureEndProp);
         }
       }
 
@@ -340,13 +421,15 @@ export function TimelineView() {
     ? pages.find(p => p.id === datePicker.pageId) ?? null
     : null;
 
-  const dpStartDate = dpPage && startProp
-    ? (dpPage.properties[startProp.id] ? new Date(dpPage.properties[startProp.id]) : null)
-    : null;
+  let dpStartDate: Date | null = null;
+  if (dpPage && startProp && dpPage.properties[startProp.id]) {
+    dpStartDate = new Date(dpPage.properties[startProp.id]);
+  }
 
-  const dpEndDate = dpPage && endProp
-    ? (dpPage.properties[endProp.id] ? new Date(dpPage.properties[endProp.id]) : null)
-    : null;
+  let dpEndDate: Date | null = null;
+  if (dpPage && endProp && dpPage.properties[endProp.id]) {
+    dpEndDate = new Date(dpPage.properties[endProp.id]);
+  }
 
   const dpHasEnd = dpEndDate !== null && dpEndDate !== undefined;
 
@@ -431,10 +514,11 @@ export function TimelineView() {
               {displayedPages.map(page => {
                 const title = getPageTitle(page);
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={page.id}
                     className={cn(`flex items-center px-3 text-sm border-b border-line-light
-                                cursor-pointer transition-colors ${
+                                cursor-pointer transition-colors text-left ${
                       hoverRow === page.id ? 'bg-hover-surface2' : 'hover:bg-hover-surface-soft'
                     }`)}
                     style={{ height: config.rowHeight }}
@@ -448,7 +532,7 @@ export function TimelineView() {
                     <span className={cn("truncate text-ink")}>
                       {title || <span className={cn("text-ink-muted")}>Untitled</span>}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
 
@@ -498,36 +582,44 @@ export function TimelineView() {
                                 text-[10px] ${getDayHeaderBg(isTodayCol, isWeekend)}`)}
                     style={{ width: config.cellWidth }}
                   >
-                    {zoomLevel === 'day' ? (
-                      <div className={cn("flex flex-col items-center leading-tight")}>
-                        <span className={cn("text-ink-muted")}>{format(day, 'EEE')}</span>
+                    {(() => {
+                      if (zoomLevel === 'day') {
+                        return (
+                          <div className={cn("flex flex-col items-center leading-tight")}>
+                            <span className={cn("text-ink-muted")}>{format(day, 'EEE')}</span>
+                            <span
+                              className={cn(`font-medium ${
+                                isTodayCol
+                                  ? 'text-accent-text-light bg-accent-muted w-5 h-5 rounded-full flex items-center justify-center text-[10px]'
+                                  : 'text-ink-body'
+                              }`)}
+                            >
+                              {format(day, 'd')}
+                            </span>
+                          </div>
+                        );
+                      }
+                      if (zoomLevel === 'month') {
+                        return (
+                          <span
+                            className={cn(`font-medium ${
+                              isTodayCol ? 'text-accent-text-light' : 'text-ink-muted'
+                            }`)}
+                          >
+                            {day.getDate() === 1 || i === 0 ? format(day, 'd') : ''}
+                          </span>
+                        );
+                      }
+                      return (
                         <span
                           className={cn(`font-medium ${
-                            isTodayCol
-                              ? 'text-accent-text-light bg-accent-muted w-5 h-5 rounded-full flex items-center justify-center text-[10px]'
-                              : 'text-ink-body'
+                            isTodayCol ? 'text-accent-text-light' : 'text-ink-body'
                           }`)}
                         >
                           {format(day, 'd')}
                         </span>
-                      </div>
-                    ) : zoomLevel === 'month' ? (
-                      <span
-                        className={cn(`font-medium ${
-                          isTodayCol ? 'text-accent-text-light' : 'text-ink-muted'
-                        }`)}
-                      >
-                        {day.getDate() === 1 || i === 0 ? format(day, 'd') : ''}
-                      </span>
-                    ) : (
-                      <span
-                        className={cn(`font-medium ${
-                          isTodayCol ? 'text-accent-text-light' : 'text-ink-body'
-                        }`)}
-                      >
-                        {format(day, 'd')}
-                      </span>
-                    )}
+                      );
+                    })()}
                   </div>
                 );
               })}
@@ -537,11 +629,8 @@ export function TimelineView() {
 
           <div className={cn("relative overflow-hidden")} style={{ width: totalWidth }}>
             {/* Today marker */}
-            {todayIdx >= 0 && todayIdx < days.length && (
-              <div
-                className={cn("absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none")}
-                style={{ left: todayIdx * config.cellWidth + config.cellWidth / 2 }}
-              />
+            {todayIdx >= 0 && (
+              <TodayMarker todayIdx={todayIdx} cellWidth={config.cellWidth} />
             )}
 
             {displayedPages.map(page => {
@@ -550,26 +639,13 @@ export function TimelineView() {
                 startDate, config, zoomLevel,
               );
 
-              // Status color set
-              const statusVal = statusProp ? page.properties[statusProp.id] : null;
-              const statusOpt = statusProp?.options?.find(o => o.id === statusVal);
-              const colorSet = getBarColorSet(statusOpt);
-              const statusLabel = statusOpt?.value ?? '';
-
-              // Title & dates for tooltip
+              const { colorSet, statusLabel, dateLabel } = computeBarMeta(
+                page.properties, startProp.id, endProp?.id ?? null, statusProp, getPageTitle(page),
+              );
               const title = getPageTitle(page);
-              const pgStart = startProp && page.properties[startProp.id]
-                ? new Date(page.properties[startProp.id]) : null;
-              const pgEnd = endProp && page.properties[endProp.id]
-                ? new Date(page.properties[endProp.id]) : null;
-              const dateLabel = pgStart
-                ? compactDateRange(pgStart, pgEnd ?? null)
-                : '';
-
-              // Drag override
-              const isDragging = dragState?.pageId === page.id;
-              const displayLeft = isDragging ? dragState!.liveLeft : bar?.left ?? 0;
-              const displayWidth = isDragging ? dragState!.liveWidth : bar?.width ?? 0;
+              const { isDragging, displayLeft, displayWidth } = computeDragOverrides(
+                page.id, dragState, bar,
+              );
 
               // Adaptive verbosity
               const verbosity = computeBarVerbosity(displayWidth, config.cellWidth);
@@ -577,8 +653,10 @@ export function TimelineView() {
               const barHeight = config.rowHeight - BAR_V_PADDING * 2;
 
               return (
-                <div
+                <div // NOSONAR - timeline row pattern requires role="row"
                   key={page.id}
+                  role="row"
+                  tabIndex={0}
                   className={cn(`relative flex items-center border-b border-line-light transition-colors ${
                     hoverRow === page.id ? 'bg-hover-surface-soft' : ''
                   }`)}
@@ -589,14 +667,17 @@ export function TimelineView() {
                   {/* Background grid cells */}
                   <div className={cn("absolute inset-0 flex pointer-events-none")}>
                     {days.map((day, i) => (
-                      <div
+                      <div // NOSONAR - timeline grid cell pattern
                         key={day.toISOString()}
+                        role="gridcell"
+                        tabIndex={0}
                         className={cn(`shrink-0 border-r border-line-light h-full pointer-events-auto
                                     cursor-cell ${
                           getGridCellBg(todayIdx === i, day.getDay() === 0 || day.getDay() === 6)
                         }`)}
                         style={{ width: config.cellWidth }}
                         onClick={() => handleGridCellClick(i)}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGridCellClick(i); } }}
                       />
                     ))}
                   </div>
@@ -634,7 +715,8 @@ export function TimelineView() {
                       />
 
                       {/* Bar body — point bars drag to resize, range bars drag to move */}
-                      <div
+                      <button
+                        type="button"
                         className={cn(`flex-1 flex items-center justify-center overflow-hidden
                                     h-full ${bar?.isPoint && !isDragging
                                       ? 'cursor-ew-resize'
@@ -657,36 +739,15 @@ export function TimelineView() {
                           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                           openDatePicker(page.id, rect);
                         }}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const rect = e.currentTarget.getBoundingClientRect(); openDatePicker(page.id, rect); } }}
                       >
-                        {/* Adaptive content rendering */}
-                        {verbosity === 'color-only' ? null : verbosity === 'status' ? (
-                          <span className={cn("text-[10px] font-semibold truncate px-1")}>
-                            {statusLabel || '\u25CF'}
-                          </span>
-                        ) : verbosity === 'status+dates' ? (
-                          <div className={cn("flex items-center gap-1 px-1 min-w-0")}>
-                            <span className={cn("text-[10px] font-semibold truncate")}>
-                              {statusLabel}
-                            </span>
-                            <span className={cn("text-[9px] opacity-70 shrink-0")}>
-                              {dateLabel}
-                            </span>
-                          </div>
-                        ) : (
-                          /* full */
-                          <div className={cn("flex items-center gap-1.5 px-1.5 min-w-0")}>
-                            {page.icon && (
-                              <span className={cn("text-xs shrink-0")}>{page.icon}</span>
-                            )}
-                            <span className={cn("text-[11px] font-semibold truncate")}>
-                              {statusLabel}
-                            </span>
-                            <span className={cn("text-[9px] opacity-70 shrink-0 ml-auto")}>
-                              {dateLabel}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                        <BarContent
+                          verbosity={verbosity}
+                          statusLabel={statusLabel}
+                          dateLabel={dateLabel}
+                          icon={page.icon}
+                        />
+                      </button>
 
                       {/* Right resize handle */}
                       <div
@@ -714,9 +775,10 @@ export function TimelineView() {
             })}
 
             {/* "New" row */}
-            <div
+            <button
+              type="button"
               className={cn(`flex items-center border-b border-line-light text-ink-muted
-                         hover:bg-hover-surface-soft cursor-pointer transition-colors`)}
+                         hover:bg-hover-surface-soft cursor-pointer transition-colors text-left`)}
               style={{ height: config.rowHeight }}
               onClick={() => {
                 addPage(database.id, { [startProp.id]: today.toISOString() });
@@ -726,7 +788,7 @@ export function TimelineView() {
                 <Plus className={cn("w-3.5 h-3.5")} />
                 <span>New</span>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>

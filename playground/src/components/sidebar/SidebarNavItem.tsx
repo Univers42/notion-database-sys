@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,11 @@ export const SidebarNavItem: React.FC<Props> = ({
 }) => {
   const paddingLeft = 8 + indent * 12;
 
+  let stateClass: string;
+  if (active) stateClass = 'bg-[var(--color-surface-tertiary)] text-[var(--color-ink)]';
+  else if (subtle) stateClass = 'text-[var(--color-ink-faint)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-ink-muted)]';
+  else stateClass = 'text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-ink)]';
+
   return (
     <button
       type="button"
@@ -40,11 +45,7 @@ export const SidebarNavItem: React.FC<Props> = ({
         'w-full flex items-center gap-2 rounded-[6px] text-[14px] select-none',
         'transition-colors duration-100 cursor-pointer',
         'font-medium',
-        active
-          ? 'bg-[var(--color-surface-tertiary)] text-[var(--color-ink)]'
-          : subtle
-            ? 'text-[var(--color-ink-faint)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-ink-muted)]'
-            : 'text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-ink)]',
+        stateClass,
       ].join(' ')}
       style={{ paddingLeft, paddingRight: 8, height: 30, minHeight: 27 }}
     >

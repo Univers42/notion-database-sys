@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,9 +139,9 @@ export function MapView() {
   // Bridge for popup click → store
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).__mapOpenPage = (pageId: string) => openPage(pageId);
+    (globalThis as any).__mapOpenPage = (pageId: string) => openPage(pageId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return () => { delete (window as any).__mapOpenPage; };
+    return () => { delete (globalThis as any).__mapOpenPage; };
   }, [openPage]);
 
   if (!view || !database) return null;
@@ -167,7 +167,7 @@ export function MapView() {
         {/* Count badge */}
         {mappablePages.length > 0 && (
           <div className={cn("absolute bottom-3 left-3 z-[1000] bg-overlay backdrop-blur border border-line rounded-full px-3 py-1.5 shadow text-xs text-ink-body-light font-medium")}>
-            {mappablePages.length} location{mappablePages.length !== 1 ? 's' : ''}
+            {mappablePages.length} location{mappablePages.length === 1 ? '' : 's'}
           </div>
         )}
       </div>

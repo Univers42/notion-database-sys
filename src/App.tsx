@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 22:46:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ function App() {
 
   // ── Apply data-dbms-source attribute for theming ───────
   useEffect(() => {
-    document.documentElement.setAttribute('data-dbms-source', activeSource);
+    document.documentElement.dataset.dbmsSource = activeSource;
   }, [activeSource]);
 
   const [lockViews, setLockViews] = useState(false);

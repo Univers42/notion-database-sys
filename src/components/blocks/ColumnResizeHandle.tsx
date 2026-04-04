@@ -41,7 +41,10 @@ export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _
   }, [ratios, colIdx, updateBlock, pageId, blockId]);
 
   return (
-    <div
+    <div // NOSONAR - custom resize separator requires non-semantic element
+      role="separator"
+      tabIndex={0} // NOSONAR - resize separator needs tabIndex for keyboard access
+      aria-label="Resize column"
       className={cn(`w-1 shrink-0 cursor-col-resize rounded-full transition-colors self-stretch ${
         dragging ? 'bg-accent' : 'bg-transparent hover:bg-line-medium'
       }`)}

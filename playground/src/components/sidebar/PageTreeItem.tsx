@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,8 @@ export const PageTreeItem: React.FC<Props> = ({
         style={{ paddingLeft, paddingRight: 4 }}
       >
         {/* Expand/collapse chevron */}
-        <span
+        <button
+          type="button"
           className="flex items-center justify-center w-5 h-5 shrink-0 rounded hover:bg-[var(--color-surface-hover)]"
           onClick={e => { e.stopPropagation(); setExpanded(o => !o); }}
         >
@@ -98,7 +99,7 @@ export const PageTreeItem: React.FC<Props> = ({
               />
             )
             : <Icon size={13} className="opacity-50" />}
-        </span>
+        </button>
 
         {/* Page icon */}
         {page.icon
@@ -111,20 +112,22 @@ export const PageTreeItem: React.FC<Props> = ({
         {/* Action buttons — appear on hover */}
         {hovered && (
           <span className="flex items-center gap-0.5 mr-0.5 shrink-0">
-            <span
+            <button
+              type="button"
               className="p-1 rounded hover:bg-[var(--color-surface-secondary)]"
               onClick={e => e.stopPropagation()}
               title="More"
             >
               <MoreHorizontal size={13} />
-            </span>
-            <span
+            </button>
+            <button
+              type="button"
               className="p-1 rounded hover:bg-[var(--color-surface-secondary)]"
               onClick={handleAddChild}
               title="Add child page"
             >
               <Plus size={13} />
-            </span>
+            </button>
           </span>
         )}
       </button>

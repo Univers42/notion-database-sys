@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:54 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ export function useColumnResize(viewId: string) {
           const curView = store.views[viewId];
           if (curView) {
             store.updateViewSettings(viewId, {
-              columnWidths: { ...(curView.settings?.columnWidths || {}), [propId]: latestWidth },
+              columnWidths: { ...curView.settings?.columnWidths, [propId]: latestWidth },
             });
           }
         });
@@ -51,7 +51,7 @@ export function useColumnResize(viewId: string) {
       const curView = store.views[viewId];
       if (curView) {
         store.updateViewSettings(viewId, {
-          columnWidths: { ...(curView.settings?.columnWidths || {}), [propId]: latestWidth },
+          columnWidths: { ...curView.settings?.columnWidths, [propId]: latestWidth },
         });
       }
       document.removeEventListener('mousemove', handleMove);
@@ -70,7 +70,7 @@ export function useColumnResize(viewId: string) {
 export function useColWidth() {
   return useCallback((propId: string) => {
     const s = useDatabaseStore.getState();
-    const v = s.views[s.activeViewId!];
+    const v = s.activeViewId ? s.views[s.activeViewId] : undefined;
     return v?.settings?.columnWidths?.[propId] || 180;
   }, []);
 }

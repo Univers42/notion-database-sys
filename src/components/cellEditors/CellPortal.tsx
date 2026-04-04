@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:53 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,15 +37,14 @@ export function CellPortal({ onClose, minWidth = 280, maxWidth, maxHeight = '70v
       {rect && createPortal(
         <>
           <PortalBackdrop onClose={onClose} zIndex={Z.CELL_BACKDROP} />
-          <div
-            role="dialog"
-            aria-modal="true"
+          <dialog // NOSONAR - dialog requires event handlers for propagation control
+            open
             className={cn("fixed bg-surface-primary shadow-xl border border-line rounded-lg overflow-hidden", className)}
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, minWidth), maxWidth, maxHeight, zIndex: Z.CELL_EDITOR }}
             onClick={e => e.stopPropagation()}
             onKeyDown={e => { if (e.key === 'Escape') onClose(); }}>
             {children}
-          </div>
+          </dialog>
         </>,
         document.body
       )}

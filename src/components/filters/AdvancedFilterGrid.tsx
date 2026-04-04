@@ -92,7 +92,7 @@ function getFilterLabel(idx: number, conjunction: string): string {
 }
 
 /** Renders a grid-based advanced filter editor with per-row property, operator, and value controls. */
-export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilter, onUpdateFilter, onRemoveFilter, onDeleteAll, onClose: _onClose, slots }: {
+export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilter, onUpdateFilter, onRemoveFilter, onDeleteAll, onClose: _onClose, slots }: Readonly<{
   filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   properties: Record<string, SchemaProperty>;
   conjunction: 'and' | 'or';
@@ -102,7 +102,7 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
   onDeleteAll: () => void;
   onClose: () => void;
   slots?: Partial<AdvancedFilterGridSlots>;
-}) {
+}>) {
   const [showAddPicker, setShowAddPicker] = useState(false);
   const addBtnRef = useRef<HTMLButtonElement>(null);
   const allProps = Object.values(properties);

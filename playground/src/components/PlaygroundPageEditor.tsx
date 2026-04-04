@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +73,15 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
 
   if (blocks.length === 0) {
     return (
-      <div
-        className="flex-1 min-h-[200px] cursor-text"
+      <button
+        type="button"
+        className="flex-1 min-h-[200px] cursor-text text-left"
         onClick={() => handleInitBlock(blocks)}
       >
         <p className="text-sm text-[var(--color-ink-faint)] italic select-none pt-1">
           Click here to start writing…
         </p>
-      </div>
+      </button>
     );
   }
 

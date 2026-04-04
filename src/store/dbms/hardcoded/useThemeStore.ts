@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:43:47 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:28:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ const STORAGE_KEY = 'ndb-theme';
 
 /** Read the OS-level color preference */
 function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (globalThis.window === undefined) return 'light';
+  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 /** Read persisted preference from localStorage (defaults to 'system') */
@@ -34,8 +34,8 @@ function getStoredPreference(): ThemePreference {
 
 function applyTheme(resolved: ResolvedTheme): void {
   const el = document.documentElement;
-  if (el.getAttribute('data-theme') === resolved) return;
-  el.setAttribute('data-theme', resolved);
+  if (el.dataset.theme === resolved) return;
+  el.dataset.theme = resolved;
 }
 
 interface ThemeState {
@@ -73,8 +73,8 @@ export const useThemeStore = create<ThemeState>((set, get) => {
 });
 
 
-if (typeof window !== 'undefined') {
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+if (globalThis.window !== undefined) {
+  globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const { preference } = useThemeStore.getState();
     if (preference === 'system') {
       const resolved = getSystemTheme();

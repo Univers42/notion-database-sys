@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:07 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@ export function SubPanelHeader({ title, onBack, onClose }: Readonly<{ title: str
 }
 
 /** Renders a vertical list of selectable options with active highlighting. */
-export function OptionList({ options, activeId, onSelect }: {
+export function OptionList({ options, activeId, onSelect }: Readonly<{
   options: { id: string; label: string }[];
   activeId: string;
   onSelect: (id: string) => void;
-}) {
+}>) {
   return (
     <div className={cn("p-4 flex flex-col gap-1")}>
       {options.map(o => (
@@ -41,18 +41,18 @@ export function OptionList({ options, activeId, onSelect }: {
 }
 
 /** Renders a vertical list of database properties as selectable options. */
-export function PropertyOptionList({ properties, activeId, onSelect, noneLabel }: {
+export function PropertyOptionList({ properties, activeId, onSelect, noneLabel }: Readonly<{
   properties: { id: string; name: string }[];
   activeId: string;
   onSelect: (id: string) => void;
   noneLabel?: string;
-}) {
+}>) {
   return (
     <div className={cn("p-4 flex flex-col gap-1")}>
       {noneLabel && (
         <button onClick={() => onSelect('')}
           className={cn(`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
-            !activeId ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
+            activeId ? 'text-ink-body hover:bg-hover-surface' : 'bg-accent-soft text-accent-text font-medium'
           }`)}>
           {noneLabel}
         </button>

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:30:24 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,10 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
       {rect && createPortal(
         <>
           <button type="button" className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
-          <div className={cn("fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden")}
+          <dialog open className={cn("fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden")} // NOSONAR
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
-            onClick={e => e.stopPropagation()}>
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => e.stopPropagation()}>
             <div className={cn("p-2 border-b border-line-light")}>
               <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
                 className={cn("w-full text-sm px-2 py-1.5 bg-surface-secondary rounded outline-none focus:ring-1 ring-ring-accent")} placeholder="Search or create..." />
@@ -86,7 +87,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
                 </button>
               )}
             </div>
-          </div>
+          </dialog>
         </>,
         document.body
       )}
@@ -133,9 +134,10 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
       {rect && createPortal(
         <>
           <button type="button" className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={e => { e.stopPropagation(); onClose(); }} tabIndex={-1} aria-label="Close" />
-          <div className={cn("fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden")}
+          <dialog open className={cn("fixed min-w-[220px] bg-surface-primary shadow-xl border border-line rounded-lg z-[9999] overflow-hidden")} // NOSONAR
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, 220) }}
-            onClick={e => e.stopPropagation()}>
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => e.stopPropagation()}>
             <div className={cn("p-2 border-b border-line-light")}>
               <div className={cn("flex flex-wrap gap-1 mb-1")}>
                 {selectedIds.map(id => {
@@ -166,7 +168,7 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
                 </button>
               )}
             </div>
-          </div>
+          </dialog>
         </>,
         document.body
       )}

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import { DEFAULT_PROPERTY_ICONS } from './constants';
 import type { PanelScreen } from './constants';
 import type { SchemaProperty, PropertyValue } from '../../types/database';
 import { cn } from '../../utils/cn';
+import { safeString } from '../../utils/safeString';
 
 interface OptionScreenCfg {
   title: string;
@@ -30,7 +31,7 @@ const OPTION_SCREENS: Record<string, (_s: Record<string, PropertyValue>) => Opti
   loadLimit: (_s) => ({
     title: 'Load limit', back: 'layout',
     options: [5, 10, 25, 50, 75, 100, 150].map(n => ({ id: String(n), label: n + ' pages' })),
-    activeKey: 'loadLimit', defaultVal: '50', transform: id => Number(id),
+    activeKey: 'loadLimit', defaultVal: '50', transform: Number,
   }),
   cardPreview: (_s) => ({
     title: 'Card preview', back: 'layout',
@@ -91,7 +92,7 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
         <SubPanelHeader title={cfg.title} onBack={() => setScreen(cfg.back)} onClose={onClose} />
         <OptionList
           options={cfg.options}
-          activeId={String(settings[cfg.activeKey] ?? cfg.defaultVal)}
+          activeId={safeString(settings[cfg.activeKey] ?? cfg.defaultVal)}
           onSelect={id => { updateSetting(cfg.activeKey, cfg.transform ? cfg.transform(id) : id); setScreen(cfg.back); }}
         />
       </div>
@@ -133,7 +134,7 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
         <div className={cn("p-4 flex flex-col gap-1")}>
           <button onClick={() => { ctx.setGrouping(ctx.viewId, undefined); setScreen('layout'); }}
             className={cn(`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
-              !ctx.grouping ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
+              ctx.grouping ? 'text-ink-body hover:bg-hover-surface' : 'bg-accent-soft text-accent-text font-medium'
             }`)}>None</button>
           {ctx.groupableProps.map(p => (
             <button key={p.id} onClick={() => { ctx.setGrouping(ctx.viewId, { propertyId: p.id }); setScreen('layout'); }}

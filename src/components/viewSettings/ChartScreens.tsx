@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ import type { ChartScreensProps } from './ChartSubScreens';
 import { cn } from '../../utils/cn';
 
 /** Renders the main chart settings screen with type, axes, style, and data source controls. */
-export function EditChartScreen(props: ChartScreensProps) {
+export function EditChartScreen(props: Readonly<ChartScreensProps>) {
   const { setScreen, settings, updateSetting, allProps, databaseName, onClose, identityProps } = props;
   const ct = settings.chartType || 'vertical_bar';
   const xPropName = settings.xAxisProperty ? allProps.find(p => p.id === settings.xAxisProperty)?.name || 'Select' : 'Select';

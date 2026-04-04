@@ -13,6 +13,7 @@
 import React from 'react';
 import type { FormulaResult } from './constants';
 import { cn } from '../../../utils/cn';
+import { safeString } from '../../../utils/safeString';
 
 /** Render a sample grid of formula results for the first N pages across all formula columns. */
 export function SampleResultsTable({
@@ -52,17 +53,21 @@ export function SampleResultsTable({
                 const res = fr.results[rowIdx];
                 const val = res?.value;
                 const isError = res?.error;
+
+                let cellContent: React.ReactNode;
+                if (isError) {
+                  cellContent = <span className={cn("text-danger-text-faint")}>#ERR</span>;
+                } else if (typeof val === 'boolean') {
+                  cellContent = <span className={cn(val ? 'text-success-text' : 'text-ink-muted')}>{val ? '\u2713' : '\u2717'}</span>;
+                } else if (typeof val === 'number') {
+                  cellContent = <span className={cn("text-ink-body")}>{val.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>;
+                } else {
+                  cellContent = <span className={cn("text-ink-body-light truncate max-w-[120px] inline-block")}>{safeString(val) || '\u2014'}</span>;
+                }
+
                 return (
                   <td key={fr.propId} className={cn("py-1.5 px-2 text-right tabular-nums whitespace-nowrap")}>
-                    {isError ? (
-                      <span className={cn("text-danger-text-faint")}>#ERR</span>
-                    ) : typeof val === 'boolean' ? (
-                      <span className={cn(val ? 'text-success-text' : 'text-ink-muted')}>{val ? '✓' : '✗'}</span>
-                    ) : typeof val === 'number' ? (
-                      <span className={cn("text-ink-body")}>{val.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                    ) : (
-                      <span className={cn("text-ink-body-light truncate max-w-[120px] inline-block")}>{String(val ?? '—')}</span>
-                    )}
+                    {cellContent}
                   </td>
                 );
               })}

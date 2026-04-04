@@ -6,23 +6,23 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:07 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { PageModel } from '../models/page.model';
-import type { ObjectId, PropertyValue } from '@notion-db/types';
 
 export class PageService {
   /**
    * Create a new page in a workspace, optionally in a database.
    */
   async create(data: {
-    workspaceId: ObjectId;
-    databaseId?: ObjectId;
-    parentPageId?: ObjectId;
-    properties?: Record<string, PropertyValue>;
-    createdBy: ObjectId;
+    workspaceId: string;
+    databaseId?: string;
+    parentPageId?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    properties?: Record<string, any>;
+    createdBy: string;
     icon?: string;
     cover?: string;
     title?: string;
@@ -39,14 +39,14 @@ export class PageService {
   /**
    * Get a page by ID.
    */
-  async getById(pageId: ObjectId): Promise<unknown> {
+  async getById(pageId: string): Promise<unknown> {
     return PageModel.findById(pageId).lean();
   }
 
   /**
    * List pages in a database within a workspace.
    */
-  async listByDatabase(workspaceId: ObjectId, databaseId: ObjectId): Promise<unknown[]> {
+  async listByDatabase(workspaceId: string, databaseId: string): Promise<unknown[]> {
     return PageModel.find({
       workspaceId,
       databaseId,
@@ -57,7 +57,7 @@ export class PageService {
   /**
    * List top-level pages in a workspace (no parent database).
    */
-  async listRootPages(workspaceId: ObjectId): Promise<unknown[]> {
+  async listRootPages(workspaceId: string): Promise<unknown[]> {
     return PageModel.find({
       workspaceId,
       databaseId: null,
@@ -70,9 +70,10 @@ export class PageService {
    * Update page properties (partial merge).
    */
   async updateProperties(
-    pageId: ObjectId,
-    properties: Record<string, PropertyValue>,
-    editedBy: ObjectId,
+    pageId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    properties: Record<string, any>,
+    editedBy: string,
   ): Promise<unknown> {
     const update: Record<string, unknown> = { lastEditedBy: editedBy };
     for (const [key, val] of Object.entries(properties)) {
@@ -85,9 +86,9 @@ export class PageService {
    * General page update — title, icon, cover, content.
    */
   async updatePage(
-    pageId: ObjectId,
+    pageId: string,
     data: { title?: string; icon?: string; cover?: string; content?: unknown[]; parentPageId?: string | null },
-    editedBy: ObjectId,
+    editedBy: string,
   ): Promise<unknown> {
     const update: Record<string, unknown> = { lastEditedBy: editedBy };
     if (data.title !== undefined)        update.title        = data.title;
@@ -101,7 +102,7 @@ export class PageService {
   /**
    * List ALL pages in a workspace (root + children, for sidebar tree).
    */
-  async listAllPages(workspaceId: ObjectId): Promise<unknown[]> {
+  async listAllPages(workspaceId: string): Promise<unknown[]> {
     return PageModel.find({
       workspaceId,
       databaseId: null,
@@ -112,7 +113,7 @@ export class PageService {
   /**
    * Soft-delete (archive) a page.
    */
-  async archive(pageId: ObjectId, archivedBy: ObjectId): Promise<void> {
+  async archive(pageId: string, archivedBy: string): Promise<void> {
     await PageModel.updateOne(
       { _id: pageId },
       { archived: true, archivedAt: new Date(), archivedBy },
@@ -122,7 +123,7 @@ export class PageService {
   /**
    * Restore an archived page.
    */
-  async restore(pageId: ObjectId): Promise<void> {
+  async restore(pageId: string): Promise<void> {
     await PageModel.updateOne(
       { _id: pageId },
       { archived: false, $unset: { archivedAt: 1, archivedBy: 1 } },

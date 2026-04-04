@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:28:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,8 +151,8 @@ function flushPendingPersists() {
 }
 
 // Flush pending saves on page unload (refresh / tab close)
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', flushPendingPersists);
+if (globalThis.window !== undefined) {
+  globalThis.addEventListener('beforeunload', flushPendingPersists);
 }
 
 async function persistPageContent(pageId: string) {
@@ -208,6 +208,41 @@ function updatePageInState(
     return newPages;
   }
   return pages;
+}
+
+/** Creates a page updater that patches a single block. */
+function applyBlockUpdate(blockId: string, updates: Partial<Block>): (page: PageEntry) => PageEntry {
+  return (page) => ({
+    ...page,
+    content: (page.content ?? []).map(b => b.id === blockId ? { ...b, ...updates } : b),
+  });
+}
+
+/** Creates a page updater that inserts a block after another. */
+function applyBlockInsert(afterBlockId: string, block: Block): (page: PageEntry) => PageEntry {
+  return (page) => {
+    const content = [...(page.content ?? [])];
+    const afterIdx = content.findIndex(b => b.id === afterBlockId);
+    if (afterIdx >= 0) content.splice(afterIdx + 1, 0, block);
+    else content.push(block);
+    return { ...page, content };
+  };
+}
+
+/** Creates a page updater that removes a block. */
+function applyBlockDelete(blockId: string): (page: PageEntry) => PageEntry {
+  return (page) => ({
+    ...page,
+    content: (page.content ?? []).filter(b => b.id !== blockId),
+  });
+}
+
+/** Creates a page updater that changes a block's type. */
+function applyBlockTypeChange(blockId: string, newType: BlockType): (page: PageEntry) => PageEntry {
+  return (page) => ({
+    ...page,
+    content: (page.content ?? []).map(b => b.id === blockId ? { ...b, type: newType } : b),
+  });
 }
 
 /** Zustand store managing page tree, active page, recents, and block-level CRUD. */
@@ -371,43 +406,28 @@ export const usePageStore = create<PageStore>((set, get) => ({
 
   updateBlock: (pageId, blockId, updates) => {
     set(s => ({
-      pages: updatePageInState(s.pages, pageId, page => ({
-        ...page,
-        content: (page.content ?? []).map(b => b.id === blockId ? { ...b, ...updates } : b),
-      })),
+      pages: updatePageInState(s.pages, pageId, applyBlockUpdate(blockId, updates)),
     }));
     debouncePersistContent(pageId);
   },
 
   insertBlock: (pageId, afterBlockId, block) => {
     set(s => ({
-      pages: updatePageInState(s.pages, pageId, page => {
-        const content = [...(page.content ?? [])];
-        const afterIdx = content.findIndex(b => b.id === afterBlockId);
-        if (afterIdx >= 0) content.splice(afterIdx + 1, 0, block);
-        else content.push(block);
-        return { ...page, content };
-      }),
+      pages: updatePageInState(s.pages, pageId, applyBlockInsert(afterBlockId, block)),
     }));
     debouncePersistContent(pageId);
   },
 
   deleteBlock: (pageId, blockId) => {
     set(s => ({
-      pages: updatePageInState(s.pages, pageId, page => ({
-        ...page,
-        content: (page.content ?? []).filter(b => b.id !== blockId),
-      })),
+      pages: updatePageInState(s.pages, pageId, applyBlockDelete(blockId)),
     }));
     debouncePersistContent(pageId);
   },
 
   changeBlockType: (pageId, blockId, newType) => {
     set(s => ({
-      pages: updatePageInState(s.pages, pageId, page => ({
-        ...page,
-        content: (page.content ?? []).map(b => b.id === blockId ? { ...b, type: newType } : b),
-      })),
+      pages: updatePageInState(s.pages, pageId, applyBlockTypeChange(blockId, newType)),
     }));
     debouncePersistContent(pageId);
   },

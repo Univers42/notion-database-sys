@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
         <SidebarNavItem
           icon={<Search size={16} />}
           label="Search"
-          onClick={() => {/* TODO: open search modal */}}
+          onClick={() => { /* noop — search modal not yet implemented */ }}
         />
         <SidebarNavItem
           icon={<Home size={16} />}

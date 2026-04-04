@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:28 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,14 +65,18 @@ export function MediaBlock({ block, pageId }: Readonly<BlockRendererProps>) {
             src={block.url}
             controls
             className={cn("max-w-full rounded-lg border border-line")}
-          />
+          >
+            <track kind="captions" />
+          </video>
         </div>
       );
     }
     if (block.type === 'audio') {
       return (
         <div className={cn("my-2")}>
-          <audio src={block.url} controls className={cn("w-full")} />
+          <audio src={block.url} controls className={cn("w-full")}>
+            <track kind="captions" />
+          </audio>
         </div>
       );
     }

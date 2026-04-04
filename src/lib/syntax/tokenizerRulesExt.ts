@@ -15,7 +15,7 @@ export const javaRules: Rule[] = [
     'super','switch','synchronized','this','throw','throws','transient',
     'try','void','volatile','while',
   ]) },
-  { type: 'type',      pattern: /\b(?:boolean|byte|char|double|float|int|long|short|String|Object|Integer|Boolean|Double|Float|Long|Short|Byte|Character|List|Map|Set|ArrayList|HashMap|HashSet)\b/ },
+  { type: 'type',      pattern: kw(['boolean','byte','char','double','float','int','long','short','String','Object','Integer','Boolean','Double','Float','Long','Short','Byte','Character','List','Map','Set','ArrayList','HashMap','HashSet']) },
   { type: 'decorator', pattern: /@\w+/ },
   { type: 'function',  pattern: /\b[a-zA-Z_]\w*(?=\s*\()/ },
   ...cFamilyTail,
@@ -47,17 +47,20 @@ export const htmlRules: Rule[] = [
   { type: 'punctuation', pattern: /[<>/=]/ },
 ];
 
+const CSS_UNITS = /(?:px|em|rem|%|vh|vw|vmin|vmax|ch|ex|fr|deg|rad|turn|s|ms)/;
+const CSS_TAG_NAMES = ['html','body','div','span','a','p','h[1-6]','ul','ol','li','table','tr','td','th','form','input','button','img','section','article','nav','header','footer','main','aside'];
+
 export const cssRules: Rule[] = [
   { type: 'comment',     pattern: MULTI_LINE_COMMENT },
   { type: 'string',      pattern: DOUBLE_QUOTED_STRING },
   { type: 'string',      pattern: SINGLE_QUOTED_STRING },
   { type: 'keyword',     pattern: /@(?:media|import|keyframes|font-face|supports|charset|layer|property|container)\b/ },
   { type: 'property',    pattern: /[a-zA-Z-]+(?=\s*:)/ },
-  { type: 'number',      pattern: /\b\d+(?:\.\d+)?(?:px|em|rem|%|vh|vw|vmin|vmax|ch|ex|fr|deg|rad|turn|s|ms)?\b/ },
+  { type: 'number',      pattern: new RegExp(String.raw`\b\d+(?:\.\d+)?${CSS_UNITS.source}?\b`) },
   { type: 'constant',    pattern: /#[0-9a-fA-F]{3,8}\b/ },
   { type: 'builtin',     pattern: /\b(?:rgb|rgba|hsl|hsla|var|calc|min|max|clamp|url)\b/ },
   { type: 'type',        pattern: /\.[a-zA-Z_][\w-]*/ },
-  { type: 'tag',         pattern: /\b(?:html|body|div|span|a|p|h[1-6]|ul|ol|li|table|tr|td|th|form|input|button|img|section|article|nav|header|footer|main|aside)\b/ },
+  { type: 'tag',         pattern: new RegExp(String.raw`\b(?:${CSS_TAG_NAMES.join('|')})\b`) },
   { type: 'punctuation', pattern: /[{}();:,]/ },
 ];
 

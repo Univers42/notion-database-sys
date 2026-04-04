@@ -41,11 +41,11 @@ export function NumberEditor({ value, onChange }: Readonly<{ value: number | nul
 }
 
 /** Dropdown for selecting a single option from a property's option list. */
-export function SelectEditor({ value, options, onChange }: {
+export function SelectEditor({ value, options, onChange }: Readonly<{
   value: string;
   options: { id: string; value: string }[];
   onChange: (v: string | null) => void;
-}) {
+}>) {
   return (
     <select
       value={value || ''}
@@ -59,11 +59,11 @@ export function SelectEditor({ value, options, onChange }: {
 }
 
 /** Tag-style editor for selecting multiple options from a property's option list. */
-export function MultiSelectEditor({ value, options, onChange }: {
+export function MultiSelectEditor({ value, options, onChange }: Readonly<{
   value: string[];
   options: { id: string; value: string; color: string }[];
   onChange: (v: string[]) => void;
-}) {
+}>) {
   const selected = Array.isArray(value) ? value : [];
   return (
     <div className={cn("flex-1 flex flex-wrap items-center gap-1 px-2 py-1")}>

@@ -6,15 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:30:22 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useResizablePanel } from '../hooks/useResizablePanel';
-import { SidePeekView } from './pageModal/PeekViews';
-import { CenterPeekView } from './pageModal/PeekViews';
+import { SidePeekView, CenterPeekView } from './pageModal/PeekViews';
 import { FullPageView } from './pageModal/FullPageView';
 import { cn } from '../utils/cn';
 
@@ -52,10 +51,10 @@ function PageNotFound({ onClose }: Readonly<{ onClose: () => void }>) {
   return (
     <div className={cn("fixed inset-0 z-50 flex items-center justify-center bg-scrim")}>
       <button type="button" className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={onClose} tabIndex={-1} aria-label="Close" />
-      <div className={cn("relative z-[60] bg-surface-primary rounded-xl shadow-2xl p-8 text-center")} onClick={e => e.stopPropagation()}>
+      <dialog open className={cn("relative z-[60] bg-surface-primary rounded-xl shadow-2xl p-8 text-center")} onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>{/* NOSONAR */}
         <p className={cn("text-ink-secondary")}>Page not found</p>
         <button onClick={onClose} className={cn("mt-3 text-sm text-accent-text-soft")}>Close</button>
-      </div>
+      </dialog>
     </div>
   );
 }

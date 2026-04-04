@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:42 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ export interface ComputedData {
 export type ChartItem = { count: number; color: string; label: string };
 
 const STAT_ICONS = [
-  <Hash className={cn("w-5 h-5")} />, <TrendingUp className={cn("w-5 h-5")} />,
-  <Activity className={cn("w-5 h-5")} />, <BarChart3 className={cn("w-5 h-5")} />,
-  <PieChart className={cn("w-5 h-5")} />, <Users className={cn("w-5 h-5")} />,
+  <Hash key="hash" className={cn("w-5 h-5")} />, <TrendingUp key="trending" className={cn("w-5 h-5")} />,
+  <Activity key="activity" className={cn("w-5 h-5")} />, <BarChart3 key="bar" className={cn("w-5 h-5")} />,
+  <PieChart key="pie" className={cn("w-5 h-5")} />, <Users key="users" className={cn("w-5 h-5")} />,
 ];
 
 /** Resolves the display value and subtext for a stat widget from aggregated data. */

@@ -6,11 +6,10 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:35 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:07:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { ObjectId } from './common';
 import type {
   PropertyType, SelectOption, StatusGroup,
   FormulaConfig, RollupConfig, RelationConfig,
@@ -45,5 +44,5 @@ export interface DatabaseSchema {
   description?: string;
   properties: Record<string, SchemaProperty>;
   titlePropertyId: string;
-  workspaceId?: ObjectId;
+  workspaceId?: string;
 }

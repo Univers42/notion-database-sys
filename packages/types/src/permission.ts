@@ -6,11 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:27 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:07:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { ObjectId, Timestamps } from './common';
+import type { Timestamps } from './common';
 
 /** Permission levels, ordered from least to most access */
 export type PermissionLevel =
@@ -22,7 +22,7 @@ export type PermissionLevel =
 
 /** Who the rule targets */
 export type PermissionTarget =
-  | { type: 'user'; userId: ObjectId }
+  | { type: 'user'; userId: string }
   | { type: 'role'; role: string }
   | { type: 'workspace' }
   | { type: 'public' };
@@ -32,10 +32,10 @@ export type PermissionTarget =
  * Cascading: page rules inherit from workspace unless overridden.
  */
 export interface AccessRule extends Timestamps {
-  _id: ObjectId;
-  workspaceId: ObjectId;
+  _id: string;
+  workspaceId: string;
   /** The page/block this rule applies to. null = workspace-level default */
-  resourceId?: ObjectId;
+  resourceId?: string;
   resourceType: 'workspace' | 'page' | 'database' | 'block';
   target: PermissionTarget;
   permission: PermissionLevel;
@@ -48,10 +48,10 @@ export interface AccessRule extends Timestamps {
  * Pre-computed for fast authorization checks. Refreshed on access rule changes.
  */
 export interface EffectivePermission {
-  _id: ObjectId;
-  userId: ObjectId;
-  workspaceId: ObjectId;
-  resourceId: ObjectId;
+  _id: string;
+  userId: string;
+  workspaceId: string;
+  resourceId: string;
   resourceType: 'workspace' | 'page' | 'database' | 'block';
   permission: PermissionLevel;
   computedAt: string;

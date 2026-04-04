@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ export function FormulaAnalyticsDashboard() {
     return formulaProps.map((prop) => {
       const results = pages.map((page) => {
         try {
-          const val = resolveFormula(database.id, page, prop.formulaConfig!.expression);
+          const val = resolveFormula(database.id, page, prop.formulaConfig?.expression ?? '');
           return { pageId: page.id, pageName: getPageTitle(page), value: val, error: val === '#ERROR' };
         } catch {
           return { pageId: page.id, pageName: getPageTitle(page), value: '#ERROR', error: true };
@@ -52,7 +52,7 @@ export function FormulaAnalyticsDashboard() {
       return {
         propId: prop.id,
         propName: prop.name,
-        expression: prop.formulaConfig!.expression,
+        expression: prop.formulaConfig?.expression ?? '',
         results,
       } as FormulaResult;
     });
@@ -114,16 +114,16 @@ export function FormulaAnalyticsDashboard() {
         </div>
 
         <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-6")}>
-          {marginPct && marginPct.resultType === 'number' && (
+          {marginPct?.resultType === 'number' && (
             <NumericFormulaCard title="Margin %" icon={<TrendingUp className={cn("w-5 h-5")} />} color="green" values={marginPct.numValues} expression={marginPct.expression} suffix="%" />
           )}
-          {invValue && invValue.resultType === 'number' && (
+          {invValue?.resultType === 'number' && (
             <NumericFormulaCard title="Inventory Value" icon={<Package className={cn("w-5 h-5")} />} color="blue" values={invValue.numValues} expression={invValue.expression} prefix="$" />
           )}
-          {profitScore && profitScore.resultType === 'number' && (
+          {profitScore?.resultType === 'number' && (
             <NumericFormulaCard title="Profit Score" icon={<DollarSign className={cn("w-5 h-5")} />} color="purple" values={profitScore.numValues} expression={profitScore.expression} />
           )}
-          {pricePerKg && pricePerKg.resultType === 'number' && (
+          {pricePerKg?.resultType === 'number' && (
             <NumericFormulaCard title="Price/kg" icon={<Scale className={cn("w-5 h-5")} />} color="amber" values={pricePerKg.numValues} expression={pricePerKg.expression} prefix="$" />
           )}
         </div>

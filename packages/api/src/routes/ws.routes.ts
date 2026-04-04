@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:03:35 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:03:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 21:01:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ export async function wsRoutes(app: FastifyInstance) {
 
       socket.on('message', (raw: unknown) => {
         try {
-          const msg = JSON.parse(String(raw));
+          if (typeof raw !== 'string') return;
+          const msg = JSON.parse(raw);
           // Handle cursor presence updates
           if (msg.type === 'cursor') {
             broadcastToWorkspace(request.params.workspaceId, clientId, {

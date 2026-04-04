@@ -1,10 +1,12 @@
 // ─── filterHelpers — private helper functions for filter evaluation ──────────
 
+import { safeString } from '../../utils/safeString';
+
 /**
  * Check if a value contains another value (string includes or array includes).
  */
 export function containsValue(val: unknown, fv: unknown): boolean {
-  if (typeof val === 'string') return val.toLowerCase().includes(String(fv).toLowerCase());
+  if (typeof val === 'string') return val.toLowerCase().includes(safeString(fv).toLowerCase());
   if (Array.isArray(val)) return val.includes(fv);
   return false;
 }

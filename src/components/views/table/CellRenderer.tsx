@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:45 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ import {
   renderCustom,
 } from './cellRenderers';
 import { cn } from '../../../utils/cn';
+import { safeString } from '../../../utils/safeString';
 
 /** Props passed to every cell renderer function. */
 export interface CellRendererProps {
@@ -84,6 +85,6 @@ export function renderCellContent(props: CellRendererProps): React.ReactNode {
     case 'last_edited_time': return renderTimestamp(prop, page);
     case 'created_by':
     case 'last_edited_by':  return renderUserMeta(prop, page);
-    default:                return <span className={cn("text-sm text-ink-secondary truncate block")}>{String(value || '')}</span>;
+    default:                return <span className={cn("text-sm text-ink-secondary truncate block")}>{safeString(value)}</span>;
   }
 }

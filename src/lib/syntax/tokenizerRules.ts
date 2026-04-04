@@ -17,7 +17,11 @@ export interface Rule {
 
 // Helper: build a keyword regex from a word list (word-boundary guarded)
 export const kw = (words: string[]) =>
-  new RegExp(`\\b(?:${words.join('|')})\\b`);
+  new RegExp(String.raw`\b(?:${words.join('|')})\b`);
+
+// Helper: case-insensitive keyword regex
+export const kwi = (words: string[]) =>
+  new RegExp(String.raw`\b(?:${words.join('|')})\b`, 'i');
 
 // --- Shared patterns ---
 export const SINGLE_LINE_COMMENT   = /\/\/.*/;
@@ -27,7 +31,9 @@ export const DOUBLE_DASH_COMMENT   = /--.*/;
 export const DOUBLE_QUOTED_STRING  = /"(?:[^"\\]|\\.)*"/;
 export const SINGLE_QUOTED_STRING  = /'(?:[^'\\]|\\.)*'/;
 export const BACKTICK_STRING       = /`(?:[^`\\]|\\.)*`/;
-export const NUMBER_LITERAL        = /\b(?:0[xXoObB][\da-fA-F_]+|\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?)\b/;
+const NUM_HEX_OCT_BIN             = /0[xXoObB][\da-fA-F_]+/;
+const NUM_DECIMAL                  = /\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?/;
+export const NUMBER_LITERAL        = new RegExp(String.raw`\b(?:${NUM_HEX_OCT_BIN.source}|${NUM_DECIMAL.source})\b`);
 export const COMMON_OPERATORS      = /[+\-*/%=!<>&|^~?:]+|\.{3}/;
 export const COMMON_PUNCTUATION    = /[{}()[\];,.]/;
 
@@ -83,7 +89,7 @@ export const tsRules: Rule[] = [
   { type: 'decorator', pattern: /@\w+/ },
   ...cFamilyLiterals,
   { type: 'keyword',   pattern: kw([...JS_KEYWORDS, ...TS_EXTRA_KEYWORDS]) },
-  { type: 'type',      pattern: /\b[A-Z][a-zA-Z0-9_]*\b/ },
+  { type: 'type',      pattern: /\b[A-Z]\w*\b/ },
   { type: 'function',  pattern: /\b[a-zA-Z_$]\w*(?=\s*[<(])/ },
   ...cFamilyTail,
 ];
@@ -127,7 +133,7 @@ export const rustRules: Rule[] = [
     'static','struct','super','trait','type','unsafe','use','where',
     'while','yield',
   ]) },
-  { type: 'type',      pattern: /\b(?:i8|i16|i32|i64|i128|isize|u8|u16|u32|u64|u128|usize|f32|f64|bool|char|str|String|Vec|Option|Result|Box|Rc|Arc|HashMap|HashSet|BTreeMap|BTreeSet)\b/ },
+  { type: 'type',      pattern: kw(['i8','i16','i32','i64','i128','isize','u8','u16','u32','u64','u128','usize','f32','f64','bool','char','str','String','Vec','Option','Result','Box','Rc','Arc','HashMap','HashSet','BTreeMap','BTreeSet']) },
   { type: 'builtin',   pattern: kw(['println', 'eprintln', 'format', 'panic', 'vec', 'todo', 'unimplemented', 'unreachable']) },
   { type: 'decorator', pattern: /#!?\[[\s\S]*?\]/ },
   { type: 'function',  pattern: /\b[a-zA-Z_]\w*(?=\s*[(<])/ },

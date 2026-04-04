@@ -17,11 +17,12 @@ import type { PropertyValue } from '../../../../types/database';
 import { RelationCellEditor } from '../../../cellEditors';
 import { ArrowUpRight, Sigma } from 'lucide-react';
 import { cn } from '../../../../utils/cn';
+import { safeString } from '../../../../utils/safeString';
 
 function formatBoolish(v: PropertyValue): string {
   if (v === true) return '✓';
   if (v === false) return '✗';
-  return String(v ?? '—');
+  return safeString(v) || '—';
 }
 
 function getRingStroke(pct: number): string {
@@ -44,18 +45,25 @@ export function renderFormula(p: CellRendererProps): React.ReactNode {
   const formulaResult = prop.formulaConfig
     ? resolveFormula(databaseId, page, prop.formulaConfig.expression)
     : '#N/A';
+  const hasValue = formulaResult != null && formulaResult !== '' && formulaResult !== '#ERROR';
+  let formulaDisplay: React.ReactNode;
+  if (hasValue) {
+    formulaDisplay = typeof formulaResult === 'number' ? formulaResult.toLocaleString() : safeString(formulaResult);
+  } else {
+    formulaDisplay = <span className={cn("text-danger-text-faint")}>{formulaResult === '#ERROR' ? '#ERROR' : 'Empty'}</span>;
+  }
+
   return (
-    <div className={cn("text-sm text-ink-body tabular-nums truncate font-mono cursor-pointer group/formula")}
-      onClick={e => { e.stopPropagation(); onFormulaEdit(prop.id); }} title="Click to edit formula">
+    <button type="button" className={cn("text-sm text-ink-body tabular-nums truncate font-mono cursor-pointer group/formula text-left")}
+      onClick={e => { e.stopPropagation(); onFormulaEdit(prop.id); }}
+      title="Click to edit formula">
       <div className={cn("flex items-center gap-1.5")}>
         <span className={cn("truncate")}>
-          {formulaResult != null && formulaResult !== '' && formulaResult !== '#ERROR'
-            ? (typeof formulaResult === 'number' ? formulaResult.toLocaleString() : String(formulaResult))
-            : <span className={cn("text-danger-text-faint")}>{formulaResult === '#ERROR' ? '#ERROR' : 'Empty'}</span>}
+          {formulaDisplay}
         </span>
         <Sigma className={cn("w-3 h-3 text-ink-disabled opacity-0 group-hover/formula:opacity-100 shrink-0")} />
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -73,7 +81,7 @@ export function renderRollup(p: CellRendererProps): React.ReactNode {
   if (displayAs === 'ring' && typeof rollupResult === 'number') return renderRollupRing(rollupResult);
   return (
     <div className={cn("text-sm text-ink-body tabular-nums truncate font-mono")}>
-      {typeof rollupResult === 'number' ? rollupResult.toLocaleString() : String(rollupResult)}
+      {typeof rollupResult === 'number' ? rollupResult.toLocaleString() : safeString(rollupResult)}
     </div>
   );
 }
@@ -83,8 +91,8 @@ export function renderRollupArray(arr: PropertyValue[], wrapContent: boolean): R
   if (arr.length === 0) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
   return (
     <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
-      {arr.map((v, i) => (
-        <span key={i} className={cn("inline-flex items-center px-1.5 py-0.5 rounded bg-surface-tertiary text-xs text-ink-body-light font-medium shrink-0 max-w-[120px] truncate")}>
+      {arr.map((v, idx) => ({ v, _key: `rv-${idx}-${safeString(v)}` })).map(({ v, _key }) => (
+        <span key={_key} className={cn("inline-flex items-center px-1.5 py-0.5 rounded bg-surface-tertiary text-xs text-ink-body-light font-medium shrink-0 max-w-[120px] truncate")}>
           {formatBoolish(v)}
         </span>
       ))}
@@ -161,8 +169,8 @@ export function renderAssignedTo(value: PropertyValue, wrapContent: boolean): Re
   if (assignees.length === 0) return <span className={cn("text-ink-muted text-sm")}>Unassigned</span>;
   return (
     <div className={cn(`flex items-center ${wrapContent ? 'flex-wrap gap-1' : '-space-x-1.5'}`)}>
-      {assignees.map((name, i) => (
-        <div key={i} className={cn("w-6 h-6 rounded-full bg-gradient-to-br from-gradient-violet2-from to-gradient-violet2-to text-ink-inverse flex items-center justify-center text-[10px] font-bold border-2 border-surface-primary shrink-0")} title={name}>
+      {assignees.map((name) => (
+        <div key={name} className={cn("w-6 h-6 rounded-full bg-gradient-to-br from-gradient-violet2-from to-gradient-violet2-to text-ink-inverse flex items-center justify-center text-[10px] font-bold border-2 border-surface-primary shrink-0")} title={name}>
           {String(name).charAt(0).toUpperCase()}
         </div>
       ))}

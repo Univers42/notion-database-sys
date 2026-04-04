@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ export function useFormulaAnalytics(formulaResults: FormulaResult[]) {
           return;
         }
         const v = r.value;
-        if (typeof v === 'number' && isFinite(v)) {
+        if (typeof v === 'number' && Number.isFinite(v)) {
           entry.numValues.push(v);
         } else if (typeof v === 'boolean') {
           if (v) entry.boolTrue++;

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ export function ToggleBlock({ block, pageId, onChange, onKeyDown }: Readonly<Blo
         >
           <ChevronRight
             className={cn(`w-3.5 h-3.5 text-ink-secondary transition-transform ${
-              !block.collapsed ? 'rotate-90' : ''
+              block.collapsed ? '' : 'rotate-90'
             }`)}
           />
         </button>

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:26 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,9 @@ function DragHandle({ blockId }: Readonly<{ blockId: string }>) {
   }, [blockId]);
 
   return (
-    <div
+    <button
+      type="button"
+      aria-label="Drag to reorder"
       draggable
       onDragStart={handleDragStart}
       className={cn("p-0.5 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors cursor-grab active:cursor-grabbing")}
@@ -77,7 +79,7 @@ function DragHandle({ blockId }: Readonly<{ blockId: string }>) {
         <circle cx="5.5" cy="12.5" r="1.5" />
         <circle cx="10.5" cy="12.5" r="1.5" />
       </svg>
-    </div>
+    </button>
   );
 }
 
@@ -146,7 +148,8 @@ export function DraggableBlockWrapper({
   const isDragged = draggedBlockId === block.id;
 
   return (
-    <div
+    <div // NOSONAR - block grouping pattern requires role="group"
+      role="group"
       data-block-id={block.id}
       className={cn(`group/block relative transition-opacity ${isDragged ? 'opacity-30' : ''}`)}
       onDragOver={handleDragOver}
@@ -164,7 +167,8 @@ export function DraggableBlockWrapper({
 /** Renders a placeholder input for empty page content to initiate the first block. */
 export function EmptyBlockPlaceholder({ onFocus }: Readonly<{ onFocus: () => void }>) {
   return (
-    <div
+    <div // NOSONAR - contentEditable placeholder requires div with textbox role
+      role="textbox"
       contentEditable
       data-block-editor
       className={cn("text-sm text-ink-muted outline-none py-1 focus:text-focus-text")}

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:37 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:30:19 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { cn } from '../../utils/cn';
 
 /** Renders a resizable vertical spacer block. */
-export function SpacerBlock({ block, pageId }: { block: { id: string; spacerHeight?: number }; pageId: string }) {
+export function SpacerBlock({ block, pageId }: Readonly<{ block: { id: string; spacerHeight?: number }; pageId: string }>) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
   const height = block.spacerHeight || 40;
   const [dragging, setDragging] = useState(false);
@@ -49,7 +49,10 @@ export function SpacerBlock({ block, pageId }: { block: { id: string; spacerHeig
       className={cn("group/spacer relative")}
       style={{ height }}
     >
-      <div
+      <div // NOSONAR - custom resize separator requires non-semantic element
+        role="separator"
+        tabIndex={0} // NOSONAR - resize separator needs tabIndex for keyboard access
+        aria-label="Resize spacer"
         className={cn(`absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 rounded-full cursor-row-resize transition-colors ${
           dragging
             ? 'bg-accent'

@@ -6,12 +6,31 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { DatabaseSchema, SchemaProperty, PropertyType, SelectOption } from '../../types/database';
+import type { DatabaseSchema, SchemaProperty, PropertyType, SelectOption, ViewConfig } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
+
+/** Remove a property from all views belonging to a database. */
+function removePropertyFromViews(
+  views: Record<string, ViewConfig>,
+  databaseId: string,
+  propertyId: string,
+): Record<string, ViewConfig> {
+  const updated = { ...views };
+  for (const vId of Object.keys(updated)) {
+    const v = updated[vId];
+    if (v.databaseId === databaseId) {
+      updated[vId] = {
+        ...v,
+        visibleProperties: v.visibleProperties.filter((id: string) => id !== propertyId),
+      };
+    }
+  }
+  return updated;
+}
 
 export interface DatabaseSliceState {
   databases: Record<string, DatabaseSchema>;
@@ -59,7 +78,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
       const updatedViews = { ...state.views };
       if (state.activeViewId) {
         const activeView = updatedViews[state.activeViewId];
-        if (activeView && activeView.databaseId === databaseId) {
+        if (activeView?.databaseId === databaseId) {
           updatedViews[state.activeViewId] = {
             ...activeView,
             visibleProperties: [...activeView.visibleProperties, newPropId],
@@ -106,7 +125,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
 
     updateProperty: (databaseId, propertyId, updates) => set((state: DatabaseState) => {
       const db = state.databases[databaseId];
-      if (!db || !db.properties[propertyId]) return state;
+      if (!db?.properties[propertyId]) return state;
       return {
         databases: {
           ...state.databases,
@@ -126,20 +145,9 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
       if (!db) return state;
       const { [propertyId]: _, ...remainingProps } = db.properties;
 
-      const updatedViews = { ...state.views };
-      Object.keys(updatedViews).forEach(vId => {
-        const v = updatedViews[vId];
-        if (v.databaseId === databaseId) {
-          updatedViews[vId] = {
-            ...v,
-            visibleProperties: v.visibleProperties.filter((id: string) => id !== propertyId),
-          };
-        }
-      });
-
       return {
         databases: { ...state.databases, [databaseId]: { ...db, properties: remainingProps } },
-        views: updatedViews,
+        views: removePropertyFromViews(state.views, databaseId, propertyId),
       };
     }),
 

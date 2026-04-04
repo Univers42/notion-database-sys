@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ import { CURSORS } from '../../ui/cursors';
 import type { Page, SchemaProperty, PropertyValue } from '../../../types/database';
 import { CARD_COVER_GRADIENTS as COVER_COLORS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
+import { safeString } from '../../../utils/safeString';
 
 /** Returns the Tailwind width class for a board column based on card size. */
 export function getColumnWidth(cardSize: string) {
@@ -28,45 +29,56 @@ export function getColumnWidth(cardSize: string) {
   }
 }
 
+function renderSelectValue(prop: SchemaProperty, val: PropertyValue) {
+  const opt = prop.options?.find(o => o.id === val);
+  return opt ? <span className={cn(`inline-block w-fit px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+}
+
+function renderMultiSelectValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
+  const ids: string[] = Array.isArray(val) ? val : [];
+  return (
+    <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>      {ids.map(id => {
+        const opt = prop.options?.find(o => o.id === id);
+        return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+      })}
+    </div>
+  );
+}
+
+function renderPersonValue(val: PropertyValue) {
+  return (
+    <div className={cn("flex items-center gap-1")}>
+      <div className={cn("w-4 h-4 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[8px] font-bold")}>{safeString(val).charAt(0).toUpperCase()}</div>
+      <span className={cn("text-xs text-ink-body-light")}>{safeString(val)}</span>
+    </div>
+  );
+}
+
+function renderCheckboxValue(prop: SchemaProperty, val: PropertyValue) {
+  return (
+    <div className={cn("flex items-center gap-1")}>
+      <div className={cn(`w-3.5 h-3.5 rounded border ${val ? 'bg-accent border-accent-border' : 'border-line-medium'} flex items-center justify-center`)}>
+        {val && <span className={cn("text-ink-inverse text-[8px]")}>✓</span>}
+      </div>
+      <span className={cn("text-xs text-ink-secondary")}>{prop.name}</span>
+    </div>
+  );
+}
+
 /** Renders a compact property value for display inside a board card. */
 export function renderBoardPropertyValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
   if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) return null;
-  if (prop.type === 'select' || prop.type === 'status') {
-    const opt = prop.options?.find(o => o.id === val);
-    return opt ? <span className={cn(`inline-block w-fit px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+  switch (prop.type) {
+    case 'select':
+    case 'status':       return renderSelectValue(prop, val);
+    case 'multi_select': return renderMultiSelectValue(prop, val, wrapContent);
+    case 'date':         return <div className={cn("text-xs text-ink-secondary")}>{format(new Date(val), 'MMM d')}</div>;
+    case 'user':
+    case 'person':       return renderPersonValue(val);
+    case 'number':       return <div className={cn("text-xs text-ink-secondary tabular-nums")}>{prop.name}: {Number(val).toLocaleString()}</div>;
+    case 'checkbox':     return renderCheckboxValue(prop, val);
+    default:             return null;
   }
-  if (prop.type === 'multi_select') {
-    const ids: string[] = Array.isArray(val) ? val : [];
-    return (
-      <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
-        {ids.map(id => {
-          const opt = prop.options?.find(o => o.id === id);
-          return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
-        })}
-      </div>
-    );
-  }
-  if (prop.type === 'date') return <div className={cn("text-xs text-ink-secondary")}>{format(new Date(val), 'MMM d')}</div>;
-  if (prop.type === 'user' || prop.type === 'person') {
-    return (
-      <div className={cn("flex items-center gap-1")}>
-        <div className={cn("w-4 h-4 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[8px] font-bold")}>{String(val).charAt(0).toUpperCase()}</div>
-        <span className={cn("text-xs text-ink-body-light")}>{val}</span>
-      </div>
-    );
-  }
-  if (prop.type === 'number') return <div className={cn("text-xs text-ink-secondary tabular-nums")}>{prop.name}: {Number(val).toLocaleString()}</div>;
-  if (prop.type === 'checkbox') {
-    return (
-      <div className={cn("flex items-center gap-1")}>
-        <div className={cn(`w-3.5 h-3.5 rounded border ${val ? 'bg-accent border-accent-border' : 'border-line-medium'} flex items-center justify-center`)}>
-          {val && <span className={cn("text-ink-inverse text-[8px]")}>✓</span>}
-        </div>
-        <span className={cn("text-xs text-ink-secondary")}>{prop.name}</span>
-      </div>
-    );
-  }
-  return null;
 }
 
 /** Renders an optional preview section (cover, content, or properties) at the top of a board card. */
@@ -80,15 +92,14 @@ export function BoardCardPreview({ cardPreview, coverColor, page, nonTitleGroupP
   if (cardPreview === 'none') return null;
 
   if (cardPreview === 'page_cover') {
+    let coverContent: React.ReactNode;
+    if (page.cover) coverContent = <img src={page.cover} alt="" className={cn("w-full h-full object-cover")} />;
+    else if (page.icon) coverContent = <span className={cn("text-3xl")}>{page.icon}</span>;
+    else coverContent = <Image className={cn("w-6 h-6 text-ink-disabled")} />;
+
     return (
       <div className={cn(`h-24 ${coverColor} flex items-center justify-center rounded-t-lg -mx-3 -mt-3 mb-2 overflow-hidden`)}>
-        {page.cover ? (
-          <img src={page.cover} alt="" className={cn("w-full h-full object-cover")} />
-        ) : page.icon ? (
-          <span className={cn("text-3xl")}>{page.icon}</span>
-        ) : (
-          <Image className={cn("w-6 h-6 text-ink-disabled")} />
-        )}
+        {coverContent}
       </div>
     );
   }
@@ -141,11 +152,12 @@ export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGro
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];
 
   return (
-    <div draggable
+    <button type="button" draggable
       onDragStart={e => onDragStart(e, page.id)}
       onClick={() => openPage(page.id)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
       style={{ cursor: CURSORS.grab }}
-      className={cn("bg-surface-primary p-3 rounded-lg shadow-sm border border-line active:cursor-grabbing hover:shadow-md hover:border-hover-border transition-all group/card")}>
+      className={cn("bg-surface-primary p-3 rounded-lg shadow-sm border border-line active:cursor-grabbing hover:shadow-md hover:border-hover-border transition-all group/card text-left")}>
       <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} nonTitleGroupProps={nonTitleGroupProps} wrapContent={wrapContent} />
       <div className={cn("flex items-center gap-1 mb-1")}>
         <div className={cn(`font-medium text-sm text-ink flex-1 min-w-0 ${wrapContent ? 'break-words' : 'truncate'}`)}>
@@ -168,6 +180,6 @@ export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGro
           })}
         </div>
       )}
-    </div>
+    </button>
   );
 }

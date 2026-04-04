@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,14 +55,6 @@ export function getTimelineConfig(zoomLevel: string): TimelineConfig {
         label: (d: Date) => format(d, 'EEE d'),
         headerLabel: (d: Date) => format(d, 'MMM yyyy'),
       };
-    case 'week':
-      return {
-        cellWidth: 48,
-        daysToShow: 42,
-        rowHeight: ROW_HEIGHT,
-        label: (d: Date) => format(d, 'd'),
-        headerLabel: (d: Date) => format(d, 'MMM yyyy'),
-      };
     case 'month':
       return {
         cellWidth: 18,
@@ -71,6 +63,7 @@ export function getTimelineConfig(zoomLevel: string): TimelineConfig {
         label: (d: Date) => format(d, 'd'),
         headerLabel: (d: Date) => format(d, 'MMM yyyy'),
       };
+    case 'week':
     default:
       return {
         cellWidth: 48,
@@ -89,7 +82,7 @@ export function getMonthGroups(days: Date[]): MonthGroup[] {
   for (const d of days) {
     const m = getMonth(d);
     const y = d.getFullYear();
-    if (!currentGroup || currentGroup.month !== m || currentGroup.year !== y) {
+    if (currentGroup?.month !== m || currentGroup?.year !== y) {
       currentGroup = {
         label: format(startOfMonth(d), 'MMM yyyy'),
         colSpan: 1,
@@ -134,7 +127,7 @@ export function findDateProperties(
   ) ?? null;
 
   // 2. Find start prop from remaining
-  const remaining = endProp ? dateLike.filter(p => p.id !== endProp!.id) : dateLike;
+  const remaining = endProp ? dateLike.filter(p => p.id !== endProp?.id) : dateLike;
   let startProp = remaining.find(p =>
     startNames.some(n => p.name.toLowerCase().includes(n)),
   ) ?? remaining[0] ?? null;
@@ -145,7 +138,7 @@ export function findDateProperties(
   }
 
   // 4. Safety: ensure start and end are different
-  if (endProp && startProp && endProp.id === startProp.id) endProp = null;
+  if (endProp?.id === startProp?.id) endProp = null;
 
   return { startProp, endProp };
 }
@@ -171,14 +164,14 @@ export function getBarGeometry(
   if (!startVal) return null;
 
   const pageStart = new Date(startVal);
-  if (isNaN(pageStart.getTime())) return null;
+  if (Number.isNaN(pageStart.getTime())) return null;
 
   /* Determine if the page has a real end-date. */
   let pageEnd: Date | null = null;
   let hasEndDate = false;
   if (endPropId && page.properties[endPropId]) {
     const d = new Date(page.properties[endPropId]);
-    if (!isNaN(d.getTime()) && d > pageStart) {
+    if (!Number.isNaN(d.getTime()) && d > pageStart) {
       pageEnd = d;
       hasEndDate = true;
     }

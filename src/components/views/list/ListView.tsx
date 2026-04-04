@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,57 @@ import React from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { FileText, MoreHorizontal, ChevronDown, Plus } from 'lucide-react';
-import type { Page } from '../../../types/database';
+import type { Page, SchemaProperty } from '../../../types/database';
 import { format } from 'date-fns';
 import { cn } from '../../../utils/cn';
+import { safeString } from '../../../utils/safeString';
+
+/** Renders a compact property tag for the list view row. */
+function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactNode {
+  if (val === undefined || val === null || val === '') return null;
+
+  if (prop.type === 'select' || prop.type === 'status') {
+    const opt = prop.options?.find(o => o.id === val);
+    return opt ? (
+      <span key={prop.id} className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
+    ) : null;
+  }
+  if (prop.type === 'multi_select') {
+    const ids: string[] = Array.isArray(val) ? val : [];
+    return (
+      <div key={prop.id} className={cn("flex gap-1")}>
+        {ids.slice(0, 2).map(id => {
+          const opt = prop.options?.find(o => o.id === id);
+          return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+        })}
+        {ids.length > 2 && <span className={cn("text-xs text-ink-muted")}>+{ids.length - 2}</span>}
+      </div>
+    );
+  }
+  if (prop.type === 'date') {
+    return <span key={prop.id} className={cn("text-xs text-ink-secondary")}>{format(new Date(val as string | number), 'MMM d')}</span>;
+  }
+  if (prop.type === 'user' || prop.type === 'person') {
+    return (
+      <div key={prop.id} className={cn("flex items-center gap-1")}>
+        <div className={cn("w-5 h-5 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[10px] font-bold")}>
+          {safeString(val).charAt(0).toUpperCase()}
+        </div>
+      </div>
+    );
+  }
+  if (prop.type === 'checkbox') {
+    return (
+      <div key={prop.id} className={cn(`w-4 h-4 rounded border-2 flex items-center justify-center ${val ? 'bg-accent border-accent-border' : 'border-line-medium'}`)}>
+        {val && <span className={cn("text-ink-inverse text-[10px]")}>✓</span>}
+      </div>
+    );
+  }
+  if (prop.type === 'number') {
+    return <span key={prop.id} className={cn("text-xs text-ink-secondary tabular-nums")}>{Number(val).toLocaleString()}</span>;
+  }
+  return null;
+}
 
 /** Renders a list view of database pages with optional grouping and inline property tags. */
 export function ListView() {
@@ -49,52 +97,9 @@ export function ListView() {
         </div>
 
         <div className={cn("flex items-center gap-3 shrink-0 ml-4")}>
-          {visibleProps.filter(p => p.id !== database.titlePropertyId).map(prop => {
-            const val = page.properties[prop.id];
-            if (val === undefined || val === null || val === '') return null;
-
-            if (prop.type === 'select' || prop.type === 'status') {
-              const opt = prop.options?.find(o => o.id === val);
-              return opt ? (
-                <span key={prop.id} className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
-              ) : null;
-            }
-            if (prop.type === 'multi_select') {
-              const ids: string[] = Array.isArray(val) ? val : [];
-              return (
-                <div key={prop.id} className={cn("flex gap-1")}>
-                  {ids.slice(0, 2).map(id => {
-                    const opt = prop.options?.find(o => o.id === id);
-                    return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
-                  })}
-                  {ids.length > 2 && <span className={cn("text-xs text-ink-muted")}>+{ids.length - 2}</span>}
-                </div>
-              );
-            }
-            if (prop.type === 'date') {
-              return <span key={prop.id} className={cn("text-xs text-ink-secondary")}>{format(new Date(val), 'MMM d')}</span>;
-            }
-            if (prop.type === 'user' || prop.type === 'person') {
-              return (
-                <div key={prop.id} className={cn("flex items-center gap-1")}>
-                  <div className={cn("w-5 h-5 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[10px] font-bold")}>
-                    {String(val).charAt(0).toUpperCase()}
-                  </div>
-                </div>
-              );
-            }
-            if (prop.type === 'checkbox') {
-              return (
-                <div key={prop.id} className={cn(`w-4 h-4 rounded border-2 flex items-center justify-center ${val ? 'bg-accent border-accent-border' : 'border-line-medium'}`)}>
-                  {val && <span className={cn("text-ink-inverse text-[10px]")}>✓</span>}
-                </div>
-              );
-            }
-            if (prop.type === 'number') {
-              return <span key={prop.id} className={cn("text-xs text-ink-secondary tabular-nums")}>{Number(val).toLocaleString()}</span>;
-            }
-            return null;
-          })}
+          {visibleProps.filter(p => p.id !== database.titlePropertyId).map(prop =>
+            renderListPropertyTag(prop, page.properties[prop.id])
+          )}
 
           <button className={cn("p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity rounded hover:bg-hover-surface2")}>
             <MoreHorizontal className={cn("w-4 h-4")} />
@@ -121,7 +126,8 @@ export function ListView() {
                 {group.pages.slice(0, loadLimit).map(renderPageRow)}
               </div>
               <button onClick={() => {
-                const groupPropId = view.grouping!.propertyId;
+                if (!view.grouping) return;
+                const groupPropId = view.grouping.propertyId;
                 const val = group.groupId === '__unassigned__' ? null : group.groupId;
                 addPage(database.id, { [groupPropId]: val });
               }}

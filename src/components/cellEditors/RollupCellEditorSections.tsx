@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:36:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,11 +108,11 @@ export function CalculateSection({ fn, selectedFnLabel, fnGroups, open, calcSubm
 }
 
 /** Renders a collapsible sub-menu group within the calculation picker. */
-export function CalcSubmenuGroup({ label, items, activeFn, isOpen, onToggle, onSelect }: {
+export function CalcSubmenuGroup({ label, items, activeFn, isOpen, onToggle, onSelect }: Readonly<{
   label: string; items: readonly { value: RollupFunction; label: string }[];
   activeFn: RollupFunction; isOpen: boolean;
   onToggle: () => void; onSelect: (f: RollupFunction) => void;
-}) {
+}>) {
   return (
     <div className={cn("border-t border-line-light")}>
       <button onClick={onToggle} className={cn("w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-hover-surface-white transition-colors text-ink-body")}>

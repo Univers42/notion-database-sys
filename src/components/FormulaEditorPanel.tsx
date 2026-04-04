@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:22 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ import { Sidebar } from './formulaEditor/Sidebar';
 import { DocPanel } from './formulaEditor/DocPanel';
 import { useFormulaEditorPanel } from './useFormulaEditorPanel';
 import { cn } from '../utils/cn';
+import { safeString } from '../utils/safeString';
 
 function getPreviewContainerStyle(hasError: boolean, hasExpression: boolean): string {
   if (hasError) return 'bg-danger-surface-soft border-danger-border';
@@ -124,7 +125,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly
                   {expression.trim() ? (
                     <div className={cn("flex items-center gap-2")}>
                       <span className={cn(`text-sm font-mono truncate ${previewResult.error ? 'text-danger-text-soft' : 'text-ink'}`)}>
-                        {previewResult.value != null ? String(previewResult.value) : <span className={cn("text-ink-muted italic")}>Empty</span>}
+                        {previewResult.value == null ? <span className={cn("text-ink-muted italic")}>Empty</span> : safeString(previewResult.value)}
                       </span>
                       {previewResult.type && getReturnTypeBadge(previewResult.type)}
                     </div>
@@ -138,7 +139,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly
                     try {
                       if (!previewPageId || !storePages[previewPageId]) return '(no page)';
                       const page = storePages[previewPageId];
-                      return expression.replace(/prop\("([^"]+)"\)/g, (_m, pName) => {
+                      return expression.replaceAll(/prop\("([^"]+)"\)/g, (_m, pName) => {
                         const schemaProp = Object.values(db.properties).find(p => p.name === pName);
                         if (!schemaProp) return `<unknown:${pName}>`;
                         return JSON.stringify(page.properties[schemaProp.id]);

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:43:56 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ import { readViewFromHash, writeHash } from '../hooks/useDbSource';
 const VALID_SOURCES = new Set(['json', 'csv', 'mongodb', 'postgresql']);
 function getInitialSource(): string {
   try {
-    const params = new URLSearchParams(window.location.hash.slice(1));
+    const params = new URLSearchParams(globalThis.location.hash.slice(1));
     const src = params.get('source');
     if (src && VALID_SOURCES.has(src)) return src;
   } catch { /* SSR-safe */ }
@@ -79,6 +79,73 @@ function dispatchOps(action: string, payload: Record<string, unknown>, source: s
   }).catch(() => { /* ops dispatch is best-effort */ });
 }
 
+async function switchSource(source: string, set: (partial: Partial<ExtendedDatabaseState>) => void): Promise<void> {
+  const switchRes = await fetch('/api/dbms/source', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source }),
+  });
+  if (!switchRes.ok) throw new Error(`Switch failed: ${switchRes.statusText}`);
+  const switched = await switchRes.json();
+  const hashView = readViewFromHash();
+  const firstView = Object.keys(switched.views)[0] ?? null;
+  const viewId = (hashView && switched.views[hashView]) ? hashView : firstView;
+  set({
+    databases: switched.databases,
+    pages: switched.pages,
+    views: switched.views,
+    activeViewId: viewId,
+    activeDbmsSource: source,
+    dbmsLoading: false,
+  });
+  writeHash(source, viewId);
+}
+
+async function loadInitialState(set: (partial: Partial<ExtendedDatabaseState>) => void, get: () => ExtendedDatabaseState): Promise<void> {
+  const res = await fetch('/api/dbms/state');
+  if (!res.ok) throw new Error(`Load failed: ${res.statusText}`);
+  const state = await res.json();
+  const serverSource = state._source as string | undefined;
+  const hashView = readViewFromHash();
+  const firstView = Object.keys(state.views)[0] ?? null;
+  const currentView = get().activeViewId;
+
+  let viewId: string | null;
+  if (currentView && state.views[currentView]) viewId = currentView;
+  else if (hashView && state.views[hashView]) viewId = hashView;
+  else viewId = firstView;
+  set({
+    databases: state.databases,
+    pages: state.pages,
+    views: state.views,
+    activeViewId: viewId,
+    activeDbmsSource: serverSource ?? get().activeDbmsSource,
+    dbmsLoading: false,
+  });
+  if (serverSource) writeHash(serverSource, viewId);
+}
+
+/** Sends a debounced property-persist request to the DBMS server. */
+function sendPersistRequest(
+  pageId: string, propertyId: string, value: unknown,
+  sourceAtCallTime: string,
+  timers: Map<string, ReturnType<typeof setTimeout>>,
+  getSource: () => string,
+): void {
+  timers.delete(`${pageId}::${propertyId}`);
+  if (getSource() !== sourceAtCallTime) {
+    console.log(`[dbms] Persist skipped: source changed (${sourceAtCallTime} \u2192 ${getSource()})`);
+    return;
+  }
+  fetch(`/api/dbms/pages/${encodeURIComponent(pageId)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ propertyId, value, _source: sourceAtCallTime }),
+  }).catch((err) => console.error('[dbms] Persist error:', err));
+}
+
+const _persistTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
 /** Zustand store composing domain slices with DBMS persistence. */
 export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   databases: {},
@@ -97,52 +164,10 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     if (!silent) set({ dbmsLoading: true, dbmsError: null });
     try {
       if (source) {
-        // Explicit source switch — tell the server + load fresh data
-        const switchRes = await fetch('/api/dbms/source', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ source }),
-        });
-        if (!switchRes.ok) throw new Error(`Switch failed: ${switchRes.statusText}`);
-        const switched = await switchRes.json();
-        const hashView = readViewFromHash();
-        const firstView = Object.keys(switched.views)[0] ?? null;
-        // Restore the view from hash if it belongs to this source, else pick first
-        const viewId = (hashView && switched.views[hashView]) ? hashView : firstView;
-        set({
-          databases: switched.databases,
-          pages: switched.pages,
-          views: switched.views,
-          activeViewId: viewId,
-          activeDbmsSource: source,
-          dbmsLoading: false,
-        });
-        writeHash(source, viewId);
-        return;
+        await switchSource(source, set);
+      } else {
+        await loadInitialState(set, get);
       }
-      // Initial load (no source arg) — ask the server for its current state
-      const res = await fetch('/api/dbms/state');
-      if (!res.ok) throw new Error(`Load failed: ${res.statusText}`);
-      const state = await res.json();
-      const serverSource = state._source as string | undefined;
-      const hashView = readViewFromHash();
-      const firstView = Object.keys(state.views)[0] ?? null;
-      const currentView = get().activeViewId;
-      // Prefer: current view > hash view > first view
-      const viewId = (currentView && state.views[currentView])
-        ? currentView
-        : (hashView && state.views[hashView])
-          ? hashView
-          : firstView;
-      set({
-        databases: state.databases,
-        pages: state.pages,
-        views: state.views,
-        activeViewId: viewId,
-        activeDbmsSource: serverSource ?? get().activeDbmsSource,
-        dbmsLoading: false,
-      });
-      if (serverSource) writeHash(serverSource, viewId);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[dbms] Load error:', message);
@@ -150,29 +175,17 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     }
   },
 
-  persistPageProperty: (() => {
-    const timers = new Map<string, ReturnType<typeof setTimeout>>();
-    return (pageId: string, propertyId: string, value: unknown) => {
-      const key = `${pageId}::${propertyId}`;
-      const prev = timers.get(key);
-      if (prev) clearTimeout(prev);
-      // Capture source NOW (before debounce) to detect race conditions
-      const sourceAtCallTime = get().activeDbmsSource;
-      timers.set(key, setTimeout(() => {
-        timers.delete(key);
-        // ABORT if the user switched sources during the debounce window
-        if (get().activeDbmsSource !== sourceAtCallTime) {
-          console.log(`[dbms] Persist skipped: source changed (${sourceAtCallTime} → ${get().activeDbmsSource})`);
-          return;
-        }
-        fetch(`/api/dbms/pages/${encodeURIComponent(pageId)}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ propertyId, value, _source: sourceAtCallTime }),
-        }).catch((err) => console.error('[dbms] Persist error:', err));
-      }, 600));
-    };
-  })(),
+  persistPageProperty: (pageId: string, propertyId: string, value: unknown) => {
+    const key = `${pageId}::${propertyId}`;
+    const prev = _persistTimers.get(key);
+    if (prev) clearTimeout(prev);
+    // Capture source NOW (before debounce) to detect race conditions
+    const sourceAtCallTime = get().activeDbmsSource;
+    _persistTimers.set(key, setTimeout(
+      () => sendPersistRequest(pageId, propertyId, value, sourceAtCallTime, _persistTimers, () => get().activeDbmsSource),
+      600,
+    ));
+  },
 
   patchPages: (patches: Record<string, Record<string, unknown>>) => {
     set((state) => {
@@ -284,7 +297,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
     sliceActions.updateProperty(databaseId, propertyId, updates as never);
     flushState(get);
     if (updates.type && oldProp && oldProp.type !== updates.type) {
-      const fieldName = oldProp.name.toLowerCase().replace(/\s+/g, '_');
+      const fieldName = oldProp.name.toLowerCase().replaceAll(/\s+/g, '_');
       dispatchOps('changeType', {
         databaseId, columnName: fieldName,
         oldType: oldProp.type, newType: updates.type,

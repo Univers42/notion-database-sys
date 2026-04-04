@@ -6,11 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:08:07 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { ObjectId, Timestamps } from './common';
+import type { Timestamps } from './common';
 import type { FilterNode, Filter, Sort, Grouping, SubGrouping } from './filter';
 
 export type ViewType =
@@ -116,10 +116,10 @@ export interface FieldConfig {
 }
 
 export interface ViewConfig extends Timestamps {
-  _id: ObjectId;
-  databaseId: ObjectId;
-  workspaceId: ObjectId;
-  createdBy: ObjectId;
+  _id: string;
+  databaseId: string;
+  workspaceId: string;
+  createdBy: string;
   name: string;
   type: ViewType;
 
@@ -138,10 +138,10 @@ export interface ViewConfig extends Timestamps {
 }
 
 export interface UserViewOverride extends Timestamps {
-  _id: ObjectId;
-  viewId: ObjectId;
-  userId: ObjectId;
-  workspaceId: ObjectId;
+  _id: string;
+  viewId: string;
+  userId: string;
+  workspaceId: string;
 
   /** Only the fields the user has customized — merged on top of base view */
   overrides: {

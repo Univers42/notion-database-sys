@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@ import React from 'react';
 import { cn } from '../../../utils/cn';
 
 /** Render a donut chart showing the distribution of formula result types. */
-export function FormulaTypePie({ analytics }: { analytics: Record<string, { resultType: string }> }) {
+export function FormulaTypePie({ analytics }: Readonly<{ analytics: Record<string, { resultType: string }> }>) {
   const counts: Record<string, number> = {};
   Object.values(analytics).forEach((a) => {
     counts[a.resultType] = (counts[a.resultType] || 0) + 1;
@@ -73,7 +73,7 @@ export function FormulaTypePie({ analytics }: { analytics: Record<string, { resu
 }
 
 /** Render stacked success/error bars for each formula column. */
-export function ErrorBarChart({ analytics }: { analytics: Record<string, { propName: string; total: number; errors: number }> }) {
+export function ErrorBarChart({ analytics }: Readonly<{ analytics: Record<string, { propName: string; total: number; errors: number }> }>) {
   const entries = Object.values(analytics).sort((a, b) => b.errors - a.errors);
   const _maxTotal = Math.max(...entries.map((e) => e.total), 1);
 
@@ -108,15 +108,15 @@ function getComplexityColor(pct: number): string {
 }
 
 /** Render a complexity score bar for each formula based on expression length, depth, and call count. */
-export function ComplexityChart({ analytics }: { analytics: Record<string, { propName: string; expression: string }> }) {
+export function ComplexityChart({ analytics }: Readonly<{ analytics: Record<string, { propName: string; expression: string }> }>) {
   // Measure complexity by expression length + number of function calls
   const entries = Object.values(analytics)
     .map((a) => {
       const fnCalls = (a.expression.match(/[a-zA-Z]+\(/g) || []).length;
       const depth = Math.max(...Array.from(a.expression).reduce(
         (acc, ch) => {
-          if (ch === '(') acc.push((acc[acc.length - 1] || 0) + 1);
-          else if (ch === ')') acc.push((acc[acc.length - 1] || 1) - 1);
+          if (ch === '(') acc.push((acc.at(-1) || 0) + 1);
+          else if (ch === ')') acc.push((acc.at(-1) || 1) - 1);
           return acc;
         },
         [0] as number[]

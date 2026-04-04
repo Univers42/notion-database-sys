@@ -6,14 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:05:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:05:48 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { UserModel } from '../models/user.model';
 import { SessionModel } from '../models/session.model';
-import type { ObjectId } from '@notion-db/types';
 
 /** 30 days in milliseconds */
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -62,7 +61,7 @@ export class AuthService {
   /**
    * Create a new refresh token session. Returns the raw refresh token.
    */
-  async createSession(userId: ObjectId, meta?: { userAgent?: string; ip?: string }): Promise<string> {
+  async createSession(userId: string, meta?: { userAgent?: string; ip?: string }): Promise<string> {
     const refreshToken = crypto.randomBytes(48).toString('hex');
     await SessionModel.create({
       userId,
@@ -96,7 +95,7 @@ export class AuthService {
   /**
    * Revoke all sessions for a user (logout everywhere).
    */
-  async revokeAll(userId: ObjectId): Promise<void> {
+  async revokeAll(userId: string): Promise<void> {
     await SessionModel.deleteMany({ userId });
   }
 }

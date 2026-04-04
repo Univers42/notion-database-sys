@@ -6,11 +6,19 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Page, DatabaseSchema, SchemaProperty } from '../../types/database';
+import { safeString } from '../../utils/safeString';
+
+function computeMedian(nums: number[]): number {
+  if (!nums.length) return 0;
+  const s = [...nums].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
 
 /**
  * Search a page's properties against a query string.
@@ -50,8 +58,8 @@ export function searchPage(
         return (val ? 'true yes checked' : 'false no unchecked').includes(q);
       default:
         if (typeof val === 'string') return val.toLowerCase().includes(q);
-        if (Array.isArray(val)) return val.some((v: unknown) => String(v).toLowerCase().includes(q));
-        return String(val).toLowerCase().includes(q);
+        if (Array.isArray(val)) return val.some((v: unknown) => safeString(v).toLowerCase().includes(q));
+        return safeString(val).toLowerCase().includes(q);
     }
   });
 }
@@ -72,7 +80,7 @@ export function buildGroups(
     const gm = new Map(groups.map(g => [g.groupId, g]));
     for (const page of pages) {
       const v = page.properties[grouping.propertyId];
-      (gm.get(v) || gm.get('__unassigned__')!).pages.push(page);
+      (gm.get(v) ?? gm.get('__unassigned__'))?.pages.push(page);
     }
     const hidden = grouping.hiddenGroups || [];
     return groups.filter(g => !hidden.includes(g.groupId));
@@ -94,7 +102,7 @@ export function buildGroups(
   for (const p of pages) {
     const v = String(p.properties[grouping.propertyId] ?? 'Unassigned');
     if (!gm.has(v)) gm.set(v, []);
-    gm.get(v)!.push(p);
+    gm.get(v)?.push(p);
   }
   return Array.from(gm.entries()).map(([k, ps]) => ({
     groupId: k, groupLabel: k, groupColor: 'bg-surface-muted text-ink-body', pages: ps,
@@ -104,7 +112,7 @@ export function buildGroups(
 /** Format a WASM formula engine result for display. */
 export function formatFormulaResult(result: unknown): unknown {
   if (result instanceof Date) return result.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  if (typeof result === 'number' && isFinite(result)) return Math.round(result * 100) / 100;
+  if (typeof result === 'number' && Number.isFinite(result)) return Math.round(result * 100) / 100;
   if (Array.isArray(result)) return result.join(', ');
   if (typeof result === 'boolean') return result;
   if (typeof result === 'string' && result !== '') return result;
@@ -115,7 +123,7 @@ export function formatFormulaResult(result: unknown): unknown {
 export function computeRollup(fn: string, related: Page[], targetPropertyId: string): unknown {
   const raw = related.map(p => p.properties[targetPropertyId]);
   const nonEmpty = raw.filter(v => v !== undefined && v !== null && v !== '' && v !== false);
-  const nums = nonEmpty.map(Number).filter(n => !isNaN(n));
+  const nums = nonEmpty.map(Number).filter(n => !Number.isNaN(n));
 
   switch (fn) {
     case 'show_original': return raw;
@@ -129,12 +137,7 @@ export function computeRollup(fn: string, related: Page[], targetPropertyId: str
     case 'percent_not_empty': return raw.length ? Math.round(nonEmpty.length / raw.length * 100) : 0;
     case 'sum': return nums.reduce((a, b) => a + b, 0);
     case 'average': return nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length * 100) / 100 : 0;
-    case 'median': {
-      if (!nums.length) return 0;
-      const s = [...nums].sort((a, b) => a - b);
-      const m = Math.floor(s.length / 2);
-      return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-    }
+    case 'median': return computeMedian(nums);
     case 'min': return nums.length ? Math.min(...nums) : 0;
     case 'max': return nums.length ? Math.max(...nums) : 0;
     case 'range': return nums.length ? Math.max(...nums) - Math.min(...nums) : 0;

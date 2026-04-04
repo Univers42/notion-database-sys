@@ -29,7 +29,7 @@ export function parseBlockquote(ctx: ParseContext, parseBlocks: ParseBlocksFn): 
 
 export function parseCallout(ctx: ParseContext, parseBlocks: ParseBlocksFn): BlockNode {
   const firstLine = advance(ctx).trimStart();
-  const calloutMatch = firstLine.match(/^>\s*\[!(\w+)\]\s*(.*)/);
+  const calloutMatch = /^>\s*\[!(\w+)\]\s*(.*)/.exec(firstLine);
   const kind = calloutMatch?.[1] || 'note';
   const titleText = calloutMatch?.[2] || '';
   const innerLines: string[] = [];
@@ -59,7 +59,7 @@ export function parseTaskList(ctx: ParseContext, parseBlocks: ParseBlocksFn): Bl
   const items: TaskItemNode[] = [];
   while (ctx.pos < ctx.lines.length) {
     const line = ctx.lines[ctx.pos].trimStart();
-    const match = line.match(/^[-*+]\s+\[([ xX])\]\s+(.*)/);
+    const match = /^[-*+]\s+\[([ xX])\]\s+(.*)/.exec(line);
     if (!match) break;
     advance(ctx);
     const checked = match[1] !== ' ';
@@ -84,42 +84,42 @@ export function parseTaskList(ctx: ParseContext, parseBlocks: ParseBlocksFn): Bl
   return { type: 'task_list', children: items };
 }
 
+function collectOrderedContinuation(
+  ctx: ParseContext, contLines: string[], markerLen: number,
+): void {
+  while (ctx.pos < ctx.lines.length) {
+    const next = ctx.lines[ctx.pos];
+    const nextTrimmed = next.trimStart();
+    const nextIndent = next.length - nextTrimmed.length;
+    if (nextTrimmed === '') {
+      if (shouldContinueAfterBlank(ctx, 2)) {
+        contLines.push('');
+        advance(ctx);
+        continue;
+      }
+      break;
+    } else if (nextIndent >= markerLen && !/^\d{1,9}[.)]\s/.test(nextTrimmed)) {
+      contLines.push(nextTrimmed);
+      advance(ctx);
+    } else {
+      break;
+    }
+  }
+}
+
 export function parseOrderedList(ctx: ParseContext, parseBlocks: ParseBlocksFn): BlockNode {
   const items: ListItemNode[] = [];
   let start = 1;
   let first = true;
   while (ctx.pos < ctx.lines.length) {
     const line = ctx.lines[ctx.pos].trimStart();
-    const match = line.match(/^(\d{1,9})([.)]\s+)(.*)/);
+    const match = /^(\d{1,9})([.)]\s+)(.*)/.exec(line);
     if (!match) break;
     advance(ctx);
-    if (first) { start = parseInt(match[1], 10); first = false; }
+    if (first) { start = Number.parseInt(match[1], 10); first = false; }
     const markerLen = match[1].length + match[2].length;
-    const content = match[3];
-    const contLines = [content];
-    while (ctx.pos < ctx.lines.length) {
-      const next = ctx.lines[ctx.pos];
-      const nextTrimmed = next.trimStart();
-      const nextIndent = next.length - nextTrimmed.length;
-      if (nextTrimmed === '') {
-        if (ctx.pos + 1 < ctx.lines.length) {
-          const afterBlank = ctx.lines[ctx.pos + 1];
-          const afterTrimmed = afterBlank.trimStart();
-          const afterIndent = afterBlank.length - afterTrimmed.length;
-          if (afterIndent >= 2) {
-            contLines.push('');
-            advance(ctx);
-            continue;
-          }
-        }
-        break;
-      } else if (nextIndent >= markerLen && !/^\d{1,9}[.)]\s/.test(nextTrimmed)) {
-        contLines.push(nextTrimmed);
-        advance(ctx);
-      } else {
-        break;
-      }
-    }
+    const contLines = [match[3]];
+    collectOrderedContinuation(ctx, contLines, markerLen);
 
     const innerCtx: ParseContext = { lines: contLines, pos: 0 };
     items.push({ type: 'list_item', children: parseBlocks(innerCtx, 1) });
@@ -130,7 +130,7 @@ export function parseOrderedList(ctx: ParseContext, parseBlocks: ParseBlocksFn):
 
 export function parseFootnoteDef(ctx: ParseContext, parseBlocks: ParseBlocksFn): BlockNode {
   const line = advance(ctx);
-  const match = line.match(/^\[\^([^\]]+)\]:\s*(.*)/);
+  const match = /^\[\^([^\]]+)\]:\s*(.*)/.exec(line);
   const label = match?.[1] || '';
   const firstContent = match?.[2] || '';
   const contLines = [firstContent];
@@ -149,6 +149,40 @@ export function parseFootnoteDef(ctx: ParseContext, parseBlocks: ParseBlocksFn):
   return { type: 'footnote_def', label, children: parseBlocks(innerCtx, 1) };
 }
 
+/** Check if a blank line should continue the current list item (next line indented enough). */
+function shouldContinueAfterBlank(ctx: ParseContext, minIndent: number, extraTest?: (trimmed: string) => boolean): boolean {
+  if (ctx.pos + 1 >= ctx.lines.length) return false;
+  const afterBlank = ctx.lines[ctx.pos + 1];
+  const afterTrimmed = afterBlank.trimStart();
+  const afterIndent = afterBlank.length - afterTrimmed.length;
+  if (afterIndent < minIndent) return false;
+  if (extraTest && !extraTest(afterTrimmed)) return false;
+  return true;
+}
+
+function collectUnorderedContinuation(
+  ctx: ParseContext, contLines: string[],
+): void {
+  while (ctx.pos < ctx.lines.length) {
+    const next = ctx.lines[ctx.pos];
+    const nextTrimmed = next.trimStart();
+    const nextIndent = next.length - nextTrimmed.length;
+    if (nextTrimmed === '') {
+      if (shouldContinueAfterBlank(ctx, 2, t => !listStartPattern.test(t))) {
+        contLines.push('');
+        advance(ctx);
+        continue;
+      }
+      break;
+    } else if (nextIndent >= 2 && !(/^[-*+]\s/.test(nextTrimmed) && nextIndent < 4)) {
+      contLines.push(nextTrimmed);
+      advance(ctx);
+    } else {
+      break;
+    }
+  }
+}
+
 export function parseUnorderedList(ctx: ParseContext, parseBlocks: ParseBlocksFn): BlockNode {
   const items: ListItemNode[] = [];
   while (ctx.pos < ctx.lines.length) {
@@ -157,29 +191,7 @@ export function parseUnorderedList(ctx: ParseContext, parseBlocks: ParseBlocksFn
     advance(ctx);
     const content = line.replace(/^[-*+]\s+/, '');
     const contLines = [content];
-    while (ctx.pos < ctx.lines.length) {
-      const next = ctx.lines[ctx.pos];
-      const nextTrimmed = next.trimStart();
-      const nextIndent = next.length - nextTrimmed.length;
-      if (nextTrimmed === '') {
-        if (ctx.pos + 1 < ctx.lines.length) {
-          const afterBlank = ctx.lines[ctx.pos + 1];
-          const afterTrimmed = afterBlank.trimStart();
-          const afterIndent = afterBlank.length - afterTrimmed.length;
-          if (afterIndent >= 2 && !listStartPattern.test(afterTrimmed)) {
-            contLines.push('');
-            advance(ctx);
-            continue;
-          }
-        }
-        break;
-      } else if (nextIndent >= 2 && !(/^[-*+]\s/.test(nextTrimmed) && nextIndent < 4)) {
-        contLines.push(nextTrimmed);
-        advance(ctx);
-      } else {
-        break;
-      }
-    }
+    collectUnorderedContinuation(ctx, contLines);
 
     const innerCtx: ParseContext = { lines: contLines, pos: 0 };
     items.push({ type: 'list_item', children: parseBlocks(innerCtx, 1) });

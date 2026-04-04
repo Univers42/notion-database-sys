@@ -15,6 +15,7 @@ import type { CellRendererProps } from '../CellRenderer';
 import type { SchemaProperty, PropertyValue } from '../../../../types/database';
 import { renderCheckbox, DateCellEditor } from './BasicCellRenderers';
 import { cn } from '../../../../utils/cn';
+import { safeString } from '../../../../utils/safeString';
 
 /** Renders a files/media cell showing the file count. */
 export function renderFilesMedia(value: PropertyValue): React.ReactNode {
@@ -89,8 +90,8 @@ export function renderCustomEditor(dt: string, value: PropertyValue, onChange: (
       value={dt === 'boolean' ? undefined : (value ?? '')}
       onChange={e => {
         let v: PropertyValue = e.target.value;
-        if (dt === 'integer') v = parseInt(v) || 0;
-        else if (dt === 'float') v = parseFloat(v) || 0;
+        if (dt === 'integer') v = Number.parseInt(v) || 0;
+        else if (dt === 'float') v = Number.parseFloat(v) || 0;
         else if (dt === 'json') { try { v = JSON.parse(v); } catch { /* keep string */ } }
         onChange(v);
       }}
@@ -109,7 +110,7 @@ export function renderCustomDisplay(dt: string, value: PropertyValue): React.Rea
   if (dt === 'json') {
     return <div className={cn("text-sm text-ink-body-light font-mono truncate")}>{value ? JSON.stringify(value) : <span className={cn("text-ink-muted")}>{'{}'}</span>}</div>;
   }
-  const display = value != null && value !== '' ? String(value) : null;
+  const display = value != null && value !== '' ? safeString(value) : null;
   if (!display) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
   return (
     <div className={cn(`text-sm text-ink font-mono ${dt === 'integer' || dt === 'float' ? 'tabular-nums' : ''} truncate`)}>

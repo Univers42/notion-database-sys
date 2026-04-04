@@ -67,7 +67,7 @@ export function renderTermTable(
 ): string {
   const allRows = [node.head, ...node.rows];
   const colCount = node.head.cells.length;
-  const colWidths = Array(colCount).fill(0);
+  const colWidths = new Array<number>(colCount).fill(0);
   for (const row of allRows) {
     for (let i = 0; i < colCount; i++) {
       const cell = row.cells[i];
@@ -178,7 +178,7 @@ export function renderInlinesPlain(nodes: InlineNode[]): string {
 
 export function stripAnsi(str: string): string {
   // eslint-disable-next-line no-control-regex
-  return str.replace(/\x1b\[[0-9;]*m/g, '');
+  return str.replaceAll(/\x1b\[[0-9;]*m/g, '');
 }
 
 export function getCalloutColor(kind: string): string {

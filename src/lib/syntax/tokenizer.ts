@@ -29,6 +29,33 @@ const LANGUAGE_RULES: Record<string, Rule[]> = {
   toml:       tomlRules,
 };
 
+function findBestMatch(
+  code: string, pos: number, rules: Rule[],
+): { type: TokenType; value: string; end: number } | null {
+  let bestMatch: { type: TokenType; value: string; end: number } | null = null;
+  for (const rule of rules) {
+    rule.pattern.lastIndex = 0;
+    const re = new RegExp(rule.pattern.source, rule.pattern.flags.replace('g', ''));
+    const slice = code.slice(pos);
+    const m = re.exec(slice);
+    if (m?.index === 0) {
+      if (!bestMatch || m[0].length > bestMatch.value.length) {
+        bestMatch = { type: rule.type, value: m[0], end: pos + m[0].length };
+      }
+    }
+  }
+  return bestMatch;
+}
+
+function appendPlainChar(tokens: Token[], ch: string): void {
+  const last = tokens.at(-1);
+  if (last?.type === 'plain') {
+    last.value += ch;
+  } else {
+    tokens.push({ type: 'plain', value: ch });
+  }
+}
+
 /**
  * Tokenize a code string for the given language.
  * Returns an array of Token objects with type + value.
@@ -44,33 +71,12 @@ export function tokenize(code: string, language: string): Token[] {
   let pos = 0;
 
   while (pos < code.length) {
-    let bestMatch: { type: TokenType; value: string; end: number } | null = null;
-
-    for (const rule of rules) {
-      rule.pattern.lastIndex = 0;
-      // Clone regex to search from current position
-      const re = new RegExp(rule.pattern.source, rule.pattern.flags.replace('g', '') );
-      const slice = code.slice(pos);
-      const m = re.exec(slice);
-      if (m && m.index === 0) {
-        // Take the longest match at position 0
-        if (!bestMatch || m[0].length > bestMatch.value.length) {
-          bestMatch = { type: rule.type, value: m[0], end: pos + m[0].length };
-        }
-      }
-    }
-
+    const bestMatch = findBestMatch(code, pos, rules);
     if (bestMatch) {
       tokens.push({ type: bestMatch.type, value: bestMatch.value });
       pos = bestMatch.end;
     } else {
-      // Accumulate plain characters
-      const last = tokens[tokens.length - 1];
-      if (last && last.type === 'plain') {
-        last.value += code[pos];
-      } else {
-        tokens.push({ type: 'plain', value: code[pos] });
-      }
+      appendPlainChar(tokens, code[pos]);
       pos++;
     }
   }
@@ -93,10 +99,10 @@ export function renderTokensToHtml(tokens: Token[]): string {
 
 function escapeHtml(s: string): string {
   return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 }
 
 /** Get supported language list */

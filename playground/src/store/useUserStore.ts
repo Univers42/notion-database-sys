@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ const INITIAL_PERSONAS: StaticPersona[] = [
   {
     id: '',
     email: 'admin@playground.local',
-    password: 'playground123',
+    password: 'playground123', // NOSONAR - demo/playground credential
     name: 'Dylan Admin',
     emoji: '👑',
     roleBadge: 'Admin',
@@ -73,7 +73,7 @@ const INITIAL_PERSONAS: StaticPersona[] = [
   {
     id: '',
     email: 'alex@playground.local',
-    password: 'playground123',
+    password: 'playground123', // NOSONAR - demo/playground credential
     name: 'Alex Collaborator',
     emoji: '🎨',
     roleBadge: 'Member',
@@ -81,7 +81,7 @@ const INITIAL_PERSONAS: StaticPersona[] = [
   {
     id: '',
     email: 'sam@playground.local',
-    password: 'playground123',
+    password: 'playground123', // NOSONAR - demo/playground credential
     name: 'Sam Guest',
     emoji: '👁️',
     roleBadge: 'Guest',
@@ -195,7 +195,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
           privateWorkspaces: [{
             _id: `mock-ws-private-${i}`,
             name: `Notion de ${updatedPersonas[i].name.split(' ')[0].toLowerCase()}`,
-            slug: updatedPersonas[i].name.toLowerCase().replace(/\s+/g, '-'),
+            slug: updatedPersonas[i].name.toLowerCase().replaceAll(/\s+/g, '-'),
             ownerId: mockId,
           }],
           sharedWorkspaces: [sharedWs],

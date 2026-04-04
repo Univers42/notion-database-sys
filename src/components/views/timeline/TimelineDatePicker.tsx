@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 00:30:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ export function TimelineDatePicker({
   const [showFormatDropdown, setShowFormatDropdown] = useState(false);
   const [showRemindDropdown, setShowRemindDropdown] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const panelRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const style = useMemo(() => {
@@ -222,14 +222,14 @@ export function TimelineDatePicker({
       />
 
       {/* Panel */}
-      <div
+      <dialog // NOSONAR - dialog requires event handlers for propagation control
+        open
         ref={panelRef}
-        role="dialog"
-        aria-modal="true"
         className={cn(`fixed z-[9999] bg-surface-primary border border-line rounded-lg shadow-xl
                    flex flex-col overflow-visible`)}
         style={{ ...style, width: 280, minWidth: 180, maxWidth: 'calc(100vw - 24px)' }}
         onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
       >
         <div className={cn("px-2 pt-2 pb-2 flex")}>
           <div
@@ -290,7 +290,7 @@ export function TimelineDatePicker({
           </div>
 
           {/* Weekday headers (Mo–Su) */}
-          <table className={cn("w-full border-collapse")} role="grid">
+          <table className={cn("w-full border-collapse")}>
             <thead>
               <tr>
                 {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
@@ -437,7 +437,7 @@ export function TimelineDatePicker({
         </a>
 
         <footer className={cn("w-full")} />
-      </div>
+      </dialog>
     </>,
     document.body,
   );

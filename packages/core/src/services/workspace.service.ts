@@ -6,19 +6,19 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:21 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:22 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { WorkspaceModel } from '../models/workspace.model';
 import { WorkspaceMemberModel } from '../models/member.model';
-import type { ObjectId, WorkspaceRole } from '@notion-db/types';
+import type { WorkspaceRole } from '@notion-db/types';
 
 export class WorkspaceService {
   /**
    * Create a new workspace and add the creator as owner.
    */
-  async create(name: string, ownerId: ObjectId): Promise<unknown> {
+  async create(name: string, ownerId: string): Promise<unknown> {
     const workspace = await WorkspaceModel.create({ name, ownerId });
 
     // Auto-add creator as owner member
@@ -35,14 +35,14 @@ export class WorkspaceService {
   /**
    * Get workspace by ID.
    */
-  async getById(workspaceId: ObjectId): Promise<unknown> {
+  async getById(workspaceId: string): Promise<unknown> {
     return WorkspaceModel.findById(workspaceId).lean();
   }
 
   /**
    * List all workspaces a user belongs to.
    */
-  async listForUser(userId: ObjectId): Promise<unknown[]> {
+  async listForUser(userId: string): Promise<unknown[]> {
     const memberships = await WorkspaceMemberModel.find({ userId })
       .select('workspaceId')
       .lean();
@@ -54,10 +54,10 @@ export class WorkspaceService {
    * Add a member to a workspace.
    */
   async addMember(
-    workspaceId: ObjectId,
-    userId: ObjectId,
+    workspaceId: string,
+    userId: string,
     role: WorkspaceRole = 'member',
-    invitedBy?: ObjectId,
+    invitedBy?: string,
   ): Promise<void> {
     await WorkspaceMemberModel.create({
       workspaceId,
@@ -71,7 +71,7 @@ export class WorkspaceService {
   /**
    * Update a member's role.
    */
-  async updateMemberRole(workspaceId: ObjectId, userId: ObjectId, role: WorkspaceRole): Promise<void> {
+  async updateMemberRole(workspaceId: string, userId: string, role: WorkspaceRole): Promise<void> {
     await WorkspaceMemberModel.updateOne(
       { workspaceId, userId },
       { role },
@@ -81,14 +81,14 @@ export class WorkspaceService {
   /**
    * Remove a member from a workspace.
    */
-  async removeMember(workspaceId: ObjectId, userId: ObjectId): Promise<void> {
+  async removeMember(workspaceId: string, userId: string): Promise<void> {
     await WorkspaceMemberModel.deleteOne({ workspaceId, userId });
   }
 
   /**
    * List all members of a workspace.
    */
-  async listMembers(workspaceId: ObjectId) {
+  async listMembers(workspaceId: string) {
     return WorkspaceMemberModel.find({ workspaceId })
       .populate('userId', 'name email avatar')
       .lean();

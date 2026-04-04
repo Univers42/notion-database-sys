@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:07 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 21:01:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ function buildCursorSVG(name: string, size = 24, color = 'var(--color-ink-strong
   if (!icon) return '';
   const vb = icon.viewBox || '0 0 20 20';
   // Replace currentColor with the actual color for data URI usage
-  const markup = icon.d.replace(/currentColor/g, color);
+  const markup = icon.d.replaceAll('currentColor', color);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${size}" height="${size}" fill="${color}">${markup}</svg>`;
 }
 
@@ -26,11 +26,11 @@ function buildCursorSVG(name: string, size = 24, color = 'var(--color-ink-strong
 function encodeCursor(svg: string, hotX: number, hotY: number, fallback: string): string {
   if (!svg) return fallback;
   const encoded = svg
-    .replace(/"/g, "'")
-    .replace(/#/g, '%23')
-    .replace(/</g, '%3C')
-    .replace(/>/g, '%3E')
-    .replace(/\s+/g, ' ');
+    .replaceAll('"', "'")
+    .replaceAll('#', '%23')
+    .replaceAll('<', '%3C')
+    .replaceAll('>', '%3E')
+    .replaceAll(/\s+/g, ' ');
   return `url("data:image/svg+xml,${encoded}") ${hotX} ${hotY}, ${fallback}`;
 }
 

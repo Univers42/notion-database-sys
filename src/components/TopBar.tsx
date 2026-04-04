@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:30:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
   const sorts = view.sorts || [];
 
   const handleTitleDoubleClick = () => { setTitleValue(database.name); setIsEditingTitle(true); };
-  const commitTitle = () => { if (titleValue.trim()) renameDatabase(database.id, titleValue.trim()); setIsEditingTitle(false); };
+  const commitTitle = () => { if (titleValue.trim()) { renameDatabase(database.id, titleValue.trim()); } setIsEditingTitle(false); };
 
   return (
     <>
@@ -110,7 +110,7 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
             {isEditingTitle ? (
               <input ref={titleRef} value={titleValue} onChange={e => setTitleValue(e.target.value)}
                 onBlur={commitTitle}
-                onKeyDown={e => { if (e.key === 'Enter') commitTitle(); if (e.key === 'Escape') setIsEditingTitle(false); }}
+                onKeyDown={e => { if (e.key === 'Enter') { commitTitle(); } if (e.key === 'Escape') { setIsEditingTitle(false); } }}
                 className={cn("text-lg font-bold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]")} />
             ) : (
               <h1 style={{ cursor: CURSORS.text }}
@@ -180,7 +180,7 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
           </div>
         </div>
 
-        <ViewTabsRow dbViews={dbViews} activeViewId={activeViewId!} view={view} database={database}
+        <ViewTabsRow dbViews={dbViews} activeViewId={activeViewId ?? ''} view={view} database={database}
           setActiveView={setActiveView} addView={addView} updateView={updateView}
           duplicateView={duplicateView} deleteView={deleteView}
           onEditTitle={handleTitleDoubleClick} onEditLayout={() => setShowViewSettings(true)} />
@@ -195,9 +195,9 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
       {showViewSettings && (
         <div className={cn("fixed inset-0 z-50 flex justify-end")}>
           <button type="button" className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={() => setShowViewSettings(false)} tabIndex={-1} aria-label="Close" />
-          <div className={cn("relative z-[60] w-80 bg-surface-primary border-l border-line shadow-xl h-full overflow-auto")} onClick={e => e.stopPropagation()}>
+          <dialog open className={cn("relative z-[60] w-80 bg-surface-primary border-l border-line shadow-xl h-full overflow-auto")} onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>{/* NOSONAR */}
             <ViewSettingsPanel onClose={() => setShowViewSettings(false)} />
-          </div>
+          </dialog>
         </div>
       )}
 

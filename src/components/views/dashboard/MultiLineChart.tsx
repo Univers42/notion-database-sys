@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:35 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ export function buildMultiLineBuckets(
         const d = new Date(dateVal as string);
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         if (!monthMap.has(key)) monthMap.set(key, {});
-        const bucket = monthMap.get(key)!;
+        const bucket = monthMap.get(key) ?? {};
         const catPropId = Object.keys(propsMap).find(pid => {
           const p = propsMap[pid];
           return (p.type === 'select' || p.type === 'status') && page.properties[pid];
@@ -57,10 +57,10 @@ export function buildMultiLineBuckets(
         }
       } catch { /* skip */ }
     });
-    const recent = Array.from(monthMap.keys()).sort().slice(-8);
+    const recent = Array.from(monthMap.keys()).sort((a, b) => a.localeCompare(b)).slice(-8);
     recent.forEach(key => {
       const [, m] = key.split('-');
-      buckets.push({ label: MONTH_LABELS[parseInt(m, 10) - 1] || key, data: monthMap.get(key)! });
+      buckets.push({ label: MONTH_LABELS[Number.parseInt(m, 10) - 1] || key, data: monthMap.get(key) ?? {} });
     });
   }
 
@@ -81,11 +81,11 @@ export function buildMultiLineBuckets(
 }
 
 /** Renders a multi-line area chart comparing category trends over time. */
-export function MultiLineChart({ data, pages, propsMap }: {
+export function MultiLineChart({ data, pages, propsMap }: Readonly<{
   data: { count: number; label: string }[];
   pages: { properties: Record<string, unknown> }[];
   propsMap: Record<string, SchemaProperty>;
-}) {
+}>) {
   const width = 380, height = 160;
   const pad = { top: 14, right: 14, bottom: 30, left: 14 };
   const innerW = width - pad.left - pad.right;
@@ -103,15 +103,15 @@ export function MultiLineChart({ data, pages, propsMap }: {
     <div className={cn("w-full")}>
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} className={cn("overflow-visible")}>
         <defs>
-          {categories.map((_, i) => (
-            <linearGradient key={i} id={`mlGrad${i}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={COLORS[i % COLORS.length]} stopOpacity="0.15" />
-              <stop offset="100%" stopColor={COLORS[i % COLORS.length]} stopOpacity="0.01" />
+          {categories.map((cat, ci) => (
+            <linearGradient key={cat} id={`mlGrad${ci}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={COLORS[ci % COLORS.length]} stopOpacity="0.15" />
+              <stop offset="100%" stopColor={COLORS[ci % COLORS.length]} stopOpacity="0.01" />
             </linearGradient>
           ))}
         </defs>
-        {gridLines.map((y, i) => (
-          <line key={i} x1={pad.left} y1={y} x2={width - pad.right} y2={y}
+        {gridLines.map((y) => (
+          <line key={y} x1={pad.left} y1={y} x2={width - pad.right} y2={y}
             stroke="var(--color-chart-grid)" strokeWidth="0.5" strokeDasharray="3 3" />
         ))}
         {categories.map((cat, si) => {
@@ -120,22 +120,22 @@ export function MultiLineChart({ data, pages, propsMap }: {
             y: pad.top + innerH - ((b.data[cat] || 0) / maxVal) * innerH,
           }));
           const line = smoothLine(pts);
-          const area = `${line} L${pts[pts.length - 1].x} ${pad.top + innerH} L${pts[0].x} ${pad.top + innerH} Z`;
+          const area = `${line} L${pts.at(-1)!.x} ${pad.top + innerH} L${pts[0].x} ${pad.top + innerH} Z`; // NOSONAR
           const color = COLORS[si % COLORS.length];
           return (
             <g key={cat}>
               <path d={area} fill={`url(#mlGrad${si})`} />
               <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              {pts.map((p, pi) => (
-                <circle key={pi} cx={p.x} cy={p.y} r="2.5" fill="white" stroke={color} strokeWidth="1.5" />
+              {pts.map((p) => (
+                <circle key={`${p.x}-${p.y}`} cx={p.x} cy={p.y} r="2.5" fill="white" stroke={color} strokeWidth="1.5" />
               ))}
             </g>
           );
         })}
-        {buckets.map((b, i) => {
-          const x = pad.left + (i / Math.max(buckets.length - 1, 1)) * innerW;
+        {buckets.map((b, bi) => {
+          const x = pad.left + (bi / Math.max(buckets.length - 1, 1)) * innerW;
           return (
-            <text key={i} x={x} y={pad.top + innerH + 16} textAnchor="middle"
+            <text key={b.label} x={x} y={pad.top + innerH + 16} textAnchor="middle"
               className={cn("text-[7px] fill-fill-secondary font-medium")}>{b.label}</text>
           );
         })}

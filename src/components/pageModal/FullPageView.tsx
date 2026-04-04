@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ export function FullPageView({ page, database, pageId, onClose }: Readonly<{
   );
 }
 
-function FullPageHeader({ database, title, pageId, onClose, contentWidth, setContentWidth, deletePage, duplicatePage }: {
+function FullPageHeader({ database, title, pageId, onClose, contentWidth, setContentWidth, deletePage, duplicatePage }: Readonly<{
   database: { icon?: string; name: string };
   title: string;
   pageId: string;
@@ -62,7 +62,7 @@ function FullPageHeader({ database, title, pageId, onClose, contentWidth, setCon
   setContentWidth: (w: ContentWidth) => void;
   deletePage: (id: string) => void;
   duplicatePage: (id: string) => void;
-}) {
+}>) {
   return (
     <div className={cn("flex items-center justify-between px-8 py-4 border-b border-line shrink-0")}>
       <div className={cn("flex items-center gap-3 text-sm text-ink-muted")}>

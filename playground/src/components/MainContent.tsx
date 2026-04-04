@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:30:46 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ const EditableTitle: React.FC<{ pageId: string; title: string }> = ({ pageId, ti
     const newTitle = ref.current.textContent ?? '';
     updatePageTitle(pageId, newTitle);
     // Also update the active page title in the top bar
-    if (activePage && activePage.id === pageId) {
+    if (activePage?.id === pageId) {
       openPage({ ...activePage, title: newTitle });
     }
   }, [pageId, updatePageTitle, activePage, openPage]);
@@ -140,8 +140,10 @@ const EditableTitle: React.FC<{ pageId: string; title: string }> = ({ pageId, ti
   }, []);
 
   return (
-    <h1
+    <h1 // NOSONAR - contentEditable page title requires non-semantic roles
       ref={ref}
+      role="textbox" // NOSONAR - contentEditable heading needs textbox role
+      aria-label="Page title"
       contentEditable
       suppressContentEditableWarning
       spellCheck

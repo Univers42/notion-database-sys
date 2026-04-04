@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:28:30 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,56 @@ interface SlashMenuState {
   blockId: string;
   position: { x: number; y: number };
   filter: string;
+}
+
+function handleArrowUp(blockId: string, content: Block[], focusBlock: (id: string, end?: boolean) => void): boolean {
+  const idx = content.findIndex(b => b.id === blockId);
+  if (idx <= 0) return false;
+  const sel = globalThis.getSelection();
+  const range = sel?.getRangeAt(0);
+  if (range?.startOffset === 0 && range.collapsed) {
+    focusBlock(content[idx - 1].id, true);
+    return true;
+  }
+  return false;
+}
+
+function handleArrowDown(
+  blockId: string, content: Block[], el: HTMLElement, focusBlock: (id: string, end?: boolean) => void,
+): boolean {
+  const idx = content.findIndex(b => b.id === blockId);
+  if (idx >= content.length - 1) return false;
+  const sel = globalThis.getSelection();
+  const range = sel?.getRangeAt(0);
+  if (range?.endOffset === (el.textContent?.length ?? 0) && range.collapsed) {
+    focusBlock(content[idx + 1].id);
+    return true;
+  }
+  return false;
+}
+
+function handleEnterKey(
+  e: React.KeyboardEvent, blockId: string, slashMenu: SlashMenuState | null,
+  pageId: string, insertBlock: (pid: string, bid: string, b: Block) => void,
+  focusBlock: (id: string, end?: boolean) => void,
+): void {
+  if (slashMenu) return;
+  e.preventDefault();
+  const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+  insertBlock(pageId, blockId, newBlock);
+  focusBlock(newBlock.id);
+}
+
+function handleBackspaceKey(
+  e: React.KeyboardEvent, blockId: string, content: Block[],
+  pageId: string, deleteBlock: (pid: string, bid: string) => void,
+  focusBlock: (id: string, end?: boolean) => void,
+): void {
+  e.preventDefault();
+  const idx = content.findIndex(b => b.id === blockId);
+  const prevBlockId = idx > 0 ? content[idx - 1].id : null;
+  deleteBlock(pageId, blockId);
+  if (prevBlockId) focusBlock(prevBlockId, true);
 }
 
 /** Manages block editing, slash commands, and keyboard navigation for playground pages. */
@@ -44,7 +94,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
       const editable = (el.querySelector('[contenteditable]') as HTMLElement) ?? el;
       editable.focus();
       if (cursorEnd && editable.childNodes.length) {
-        const sel = window.getSelection();
+        const sel = globalThis.getSelection();
         const range = document.createRange();
         range.selectNodeContents(editable);
         range.collapse(false);
@@ -56,7 +106,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
 
   /** Get the bounding rect of the caret. */
   const getCaretRect = useCallback((): { x: number; y: number } => {
-    const sel = window.getSelection();
+    const sel = globalThis.getSelection();
     if (sel && sel.rangeCount > 0) {
       const range = sel.getRangeAt(0);
       const rect = range.getBoundingClientRect();
@@ -106,44 +156,23 @@ export function usePlaygroundBlockEditor(pageId: string) {
     if (!block) return;
 
     if (e.key === 'Enter' && !e.shiftKey) {
-      if (slashMenu) return;
-      e.preventDefault();
-      const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
-      insertBlock(pageId, blockId, newBlock);
-      focusBlock(newBlock.id);
+      handleEnterKey(e, blockId, slashMenu, pageId, insertBlock, focusBlock);
+      return;
     }
 
     if (e.key === 'Backspace' && block.content === '' && content.length > 1) {
-      e.preventDefault();
-      const idx = content.findIndex(b => b.id === blockId);
-      const prevBlockId = idx > 0 ? content[idx - 1].id : null;
-      deleteBlock(pageId, blockId);
-      if (prevBlockId) focusBlock(prevBlockId, true);
+      handleBackspaceKey(e, blockId, content, pageId, deleteBlock, focusBlock);
+      return;
     }
 
     if (e.key === 'ArrowUp') {
-      const idx = content.findIndex(b => b.id === blockId);
-      if (idx > 0) {
-        const sel = window.getSelection();
-        const range = sel?.getRangeAt(0);
-        if (range?.startOffset === 0 && range.collapsed) {
-          e.preventDefault();
-          focusBlock(content[idx - 1].id, true);
-        }
-      }
+      if (handleArrowUp(blockId, content, focusBlock)) e.preventDefault();
+      return;
     }
 
     if (e.key === 'ArrowDown') {
-      const idx = content.findIndex(b => b.id === blockId);
-      if (idx < content.length - 1) {
-        const el = e.target as HTMLElement;
-        const sel = window.getSelection();
-        const range = sel?.getRangeAt(0);
-        if (range?.endOffset === (el.textContent?.length ?? 0) && range.collapsed) {
-          e.preventDefault();
-          focusBlock(content[idx + 1].id);
-        }
-      }
+      if (handleArrowDown(blockId, content, e.target as HTMLElement, focusBlock)) e.preventDefault();
+      return;
     }
 
     if (e.key === 'Escape' && slashMenu) {
@@ -164,7 +193,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
 
   /** Add a new blank paragraph at the end. */
   const handleAddBlock = useCallback((content: Block[]) => {
-    const lastId = content.length > 0 ? content[content.length - 1].id : null;
+    const lastId = content.length > 0 ? content.at(-1)!.id : null; // NOSONAR
     const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
     if (lastId) {
       insertBlock(pageId, lastId, newBlock);

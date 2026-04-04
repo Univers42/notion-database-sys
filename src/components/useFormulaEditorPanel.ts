@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:22 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ export function useFormulaEditorPanel(databaseId: string, propertyId: string, on
   const previewPages = useMemo(() => {
     if (!activeViewId) return [];
     const view = views[activeViewId];
-    if (!view || view.databaseId !== databaseId) return [];
+    if (view?.databaseId !== databaseId) return [];
     return getPagesForView(view.id).slice(0, 20);
   }, [activeViewId, views, databaseId, getPagesForView]);
 
@@ -106,7 +106,7 @@ export function useFormulaEditorPanel(databaseId: string, propertyId: string, on
   }, [databaseId, propertyId, expression, updateProperty, onClose]);
 
   const toggleCategory = (cat: string) => {
-    setExpandedCategories(prev => { const next = new Set(prev); if (next.has(cat)) next.delete(cat); else next.add(cat); return next; });
+    setExpandedCategories(prev => { const next = new Set(prev); if (next.has(cat)) { next.delete(cat); } else { next.add(cat); } return next; });
   };
 
   const getPageTitle = (page: Page) => {

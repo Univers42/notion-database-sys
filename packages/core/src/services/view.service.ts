@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { ViewConfigModel } from '../models/view.model';
 import { UserViewOverrideModel } from '../models/userViewOverride.model';
-import type { ObjectId, ViewConfig, UserViewOverride } from '@notion-db/types';
+import type { ViewConfig, UserViewOverride } from '@notion-db/types';
 
 export class ViewService {
   /**
@@ -26,14 +26,14 @@ export class ViewService {
   /**
    * List all views for a database.
    */
-  async listByDatabase(databaseId: ObjectId, workspaceId: ObjectId): Promise<unknown[]> {
+  async listByDatabase(databaseId: string, workspaceId: string): Promise<unknown[]> {
     return ViewConfigModel.find({ databaseId, workspaceId }).lean();
   }
 
   /**
    * Get the effective view for a user — base view merged with user overrides.
    */
-  async getEffective(viewId: ObjectId, userId: ObjectId): Promise<unknown> {
+  async getEffective(viewId: string, userId: string): Promise<unknown> {
     const [base, override] = await Promise.all([
       ViewConfigModel.findById(viewId).lean(),
       UserViewOverrideModel.findOne({ viewId, userId }).lean(),
@@ -49,9 +49,9 @@ export class ViewService {
    * Save user-specific overrides for a shared view.
    */
   async saveOverride(
-    viewId: ObjectId,
-    userId: ObjectId,
-    workspaceId: ObjectId,
+    viewId: string,
+    userId: string,
+    workspaceId: string,
     overrides: UserViewOverride['overrides'],
   ): Promise<void> {
     await UserViewOverrideModel.findOneAndUpdate(
@@ -64,7 +64,7 @@ export class ViewService {
   /**
    * Delete a user's overrides (reset to shared view).
    */
-  async resetOverride(viewId: ObjectId, userId: ObjectId): Promise<void> {
+  async resetOverride(viewId: string, userId: string): Promise<void> {
     await UserViewOverrideModel.deleteOne({ viewId, userId });
   }
 

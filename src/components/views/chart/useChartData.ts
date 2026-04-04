@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useMemo } from 'react';
 import type { SchemaProperty, PropertyValue, SelectOption } from '../../../types/database';
 import { CHART_COLORS } from '../../../utils/color';
+import { safeString } from '../../../utils/safeString';
 
 /** Supported chart visualization types. */
 export type ChartType = 'vertical_bar' | 'horizontal_bar' | 'line' | 'donut' | 'pie' | 'number';
@@ -62,7 +63,7 @@ export function useChartData(
       } else if (xProp.type === 'checkbox') {
         label = xVal ? 'Checked' : 'Unchecked';
       } else {
-        label = xVal != null ? String(xVal) : 'None';
+        label = xVal == null ? 'None' : safeString(xVal);
       }
 
       if (!grouped[label]) {
@@ -73,7 +74,7 @@ export function useChartData(
         const yVal = page.properties[yAxisProperty];
         if (typeof yVal === 'number') {
           grouped[label].values.push(yVal);
-        } else if (typeof yVal === 'string' && !isNaN(Number(yVal))) {
+        } else if (typeof yVal === 'string' && !Number.isNaN(Number(yVal))) {
           grouped[label].values.push(Number(yVal));
         }
       }

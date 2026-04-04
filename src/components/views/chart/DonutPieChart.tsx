@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ export function DonutPieChart({ chartData, total, isDonut }: Readonly<DonutPieCh
     <div className={cn("flex-1 overflow-auto p-8 bg-surface-primary")}>
       <div className={cn("flex items-center justify-center gap-12")}>
         <svg width={size} height={size}>
-          {slices.map((slice, i) => {
+          {slices.map((slice) => {
             const sx = cx + outerR * Math.cos(slice.startAngle);
             const sy = cy + outerR * Math.sin(slice.startAngle);
             const outerArc = arcPath(slice.startAngle, slice.endAngle, outerR);
@@ -63,7 +63,7 @@ export function DonutPieChart({ chartData, total, isDonut }: Readonly<DonutPieCh
             }
 
             return (
-              <path key={i} d={d} fill={slice.color} stroke="white" strokeWidth={2}
+              <path key={slice.label} d={d} fill={slice.color} stroke="white" strokeWidth={2}
                 className={cn("transition-all duration-200 hover:opacity-80 cursor-pointer")} />
             );
           })}

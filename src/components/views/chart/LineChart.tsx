@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ export function LineChart({ chartData, maxValue }: Readonly<LineChartProps>) {
   }));
 
   const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-  const areaD = pathD + ` L ${points[points.length - 1]?.x || 0} ${padding.top + innerH} L ${points[0]?.x || 0} ${padding.top + innerH} Z`;
+  const areaD = pathD + ` L ${points.at(-1)?.x || 0} ${padding.top + innerH} L ${points[0]?.x || 0} ${padding.top + innerH} Z`;
 
   return (
     <div className={cn("flex-1 overflow-auto p-8 bg-surface-primary")}>
@@ -63,8 +63,8 @@ export function LineChart({ chartData, maxValue }: Readonly<LineChartProps>) {
           {/* Line */}
           {points.length > 1 && <path d={pathD} fill="none" stroke="var(--color-chart-1)" strokeWidth={2.5} />}
           {/* Points */}
-          {points.map((p, i) => (
-            <g key={i}>
+          {points.map((p) => (
+            <g key={p.label}>
               <circle cx={p.x} cy={p.y} r={4} fill="var(--color-chart-1)" stroke="white" strokeWidth={2} />
               <text x={p.x} y={padding.top + innerH + 20} textAnchor="middle" fontSize={11} fill="var(--color-chart-label)">
                 {p.label.length > 8 ? p.label.slice(0, 8) + '…' : p.label}

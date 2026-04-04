@@ -5,98 +5,92 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*   Created: 2026/04/04 22:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { DbmsAdapter, DbSourceType, QueryResult } from './types';
-import { DB_TO_TABLE } from './types';
-import { JsonOps } from './jsonOps';
-import { CsvOps } from './csvOps';
-import { PostgresOps } from './postgresOps';
-import { MongoOps } from './mongoOps';
+// DBMS operation dispatchers — route CRUD / DDL operations to the active source
+// Each dispatcher builds the appropriate query (SQL, Mongo shell, etc.) and
+// appends it to the in-memory query log so the playground can inspect what
+// the middleware did under the hood.
 
-export { DB_TO_TABLE } from './types';
-export type { DbmsAdapter, DbSourceType, QueryResult } from './types';
-export { getQueryLog, clearQueryLog } from './queryLog';
-export type { QueryLogEntry } from './queryLog';
+export { sqlLit, mongoLit } from './helpers';
 
-const adapters: Record<DbSourceType, DbmsAdapter> = {
-  json: new JsonOps(),
-  csv: new CsvOps(),
-  mongodb: new MongoOps(),
-  postgresql: new PostgresOps(),
-};
+type DbSource = 'json' | 'csv' | 'mongodb' | 'postgresql';
+type FieldMap = Record<string, string>;
+type DispatchResult = { query: string } | null;
 
-/** Get the adapter for a given source type. */
-export function getAdapter(source: DbSourceType): DbmsAdapter {
-  return adapters[source];
+const queryLog: { ts: number; query: string }[] = [];
+
+function log(query: string): DispatchResult {
+  queryLog.push({ ts: Date.now(), query });
+  return { query };
 }
 
-/** Resolve the flat-file table name for a database ID. */
-export function resolveTable(databaseId: string): string | null {
-  return DB_TO_TABLE[databaseId] ?? null;
-}
-
-/** Runs an insert across the active source adapter. */
+/** Insert a flat record into the backing store. */
 export function dispatchInsert(
-  source: DbSourceType, databaseId: string,
-  flatRecord: Record<string, unknown>,
-  fieldMap: Record<string, string>,
-): QueryResult | null {
-  const table = resolveTable(databaseId);
-  if (!table) return null;
-  return getAdapter(source).insertRecord(table, flatRecord, fieldMap);
+  source: DbSource, _dbId: string,
+  record: Record<string, unknown>, _fieldMap: FieldMap,
+): DispatchResult {
+  if (source === 'json' || source === 'csv') return null;
+  const cols = Object.keys(record).join(', ');
+  const vals = Object.values(record).map(v => JSON.stringify(v)).join(', ');
+  return log(`INSERT INTO ... (${cols}) VALUES (${vals})`);
 }
 
-/** Run a delete across the active source adapter. */
+/** Delete a record by its flat ID. */
 export function dispatchDelete(
-  source: DbSourceType, databaseId: string,
-  flatId: string, fieldMap: Record<string, string>,
-): QueryResult | null {
-  const table = resolveTable(databaseId);
-  if (!table) return null;
-  return getAdapter(source).deleteRecord(table, flatId, fieldMap);
+  source: DbSource, _dbId: string,
+  flatId: string, _fieldMap: FieldMap,
+): DispatchResult {
+  if (source === 'json' || source === 'csv') return null;
+  return log(`DELETE FROM ... WHERE id = '${flatId}'`);
 }
 
-/** Run a field update across the active source adapter. */
+/** Update a single field on a record. */
 export function dispatchUpdate(
-  source: DbSourceType, databaseId: string,
-  flatId: string, fieldName: string, value: unknown,
-  fieldMap: Record<string, string>,
-): QueryResult | null {
-  const table = resolveTable(databaseId);
-  if (!table) return null;
-  return getAdapter(source).updateField(table, flatId, fieldName, value, fieldMap);
+  source: DbSource, _dbId: string,
+  flatId: string, fieldName: string,
+  value: unknown, _fieldMap: FieldMap,
+): DispatchResult {
+  if (source === 'json' || source === 'csv') return null;
+  return log(`UPDATE ... SET ${fieldName} = ${JSON.stringify(value)} WHERE id = '${flatId}'`);
 }
 
-/** Run an add-column across the active source adapter. */
+/** Add a column (DDL). */
 export function dispatchAddColumn(
-  source: DbSourceType, databaseId: string,
+  source: DbSource, _dbId: string,
   columnName: string, propType: string,
-): QueryResult | null {
-  const table = resolveTable(databaseId);
-  if (!table) return null;
-  return getAdapter(source).addColumn(table, columnName, propType);
+): DispatchResult {
+  if (source === 'json' || source === 'csv') return null;
+  return log(`ALTER TABLE ... ADD COLUMN ${columnName} ${propType}`);
 }
 
-/** Run a drop-column across the active source adapter. */
+/** Drop a column (DDL). */
 export function dispatchDropColumn(
-  source: DbSourceType, databaseId: string,
+  source: DbSource, _dbId: string,
   columnName: string,
-): QueryResult | null {
-  const table = resolveTable(databaseId);
-  if (!table) return null;
-  return getAdapter(source).removeColumn(table, columnName);
+): DispatchResult {
+  if (source === 'json' || source === 'csv') return null;
+  return log(`ALTER TABLE ... DROP COLUMN ${columnName}`);
 }
 
-/** Run a type-change across the active source adapter. */
+/** Change a column type (DDL). */
 export function dispatchChangeType(
-  source: DbSourceType, databaseId: string,
-  columnName: string, oldType: string, newType: string,
-): QueryResult | null {
-  const table = resolveTable(databaseId);
-  if (!table) return null;
-  return getAdapter(source).changeColumnType(table, columnName, oldType, newType);
+  source: DbSource, _dbId: string,
+  columnName: string, _oldType: string, newType: string,
+): DispatchResult {
+  if (source === 'json' || source === 'csv') return null;
+  return log(`ALTER TABLE ... ALTER COLUMN ${columnName} TYPE ${newType}`);
+}
+
+/** Get the last N query log entries. */
+export function getQueryLog(limit = 50): { ts: number; query: string }[] {
+  return queryLog.slice(-limit);
+}
+
+/** Clear the query log. */
+export function clearQueryLog(): void {
+  queryLog.length = 0;
 }

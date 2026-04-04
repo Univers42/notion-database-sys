@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,12 @@ export function ActionButtons({ pageId, onClose, deletePage, duplicatePage }: Re
 }
 
 /** Renders the top header bar shared across page modal modes (breadcrumb + actions). */
-export function ModalHeaderBar({ database, title, pageId, onClose }: {
+export function ModalHeaderBar({ database, title, pageId, onClose }: Readonly<{
   database: { icon?: string; name: string };
   title: string;
   pageId: string;
   onClose: () => void;
-}) {
+}>) {
   const { deletePage, duplicatePage } = useDatabaseStore.getState();
   return (
     <div className={cn("flex items-center justify-between px-6 py-4 border-b border-line shrink-0")}>
@@ -66,12 +66,12 @@ export function ModalHeaderBar({ database, title, pageId, onClose }: {
 }
 
 /** Renders the page body: icon, editable title, properties, content editor, and metadata footer. */
-export function PageInnerContent({ page, database, pageId, hPad }: {
+export function PageInnerContent({ page, database, pageId, hPad }: Readonly<{
   page: { icon?: string; properties: Record<string, unknown>; createdAt: string; updatedAt: string };
   database: { titlePropertyId: string; properties: Record<string, SchemaProperty>; icon?: string; name: string };
   pageId: string;
   hPad: string;
-}) {
+}>) {
   const { updatePageProperty } = useDatabaseStore.getState();
   const titleValue = (page.properties[database.titlePropertyId] as string) || '';
   const [localTitle, setLocalTitle] = useState(titleValue);

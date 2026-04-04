@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:52:49 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,11 @@ export const PROPERTY_TYPE_OPTIONS: readonly PropertyTypeMeta[] = [
 ] as const;
 
 /** Quick lookup: type string → display label */
-export function getPropertyTypeLabel(type: PropertyType | string): string {
+export function getPropertyTypeLabel(type: string): string {
   return PROPERTY_TYPE_OPTIONS.find(o => o.type === type)?.label ?? type;
 }
 
 /** Returns the icon node for a property type */
-export function getPropertyTypeIcon(type: PropertyType | string): React.ReactNode {
+export function getPropertyTypeIcon(type: string): React.ReactNode {
   return PROPERTY_TYPE_OPTIONS.find(o => o.type === type)?.icon ?? icon(Type);
 }

@@ -6,11 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 18:45:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:43:26 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 21:01:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { SchemaProperty, Page } from '../types/database';
+import { safeString } from '../utils/safeString';
 
 /** System-managed properties — never overwritten by user edits. */
 const SYSTEM_TYPES = new Set([
@@ -70,7 +71,7 @@ export function validatePropertyValue(
     case 'person':
     case 'user':
     case 'assigned_to':
-      return ok(String(raw));
+      return ok(safeString(raw));
 
     case 'number': return validateNumber(raw);
 
@@ -90,7 +91,7 @@ export function validatePropertyValue(
       return Array.isArray(raw) ? ok(raw) : ok([raw]);
 
     case 'place':
-      return typeof raw === 'object' ? ok(raw) : ok(String(raw));
+      return typeof raw === 'object' ? ok(raw) : ok(safeString(raw));
 
     case 'button': return ok(null);
 
@@ -118,7 +119,7 @@ function validateCheckbox(raw: unknown): ValidationResult {
   if (typeof raw === 'boolean') return ok(raw);
   if (raw === 1 || raw === '1' || raw === 'true') return ok(true);
   if (raw === 0 || raw === '0' || raw === 'false') return ok(false);
-  return fail(`Expected a boolean, got "${raw}"`);
+  return fail(`Expected a boolean, got "${safeString(raw)}"`);
 }
 
 function validateDate(raw: unknown): ValidationResult {
@@ -130,7 +131,7 @@ function validateDate(raw: unknown): ValidationResult {
 }
 
 function validateSelect(raw: unknown, property: SchemaProperty): ValidationResult {
-  const optionId = String(raw);
+  const optionId = safeString(raw);
   const options = property.options ?? [];
 
   // If no options defined yet, accept any string (schema will be expanded)
@@ -163,7 +164,7 @@ function validateMultiSelect(raw: unknown, property: SchemaProperty): Validation
   const resolved: string[] = [];
   const seen = new Set<string>();
   for (const id of ids) {
-    const s = String(id);
+    const s = safeString(id);
     let resolvedId: string | undefined;
 
     const match = options.find(o => o.id === s);

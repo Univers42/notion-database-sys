@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { ViteDevServer } from 'vite';
 import { watch, readFileSync, writeFileSync, existsSync, type FSWatcher } from 'node:fs';
 import { join, basename, extname, resolve } from 'node:path';
+import { safeString } from '../utils/safeString';
 
 
 type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
@@ -78,14 +79,21 @@ function parseCSVLine(line: string): string[] {
   let inQuotes = false;
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
-    if (inQuotes) {
-      if (ch === '"') {
-        if (i + 1 < line.length && line[i + 1] === '"') { current += '"'; i++; }
-        else inQuotes = false;
-      } else current += ch;
-    } else if (ch === '"') inQuotes = true;
-    else if (ch === ',') { result.push(current); current = ''; }
-    else current += ch;
+    if (inQuotes && ch === '"' && i + 1 < line.length && line[i + 1] === '"') {
+      current += '"';
+      i++;
+    } else if (inQuotes && ch === '"') {
+      inQuotes = false;
+    } else if (inQuotes) {
+      current += ch;
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',') {
+      result.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
   }
   result.push(current);
   return result;
@@ -104,6 +112,40 @@ function invertMap(fmap: Record<string, string>): Record<string, string> {
 /** Changeset: pageId → { propId → newValue } */
 type Changeset = Record<string, Record<string, unknown>>;
 
+/** Find a page matching a flat record ID within a specific database. */
+function findPageByFlatId(
+  state: NotionState, dbId: string, flatId: string,
+  fieldMap: Record<string, string>,
+): PageLike | undefined {
+  return Object.values(state.pages).find((p) => {
+    if (p.databaseId !== dbId) return false;
+    if (p.id === flatId) return true;
+    for (const [propId, fname] of Object.entries(fieldMap)) {
+      if (fname === 'id' && safeString(p.properties[propId]) === flatId) return true;
+    }
+    return false;
+  });
+}
+
+/** Apply property changes from a flat record to a page, collecting patch diffs. */
+function applyFlatChanges(
+  page: PageLike, flatFields: [string, unknown][],
+  inv: Record<string, string>, patches: Changeset,
+): void {
+  for (const [flatField, flatValue] of flatFields) {
+    if (flatField === 'id') continue;
+    const propId = inv[flatField];
+    if (!propId) continue;
+    if (page.properties[propId] !== flatValue) {
+      page.properties[propId] = flatValue;
+      (page as Record<string, unknown>).updatedAt = new Date().toISOString();
+      (page as Record<string, unknown>).lastEditedBy = 'External';
+      if (!patches[page.id]) patches[page.id] = {};
+      patches[page.id][propId] = flatValue;
+    }
+  }
+}
+
 /** Read flat JSON records and merge back into the state pages. */
 function syncJsonToState(
   filePath: string, dbId: string, state: NotionState,
@@ -120,32 +162,19 @@ function syncJsonToState(
   if (!Array.isArray(records)) return patches;
 
   for (const rec of records) {
-    const flatId = String(rec.id ?? '');
-    const page = Object.values(state.pages).find((p) => {
-      if (p.databaseId !== dbId) return false;
-      if (p.id === flatId) return true;
-      for (const [propId, fname] of Object.entries(fieldMap)) {
-        if (fname === 'id' && String(p.properties[propId]) === flatId) return true;
-      }
-      return false;
-    });
+    const flatId = safeString(rec.id ?? '');
+    const page = findPageByFlatId(state, dbId, flatId, fieldMap);
     if (!page) continue;
-
-    for (const [flatField, flatValue] of Object.entries(rec)) {
-      if (flatField === 'id') continue;
-      const propId = inv[flatField];
-      if (!propId) continue;
-      const currentVal = page.properties[propId];
-      if (currentVal !== flatValue) {
-        page.properties[propId] = flatValue;
-        (page as Record<string, unknown>).updatedAt = new Date().toISOString();
-        (page as Record<string, unknown>).lastEditedBy = 'External';
-        if (!patches[page.id]) patches[page.id] = {};
-        patches[page.id][propId] = flatValue;
-      }
-    }
+    applyFlatChanges(page, Object.entries(rec), inv, patches);
   }
   return patches;
+}
+
+/** Coerce a CSV cell value to match the current property type. */
+function coerceCsvValue(flatValue: string, currentVal: unknown): unknown {
+  if (typeof currentVal === 'number') return flatValue === '' ? null : Number(flatValue);
+  if (typeof currentVal === 'boolean') return flatValue === 'true';
+  return flatValue;
 }
 
 /** Read flat CSV records and merge back into the state pages. */
@@ -169,34 +198,13 @@ function syncCsvToState(
     const flatId = cells[idCol];
     if (!flatId) continue;
 
-    const page = Object.values(state.pages).find((p) => {
-      if (p.databaseId !== dbId) return false;
-      if (p.id === flatId) return true;
-      for (const [propId, fname] of Object.entries(fieldMap)) {
-        if (fname === 'id' && String(p.properties[propId]) === flatId) return true;
-      }
-      return false;
-    });
+    const page = findPageByFlatId(state, dbId, flatId, fieldMap);
     if (!page) continue;
 
-    for (let c = 0; c < headers.length; c++) {
-      if (c === idCol) continue;
-      const headerName = headers[c];
-      const propId = inv[headerName];
-      if (!propId) continue;
-      const flatValue = cells[c] ?? '';
-      let coerced: unknown = flatValue;
-      const cur = page.properties[propId];
-      if (typeof cur === 'number') coerced = flatValue === '' ? null : Number(flatValue);
-      else if (typeof cur === 'boolean') coerced = flatValue === 'true';
-      if (cur !== coerced) {
-        page.properties[propId] = coerced;
-        (page as Record<string, unknown>).updatedAt = new Date().toISOString();
-        (page as Record<string, unknown>).lastEditedBy = 'External';
-        if (!patches[page.id]) patches[page.id] = {};
-        patches[page.id][propId] = coerced;
-      }
-    }
+    const flatFields: [string, unknown][] = headers
+      .map((h, c) => [h, coerceCsvValue(cells[c] ?? '', page.properties[inv[h]])] as [string, unknown])
+      .filter(([h]) => h !== headers[idCol]);
+    applyFlatChanges(page, flatFields, inv, patches);
   }
   return patches;
 }
@@ -251,7 +259,7 @@ export function initFileWatcher(
 
       debounce.set(key, setTimeout(() => {
         debounce.delete(key);
-        handleFileChange(server, sourceType as DbSourceType, filePath, stem, ext);
+        handleFileChange(server, sourceType as DbSourceType, filePath, stem, ext); // NOSONAR
       }, DEBOUNCE_MS));
     });
 

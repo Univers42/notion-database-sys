@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,9 +189,9 @@ const ToggleBlockReadOnly: React.FC<{ block: Block }> = ({ block }) => {
             ].join(' ')}
           />
         </button>
-        <span className="text-sm text-[var(--color-ink)] leading-relaxed py-0.5 flex-1 cursor-pointer select-none" onClick={() => setExpanded(o => !o)}>
+        <button type="button" className="text-sm text-[var(--color-ink)] leading-relaxed py-0.5 flex-1 cursor-pointer select-none text-left" onClick={() => setExpanded(o => !o)}>
           {block.content}
-        </span>
+        </button>
       </div>
       {expanded && block.children && block.children.length > 0 && (
         <div className="ml-6 mt-0.5 pl-3 border-l-2 border-[var(--color-line)]">

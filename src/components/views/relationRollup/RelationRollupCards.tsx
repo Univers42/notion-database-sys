@@ -12,9 +12,9 @@
 
 import React from 'react';
 import type { PropertyValue } from '../../../types/database';
-import { CHART_COLORS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
-export const COLORS = CHART_COLORS;
+import { safeString } from '../../../utils/safeString';
+export { CHART_COLORS as COLORS } from '../../../utils/color';
 
 const DISPLAY_BADGE_CLASSES: Record<string, string> = {
   bar: 'bg-accent-soft text-accent-text',
@@ -24,7 +24,7 @@ const DISPLAY_BADGE_CLASSES: Record<string, string> = {
 function formatBoolish(v: PropertyValue): string {
   if (v === true) return '✓';
   if (v === false) return '✗';
-  return String(v);
+  return safeString(v);
 }
 
 function getRingStroke(pct: number): string {
@@ -97,5 +97,5 @@ export function RollupCellValue({ value, displayAs }: Readonly<{ value: Property
     return <span>{value.toLocaleString()}</span>;
   }
 
-  return <span className={cn("truncate max-w-[120px] inline-block")}>{String(value)}</span>;
+  return <span className={cn("truncate max-w-[120px] inline-block")}>{safeString(value)}</span>;
 }

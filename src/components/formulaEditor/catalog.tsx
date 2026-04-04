@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:29 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,10 @@ export const FORMULA_FUNCTIONS: FunctionDef[] = [
   // ── Text ──
   { name: 'substring', category: 'Text', signature: 'substring(text, start, end?)', description: 'Extracts a portion of a text string.', returnType: 'Text', examples: ['substring(prop("Name"), 0, 3)', 'substring("Hello World", 6)'] },
   { name: 'contains', category: 'Text', signature: 'contains(text, searchString)', description: 'Returns true if text contains the search string.', returnType: 'Boolean', examples: ['contains(prop("Email"), "@gmail")'] },
-  { name: 'test', category: 'Text', signature: 'test(text, regex)', description: 'Tests if text matches a regular expression pattern.', returnType: 'Boolean', examples: ['test(prop("Phone"), "^\\\\+1")'] },
+  { name: 'test', category: 'Text', signature: 'test(text, regex)', description: 'Tests if text matches a regular expression pattern.', returnType: 'Boolean', examples: [String.raw`test(prop("Phone"), "^\\+1")`] },
   { name: 'match', category: 'Text', signature: 'match(text, regex)', description: 'Returns the first match of a regex pattern.', returnType: 'Text', examples: ['match(prop("URL"), "https?://[^/]+")'] },
   { name: 'replace', category: 'Text', signature: 'replace(text, searchString, replacement)', description: 'Replaces the first occurrence of a string.', returnType: 'Text', examples: ['replace(prop("Name"), "Mr.", "Dr.")'] },
-  { name: 'replaceAll', category: 'Text', signature: 'replaceAll(text, searchString, replacement)', description: 'Replaces all occurrences of a string.', returnType: 'Text', examples: ['replaceAll(prop("Notes"), "\\n", " ")'] },
+  { name: 'replaceAll', category: 'Text', signature: 'replaceAll(text, searchString, replacement)', description: 'Replaces all occurrences of a string.', returnType: 'Text', examples: [String.raw`replaceAll(prop("Notes"), "\n", " ")`] },
   { name: 'lower', category: 'Text', signature: 'lower(text)', description: 'Converts text to lowercase.', returnType: 'Text', examples: ['lower(prop("Name"))'] },
   { name: 'upper', category: 'Text', signature: 'upper(text)', description: 'Converts text to uppercase.', returnType: 'Text', examples: ['upper(prop("Code"))'] },
   { name: 'trim', category: 'Text', signature: 'trim(text)', description: 'Removes leading and trailing whitespace.', returnType: 'Text', examples: ['trim(prop("Input"))'] },

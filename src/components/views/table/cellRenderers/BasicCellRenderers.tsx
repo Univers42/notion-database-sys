@@ -16,22 +16,25 @@ import type { SchemaProperty, Page, PropertyValue } from '../../../../types/data
 import { ArrowUpRight, CheckCircle2, MapPin } from 'lucide-react';
 import { TimelineDatePicker } from '../../timeline/TimelineDatePicker';
 import { cn } from '../../../../utils/cn';
+import { safeString } from '../../../../utils/safeString';
 
 /** Inline input that buffers locally while the user types; commits on blur or Enter. */
 export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, className = '', placeholder = 'Empty', step }: Readonly<{
   type?: string; value: PropertyValue; onChange: (v: PropertyValue) => void; onStop: () => void;
   tableRef: React.RefObject<HTMLDivElement | null>; className?: string; placeholder?: string; step?: string;
 }>) {
-  const [local, setLocal] = useState<string>(String(value ?? ''));
+  const [local, setLocal] = useState<string>(safeString(value));
   const committed = useRef(false);
 
   // Sync from parent if value changes while NOT focused (e.g., undo/redo)
-  useEffect(() => { setLocal(String(value ?? '')); }, [value]);
+  useEffect(() => { setLocal(safeString(value)); }, [value]);
 
   const commit = useCallback(() => {
     if (committed.current) return;
     committed.current = true;
-    const out = type === 'number' ? (local ? Number(local) : null) : local;
+    let out: PropertyValue;
+    if (type === 'number') out = local ? Number(local) : null;
+    else out = local;
     onChange(out);
     onStop();
   }, [local, type, onChange, onStop]);
@@ -118,8 +121,8 @@ export function DateCellEditor({ page, prop, value, onUpdate, onStopEditing }: R
     }
   }, []);
 
-  const currentDate = value ? new Date(String(value)) : null;
-  const isValidDate = currentDate !== null && !isNaN(currentDate.getTime());
+  const currentDate = value ? new Date(safeString(value)) : null;
+  const isValidDate = currentDate !== null && !Number.isNaN(currentDate.getTime());
 
   return (
     <>
@@ -169,9 +172,9 @@ export function renderPerson(p: CellRendererProps): React.ReactNode {
   return (
     <div className={cn("flex items-center gap-1.5")}>
       <div className={cn("w-5 h-5 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[10px] font-bold shrink-0")}>
-        {String(value).charAt(0).toUpperCase()}
+        {safeString(value).charAt(0).toUpperCase()}
       </div>
-      <span className={cn(`text-sm text-ink ${wrapContent ? 'break-words' : 'truncate'}`)}>{value}</span>
+      <span className={cn(`text-sm text-ink ${wrapContent ? 'break-words' : 'truncate'}`)}>{safeString(value)}</span>
     </div>
   );
 }

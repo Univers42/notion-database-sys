@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
         try {
           const val = resolveRollup(db.id, pg, rp.id);
           results.push({ pageTitle: title, value: val });
-          if (typeof val === 'number' && !isNaN(val)) numericResults.push(val);
+          if (typeof val === 'number' && !Number.isNaN(val)) numericResults.push(val);
         } catch {
           errorCount++;
           results.push({ pageTitle: title, value: '#ERROR' });

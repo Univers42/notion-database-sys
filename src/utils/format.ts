@@ -6,12 +6,16 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:15:55 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { format, parseISO, isValid } from 'date-fns';
 import type { SchemaProperty, PropertyValue } from '../types/database';
+import { safeString } from './safeString';
+
+/** Input accepted by date-formatting helpers. */
+type DateInput = string | Date | undefined;
 
 /**
  * Formats a number into a compact human-readable string.
@@ -32,7 +36,7 @@ export function formatNumber(val: number): string {
  *
  * @returns Formatted string like "Jan 5, 2026 3:42 PM", or "—" on failure.
  */
-export function formatDateTime(isoOrDate: string | Date | undefined): string {
+export function formatDateTime(isoOrDate: DateInput): string {
   if (!isoOrDate) return '—';
   try {
     const d = typeof isoOrDate === 'string' ? parseISO(isoOrDate) : isoOrDate;
@@ -48,7 +52,7 @@ export function formatDateTime(isoOrDate: string | Date | undefined): string {
  *
  * @returns Formatted string like "Jan 5, 2026", or "—" on failure.
  */
-export function formatDate(isoOrDate: string | Date | undefined): string {
+export function formatDate(isoOrDate: DateInput): string {
   if (!isoOrDate) return '—';
   try {
     const d = typeof isoOrDate === 'string' ? parseISO(isoOrDate) : isoOrDate;
@@ -64,7 +68,7 @@ export function formatDate(isoOrDate: string | Date | undefined): string {
  *
  * @returns Formatted string like "Jan 5", or empty string on failure.
  */
-export function formatShortDate(isoOrDate: string | Date | undefined): string {
+export function formatShortDate(isoOrDate: DateInput): string {
   if (!isoOrDate) return '';
   try {
     const d = typeof isoOrDate === 'string' ? parseISO(isoOrDate) : isoOrDate;
@@ -91,9 +95,9 @@ export function formatCellValue(val: PropertyValue, prop: SchemaProperty): strin
   if (prop.type === 'number') return Number(val).toLocaleString();
   if (prop.type === 'select' || prop.type === 'status') {
     const opt = prop.options?.find(o => o.id === val);
-    return opt?.value ?? String(val);
+    return opt?.value ?? safeString(val);
   }
-  if (prop.type === 'date') return formatDate(String(val));
+  if (prop.type === 'date') return formatDate(safeString(val));
   if (prop.type === 'checkbox') return val ? '✓' : '—';
   if (typeof val === 'object') return JSON.stringify(val);
   return String(val);

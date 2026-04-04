@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:32:20 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,10 @@ function ResizeHandle({ side = 'left', isResizing, onMouseDown }: Readonly<{
   onMouseDown: (e: React.MouseEvent) => void;
 }>) {
   return (
-    <div
+    <div // NOSONAR - custom resize separator requires non-semantic element
+      role="separator"
+      tabIndex={0} // NOSONAR - resize separator needs tabIndex for keyboard access
+      aria-label={`Resize ${side} edge`}
       onMouseDown={onMouseDown}
       className={cn(`absolute top-0 ${side === 'left' ? '-left-1' : '-right-1'} w-2 h-full cursor-col-resize z-10 group`)}
     >
@@ -47,15 +50,17 @@ export function SidePeekView({ page, database, pageId, onClose, panelWidth, isRe
   return (
     <div className={cn("fixed inset-0 z-50 flex justify-end bg-scrim-light")}>
       <button type="button" className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={onClose} tabIndex={-1} aria-label="Close" />
-      <div
+      <dialog // NOSONAR - dialog event containment
+        open
         className={cn("relative z-[60] bg-surface-primary shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-200")}
         style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH }}
         onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
       >
         <ResizeHandle side="left" isResizing={isResizing} onMouseDown={startResize} />
         <ModalHeaderBar database={database} title={title} pageId={pageId} onClose={onClose} />
         <PageInnerContent page={page} database={database} pageId={pageId} hPad="px-12" />
-      </div>
+      </dialog>
     </div>
   );
 }
@@ -74,16 +79,18 @@ export function CenterPeekView({ page, database, pageId, onClose, panelWidth, is
   return (
     <div className={cn("fixed inset-0 z-50 flex items-center justify-center bg-scrim-medium")}>
       <button type="button" className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={onClose} tabIndex={-1} aria-label="Close" />
-      <div
+      <dialog // NOSONAR - dialog event containment
+        open
         className={cn("relative z-[60] bg-surface-primary rounded-2xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-200")}
         style={{ width: panelWidth, maxWidth: `${MAX_WIDTH_RATIO * 100}vw`, minWidth: MIN_WIDTH, maxHeight: 'calc(100vh - 80px)' }}
         onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
       >
         <ResizeHandle side="left" isResizing={isResizing} onMouseDown={startResize} />
         <ResizeHandle side="right" isResizing={isResizing} onMouseDown={startResize} />
         <ModalHeaderBar database={database} title={title} pageId={pageId} onClose={onClose} />
         <PageInnerContent page={page} database={database} pageId={pageId} hPad="px-12" />
-      </div>
+      </dialog>
     </div>
   );
 }

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:21 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ export function useUndoRedo(pageId: string) {
     // Pop the current snapshot (it matches current state)
     undoStack.current.pop();
     // Get the previous snapshot
-    const prev = undoStack.current[undoStack.current.length - 1];
+    const prev = undoStack.current.at(-1);
     if (!prev) return;
 
     isProgrammatic.current = true;
@@ -116,7 +116,8 @@ export function useUndoRedo(pageId: string) {
   const redo = useCallback(() => {
     if (redoStack.current.length === 0) return;
 
-    const entry = redoStack.current.pop()!;
+    const entry = redoStack.current.pop();
+    if (!entry) return;
 
     isProgrammatic.current = true;
     undoStack.current.push({

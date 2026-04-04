@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ function PropertyDoc({ prop, insertAtCursor }: Readonly<{ prop: SchemaProperty; 
         <span className={cn("text-sm font-semibold text-ink-strong truncate")}>{prop.name}</span>
       </div>
       <div className={cn("space-y-2")}>
-        <DocField label="Type"><p className={cn("text-xs text-ink-body-light mt-0.5")}>{prop.type.replace(/_/g, ' ')}</p></DocField>
+        <DocField label="Type"><p className={cn("text-xs text-ink-body-light mt-0.5")}>{prop.type.replaceAll('_', ' ')}</p></DocField>
         <DocField label="Returns"><div className={cn("mt-0.5")}>{getReturnTypeBadge(propReturnType(prop.type))}</div></DocField>
         <DocField label="Usage">
           <div className={cn("mt-1 p-2 rounded-md bg-surface-primary border border-line font-mono text-xs text-ink-body")}>
@@ -111,7 +111,7 @@ function FunctionDoc({ fn, insertAtCursor }: Readonly<{ fn: FunctionDef; insertA
         <DocField label="Returns"><div className={cn("mt-0.5")}>{getReturnTypeBadge(fn.returnType)}</div></DocField>
         <DocField label="Examples">
           <div className={cn("mt-1 space-y-1.5")}>
-            {fn.examples.map((ex, i) => <ExampleBlock key={i} code={ex} onInsert={insertAtCursor} />)}
+            {fn.examples.map((ex) => <ExampleBlock key={ex} code={ex} onInsert={insertAtCursor} />)}
           </div>
         </DocField>
         <DocField label="Category"><p className={cn("text-xs text-ink-secondary mt-0.5")}>{fn.category}</p></DocField>

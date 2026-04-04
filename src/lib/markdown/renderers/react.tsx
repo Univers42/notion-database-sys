@@ -4,6 +4,16 @@ import type { BlockNode } from '../ast';
 import { parse } from '../parser';
 import { renderTable, renderInlines } from './reactHelpers';
 
+/** Extract plain text from inline AST nodes (for stable React keys). */
+function extractInlineText(nodes: readonly Record<string, unknown>[]): string {
+  return nodes.map(n => {
+    if (typeof n.value === 'string') return n.value;
+    if (Array.isArray(n.children)) return extractInlineText(n.children as Record<string, unknown>[]);
+    if (typeof n.alt === 'string') return n.alt;
+    return '';
+  }).join('');
+}
+
 export interface ReactRenderOptions {
   /** CSS class prefix (default: 'md') */
   classPrefix?: string;
@@ -61,7 +71,7 @@ function renderBlock(
       return React.createElement('p', { key }, ...renderInlines(node.children, o));
 
     case 'heading': {
-      const tag = `h${node.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+      const tag = `h${node.level}`;
       return React.createElement(tag, { key, id: node.id || undefined }, ...renderInlines(node.children, o));
     }
 
@@ -78,33 +88,38 @@ function renderBlock(
       return React.createElement('pre', { key, 'data-meta': node.meta || undefined }, code);
     }
 
-    case 'unordered_list':
+    case 'unordered_list': {
+      const ulItems = node.children.map((item, idx) => ({ item, key: `li-${idx}` }));
       return React.createElement('ul', { key },
-        ...node.children.map((item, i) =>
-          React.createElement('li', { key: i }, ...item.children.map((b, j) => renderBlock(b, o, j)))
+        ...ulItems.map(({ item, key: liKey }) =>
+          React.createElement('li', { key: liKey }, ...item.children.map((b, j) => renderBlock(b, o, j)))
         )
       );
+    }
 
-    case 'ordered_list':
-      return React.createElement('ol', { key, start: node.start !== 1 ? node.start : undefined },
-        ...node.children.map((item, i) =>
-          React.createElement('li', { key: i }, ...item.children.map((b, j) => renderBlock(b, o, j)))
+    case 'ordered_list': {
+      const olItems = node.children.map((item, idx) => ({ item, key: `li-${idx}` }));
+      return React.createElement('ol', { key, start: node.start === 1 ? undefined : node.start },
+        ...olItems.map(({ item, key: liKey }) =>
+          React.createElement('li', { key: liKey }, ...item.children.map((b, j) => renderBlock(b, o, j)))
         )
       );
+    }
 
     case 'task_list': {
       _taskIndex = 0;
+      const taskItems = node.children.map((item, idx) => ({ item, key: `task-${idx}` }));
       return React.createElement('ul', { key, className: `${o.classPrefix}-task-list` },
-        ...node.children.map((item, i) => {
+        ...taskItems.map(({ item, key: taskKey }) => {
           const idx = _taskIndex++;
           const checkbox = React.createElement('input', {
             type: 'checkbox',
             checked: item.checked,
-            onChange: o.onTaskToggle ? () => o.onTaskToggle!(idx, !item.checked) : undefined,
+            onChange: o.onTaskToggle ? () => o.onTaskToggle?.(idx, !item.checked) : undefined,
             readOnly: !o.onTaskToggle,
             className: `${o.classPrefix}-task-checkbox`,
           });
-          return React.createElement('li', { key: i, className: `${o.classPrefix}-task-item` },
+          return React.createElement('li', { key: taskKey, className: `${o.classPrefix}-task-item` },
             checkbox,
             ...item.children.map((b, j) => renderBlock(b, o, j))
           );
@@ -146,18 +161,22 @@ function renderBlock(
 
     case 'definition_list':
       return React.createElement('dl', { key },
-        ...node.items.flatMap((item, i) => [
-          React.createElement('dt', { key: `dt-${i}` }, ...renderInlines(item.term, o)),
-          ...item.definitions.map((def, j) =>
-            React.createElement('dd', { key: `dd-${i}-${j}` }, ...renderInlines(def, o))
-          ),
-        ])
+        ...node.items.flatMap((item) => {
+          const termKey = extractInlineText(item.term) || crypto.randomUUID();
+          return [
+            React.createElement('dt', { key: `dt-${termKey}` }, ...renderInlines(item.term, o)),
+            ...item.definitions.map((def, j) =>
+              React.createElement('dd', { key: `dd-${termKey}-${j}` }, ...renderInlines(def, o))
+            ),
+          ];
+        })
       );
 
     case 'toggle': {
+      const toggleChildren = node.children.map((c, idx) => ({ c, key: `t-${idx}` }));
       return React.createElement('details', { key },
         React.createElement('summary', null, ...renderInlines(node.summary, o)),
-        ...node.children.map((c, i) => renderBlock(c, o, i))
+        ...toggleChildren.map(({ c, key: k }) => renderBlock(c, o, k))
       );
     }
 

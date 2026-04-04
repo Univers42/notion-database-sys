@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,52 +25,62 @@ import {
 import type { ComputedData } from '.';
 import { cn } from '../../../utils/cn';
 
+type AggProperty = { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] };
+
+/** Aggregate number, select, and checkbox stats from all pages. */
+function aggregatePages(
+  pages: { properties: Record<string, unknown> }[],
+  allProps: AggProperty[],
+): Omit<ComputedData, 'recentCount'> {
+  let checked = 0, unchecked = 0;
+  const numberAggs: ComputedData['numberAggs'] = {};
+  const selectCounts: ComputedData['selectCounts'] = {};
+
+  pages.forEach(page => {
+    allProps.forEach(prop => {
+      const val = page.properties[prop.id];
+      if (prop.type === 'checkbox') { if (val) checked++; else unchecked++; }
+      if (prop.type === 'number' && typeof val === 'number') {
+        if (!numberAggs[prop.id]) numberAggs[prop.id] = { sum: 0, count: 0, min: Infinity, max: -Infinity };
+        numberAggs[prop.id].sum += val;
+        numberAggs[prop.id].count++;
+        numberAggs[prop.id].min = Math.min(numberAggs[prop.id].min, val);
+        numberAggs[prop.id].max = Math.max(numberAggs[prop.id].max, val);
+      }
+      if ((prop.type === 'select' || prop.type === 'status') && val) {
+        if (!selectCounts[prop.id]) selectCounts[prop.id] = {};
+        const opt = prop.options?.find(o => o.id === val);
+        const label = opt?.value || (val as string);
+        if (!selectCounts[prop.id][label]) selectCounts[prop.id][label] = { count: 0, color: opt?.color || '', label };
+        selectCounts[prop.id][label].count++;
+      }
+    });
+  });
+
+  return { numberAggs, selectCounts, checked, unchecked };
+}
+
 function useComputedData(pages: { updatedAt: string; properties: Record<string, unknown> }[], database: { properties: Record<string, { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }> } | null): ComputedData {
   const allProps = useMemo(() => database ? Object.values(database.properties) : [], [database]);
   return useMemo(() => {
     if (!database) return { numberAggs: {}, selectCounts: {}, checked: 0, unchecked: 0, recentCount: 0 };
 
-    let checked = 0, unchecked = 0;
-    const numberAggs: ComputedData['numberAggs'] = {};
-    const selectCounts: ComputedData['selectCounts'] = {};
-
     const recentCount = pages.filter(p => {
       try { return isThisWeek(parseISO(p.updatedAt)); } catch { return false; }
     }).length;
 
-    pages.forEach(page => {
-      allProps.forEach(prop => {
-        const val = page.properties[prop.id];
-        if (prop.type === 'checkbox') { if (val) checked++; else unchecked++; }
-        if (prop.type === 'number' && typeof val === 'number') {
-          if (!numberAggs[prop.id]) numberAggs[prop.id] = { sum: 0, count: 0, min: Infinity, max: -Infinity };
-          numberAggs[prop.id].sum += val;
-          numberAggs[prop.id].count++;
-          numberAggs[prop.id].min = Math.min(numberAggs[prop.id].min, val);
-          numberAggs[prop.id].max = Math.max(numberAggs[prop.id].max, val);
-        }
-        if ((prop.type === 'select' || prop.type === 'status') && val) {
-          if (!selectCounts[prop.id]) selectCounts[prop.id] = {};
-          const opt = prop.options?.find(o => o.id === val);
-          const label = opt?.value || (val as string);
-          if (!selectCounts[prop.id][label]) selectCounts[prop.id][label] = { count: 0, color: opt?.color || '', label };
-          selectCounts[prop.id][label].count++;
-        }
-      });
-    });
-
-    return { numberAggs, selectCounts, checked, unchecked, recentCount };
+    return { ...aggregatePages(pages, allProps), recentCount };
   }, [pages, database, allProps]);
 }
 
-function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageTitle }: {
+function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageTitle }: Readonly<{
   widgets: DashboardWidget[];
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
   propsMap: Record<string, SchemaProperty>;
   computedData: ComputedData;
   openPage: (id: string) => void;
   getPageTitle: (page: unknown) => string;
-}) {
+}>) {
   return (
     <div className={cn("flex-1 overflow-auto p-6 bg-surface-secondary")}>
       <div className={cn("max-w-7xl mx-auto")}>
@@ -88,17 +98,17 @@ function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageT
   );
 }
 
-function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageTitle }: {
+function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageTitle }: Readonly<{
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
   allProps: { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }[];
   computedData: ComputedData;
   openPage: (id: string) => void;
   getPageTitle: (page: unknown) => string;
-}) {
+}>) {
   const checkboxProps = allProps.filter(p => p.type === 'checkbox');
   const numberProps = allProps.filter(p => p.type === 'number');
   const selectProps = allProps.filter(p => p.type === 'select' || p.type === 'status');
-  const mainSelectProp = selectProps.sort((a, b) =>
+  const mainSelectProp = [...selectProps].sort((a, b) =>
     Object.keys(computedData.selectCounts[b.id] || {}).length - Object.keys(computedData.selectCounts[a.id] || {}).length
   )[0];
   const mainSelectData = mainSelectProp && computedData.selectCounts[mainSelectProp.id]

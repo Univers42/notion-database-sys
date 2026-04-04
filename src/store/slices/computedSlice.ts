@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,11 @@ import { evaluateFilter } from '../../lib/filter/evaluateFilter';
 import { compareValues } from '../../lib/filter/compareValues';
 import { searchPage, buildGroups, formatFormulaResult, computeRollup } from './storeHelpers';
 
-initFormulaEngine().catch(() => {});
+try {
+  await initFormulaEngine();
+} catch {
+  // silently ignore formula engine init failure
+}
 
 let pagesForViewCache: {
   pagesRef: Record<string, unknown> | null;

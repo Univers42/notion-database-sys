@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:11:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:11:01 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,11 @@ export class PostgresDbAdapter implements DbAdapter {
   }
 
   async listEntities(): Promise<string[]> {
-    this.ensureConnected();
+    const pool = this.ensureConnected();
     const cached = this.cache.get<string[]>('entities');
     if (cached) return cached;
 
-    const result = await this.pool!.query(
+    const result = await pool.query(
       `SELECT table_name FROM information_schema.tables
        WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
        ORDER BY table_name`,
@@ -75,20 +75,20 @@ export class PostgresDbAdapter implements DbAdapter {
   }
 
   async getRecords(entity: string): Promise<DbRecord[]> {
-    this.ensureConnected();
+    const pool = this.ensureConnected();
     const key = `records:${entity}`;
     const cached = this.cache.get<DbRecord[]>(key);
     if (cached) return cached;
 
-    const result = await this.pool!.query(`SELECT * FROM "${entity}"`);
+    const result = await pool.query(`SELECT * FROM "${entity}"`);
     const records = result.rows as DbRecord[];
     this.cache.set(key, records);
     return records;
   }
 
   async getRecord(entity: string, id: string): Promise<DbRecord | null> {
-    this.ensureConnected();
-    const result = await this.pool!.query(
+    const pool = this.ensureConnected();
+    const result = await pool.query(
       `SELECT * FROM "${entity}" WHERE id = $1 LIMIT 1`, [id],
     );
     return (result.rows[0] as DbRecord | undefined) ?? null;
@@ -97,8 +97,8 @@ export class PostgresDbAdapter implements DbAdapter {
   async updateRecord(
     entity: string, id: string, field: string, value: unknown,
   ): Promise<DbRecord> {
-    this.ensureConnected();
-    const result = await this.pool!.query(
+    const pool = this.ensureConnected();
+    const result = await pool.query(
       `UPDATE "${entity}" SET "${field}" = $1 WHERE id = $2 RETURNING *`,
       [value, id],
     );
@@ -110,13 +110,13 @@ export class PostgresDbAdapter implements DbAdapter {
   }
 
   async insertRecord(entity: string, record: Omit<DbRecord, 'id'>): Promise<DbRecord> {
-    this.ensureConnected();
+    const pool = this.ensureConnected();
     const keys = Object.keys(record);
     const values = Object.values(record);
     const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
     const columns = keys.map((k) => `"${k}"`).join(', ');
 
-    const result = await this.pool!.query(
+    const result = await pool.query(
       `INSERT INTO "${entity}" (${columns}) VALUES (${placeholders}) RETURNING *`,
       values,
     );
@@ -125,10 +125,10 @@ export class PostgresDbAdapter implements DbAdapter {
   }
 
   async getSchema(entity: string): Promise<DbEntitySchema> {
-    this.ensureConnected();
+    const pool = this.ensureConnected();
 
     // Try native information_schema first for accurate types
-    const colResult = await this.pool!.query(
+    const colResult = await pool.query(
       `SELECT column_name, data_type, is_nullable
        FROM information_schema.columns
        WHERE table_schema = 'public' AND table_name = $1
@@ -136,7 +136,7 @@ export class PostgresDbAdapter implements DbAdapter {
       [entity],
     );
 
-    const countResult = await this.pool!.query(
+    const countResult = await pool.query(
       `SELECT count(*)::int AS cnt FROM "${entity}"`,
     );
 
@@ -163,15 +163,16 @@ export class PostgresDbAdapter implements DbAdapter {
 
   async ping(): Promise<boolean> {
     try {
-      this.ensureConnected();
-      await this.pool!.query('SELECT 1');
+      const pool = this.ensureConnected();
+      await pool.query('SELECT 1');
       return true;
     } catch {
       return false;
     }
   }
 
-  private ensureConnected(): void {
+  private ensureConnected(): InstanceType<typeof Pool> {
     if (!this.pool) throw new Error('PostgresDbAdapter: not connected. Call connect() first.');
+    return this.pool;
   }
 }

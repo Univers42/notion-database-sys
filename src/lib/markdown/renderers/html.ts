@@ -58,7 +58,7 @@ function renderBlock(node: BlockNode, o: Required<HtmlRenderOptions>): string {
       ).join('\n')}\n</ul>`;
 
     case 'ordered_list': {
-      const start = node.start !== 1 ? ` start="${node.start}"` : '';
+      const start = node.start === 1 ? '' : ` start="${node.start}"`;
       return `<ol${start}>\n${node.children.map(c =>
         `<li>${c.children.map(b => renderBlock(b, o)).join('\n')}</li>`
       ).join('\n')}\n</ol>`;
@@ -189,10 +189,10 @@ function renderInline(node: InlineNode, o: Required<HtmlRenderOptions>): string 
 
 function esc(str: string): string {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 }
 
 function isExternal(href: string): boolean {

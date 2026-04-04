@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ export const UserSwitcherPanel: React.FC<Props> = ({ onClose }) => {
           <button
             key={p.email}
             type="button"
-            onClick={() => { if (p.id) switchUser(p.id); onClose(); }}
+            onClick={() => { if (p.id) { switchUser(p.id); } onClose(); }}
             className={[
               'w-full flex items-center gap-3 px-3 py-2 text-left',
               'transition-colors duration-100 cursor-pointer',

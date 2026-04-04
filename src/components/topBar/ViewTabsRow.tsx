@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,8 @@ export function ViewTabsRow({
                 <div className={cn("flex items-center gap-1.5 px-2.5 py-1.5", slots?.tabEditWrap)}>
                   {v.settings?.viewIcon ? <Icon name={v.settings.viewIcon} className={cn("w-4 h-4")} /> : VIEW_ICONS[v.type]}
                   <input ref={viewRenameRef} value={viewRenameValue} onChange={e => setViewRenameValue(e.target.value)}
-                    onBlur={() => { if (viewRenameValue.trim()) updateView(v.id, { name: viewRenameValue.trim() }); setRenamingViewId(null); }}
-                    onKeyDown={e => { if (e.key === 'Enter') { if (viewRenameValue.trim()) updateView(v.id, { name: viewRenameValue.trim() }); setRenamingViewId(null); } if (e.key === 'Escape') setRenamingViewId(null); }}
+                    onBlur={() => { if (viewRenameValue.trim()) { updateView(v.id, { name: viewRenameValue.trim() }); } setRenamingViewId(null); }}
+                    onKeyDown={e => { if (e.key === 'Enter') { if (viewRenameValue.trim()) { updateView(v.id, { name: viewRenameValue.trim() }); } setRenamingViewId(null); } if (e.key === 'Escape') { setRenamingViewId(null); } }}
                     className={cn("text-sm font-medium text-ink bg-surface-primary border border-accent-border-light rounded px-1 py-0 outline-none w-28", slots?.tabEditInput)} />
                 </div>
               ) : (

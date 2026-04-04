@@ -6,11 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:04:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:04:18 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { PermissionLevel, ObjectId } from '@notion-db/types';
+import type { PermissionLevel } from '@notion-db/types';
 import { AccessRuleModel } from '../models/accessRule.model';
 import { EffectivePermissionModel } from '../models/effectivePermission.model';
 import { WorkspaceMemberModel } from '../models/member.model';
@@ -19,16 +19,19 @@ import { resolvePermission } from './resolver';
 /** Default TTL for cached permissions: 5 minutes */
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
+/** Resource types that can have permissions applied. */
+type AbacResourceType = 'workspace' | 'page' | 'database' | 'block';
+
 export class AbacEngine {
   /**
    * Check if a user has at least `required` permission on a resource.
    * Uses materialized cache first — falls back to live computation.
    */
   async check(
-    userId: ObjectId,
-    workspaceId: ObjectId,
-    resourceId: ObjectId,
-    resourceType: 'workspace' | 'page' | 'database' | 'block',
+    userId: string,
+    workspaceId: string,
+    resourceId: string,
+    resourceType: AbacResourceType,
     required: PermissionLevel,
   ): Promise<boolean> {
     const effective = await this.getEffective(userId, workspaceId, resourceId, resourceType);
@@ -40,10 +43,10 @@ export class AbacEngine {
    * Get effective permission — cache-first with TTL fallback.
    */
   async getEffective(
-    userId: ObjectId,
-    workspaceId: ObjectId,
-    resourceId: ObjectId,
-    resourceType: 'workspace' | 'page' | 'database' | 'block',
+    userId: string,
+    workspaceId: string,
+    resourceId: string,
+    resourceType: AbacResourceType,
   ): Promise<PermissionLevel> {
     // 1. Check materialized cache
     const cached = await EffectivePermissionModel.findOne({
@@ -81,9 +84,9 @@ export class AbacEngine {
    * Order: workspace defaults → page rules → block rules (most specific wins).
    */
   private async compute(
-    userId: ObjectId,
-    workspaceId: ObjectId,
-    resourceId: ObjectId,
+    userId: string,
+    workspaceId: string,
+    resourceId: string,
     _resourceType: 'workspace' | 'page' | 'database' | 'block',
   ): Promise<PermissionLevel> {
     // Get the user's workspace role
@@ -134,14 +137,14 @@ export class AbacEngine {
   /**
    * Invalidate cached permissions for a resource — called when rules change.
    */
-  async invalidate(resourceId: ObjectId): Promise<void> {
+  async invalidate(resourceId: string): Promise<void> {
     await EffectivePermissionModel.deleteMany({ resourceId });
   }
 
   /**
    * Invalidate all cached permissions for a user in a workspace.
    */
-  async invalidateUser(userId: ObjectId, workspaceId: ObjectId): Promise<void> {
+  async invalidateUser(userId: string, workspaceId: string): Promise<void> {
     await EffectivePermissionModel.deleteMany({ userId, workspaceId });
   }
 }

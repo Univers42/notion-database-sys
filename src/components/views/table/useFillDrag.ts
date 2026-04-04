@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:57 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,18 +28,21 @@ export function useFillDrag(activeViewId: string | null) {
     const target = e.target as HTMLElement;
     const row = target.closest('tr[data-row-idx]');
     if (row) {
-      const rowIdx = Number(row.getAttribute('data-row-idx'));
-      if (!isNaN(rowIdx)) setFillDrag(prev => prev ? { ...prev, currentRowIdx: rowIdx } : null);
+      const rowIdx = Number((row as HTMLElement).dataset.rowIdx);
+      if (!Number.isNaN(rowIdx)) setFillDrag(prev => prev ? { ...prev, currentRowIdx: rowIdx } : null);
     }
   }, []);
 
   const handleFillEnd = useCallback(() => {
-    setFillDrag(prev => {
-      if (!prev) return null;
-      const { sourcePropId, sourceRowIdx, currentRowIdx } = prev;
-      const store = useDatabaseStore.getState();
-      const v = activeViewId ? store.views[activeViewId] : null;
-      if (!v) return null;
+    const drag = fillDrag;
+    if (!drag) {
+      setFillDrag(null);
+      return;
+    }
+    const { sourcePropId, sourceRowIdx, currentRowIdx } = drag;
+    const store = useDatabaseStore.getState();
+    const v = activeViewId ? store.views[activeViewId] : null;
+    if (v) {
       const allPages = store.getPagesForView(v.id);
       const sourceVal = allPages[sourceRowIdx]?.properties[sourcePropId];
       const minR = Math.min(sourceRowIdx, currentRowIdx);
@@ -49,9 +52,9 @@ export function useFillDrag(activeViewId: string | null) {
           store.updatePageProperty(allPages[i].id, sourcePropId, sourceVal);
         }
       }
-      return null;
-    });
-  }, [activeViewId]);
+    }
+    setFillDrag(null);
+  }, [activeViewId, fillDrag]);
 
   useEffect(() => {
     if (fillDrag) {

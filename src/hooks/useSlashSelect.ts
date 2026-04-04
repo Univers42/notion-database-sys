@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ export function repositionCursor(blockId: string, content: string): void {
     if (el) {
       el.textContent = content;
       el.focus();
-      const sel = window.getSelection();
+      const sel = globalThis.getSelection();
       const range = document.createRange();
       range.selectNodeContents(el);
       range.collapse(false);

@@ -6,21 +6,21 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:05:55 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:05:57 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { BlockModel } from '../models/block.model';
-import type { ObjectId, Block, BlockType } from '@notion-db/types';
+import type { Block, BlockType } from '@notion-db/types';
 
 export class BlockService {
   /**
    * Create a new block within a page.
    */
   async create(data: {
-    pageId: ObjectId;
-    workspaceId: ObjectId;
-    parentBlockId?: ObjectId;
+    pageId: string;
+    workspaceId: string;
+    parentBlockId?: string;
     type: BlockType;
     content?: string;
     order: string;
@@ -35,7 +35,7 @@ export class BlockService {
   /**
    * Get all blocks for a page, ordered.
    */
-  async listByPage(pageId: ObjectId): Promise<unknown[]> {
+  async listByPage(pageId: string): Promise<unknown[]> {
     return BlockModel.find({
       pageId,
       archived: { $ne: true },
@@ -47,7 +47,7 @@ export class BlockService {
   /**
    * Get child blocks of a parent block.
    */
-  async listChildren(parentBlockId: ObjectId): Promise<unknown[]> {
+  async listChildren(parentBlockId: string): Promise<unknown[]> {
     return BlockModel.find({
       parentBlockId,
       archived: { $ne: true },
@@ -59,7 +59,7 @@ export class BlockService {
   /**
    * Update a block's content and/or type-specific fields.
    */
-  async update(blockId: ObjectId, data: Partial<Block>): Promise<unknown> {
+  async update(blockId: string, data: Partial<Block>): Promise<unknown> {
     const { _id, _pageId, _workspaceId, ...updateData } = data as Record<string, unknown>;
     return BlockModel.findByIdAndUpdate(blockId, { $set: updateData }, { new: true }).lean();
   }
@@ -67,14 +67,14 @@ export class BlockService {
   /**
    * Reorder a block by updating its fractional index.
    */
-  async reorder(blockId: ObjectId, newOrder: string): Promise<void> {
+  async reorder(blockId: string, newOrder: string): Promise<void> {
     await BlockModel.updateOne({ _id: blockId }, { order: newOrder });
   }
 
   /**
    * Soft-delete a block and all its children.
    */
-  async archive(blockId: ObjectId, archivedBy: ObjectId): Promise<void> {
+  async archive(blockId: string, archivedBy: string): Promise<void> {
     const now = new Date();
     // Archive the block itself
     await BlockModel.updateOne(
@@ -85,7 +85,7 @@ export class BlockService {
     await this.archiveDescendants(blockId, archivedBy, now);
   }
 
-  private async archiveDescendants(parentId: ObjectId, archivedBy: ObjectId, now: Date): Promise<void> {
+  private async archiveDescendants(parentId: string, archivedBy: string, now: Date): Promise<void> {
     const children = await BlockModel.find({ parentBlockId: parentId }).select('_id').lean();
     if (children.length === 0) return;
 

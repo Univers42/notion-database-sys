@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
         </>
       );
     case 'list':
+    case 'dashboard':
       return (
         <>
           <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
@@ -128,20 +129,13 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
         </>
       );
-    case 'dashboard':
-      return (
-        <>
-          <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
-          <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
-        </>
-      );
     default:
       return null;
   }
 }
 
 /** Renders the view layout picker with per-view-type settings (grouping, card preview, etc.). */
-export function LayoutScreen(props: LayoutScreenProps) {
+export function LayoutScreen(props: Readonly<LayoutScreenProps>) {
   const { viewId, viewType, settings, setScreen, goHome, onClose, updateView, updateSetting } = props;
   return (
     <div className={cn("flex flex-col h-full")} style={{ minWidth: 290, maxWidth: 290 }}>
@@ -168,7 +162,7 @@ export function LayoutScreen(props: LayoutScreenProps) {
         </div>
         {(viewType === 'board' || viewType === 'gallery') && (
           <CardLayoutPicker
-            value={(settings.cardLayout || 'compact') as 'compact' | 'list'}
+            value={settings.cardLayout || 'compact'}
             onChange={v => updateSetting('cardLayout', v)}
           />
         )}

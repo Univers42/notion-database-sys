@@ -6,16 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:39:51 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 14:49:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Relation Seed — reverse-relation property schemas and project views
-import type { ViewConfig } from '../../../types/database';
+import type { ViewConfig, SchemaProperty } from '../../../types/database';
 
 const DB_PROJECTS = 'db-projects';
-
-import type { SchemaProperty } from '../../../types/database';
 
 export const reverseRelationProps: Record<string, Record<string, SchemaProperty>> = {
   'db-tasks': {

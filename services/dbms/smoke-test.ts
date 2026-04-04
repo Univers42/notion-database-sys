@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:11:04 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:11:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,41 @@ function ok(msg: string): void {
 
 function fail(msg: string, err: unknown): void {
   failed++;
-  console.error(`  ❌ ${msg}: ${err instanceof Error ? err.message : String(err)}`);
+  let errMsg: string;
+  if (err instanceof Error) {
+    errMsg = err.message;
+  } else if (typeof err === 'string') {
+    errMsg = err;
+  } else {
+    errMsg = JSON.stringify(err);
+  }
+  console.error(`  ❌ ${msg}: ${errMsg}`);
+}
+
+async function testEntity(adapter: DbAdapter, entity: string): Promise<void> {
+  try {
+    const records = await adapter.getRecords(entity);
+    ok(`getRecords('${entity}') → ${records.length} records`);
+
+    if (records.length > 0) {
+      const first = records[0];
+      const fetched = await adapter.getRecord(entity, first.id);
+      if (fetched?.id === first.id) {
+        ok(`getRecord('${entity}', '${first.id}') → found`);
+      } else {
+        fail(`getRecord('${entity}', '${first.id}')`, 'not found or id mismatch');
+      }
+    }
+  } catch (e) {
+    fail(`getRecords('${entity}')`, e);
+  }
+
+  try {
+    const schema = await adapter.getSchema(entity);
+    ok(`getSchema('${entity}') → ${schema.fields.length} fields, ${schema.recordCount} records`);
+  } catch (e) {
+    fail(`getSchema('${entity}')`, e);
+  }
 }
 
 async function testAdapter(adapter: DbAdapter): Promise<void> {
@@ -74,29 +108,7 @@ async function testAdapter(adapter: DbAdapter): Promise<void> {
   }
 
   for (const entity of entities.slice(0, 3)) {
-    try {
-      const records = await adapter.getRecords(entity);
-      ok(`getRecords('${entity}') → ${records.length} records`);
-
-      if (records.length > 0) {
-        const first = records[0];
-        const fetched = await adapter.getRecord(entity, first.id);
-        if (fetched && fetched.id === first.id) {
-          ok(`getRecord('${entity}', '${first.id}') → found`);
-        } else {
-          fail(`getRecord('${entity}', '${first.id}')`, 'not found or id mismatch');
-        }
-      }
-    } catch (e) {
-      fail(`getRecords('${entity}')`, e);
-    }
-
-    try {
-      const schema = await adapter.getSchema(entity);
-      ok(`getSchema('${entity}') → ${schema.fields.length} fields, ${schema.recordCount} records`);
-    } catch (e) {
-      fail(`getSchema('${entity}')`, e);
-    }
+    await testEntity(adapter, entity);
   }
 
   try {
@@ -134,7 +146,9 @@ async function main(): Promise<void> {
   if (failed > 0) process.exit(1);
 }
 
-main().catch((e) => {
+try {
+  await main();
+} catch (e) {
   console.error('Smoke test crashed:', e);
   process.exit(2);
-});
+}

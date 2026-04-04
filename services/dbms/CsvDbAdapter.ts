@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:10:27 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:10:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ export class CsvDbAdapter implements DbAdapter {
   readonly sourceName = 'CSV Files';
   readonly sourceType = 'csv' as const;
 
-  private basePath: string;
+  private readonly basePath: string;
   private readonly cache = new DbMemoCache();
 
   constructor(config: DbConnectionConfig) {
@@ -138,9 +138,16 @@ export class CsvDbAdapter implements DbAdapter {
         const val = (record as Record<string, unknown>)[h];
         if (val === null || val === undefined) return '';
         if (Array.isArray(val)) return `"${val.join('|')}"`;
-        const str = String(val);
+        let str: string;
+        if (typeof val === 'string') {
+          str = val;
+        } else if (typeof val === 'number' || typeof val === 'boolean') {
+          str = String(val);
+        } else {
+          str = JSON.stringify(val);
+        }
         if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-          return `"${str.replace(/"/g, '""')}"`;
+          return `"${str.replaceAll('"', '""')}"`;
         }
         return str;
       });

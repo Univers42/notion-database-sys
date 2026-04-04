@@ -37,7 +37,7 @@ export function NumericFormulaCard({
   const sum = values.reduce((s, v) => s + v, 0);
   const avg = sum / values.length;
   const min = sorted[0];
-  const max = sorted[sorted.length - 1];
+  const max = sorted.at(-1)!; // NOSONAR
   const median = sorted.length % 2 ? sorted[Math.floor(sorted.length / 2)] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
   const stddev = Math.sqrt(values.reduce((s, v) => s + (v - avg) ** 2, 0) / values.length);
 
@@ -88,19 +88,22 @@ export function NumericFormulaCard({
 
       {/* Histogram */}
       <div className={cn("flex items-end gap-1 h-16")}>
-        {buckets.map((count, i) => {
-          const pct = maxBucket > 0 ? (count / maxBucket) * 100 : 0;
-          return (
-            <div key={i} className={cn("flex-1 flex flex-col items-center gap-0.5")}>
-              <span className={cn("text-[8px] text-ink-muted tabular-nums")}>{count > 0 ? count : ''}</span>
-              <div
-                className={cn("w-full rounded-t transition-all hover:opacity-80")}
-                style={{ height: `${Math.max(pct, 3)}%`, backgroundColor: COLORS[i % COLORS.length] }}
-                title={`${fmt(min + i * bucketSize)} – ${fmt(min + (i + 1) * bucketSize)}: ${count}`}
-              />
-            </div>
-          );
-        })}
+        {buckets.map((count, idx) => ({
+          count,
+          pct: maxBucket > 0 ? (count / maxBucket) * 100 : 0,
+          color: COLORS[idx % COLORS.length],
+          rangeLabel: `${fmt(min + idx * bucketSize)} – ${fmt(min + (idx + 1) * bucketSize)}`,
+          rangeKey: `bucket-${min + idx * bucketSize}`,
+        })).map((b) => (
+          <div key={b.rangeKey} className={cn("flex-1 flex flex-col items-center gap-0.5")}>
+            <span className={cn("text-[8px] text-ink-muted tabular-nums")}>{b.count > 0 ? b.count : ''}</span>
+            <div
+              className={cn("w-full rounded-t transition-all hover:opacity-80")}
+              style={{ height: `${Math.max(b.pct, 3)}%`, backgroundColor: b.color }}
+              title={`${b.rangeLabel}: ${b.count}`}
+            />
+          </div>
+        ))}
       </div>
       <div className={cn("flex justify-between text-[8px] text-ink-muted mt-1")}>
         <span>{fmt(min)}</span>

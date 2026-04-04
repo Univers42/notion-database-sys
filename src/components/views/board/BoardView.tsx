@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:30:41 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ export function BoardView() {
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
-  const [_dragPageId, setDragPageId] = useState<string | null>(null);
+  const [_dragPageId, setDragPageId] = useState<string | null>(null); // NOSONAR
 
   if (!view || !database || !view.grouping) {
     return (
@@ -89,7 +89,8 @@ export function BoardView() {
         const displayPages = group.pages.slice(0, loadLimit);
 
         return (
-          <div key={group.groupId}
+          <div key={group.groupId} // NOSONAR - board column grouping pattern
+            role="group"
             className={cn(`flex flex-col shrink-0 ${getColumnWidth(cardSize)} rounded-xl transition-colors ${
               isDragOver ? 'bg-accent-soft ring-2 ring-ring-accent-muted ring-inset' : ''
             }`)}

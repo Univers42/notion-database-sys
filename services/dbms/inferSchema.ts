@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:10:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:10:47 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 21:01:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,28 @@ function inferType(value: unknown): FieldType {
   return 'unknown';
 }
 
+/** Process a single record, updating the field map with type/nullable info. */
+function processRecord(
+  record: DbRecord,
+  fieldMap: Map<string, { types: Set<FieldType>; hasNull: boolean }>,
+): void {
+  for (const [key, value] of Object.entries(record)) {
+    let entry = fieldMap.get(key);
+    if (!entry) {
+      entry = { types: new Set(), hasNull: false };
+      fieldMap.set(key, entry);
+    }
+    if (value === null || value === undefined) {
+      entry.hasNull = true;
+    } else {
+      entry.types.add(inferType(value));
+    }
+  }
+  for (const [key, entry] of fieldMap) {
+    if (!(key in record)) entry.hasNull = true;
+  }
+}
+
 /** Build a DbFieldSchema array by scanning all records. */
 export function inferSchema(records: DbRecord[]): DbFieldSchema[] {
   if (records.length === 0) return [];
@@ -37,22 +59,7 @@ export function inferSchema(records: DbRecord[]): DbFieldSchema[] {
   const fieldMap = new Map<string, { types: Set<FieldType>; hasNull: boolean }>();
 
   for (const record of records) {
-    for (const [key, value] of Object.entries(record)) {
-      let entry = fieldMap.get(key);
-      if (!entry) {
-        entry = { types: new Set(), hasNull: false };
-        fieldMap.set(key, entry);
-      }
-      if (value === null || value === undefined) {
-        entry.hasNull = true;
-      } else {
-        entry.types.add(inferType(value));
-      }
-    }
-    // Mark fields missing from this record as nullable
-    for (const [key, entry] of fieldMap) {
-      if (!(key in record)) entry.hasNull = true;
-    }
+    processRecord(record, fieldMap);
   }
 
   const fields: DbFieldSchema[] = [];

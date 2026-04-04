@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:04 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 23:30:44 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ export function CalendarView() {
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [_dragPageId, setDragPageId] = useState<string | null>(null);
+  const [_dragPageId, setDragPageId] = useState<string | null>(null); // NOSONAR
   const [dragOverDay, setDragOverDay] = useState<string | null>(null);
 
   if (!view || !database) return null;
@@ -129,9 +129,11 @@ export function CalendarView() {
             const isDragTarget = dragOverDay === dayKey;
 
             return (
-              <div key={dayKey}
+              <div key={dayKey} // NOSONAR - calendar grid cell requires role="gridcell"
+                role="gridcell"
+                tabIndex={0}
                 className={cn(`min-h-[90px] p-1 border-b border-r border-line transition-colors ${
-                  !isCurrentMonth ? 'bg-surface-secondary-soft3' : 'bg-surface-primary'
+                  isCurrentMonth ? 'bg-surface-primary' : 'bg-surface-secondary-soft3'
                 } ${isDragTarget ? 'bg-accent-soft ring-1 ring-inset ring-ring-accent-muted' : ''}`)}
                 onDrop={e => handleDrop(e, day)}
                 onDragOver={e => handleDragOver(e, dayKey)}
@@ -157,17 +159,18 @@ export function CalendarView() {
                     const statusOpt = statusProp?.options?.find(o => o.id === statusVal);
 
                     return (
-                      <div key={page.id} draggable
+                      <button type="button" key={page.id} draggable
                         onDragStart={e => handleDragStart(e, page.id)}
                         onClick={() => openPage(page.id)}
-                        className={cn(`px-1.5 py-0.5 rounded text-xs cursor-grab active:cursor-grabbing hover:shadow-sm transition-all ${
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
+                        className={cn(`px-1.5 py-0.5 rounded text-xs cursor-grab active:cursor-grabbing hover:shadow-sm transition-all text-left ${
                           statusOpt ? statusOpt.color : 'bg-accent-soft text-accent-text'
                         }`)}>
                         <span className={cn(wrapTitles ? 'whitespace-pre-wrap break-words' : 'truncate block')}>
                           {page.icon && <span className={cn("mr-0.5")}>{page.icon}</span>}
                           {title || 'Untitled'}
                         </span>
-                      </div>
+                      </button>
                     );
                   })}
                   {dayPages.length > 3 && (

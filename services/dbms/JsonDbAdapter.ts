@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:10:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:10:52 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ export class JsonDbAdapter implements DbAdapter {
   readonly sourceName = 'JSON Files';
   readonly sourceType = 'json' as const;
 
-  private basePath: string;
+  private readonly basePath: string;
   private readonly cache = new DbMemoCache();
 
   constructor(config: DbConnectionConfig) {

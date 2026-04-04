@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ import { ChevronRightIcon } from './Icons';
 import { ToggleSwitch } from './ToggleSwitch';
 import { cn } from '../../utils/cn';
 
-export { ToggleSwitch };
+export { ToggleSwitch } from './ToggleSwitch';
 
 export type ToggleSettingRowSlots = {
   root?: string;

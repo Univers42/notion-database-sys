@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:36:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,9 @@ export function IdFormatConfig({ property, databaseId, onClose }: Readonly<{
           ))}
           {idFormat === 'prefixed' && (
             <div className={cn("pt-1")}>
-              <label className={cn("text-xs text-ink-secondary mb-1 block")}>Prefix</label>
+              <label htmlFor="id-prefix-input" className={cn("text-xs text-ink-secondary mb-1 block")}>Prefix</label>
               <input
+                id="id-prefix-input"
                 autoFocus
                 value={idPrefix}
                 onChange={e => setIdPrefix(e.target.value)}

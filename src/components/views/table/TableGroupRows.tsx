@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 21:01:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ export function renderPageRows(
         page={page}
         rowIdx={rowIdx}
         visibleProps={visibleProps}
-        focusedPropId={isFocusedRow ? focusedCell!.propId : null}
-        editingPropId={isEditingRow ? editingCell!.propId : null}
+        focusedPropId={isFocusedRow && focusedCell ? focusedCell.propId : null}
+        editingPropId={isEditingRow && editingCell ? editingCell.propId : null}
         fillDrag={fillDrag}
         showRowNumbers={showRowNumbers}
         showVerticalLines={showVerticalLines}
