@@ -190,3 +190,60 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         uses: SonarSource/sonarqube-quality-gate-action@v1
         timeout-minutes: 5
+
+      - name: SonarCloud Analysis Summary
+        if: steps.check.outputs.skip != 'true' && always()
+        run: |
+          echo "──────────────────────────────────────────────────"
+          echo "  SonarCloud Analysis Summary"
+          echo "──────────────────────────────────────────────────"
+
+          PROJECT_KEY="Univers42_notion-database-sys"
+          METRICS="bugs,vulnerabilities,security_hotspots,code_smells,duplicated_lines_density,ncloc,coverage"
+
+          RESPONSE=$(curl -sf \
+            -u "$SONAR_TOKEN:" \
+            "https://sonarcloud.io/api/measures/component?component=${PROJECT_KEY}&metricKeys=${METRICS}" \
+          ) || { echo "⚠ Could not fetch metrics from SonarCloud API"; exit 0; }
+
+          get_metric() {
+            echo "$RESPONSE" | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          for m in data.get('component', {}).get('measures', []):
+              if m['metric'] == '$1':
+                  print(m['value'])
+                  break
+          else:
+              print('n/a')
+          "
+          }
+
+          BUGS=$(get_metric bugs)
+          VULNS=$(get_metric vulnerabilities)
+          HOTSPOTS=$(get_metric security_hotspots)
+          SMELLS=$(get_metric code_smells)
+          DUPES=$(get_metric duplicated_lines_density)
+          LOC=$(get_metric ncloc)
+          COV=$(get_metric coverage)
+
+          echo ""
+          printf "  %-28s %s\n" "Lines of Code:" "$LOC"
+          printf "  %-28s %s\n" "Bugs:" "$BUGS"
+          printf "  %-28s %s\n" "Vulnerabilities:" "$VULNS"
+          printf "  %-28s %s\n" "Security Hotspots:" "$HOTSPOTS"
+          printf "  %-28s %s\n" "Code Smells:" "$SMELLS"
+          printf "  %-28s %s%%\n" "Duplication:" "$DUPES"
+          printf "  %-28s %s%%\n" "Coverage:" "$COV"
+          echo ""
+          echo "  Dashboard: https://sonarcloud.io/dashboard?id=${PROJECT_KEY}&branch=main"
+          echo "──────────────────────────────────────────────────"
+
+          # Fail-loud summary
+          if [ "$BUGS" != "0" ] || [ "$VULNS" != "0" ]; then
+            echo ""
+            echo "⚠ Found $BUGS bug(s) and $VULNS vulnerability(ies)."
+          else
+            echo ""
+            echo "✓ No bugs or vulnerabilities detected."
+          fi
