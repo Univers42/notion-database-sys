@@ -49,9 +49,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Stub engine bridge (fork safety net)
+      - name: Stub engine bridge (WASM pkg not available in CI)
         run: |
-          if [ ! -f src/lib/engine/bridge.ts ]; then
+          if [ ! -f src/lib/engine/pkg/formula_engine.js ]; then
             bash .github/scripts/stub-engine.sh
           fi
 
@@ -131,9 +131,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Stub engine bridge (fork safety net)
+      - name: Stub engine bridge (WASM pkg not available in CI)
         run: |
-          if [ ! -f src/lib/engine/bridge.ts ]; then
+          if [ ! -f src/lib/engine/pkg/formula_engine.js ]; then
             bash .github/scripts/stub-engine.sh
           fi
 

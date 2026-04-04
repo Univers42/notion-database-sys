@@ -6,7 +6,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
-  { ignores: ['**/dist/**', '**/node_modules/**', 'src/lib/engine/**/pkg/', '**/build/**'] },
+  { ignores: ['**/dist/**', '**/node_modules/**', 'src/lib/engine/**', 'src/lib/libcpp/**', '**/build/**'] },
 
   // Base JS recommended rules
   js.configs.recommended,
