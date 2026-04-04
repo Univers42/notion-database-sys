@@ -1468,7 +1468,7 @@
         }
       ],
       "createdAt": "2026-03-23T15:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-04T00:02:33.946Z",
       "createdBy": "Alice",
       "lastEditedBy": "External"
     },
@@ -1503,7 +1503,7 @@
         }
       ],
       "createdAt": "2026-03-26T15:22:50.751Z",
-      "updatedAt": "2026-04-03T00:34:59.772Z",
+      "updatedAt": "2026-04-04T00:02:33.946Z",
       "createdBy": "Bob",
       "lastEditedBy": "External"
     },
@@ -1531,9 +1531,9 @@
       },
       "content": [],
       "createdAt": "2026-03-30T14:22:50.751Z",
-      "updatedAt": "2026-04-03T13:08:02.308Z",
+      "updatedAt": "2026-04-04T00:02:33.946Z",
       "createdBy": "Charlie",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "t4": {
       "id": "t4",
@@ -1560,9 +1560,9 @@
       },
       "content": [],
       "createdAt": "2026-03-31T14:22:50.751Z",
-      "updatedAt": "2026-04-03T13:08:03.260Z",
+      "updatedAt": "2026-04-04T00:02:33.946Z",
       "createdBy": "Alice",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "t5": {
       "id": "t5",
@@ -1588,9 +1588,9 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-03T13:08:03.665Z",
+      "updatedAt": "2026-04-04T00:02:33.946Z",
       "createdBy": "Bob",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "t6": {
       "id": "t6",
@@ -1618,9 +1618,9 @@
       },
       "content": [],
       "createdAt": "2026-03-28T15:22:50.751Z",
-      "updatedAt": "2026-04-03T13:07:38.646Z",
+      "updatedAt": "2026-04-04T00:02:33.946Z",
       "createdBy": "Diana",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "t7": {
       "id": "t7",
@@ -1646,9 +1646,9 @@
       },
       "content": [],
       "createdAt": "2026-03-29T14:22:50.751Z",
-      "updatedAt": "2026-04-03T13:07:39.568Z",
+      "updatedAt": "2026-04-04T00:02:33.947Z",
       "createdBy": "Eve",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "t8": {
       "id": "t8",
@@ -1678,9 +1678,9 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-03T13:08:04.932Z",
+      "updatedAt": "2026-04-04T00:02:33.947Z",
       "createdBy": "Alice",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "c1": {
       "id": "c1",
@@ -19333,7 +19333,7 @@
         "prop-tags": null,
         "prop-assignee": null,
         "prop-due": "2026-04-05T22:00:00.000Z",
-        "prop-done": true,
+        "prop-done": null,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null,
@@ -19341,9 +19341,9 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:06.582Z",
-      "updatedAt": "2026-04-03T13:08:03.958Z",
+      "updatedAt": "2026-04-04T00:02:33.947Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "3131ba01-c1b3-45ec-b257-4a620face2d0": {
       "id": "3131ba01-c1b3-45ec-b257-4a620face2d0",
@@ -19356,16 +19356,16 @@
         "prop-tags": null,
         "prop-assignee": null,
         "prop-due": "2026-04-05T22:00:00.000Z",
-        "prop-done": true,
+        "prop-done": null,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:17.316Z",
-      "updatedAt": "2026-04-03T13:08:04.475Z",
+      "updatedAt": "2026-04-04T00:02:33.947Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "44adbb28-347c-4aa8-bdf6-3bce3f1661bb": {
       "id": "44adbb28-347c-4aa8-bdf6-3bce3f1661bb",
@@ -19378,16 +19378,16 @@
         "prop-tags": null,
         "prop-assignee": null,
         "prop-due": "2026-04-07T22:00:00.000Z",
-        "prop-done": true,
+        "prop-done": null,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:18.650Z",
-      "updatedAt": "2026-04-03T13:08:05.420Z",
+      "updatedAt": "2026-04-04T00:02:33.947Z",
       "createdBy": "You",
-      "lastEditedBy": "You"
+      "lastEditedBy": "External"
     },
     "1a0bbf76-7613-4a3f-a437-938be6ecb7ce": {
       "id": "1a0bbf76-7613-4a3f-a437-938be6ecb7ce",
