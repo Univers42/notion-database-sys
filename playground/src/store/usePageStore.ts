@@ -1,21 +1,21 @@
-// ── Page tree store ───────────────────────────────────────────────────────────
-// Holds pages per workspace, tracks the active page, and maintains a
-// localStorage-persisted recents list.
-//
-// Persistence modes:
-//   1. Online  — all mutations go through the Fastify API → MongoDB
-//   2. Offline — falls back to in-memory seed data (no persistence)
-//
-// Block edits use debounced persistence: local state updates instantly,
-// then the full content[] array is PATCH'd to the API after 400ms idle.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   usePageStore.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { create } from 'zustand';
 import { api } from '../api/client';
 import { SEED_PAGES, type SeedPage } from '../data/seedPages';
 import type { Block, BlockType } from '@src/types/database';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
+/** Entry representing a page in the workspace tree. */
 export interface PageEntry {
   _id: string;
   title: string;
@@ -28,8 +28,10 @@ export interface PageEntry {
   content?: Block[];
 }
 
+/** Discriminator for the type of page currently active. */
 export type ActivePageKind = 'page' | 'database' | 'home';
 
+/** Currently selected page reference for the content panel. */
 export interface ActivePage {
   id: string;
   workspaceId: string;
@@ -57,7 +59,6 @@ interface PageStore {
   deletePage: (pageId: string, workspaceId: string, jwt: string) => Promise<void>;
   clearWorkspace: (workspaceId: string) => void;
 
-  // ── Block-level CRUD ──────────────────────────────────────────────────────
   updateBlock: (pageId: string, blockId: string, updates: Partial<Block>) => void;
   insertBlock: (pageId: string, afterBlockId: string, block: Block) => void;
   deleteBlock: (pageId: string, blockId: string) => void;
@@ -110,9 +111,6 @@ function localId(): string {
   return `local-page-${++_localIdCounter}-${Date.now().toString(36)}`;
 }
 
-// ─── Debounced content persistence ───────────────────────────────────────────
-// Block edits update Zustand immediately for snappy UI, then debounce-save
-// the full content[] to the API after 400ms idle.
 
 const _contentTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -185,7 +183,9 @@ async function persistPageTitle(pageId: string, title: string) {
 /** Lazy JWT getter — avoids importing useUserStore at module top level */
 function getActiveJwt(): string | null {
   try {
-    const mod = (globalThis as any).__playgroundUserStore;
+    const mod = (globalThis as unknown as Record<string, unknown>).__playgroundUserStore as
+      | { getState: () => { activeJwt: () => string | null } }
+      | undefined;
     if (!mod) return null;
     return mod.getState().activeJwt() || null;
   } catch {
@@ -193,7 +193,6 @@ function getActiveJwt(): string | null {
   }
 }
 
-// ─── Helper: locate & update a page in nested state ──────────────────────────
 
 function updatePageInState(
   pages: Record<string, PageEntry[]>,
@@ -211,16 +210,13 @@ function updatePageInState(
   return pages;
 }
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-
+/** Zustand store managing page tree, active page, recents, and block-level CRUD. */
 export const usePageStore = create<PageStore>((set, get) => ({
   pages:      {},
   activePage: null,
   recents:    loadRecents(),
   loadingIds: new Set<string>(),
   seeded:     false,
-
-  // ── Offline seed (fallback when API is unreachable) ─────────────────────
 
   seedOfflinePages: () => {
     if (get().seeded) return;
@@ -231,9 +227,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
     }
     set({ pages: grouped, seeded: true });
   },
-
-  // ── Online seed — push seed pages to MongoDB via API ────────────────────
-  // workspaceMap: { mockWsId → realWsId } mapping from useUserStore
 
   seedOnlinePages: async (workspaceMap, jwt) => {
     if (get().seeded) return;
@@ -268,8 +261,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
     }
   },
 
-  // ── Fetch pages for a workspace ─────────────────────────────────────────
-
   fetchPages: async (workspaceId, jwt) => {
     if (!jwt) return; // offline — seed data already loaded
     if (get().loadingIds.has(workspaceId)) return;
@@ -289,8 +280,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
     }
   },
 
-  // ── Fetch full page content from API ────────────────────────────────────
-
   fetchPageContent: async (pageId, jwt) => {
     if (!jwt) return; // offline — content already in memory
     try {
@@ -309,8 +298,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
     }
   },
 
-  // ── Open page (with auto-fetch of content) ─────────────────────────────
-
   openPage: (page) => {
     set(s => {
       const recents = [page, ...s.recents.filter(r => r.id !== page.id)].slice(0, 10);
@@ -324,10 +311,7 @@ export const usePageStore = create<PageStore>((set, get) => ({
     }
   },
 
-  // ── Add page ────────────────────────────────────────────────────────────
-
   addPage: async (workspaceId, title, jwt, parentPageId) => {
-    // ── Online mode: POST to API → persisted in MongoDB ───────────────────
     if (jwt) {
       try {
         const page = await api.post<PageEntry>(
@@ -347,7 +331,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
       }
     }
 
-    // ── Offline mode: create locally ──────────────────────────────────────
     const newPage: PageEntry = {
       _id:          localId(),
       title,
@@ -365,8 +348,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
     }));
     return newPage;
   },
-
-  // ── Delete page ─────────────────────────────────────────────────────────
 
   deletePage: async (pageId, workspaceId, jwt) => {
     if (jwt) {
@@ -387,9 +368,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
       return { pages };
     });
   },
-
-  // ── Block-level CRUD ──────────────────────────────────────────────────────
-  // Each mutation: 1) update Zustand immediately  2) debounce-persist to API
 
   updateBlock: (pageId, blockId, updates) => {
     set(s => ({
@@ -447,8 +425,6 @@ export const usePageStore = create<PageStore>((set, get) => ({
     }));
     persistPageTitle(pageId, title);
   },
-
-  // ── Selectors ───────────────────────────────────────────────────────────
 
   pagesForWorkspace: (workspaceId) => get().pages[workspaceId] ?? [],
 

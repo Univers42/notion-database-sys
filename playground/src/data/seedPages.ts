@@ -1,17 +1,21 @@
-// ── Seed data: pre-created pages per workspace ───────────────────────────────
-// Each workspace gets different pages with real Block[] content so we can test
-// the rendering pipeline without any API.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   seedPages.ts                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import type { Block } from '@src/types/database';
-
-// ── Helper to generate unique IDs ────────────────────────────────────────────
 
 let _counter = 0;
 function bid(): string {
   return `block-${++_counter}-${Math.random().toString(36).slice(2, 8)}`;
 }
-
-// ── Block factory helpers ────────────────────────────────────────────────────
 
 function p(text: string): Block {
   return { id: bid(), type: 'paragraph', content: text };
@@ -50,8 +54,7 @@ function toggle(text: string, children: Block[] = []): Block {
   return { id: bid(), type: 'toggle', content: text, children, collapsed: true };
 }
 
-// ── Exported page definitions ────────────────────────────────────────────────
-
+/** Metadata and content blocks for a seed page. */
 export interface SeedPage {
   _id:           string;
   title:         string;
@@ -63,7 +66,6 @@ export interface SeedPage {
   content:       Block[];
 }
 
-// ── Admin workspace pages ────────────────────────────────────────────────────
 
 const adminWsId = 'mock-ws-private-0';
 
@@ -180,7 +182,6 @@ const meetingNotes: SeedPage = {
   ],
 };
 
-// ── Alex (collaborator) workspace pages ──────────────────────────────────────
 
 const alexWsId = 'mock-ws-private-1';
 
@@ -256,7 +257,6 @@ const sprintReview: SeedPage = {
   ],
 };
 
-// ── Sam (guest) workspace pages ──────────────────────────────────────────────
 
 const samWsId = 'mock-ws-private-2';
 
@@ -308,9 +308,9 @@ const readingList: SeedPage = {
   ],
 };
 
-// ── Shared workspace pages (visible to multiple users) ───────────────────────
-
+/** Mock workspace ID for the shared team workspace. */
 export const SHARED_WORKSPACE_ID = 'mock-ws-shared-team';
+/** Mock workspace definition for the shared team workspace. */
 export const SHARED_WORKSPACE = {
   _id: SHARED_WORKSPACE_ID,
   name: 'Team Workspace',
@@ -344,8 +344,7 @@ const teamWiki: SeedPage = {
   ],
 };
 
-// ── Export all seed pages grouped by workspace ───────────────────────────────
-
+/** All seed pages for offline playground mode. */
 export const SEED_PAGES: SeedPage[] = [
   // Admin
   gettingStarted,
@@ -361,7 +360,7 @@ export const SEED_PAGES: SeedPage[] = [
   teamWiki,
 ];
 
-/** Get seed pages for a specific workspace */
+/** Returns seed pages matching the given workspace ID. */
 export function seedPagesForWorkspace(wsId: string): SeedPage[] {
   return SEED_PAGES.filter(p => p.workspaceId === wsId);
 }

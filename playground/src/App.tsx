@@ -1,8 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   App.tsx                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useEffect, useState } from 'react';
 
 import { useUserStore } from './store/useUserStore';
 import { usePageStore } from './store/usePageStore';
-import { SEED_PAGES }   from './data/seedPages';
 import { NotionSidebar } from './components/sidebar/NotionSidebar';
 import { MainContent }   from './components/MainContent';
 
@@ -87,8 +98,6 @@ const App: React.FC = () => {
     }).finally(() => setReady(true));
   }, [initUsers, initialized]);
 
-  // ── Loading splash ────────────────────────────────────────────────────────
-
   if (!ready) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-[var(--color-surface-primary)]">
@@ -99,8 +108,6 @@ const App: React.FC = () => {
       </div>
     );
   }
-
-  // ── Main layout ───────────────────────────────────────────────────────────
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[var(--color-surface-primary)]">

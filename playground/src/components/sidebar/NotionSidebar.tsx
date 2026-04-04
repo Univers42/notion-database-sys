@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   NotionSidebar.tsx                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useEffect, useState } from 'react';
 import {
   Search,
@@ -6,7 +18,6 @@ import {
   Sparkles,
   Inbox,
   BookOpen,
-  Clock,
   Plus,
   Settings,
   LayoutGrid,
@@ -14,7 +25,6 @@ import {
   Mail,
   CalendarRange,
   Monitor,
-  MoreHorizontal,
   UserPlus,
   X,
   File,
@@ -32,26 +42,10 @@ interface Props {
   onOpenSettings?: () => void;
 }
 
-/**
- * Full 275 px-wide Notion-style left sidebar.
- *
- * Structure (matching real Notion):
- * ─────────
- * WorkspaceSwitcher (header)
- * ├── Search / Home / Meetings / Notion AI / Inbox / Library
- * ├── ─── separator ───
- * ├── Recents (collapsible)
- * ├── Agents (collapsible, with "New agent")
- * ├── Private (collapsible, page tree)
- * ├── Shared ("Start collaborating" CTA)
- * ├── Notion apps (Mail, Calendar, Desktop)
- * ├── ─── separator ───
- * └── Settings / Marketplace / Trash
- *     Invite members CTA
- */
+/** Renders the 275px Notion-style sidebar with navigation, page tree, and user switching. */
 export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) => {
   const session        = useUserStore(s => s.activeSession());
-  const persona        = useUserStore(s => s.activePersona());
+  const _persona       = useUserStore(s => s.activePersona());
   const activePage     = usePageStore(s => s.activePage);
   const recents        = usePageStore(s => s.recents);
   const fetchPages     = usePageStore(s => s.fetchPages);
@@ -74,7 +68,6 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
     }
   }, [session?.privateWorkspaces, session?.sharedWorkspaces, jwt, fetchPages]);
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
 
   function handleAddToWorkspace(wsId: string) {
     addPage(wsId, 'Untitled', jwt).then(page => {
@@ -82,17 +75,14 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
     });
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <aside
       className="w-[275px] h-full flex flex-col shrink-0 overflow-hidden bg-[var(--color-surface-secondary)]"
       style={{ boxShadow: 'inset -1px 0 0 0 var(--color-line)' }}
     >
-      {/* ── Workspace switcher (top) ─────────────────────────────────────── */}
       <WorkspaceSwitcher />
 
-      {/* ── Top nav items (fixed, not scrollable) ───────────────────────── */}
       <div className="flex flex-col gap-px pb-2 mx-2 cursor-pointer">
         <SidebarNavItem
           icon={<Search size={16} />}
@@ -127,14 +117,11 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
         />
       </div>
 
-      {/* ── Top shadow separator ─────────────────────────────────────────── */}
       <div className="h-px w-full shrink-0 -mt-px z-[99]" style={{ boxShadow: 'transparent 0px 0px 0px', transition: 'box-shadow 300ms' }} />
 
-      {/* ── Scrollable body ─────────────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1.5 pb-5">
         <div className="flex flex-col gap-3">
 
-          {/* ── Recents ──────────────────────────────────────────────────── */}
           <SidebarSection label="Recents">
             {recents.length > 0
               ? recents.slice(0, 8).map(r => (
@@ -157,7 +144,7 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
             }
           </SidebarSection>
 
-          {/* ── Agents ───────────────────────────────────────────────────── */}
+
           <SidebarSection label="Agents">
             <SidebarNavItem
               icon={<Plus size={14} />}
@@ -167,7 +154,7 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
             />
           </SidebarSection>
 
-          {/* ── Private workspaces ───────────────────────────────────────── */}
+
           {(session?.privateWorkspaces ?? []).map(ws => {
             const pages = pagesForWs(ws._id).filter(p => !p.parentPageId && !p.archivedAt);
             return (
@@ -197,7 +184,7 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
             );
           })}
 
-          {/* ── Shared ───────────────────────────────────────────────────── */}
+
           <SidebarSection label="Shared">
             {(session?.sharedWorkspaces ?? []).length > 0
               ? (session?.sharedWorkspaces ?? []).map(ws => {
@@ -224,7 +211,7 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
             }
           </SidebarSection>
 
-          {/* ── Notion apps ──────────────────────────────────────────────── */}
+
           <SidebarSection label="Notion apps">
             <SidebarNavItem
               icon={<Mail size={16} />}
@@ -246,10 +233,8 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
         </div>
       </nav>
 
-      {/* ── Bottom separator ─────────────────────────────────────────────── */}
       <div className="h-px w-full shrink-0 -mt-px z-[99]" style={{ boxShadow: '0 1px 0 var(--color-line)', transition: 'box-shadow 300ms' }} />
 
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
       <div className="px-2 pt-1 flex flex-col gap-px">
         <SidebarNavItem
           icon={<Settings size={16} />}
@@ -268,7 +253,7 @@ export const NotionSidebar: React.FC<Props> = ({ onOpenHome, onOpenSettings }) =
         />
       </div>
 
-      {/* ── Invite members CTA (dismissable) ───────────────────────────── */}
+
       {showInviteCTA && (
         <div className="mx-2 mb-2 mt-1.5 relative">
           <div

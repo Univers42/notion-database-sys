@@ -1,11 +1,18 @@
-// ── PlaygroundPageEditor ─────────────────────────────────────────────────────
-// Editable block-based page editor for the playground.
-// Renders each block via EditableContent + handles slash commands.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   PlaygroundPageEditor.tsx                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-import React, { useMemo, useCallback, useRef, useState } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { Plus, ChevronRight } from 'lucide-react';
 
-// Reuse production components from @src/
 import { EditableContent }   from '@src/components/blocks/EditableContent';
 import { SlashCommandMenu }  from '@src/components/blocks/SlashCommandMenu';
 import type { Block, BlockType } from '@src/types/database';
@@ -13,7 +20,6 @@ import type { Block, BlockType } from '@src/types/database';
 import { usePageStore }              from '../store/usePageStore';
 import { usePlaygroundBlockEditor }  from '../hooks/usePlaygroundBlockEditor';
 
-// ─── Callout colour map (same as read-only renderer) ─────────────────────────
 
 const CALLOUT_COLORS: Record<string, { bg: string; border: string }> = {
   '💡': { bg: 'bg-amber-50',  border: 'border-amber-200' },
@@ -30,17 +36,14 @@ const CALLOUT_COLORS: Record<string, { bg: string; border: string }> = {
   '⭐': { bg: 'bg-amber-50',  border: 'border-amber-200' },
 };
 
-// ─── Props ───────────────────────────────────────────────────────────────────
-
 interface PlaygroundPageEditorProps {
   pageId: string;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
+/** Editable block-based page editor for the playground. */
 export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ pageId }) => {
   const page   = usePageStore(s => s.pageById(pageId));
-  const blocks = page?.content ?? [];
+  const blocks = useMemo(() => page?.content ?? [], [page?.content]);
 
   const {
     slashMenu,
@@ -67,7 +70,6 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
     return map;
   }, [blocks]);
 
-  // ── Empty page click-to-init ─────────────────────────────────────────────
 
   if (blocks.length === 0) {
     return (
@@ -121,8 +123,6 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
   );
 };
 
-// ─── EditableBlock — renders one block with the correct wrapper ──────────────
-
 interface EditableBlockProps {
   block: Block;
   blocks: Block[];
@@ -162,7 +162,6 @@ const EditableBlock: React.FC<EditableBlockProps> = ({
   );
 };
 
-// ─── BlockEditor — block-type-specific editable rendering ────────────────────
 
 interface BlockEditorProps {
   block: Block;
@@ -173,8 +172,6 @@ interface BlockEditorProps {
 
 const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChange, onKeyDown }) => {
   switch (block.type) {
-    // ── Headings ──────────────────────────────────────────────────────────
-
     case 'heading_1':
       return (
         <EditableContent
@@ -206,8 +203,6 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
         />
       );
 
-    // ── Paragraph ─────────────────────────────────────────────────────────
-
     case 'paragraph':
       return (
         <EditableContent
@@ -219,7 +214,6 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
         />
       );
 
-    // ── Lists ─────────────────────────────────────────────────────────────
 
     case 'bulleted_list':
       return (
@@ -257,17 +251,14 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
         </div>
       );
 
-    // ── To-do ─────────────────────────────────────────────────────────────
 
     case 'to_do':
       return <TodoBlockEditor block={block} onChange={onChange} onKeyDown={onKeyDown} />;
 
-    // ── Toggle ────────────────────────────────────────────────────────────
 
     case 'toggle':
       return <ToggleBlockEditor block={block} onChange={onChange} onKeyDown={onKeyDown} />;
 
-    // ── Code ──────────────────────────────────────────────────────────────
 
     case 'code':
       return (
@@ -289,7 +280,6 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
         </div>
       );
 
-    // ── Quote ─────────────────────────────────────────────────────────────
 
     case 'quote':
       return (
@@ -307,7 +297,6 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
         </div>
       );
 
-    // ── Callout ───────────────────────────────────────────────────────────
 
     case 'callout': {
       const icon = block.color || '💡';
@@ -328,7 +317,6 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
       );
     }
 
-    // ── Divider ───────────────────────────────────────────────────────────
 
     case 'divider':
       return (
@@ -336,8 +324,6 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
           <hr className="border-[var(--color-line)]" />
         </div>
       );
-
-    // ── Fallback: editable paragraph ──────────────────────────────────────
 
     default:
       return (
@@ -352,7 +338,6 @@ const BlockEditor: React.FC<BlockEditorProps> = ({ block, numberedIndex, onChang
   }
 };
 
-// ─── TodoBlockEditor ─────────────────────────────────────────────────────────
 
 const TodoBlockEditor: React.FC<{
   block: Block;
@@ -401,7 +386,6 @@ const TodoBlockEditor: React.FC<{
   );
 };
 
-// ─── ToggleBlockEditor ───────────────────────────────────────────────────────
 
 const ToggleBlockEditor: React.FC<{
   block: Block;

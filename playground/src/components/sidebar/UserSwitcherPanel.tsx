@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   UserSwitcherPanel.tsx                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { useRef, useEffect } from 'react';
 import { Check, Crown, Brush, Eye } from 'lucide-react';
 import { useUserStore } from '../../store/useUserStore';
@@ -54,7 +66,7 @@ export const UserSwitcherPanel: React.FC<Props> = ({ onClose }) => {
 
       {personas.map(p => {
         const session  = sessions[p.id ?? ''];
-        const loggedIn = Boolean(session?.accessToken);
+        const _loggedIn = Boolean(session?.accessToken);
         const isActive = p.id === activeId;
 
         return (

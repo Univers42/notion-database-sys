@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   MainContent.tsx                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import React, { Suspense, useCallback, useRef, useEffect } from 'react';
 import { Plus, FileText } from 'lucide-react';
 
-// Reuse production components from src/ via the @src alias
 import { ErrorBoundary }  from '@src/components/ErrorBoundary';
 import { DatabaseBlock }  from '@src/components/DatabaseBlock';
 
@@ -10,13 +21,8 @@ import { useUserStore }  from '../store/useUserStore';
 import { PlaygroundPageEditor } from './PlaygroundPageEditor';
 
 /**
- * The right-hand content panel.
- *
- * ┌──────────────────────────────────────────┐
- * │  activePage = null   → Home splash       │
- * │  activePage.kind='database' → DatabaseBlock
- * │  activePage.kind='page'     → Block-based page view
- * └──────────────────────────────────────────┘
+ * Renders the right-hand content panel.
+ * Shows home splash, DatabaseBlock, or block-based page view based on `activePage`.
  */
 export const MainContent: React.FC = () => {
   const activePage = usePageStore(s => s.activePage);
@@ -29,7 +35,6 @@ export const MainContent: React.FC = () => {
   const jwt       = session?.accessToken ?? '';
   const firstWsId = session?.privateWorkspaces[0]?._id ?? '';
 
-  // ── Home / no-selection splash ──────────────────────────────────────────
 
   if (!activePage) {
     return (
@@ -64,8 +69,6 @@ export const MainContent: React.FC = () => {
     );
   }
 
-  // ── Database view (reuses the real DatabaseBlock from src/) ─────────────
-
   if (activePage.kind === 'database') {
     return (
       <ErrorBoundary>
@@ -81,7 +84,6 @@ export const MainContent: React.FC = () => {
     );
   }
 
-  // ── Page view with editable block editor ─────────────────────────────────
 
   const fullPage = pageById(activePage.id);
 
@@ -104,7 +106,6 @@ export const MainContent: React.FC = () => {
   );
 };
 
-// ─── EditableTitle ───────────────────────────────────────────────────────────
 
 const EditableTitle: React.FC<{ pageId: string; title: string }> = ({ pageId, title }) => {
   const updatePageTitle = usePageStore(s => s.updatePageTitle);
@@ -152,7 +153,6 @@ const EditableTitle: React.FC<{ pageId: string; title: string }> = ({ pageId, ti
   );
 };
 
-// ── LoadingPane ──────────────────────────────────────────────────────────────
 
 const LoadingPane: React.FC = () => (
   <div className="flex-1 flex items-center justify-center h-full">

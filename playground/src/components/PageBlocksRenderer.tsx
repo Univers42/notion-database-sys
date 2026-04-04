@@ -1,12 +1,18 @@
-// ── Read-only block renderer for the playground ──────────────────────────────
-// Renders Block[] as static HTML. Does NOT depend on useDatabaseStore from the
-// main project — fully self-contained for playground use.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   PageBlocksRenderer.tsx                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import React, { useState } from 'react';
 import type { Block } from '@src/types/database';
 import { ChevronRight } from 'lucide-react';
-
-// ─── Block component ─────────────────────────────────────────────────────────
 
 interface BlockProps {
   block: Block;
@@ -117,7 +123,6 @@ const ReadOnlyBlock: React.FC<BlockProps> = ({ block, index }) => {
   }
 };
 
-// ─── Callout ─────────────────────────────────────────────────────────────────
 
 const CALLOUT_COLORS: Record<string, { bg: string; border: string }> = {
   '💡': { bg: 'bg-amber-50',  border: 'border-amber-200' },
@@ -146,7 +151,6 @@ const CalloutBlockReadOnly: React.FC<{ block: Block }> = ({ block }) => {
   );
 };
 
-// ─── Code ────────────────────────────────────────────────────────────────────
 
 const CodeBlockReadOnly: React.FC<{ block: Block }> = ({ block }) => {
   const lang = block.language || 'plaintext';
@@ -165,7 +169,6 @@ const CodeBlockReadOnly: React.FC<{ block: Block }> = ({ block }) => {
   );
 };
 
-// ─── Toggle ──────────────────────────────────────────────────────────────────
 
 const ToggleBlockReadOnly: React.FC<{ block: Block }> = ({ block }) => {
   const [expanded, setExpanded] = useState(!block.collapsed);
@@ -205,8 +208,6 @@ const ToggleBlockReadOnly: React.FC<{ block: Block }> = ({ block }) => {
     </div>
   );
 };
-
-// ─── Main exported renderer ──────────────────────────────────────────────────
 
 interface PageBlocksRendererProps {
   blocks: Block[];

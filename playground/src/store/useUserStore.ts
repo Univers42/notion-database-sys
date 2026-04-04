@@ -1,13 +1,19 @@
-// ── Multi-user store ──────────────────────────────────────────────────────────
-// Manages 3 pre-defined users. All are "logged in" at startup (init() calls
-// the API for each). switchUser(id) is instant — no auth forms needed.
-// Gracefully degrades to empty workspaces if the API isn't running.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   useUserStore.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:06:16 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import { create } from 'zustand';
 import { api } from '../api/client';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
+/** Pre-defined user profile used for playground login. */
 export interface StaticPersona {
   /** Filled by init() after first successful login. Empty string until then. */
   id: string;
@@ -18,6 +24,7 @@ export interface StaticPersona {
   roleBadge: string;
 }
 
+/** Workspace metadata returned from the API. */
 export interface Workspace {
   _id: string;
   name: string;
@@ -54,8 +61,6 @@ interface UserStore {
   personaById: (id: string) => StaticPersona | undefined;
 }
 
-// ─── Static personas (order: admin first so it's the default active user) ────
-
 const INITIAL_PERSONAS: StaticPersona[] = [
   {
     id: '',
@@ -82,8 +87,6 @@ const INITIAL_PERSONAS: StaticPersona[] = [
     roleBadge: 'Guest',
   },
 ];
-
-// ─── API helpers ──────────────────────────────────────────────────────────────
 
 /** Resolved API base URL — empty string means "no API configured → offline" */
 const API_BASE: string = ((import.meta.env as Record<string, string>)['VITE_API_URL'] ?? '').trim();
@@ -127,11 +130,10 @@ function partition(workspaces: Workspace[], ownerId: string) {
   };
 }
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-
 // Module-level guard against React Strict Mode double-invoke
 let _initInProgress = false;
 
+/** Zustand store managing multi-user authentication and workspace access. */
 export const useUserStore = create<UserStore>((set, get) => ({
   personas:     INITIAL_PERSONAS.map(p => ({ ...p })),
   sessions:     {},
@@ -175,7 +177,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
       }
     }
 
-    // ── Offline fallback: if all API logins failed, create mock sessions ──
     if (Object.keys(sessions).length === 0) {
       console.info('[playground] API unreachable — running in offline mode with seed data');
       const sharedWs: Workspace = {
@@ -251,4 +252,4 @@ export const useUserStore = create<UserStore>((set, get) => ({
 }));
 
 // Expose on globalThis so usePageStore can access JWT without circular imports
-(globalThis as any).__playgroundUserStore = useUserStore;
+(globalThis as unknown as Record<string, unknown>).__playgroundUserStore = useUserStore;

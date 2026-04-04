@@ -1,5 +1,15 @@
-// ── Thin fetch wrapper around the Fastify API ─────────────────────────────────
-// BASE is overridable via VITE_API_URL env var (useful for staging/prod)
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   client.ts                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 const BASE = (import.meta.env as Record<string, string>)['VITE_API_URL'] ?? 'http://localhost:4000';
 
 async function request<T>(
@@ -24,6 +34,7 @@ async function request<T>(
   return res.json() as Promise<T>;
 }
 
+/** Thin fetch wrapper exposing typed GET/POST/PATCH/DELETE helpers. */
 export const api = {
   get:    <T>(path: string, jwt?: string)                => request<T>('GET',    path, undefined, jwt),
   post:   <T>(path: string, body: unknown, jwt?: string) => request<T>('POST',   path, body,      jwt),

@@ -1,6 +1,14 @@
-// ── usePlaygroundBlockEditor ──────────────────────────────────────────────────
-// Playground fork of useBlockEditor — wired to usePageStore instead of
-// useDatabaseStore. Reuses useSlashSelect and detectBlockType from @src/.
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   usePlaygroundBlockEditor.ts                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 14:03:44 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 import React, { useState, useRef, useCallback } from 'react';
 import { usePageStore } from '../store/usePageStore';
@@ -14,6 +22,7 @@ interface SlashMenuState {
   filter: string;
 }
 
+/** Manages block editing, slash commands, and keyboard navigation for playground pages. */
 export function usePlaygroundBlockEditor(pageId: string) {
   const {
     updatePageContent,
