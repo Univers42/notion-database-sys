@@ -4,3 +4,6 @@
 [submodule "src/lib/engine"]
 	path = src/lib/engine
 	url = git@github.com:Univers42/formula-engine.git
+[submodule "vendor/-f"]
+	path = vendor/-f
+	url = git@github.com:Univers42/scripts.git
