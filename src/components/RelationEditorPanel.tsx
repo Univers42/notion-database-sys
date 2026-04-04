@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,6 @@ import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { X, ExternalLink, Hash, ArrowLeftRight, ChevronRight, Database as DbIcon } from 'lucide-react';
 import { cn } from '../utils/cn';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// RELATION EDITOR PANEL — Configure a relation property
-// ═══════════════════════════════════════════════════════════════════════════════
-// Notion-matching panel:
-//   • Property name input
-//   • "Related to" → pick a target database
-//   • "Limit" → no limit / 1
-//   • "Two-way relation" toggle
-//   • "Add relation" / "Save" button
-// ═══════════════════════════════════════════════════════════════════════════════
-
 interface RelationEditorPanelProps {
   databaseId: string;
   propertyId: string;
@@ -33,6 +22,7 @@ interface RelationEditorPanelProps {
   position?: { top: number; left: number };
 }
 
+/** Panel for configuring a relation property: target database, limit, and two-way toggle. */
 export function RelationEditorPanel({ databaseId, propertyId, onClose, position }: Readonly<RelationEditorPanelProps>) {
   const { databases, updateProperty } = useDatabaseStore();
   const db = databases[databaseId];

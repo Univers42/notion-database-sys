@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 16:15:46 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Rollup editor helpers — constants, shared widgets, and sub-section components
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { ChevronDown, Hash, BarChart2 } from 'lucide-react';
@@ -20,16 +16,14 @@ import type { RollupFunction, RollupDisplayAs } from '../types/database';
 import { ROLLUP_FUNCTIONS } from '../utils/rollup';
 import { cn } from '../utils/cn';
 
-// ─── Constants ───────────────────────────────────────────────────────────────
-
+/** Available display modes for numeric rollup results. */
 export const DISPLAY_OPTIONS: { value: RollupDisplayAs; label: string; icon: React.ReactNode }[] = [
   { value: 'number', label: 'Number',  icon: <Hash className={cn("w-3.5 h-3.5")} /> },
   { value: 'bar',    label: 'Bar',     icon: <BarChart2 className={cn("w-3.5 h-3.5")} /> },
   { value: 'ring',   label: 'Ring',    icon: <span className={cn("w-3.5 h-3.5 inline-flex items-center justify-center")}><svg viewBox="0 0 14 14" className={cn("w-3.5 h-3.5")}><circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="34.56 34.56" strokeDashoffset="8.64" /></svg></span> },
 ];
 
-// ─── Shared sub-components ───────────────────────────────────────────────────
-
+/** Renders a small uppercase section label inside the rollup editor. */
 export function SectionHeader({ label }: Readonly<{ label: string }>) {
   return (
     <div className={cn("flex items-center px-3 pt-3 pb-1")}>
@@ -38,6 +32,7 @@ export function SectionHeader({ label }: Readonly<{ label: string }>) {
   );
 }
 
+/** Renders a full-width button styled as a dropdown trigger with chevron. */
 export function DropdownButton({ label, muted, disabled, open, onClick }: Readonly<{
   label: string; muted?: boolean; disabled?: boolean; open?: boolean; onClick: () => void;
 }>) {
@@ -52,6 +47,7 @@ export function DropdownButton({ label, muted, disabled, open, onClick }: Readon
   );
 }
 
+/** Scrollable container for dropdown picker items. */
 export function PickerList({ children, maxH = 'max-h-48' }: Readonly<{ children: React.ReactNode; maxH?: string }>) {
   return (
     <div className={cn(`mt-1 bg-surface-secondary rounded-lg border border-line-light overflow-y-auto ${maxH}`)}>
@@ -60,6 +56,7 @@ export function PickerList({ children, maxH = 'max-h-48' }: Readonly<{ children:
   );
 }
 
+/** Single selectable item inside a picker list. */
 export function PickerItem({ children, selected, onClick }: Readonly<{ children: React.ReactNode; selected?: boolean; onClick: () => void }>) {
   return (
     <button onClick={onClick}
@@ -71,8 +68,7 @@ export function PickerItem({ children, selected, onClick }: Readonly<{ children:
   );
 }
 
-// ─── Function selector section ───────────────────────────────────────────────
-
+/** Section for choosing a rollup aggregation function (count, sum, etc.). */
 export function FunctionSelector({ fn, setFn, showFnPicker, setShowFnPicker }: Readonly<{
   fn: RollupFunction;
   setFn: (f: RollupFunction) => void;
@@ -112,8 +108,7 @@ export function FunctionSelector({ fn, setFn, showFnPicker, setShowFnPicker }: R
   );
 }
 
-// ─── Display mode selector section ───────────────────────────────────────────
-
+/** Section for choosing how a rollup result is displayed (number, bar, ring). */
 export function DisplaySelector({ fn, displayAs, setDisplayAs, showDisplayPicker, setShowDisplayPicker }: Readonly<{
   fn: RollupFunction;
   displayAs: RollupDisplayAs;

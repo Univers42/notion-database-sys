@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:33 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 01:35:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ interface PropertyConfigPanelProps {
   onClose: () => void;
 }
 
+/** Floating panel for configuring a database property (rename, change type, sort, filter, etc.). */
 export function PropertyConfigPanel({ property, databaseId, viewId, position, onClose }: Readonly<PropertyConfigPanelProps>) {
   const {
     updateProperty, deleteProperty, togglePropertyVisibility,

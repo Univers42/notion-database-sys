@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:44:31 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PageModal — side_peek / center_peek / full_page page overlay
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
@@ -30,8 +26,7 @@ interface PageModalProps {
   mode?: ModalMode;
 }
 
-// ─── Main export ────────────────────────────────────────────────────────────
-
+/** Renders a page in side peek, center peek, or full page mode with property editing and content blocks. */
 export function PageModal({ pageId, onClose, mode = 'side_peek' }: Readonly<PageModalProps>) {
   const databases = useDatabaseStore(s => s.databases);
   const pages = useDatabaseStore(s => s.pages);

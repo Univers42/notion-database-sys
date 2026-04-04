@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:44:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,12 @@ import { FilterSortPanels } from './topBar/FilterSortPanels';
 import { DbSourceDropdown } from './DbSourceDropdown';
 import { cn } from '../utils/cn';
 
+/** Props for {@link TopBar}. */
 export interface TopBarProps {
   onViewChange?: (viewId: string) => void;
 }
 
+/** Renders the database header with view tabs, search, filter/sort controls, and settings. */
 export function TopBar({ onViewChange }: TopBarProps = {}) {
   const activeViewId = useActiveViewId();
   const views = useDatabaseStore(s => s.views);

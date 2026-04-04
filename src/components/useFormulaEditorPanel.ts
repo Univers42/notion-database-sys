@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:22 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ const TYPE_LABEL_MAP: Record<string, string> = {
   string: 'Text',
 };
 
+/** Manages state and actions for the formula editor panel (expression, preview, sidebar, save). */
 export function useFormulaEditorPanel(databaseId: string, propertyId: string, onClose: () => void) {
   const activeViewId = useActiveViewId();
   const { databases, updateProperty, resolveFormula, getPagesForView, views, pages: storePages } = useDatabaseStore();

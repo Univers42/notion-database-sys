@@ -2,20 +2,19 @@ import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { cn } from '../utils/cn';
 
-// ─── Read-only property renderers ───────────────────────────────────────────
-
+/** Renders a non-editable text value with fallback. */
 export function ReadOnlyText({ value, fallback = '—' }: Readonly<{ value: unknown; fallback?: string }>) {
   return <span className={cn("text-sm text-ink-secondary px-2")}>{typeof value === 'string' && value ? value : fallback}</span>;
 }
 
+/** Renders a formatted read-only ISO timestamp. */
 export function ReadOnlyTime({ iso }: Readonly<{ iso: string | undefined }>) {
   return <span className={cn("text-sm text-ink-secondary px-2")}>{iso ? format(parseISO(iso), 'MMM d, yyyy h:mm a') : '-'}</span>;
 }
 
-// ─── Editable property renderers ────────────────────────────────────────────
-
 const inputTypeMap: Record<string, string> = { email: 'email', url: 'url' };
 
+/** Inline text input for editing text, email, or URL properties. */
 export function TextEditor({ value, onChange, type }: Readonly<{ value: string; onChange: (v: string) => void; type?: string }>) {
   return (
     <input
@@ -28,6 +27,7 @@ export function TextEditor({ value, onChange, type }: Readonly<{ value: string; 
   );
 }
 
+/** Inline number input for editing numeric properties. */
 export function NumberEditor({ value, onChange }: Readonly<{ value: number | null; onChange: (v: number | null) => void }>) {
   return (
     <input
@@ -40,6 +40,7 @@ export function NumberEditor({ value, onChange }: Readonly<{ value: number | nul
   );
 }
 
+/** Dropdown for selecting a single option from a property's option list. */
 export function SelectEditor({ value, options, onChange }: {
   value: string;
   options: { id: string; value: string }[];
@@ -57,6 +58,7 @@ export function SelectEditor({ value, options, onChange }: {
   );
 }
 
+/** Tag-style editor for selecting multiple options from a property's option list. */
 export function MultiSelectEditor({ value, options, onChange }: {
   value: string[];
   options: { id: string; value: string; color: string }[];
@@ -88,6 +90,7 @@ export function MultiSelectEditor({ value, options, onChange }: {
   );
 }
 
+/** Toggle checkbox for boolean property values. */
 export function CheckboxEditor({ value, onChange }: Readonly<{ value: boolean; onChange: (v: boolean) => void }>) {
   return (
     <button
@@ -101,6 +104,7 @@ export function CheckboxEditor({ value, onChange }: Readonly<{ value: boolean; o
   );
 }
 
+/** Native date input for editing date properties. */
 export function DateEditor({ value, onChange }: Readonly<{ value: string; onChange: (v: string | null) => void }>) {
   return (
     <input
@@ -112,6 +116,7 @@ export function DateEditor({ value, onChange }: Readonly<{ value: string; onChan
   );
 }
 
+/** Dual-field editor for place properties (name + coordinates). */
 export function PlaceEditor({ value, onChange }: Readonly<{ value: unknown; onChange: (v: { address: string }) => void }>) {
   const placeVal = typeof value === 'object' && value ? (value as { address?: string }) : null;
   return (

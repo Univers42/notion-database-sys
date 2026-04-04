@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:36 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PropertyRow — renders a single property label + editor in the page modal
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
@@ -24,8 +20,7 @@ import {
 } from './PropertyRowEditors';
 import { cn } from '../utils/cn';
 
-// ─── Main component ─────────────────────────────────────────────────────────
-
+/** Renders a single property label and its inline editor in the page modal. */
 export function PropertyRow({ prop, page, pageId, database: _database }: Readonly<{
   prop: SchemaProperty;
   page: Page;
@@ -48,8 +43,6 @@ export function PropertyRow({ prop, page, pageId, database: _database }: Readonl
     </div>
   );
 }
-
-// ─── Editor dispatcher ──────────────────────────────────────────────────────
 
 function renderPropertyEditor(
   prop: SchemaProperty,

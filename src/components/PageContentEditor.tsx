@@ -6,13 +6,9 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:26 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PageContentEditor — block-based content editor for page modals
-// ═══════════════════════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
@@ -26,8 +22,7 @@ import { InlineToolbar } from './blocks/InlineToolbar';
 import { DraggableBlockWrapper, EmptyBlockPlaceholder } from './PageContentEditorHelpers';
 import { cn } from '../utils/cn';
 
-// ─── Main component ─────────────────────────────────────────────────────────
-
+/** Block-based content editor for page modals with drag-and-drop, slash commands, and inline toolbar. */
 export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
   const pages = useDatabaseStore(s => s.pages);
   const page = pages[pageId];

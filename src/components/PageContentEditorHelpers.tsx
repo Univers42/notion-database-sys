@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:26 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '../types/database';
 import { cn } from '../utils/cn';
 
+/** MIME type used for block drag-and-drop transfers. */
 export const DND_TYPE = 'application/x-block-id';
 
+/** Renders add-block and drag-handle controls on block hover. */
 export function BlockHoverControls({ block, content, pageId, focusBlock }: Readonly<{
   block: Block;
   content: Block[];
@@ -79,8 +81,10 @@ function DragHandle({ blockId }: Readonly<{ blockId: string }>) {
   );
 }
 
+/** Possible positions for a block drop indicator. */
 export type DropPosition = 'above' | 'below' | null;
 
+/** Renders a visual indicator for block drop targets during drag-and-drop. */
 export function DropIndicator({ position }: Readonly<{ position: DropPosition }>) {
   if (!position) return null;
   return (
@@ -92,6 +96,7 @@ export function DropIndicator({ position }: Readonly<{ position: DropPosition }>
   );
 }
 
+/** Wraps a block with drag-and-drop and drop-target behavior. */
 export function DraggableBlockWrapper({
   block, content, pageId, focusBlock, draggedBlockId, onDraggedChange, children,
 }: Readonly<{
@@ -156,6 +161,7 @@ export function DraggableBlockWrapper({
   );
 }
 
+/** Renders a placeholder input for empty page content to initiate the first block. */
 export function EmptyBlockPlaceholder({ onFocus }: Readonly<{ onFocus: () => void }>) {
   return (
     <div

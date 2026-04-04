@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 23:20:52 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,6 @@ import { renderPropertyScreen } from './viewSettings/PropertyScreens';
 import type { PanelScreen, ChartScreensProps } from './viewSettings';
 import { cn } from '../utils/cn';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// CHART SCREEN DISPATCH MAP
-// ═══════════════════════════════════════════════════════════════════════════════
-
 const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> = {
   editChart:          EditChartScreen,
   chartType:          ChartTypeScreen,
@@ -52,10 +48,7 @@ const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> =
   moreStyle:          MoreStyleScreen,
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN EXPORT
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/** Multi-screen settings panel for configuring view layout, filters, sorts, properties, and charts. */
 export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>) {
   const activeViewId = useActiveViewId();
   const {
@@ -90,7 +83,6 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     viewType: view.type,
   };
 
-  // ─── Chart screens ──────────────────────────────────────────────────
   const ChartComponent = CHART_SCREEN_MAP[screen];
   if (ChartComponent) {
     const chartProps: ChartScreensProps = {
@@ -100,7 +92,6 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     return <ChartComponent {...chartProps} />;
   }
 
-  // ─── Filter screen ──────────────────────────────────────────────────
   if (screen === 'filter') {
     return (
       <div className={cn("flex flex-col h-full")} style={{ minWidth: 290, maxWidth: 290 }}>
@@ -113,7 +104,6 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     );
   }
 
-  // ─── Sort screen ────────────────────────────────────────────────────
   if (screen === 'sort') {
     return (
       <div className={cn("flex flex-col h-full")} style={{ minWidth: 290, maxWidth: 290 }}>
@@ -125,7 +115,6 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     );
   }
 
-  // ─── Add filter screen ──────────────────────────────────────────────
   if (screen === 'addFilter') {
     const props = Object.values(database.properties) as import('../types/database').SchemaProperty[];
     return (
@@ -145,7 +134,6 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     );
   }
 
-  // ─── Layout screen ─────────────────────────────────────────────────
   if (screen === 'layout') {
     return (
       <LayoutScreen
@@ -157,7 +145,6 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     );
   }
 
-  // ─── Property / option / group-by / visibility sub-screens ──────────
   const propertyNode = renderPropertyScreen(screen, {
     settings, updateSetting, setScreen, onClose,
     dateProps, placeProps, groupableProps, allProps,
@@ -167,9 +154,7 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
   });
   if (propertyNode) return <>{propertyNode}</>;
 
-  // ═══════════════════════════════════════════════════════════════════════
   // MAIN SCREEN
-  // ═══════════════════════════════════════════════════════════════════════
   const currentViewMeta = VIEW_META[view.type];
   const visibleCount = view.visibleProperties.length;
 
