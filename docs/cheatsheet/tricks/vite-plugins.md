@@ -26,9 +26,11 @@ The middleware handles all CRUD operations, routing to the active database adapt
 
 Vite's `configureServer` hook gives you access to the Connect middleware stack. You can `.use()` any Express-compatible middleware. The DBMS middleware parses the request body, dispatches to the appropriate adapter, and sends back JSON.
 
-```
-Browser → Vite dev server → /api/dbms → dbmsMiddleware → adapter → database
-                           → *.tsx     → HMR / module transform
+```mermaid
+flowchart LR
+    Browser --> Vite["Vite dev server"]
+    Vite -->|/api/dbms| MW["dbmsMiddleware"] --> Adapter --> DB[("database")]
+    Vite -->|"*.tsx"| HMR["HMR / module transform"]
 ```
 
 ## CSP Patch for d3-dsv

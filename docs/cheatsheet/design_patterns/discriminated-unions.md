@@ -130,12 +130,12 @@ interface FilterNode {
 ```
 
 This recursive discriminated union enables nested filter groups:
-```
-AND
-├── name contains "Alice"
-├── OR
-│   ├── age > 25
-│   └── status = "active"
+```mermaid
+flowchart TD
+    AND["AND"] --> F1["name contains 'Alice'"]
+    AND --> OR["OR"]
+    OR --> F2["age > 25"]
+    OR --> F3["status = 'active'"]
 ```
 
 ## The Exhaustiveness Trick

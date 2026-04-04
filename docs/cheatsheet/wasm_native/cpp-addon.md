@@ -58,19 +58,43 @@ Each query event is dispatched to all sinks without the emitter knowing about th
 
 The full library has much more than just logging:
 
-```
-libcpp/
-├── core/     Result, Option, Signal, Property, Arena, Observer, Singleton, StateMachine
-├── term/     Terminal colors, table formatting, progress bars, styled output
-├── log/      Leveled logging (DEBUG, INFO, WARN, ERROR) with macros
-├── test/     Test suite, snapshot testing, spies, fuzzer
-├── bench/    Stopwatch, benchmark, profiler
-├── mem/      Memory pool, leak guard
-├── str/      UTF-8 utilities, formatting, case conversion
-├── data/     Date, CSV parser, Database abstraction, Pool<T>, DataBuffer
-├── async/    Thread-safe queue, worker pool, persistent workers
-├── net/      TCP client/server (POSIX sockets)
-├── math/     Vectors, random, Perlin noise
+```mermaid
+mindmap
+  root((libcpp))
+    core
+      Result, Option, Signal
+      Property, Arena, Observer
+      Singleton, StateMachine
+    term
+      Colors, table formatting
+      Progress bars, styled output
+    log
+      DEBUG, INFO, WARN, ERROR
+      Macros
+    test
+      Test suite, snapshots
+      Spies, fuzzer
+    bench
+      Stopwatch, benchmark
+      Profiler
+    mem
+      Memory pool
+      Leak guard
+    str
+      UTF-8 utilities
+      Formatting, case conversion
+    data
+      Date, CSV parser
+      Database, Pool T, DataBuffer
+    async
+      Thread-safe queue
+      Worker pool, persistent workers
+    net
+      TCP client/server
+      POSIX sockets
+    math
+      Vectors, random
+      Perlin noise
 ```
 
 Only the Observer + Logger + TermWriter modules are used by the Node addon. The rest exists as the standalone 42 project.

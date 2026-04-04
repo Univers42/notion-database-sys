@@ -4,22 +4,18 @@ A decision framework for choosing between TypeScript, Rust/WASM, and C++ in this
 
 ## The Decision Tree
 
-```
-Is it CPU-bound computation running in a tight loop?
-├── No → TypeScript. Stop here.
-└── Yes
-    ├── Does it run in the browser?
-    │   ├── Yes → Rust/WASM
-    │   └── No (Node.js only)
-    │       ├── Does it need the libftpp library features?
-    │       │   ├── Yes → C++ native addon
-    │       │   └── No → Still probably TypeScript (Node.js is fast enough)
-    │       └── Is it a one-time operation (startup, build)?
-    │           ├── Yes → TypeScript (startup cost doesn't matter)
-    │           └── No → Consider Rust/WASM or C++ addon
-    └── Is the overhead of the JS↔native boundary worth it?
-        ├── < 1000 calls per render → Probably not. Stay in TS.
-        └── > 1000 calls per render → Yes, go native.
+```mermaid
+flowchart TD
+    A["Is it CPU-bound in a tight loop?"] -->|No| TS1["TypeScript — stop here"]
+    A -->|Yes| B["Does it run in the browser?"]
+    B -->|Yes| WASM["Rust / WASM"]
+    B -->|"No (Node.js only)"| C["Needs libftpp features?"]
+    C -->|Yes| CPP["C++ native addon"]
+    C -->|No| D["One-time operation?"]
+    D -->|Yes| TS2["TypeScript — startup cost irrelevant"]
+    D -->|No| E["JS-native boundary overhead worth it?"]
+    E -->|"> 1000 calls/render"| NATIVE["Go native (Rust/WASM or C++)"]
+    E -->|"< 1000 calls/render"| TS3["Stay in TypeScript"]
 ```
 
 ## Real Examples from This Project

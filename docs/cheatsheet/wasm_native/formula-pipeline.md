@@ -217,13 +217,16 @@ If either operand is `Empty` (null/missing property), the result is `Empty`. Thi
 
 ## The Full Pipeline in One Call
 
-```
-User types formula → bridge.ts compiles → WASM lexer+parser+compiler → handle stored in cache
-                                                                           ↓
-Table renders       → bridge.ts evaluateHandle(handle, rowProps) → WASM VM executes → value returned
-                                                                           ↑
-                                                                     (500 rows = 500 calls,
-                                                                      same compiled chunk)
+```mermaid
+flowchart LR
+    A["User types formula"] --> B["bridge.ts compiles"]
+    B --> C["WASM lexer + parser + compiler"]
+    C --> D["Handle stored in cache"]
+    D --> E["Table renders"]
+    E --> F["bridge.ts evaluateHandle\n(handle, rowProps)"]
+    F --> G["WASM VM executes"]
+    G --> H["Value returned"]
+    G -. "500 rows = 500 calls,\nsame compiled chunk" .-> F
 ```
 
 The compilation (lexer + parser + compiler) runs once. The VM runs once per row. This is why the handle cache matters — without it, you'd recompile the formula 500 times per render.

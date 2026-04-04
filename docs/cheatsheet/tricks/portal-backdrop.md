@@ -63,12 +63,12 @@ Usage:
 
 When panels stack (dropdown → sub-menu → date picker), each gets its own backdrop at its own z-index:
 
-```
-z: 9998  — cell editor backdrop
-z: 9999  — cell editor
-z: 10000 — date picker
-z: 9999  — date picker backdrop (reuses CELL_EDITOR level? No — it
-            uses PICKER - 1 = 9999... the Z system handles this)
+```mermaid
+block-beta
+    columns 1
+    A["z: 10000 — date picker"]
+    B["z: 9999  — cell editor / date picker backdrop"]
+    C["z: 9998  — cell editor backdrop"]
 ```
 
 Each backdrop closes only its own panel. Clicking the backdrop of the date picker closes the date picker but leaves the cell editor open.

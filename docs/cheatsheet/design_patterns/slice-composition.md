@@ -73,14 +73,13 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
 
 The top-level file **overrides** some slice methods to add cross-cutting concerns:
 
-```
-Slice method:    setPageProperty(id, field, value)  ← pure state update
-                          ↓
-Top-level override: updatePageProperty(id, field, value)
-                          ↓  validate
-                          ↓  call slice method
-                          ↓  persist to database
-                          ↓  log to query log
+```mermaid
+flowchart TD
+    A["setPageProperty(id, field, value)"] -->|"pure state update"| B["updatePageProperty\n(top-level override)"]
+    B --> C["validate"]
+    C --> D["call slice method"]
+    D --> E["persist to database"]
+    E --> F["log to query log"]
 ```
 
 This separation means:
