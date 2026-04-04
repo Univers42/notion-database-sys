@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { COLORS, STAT_BG } from './constants';
+import { cn } from '../../../utils/cn';
 
 export function NumericFormulaCard({
   title,
@@ -57,19 +58,19 @@ export function NumericFormulaCard({
   const maxBucket = Math.max(...buckets);
 
   return (
-    <div className="bg-surface-primary rounded-xl border border-line p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <div className={`p-2 rounded-lg ${STAT_BG[color] || STAT_BG.blue}`}>{icon}</div>
+    <div className={cn("bg-surface-primary rounded-xl border border-line p-5")}>
+      <div className={cn("flex items-center gap-2 mb-4")}>
+        <div className={cn(`p-2 rounded-lg ${STAT_BG[color] || STAT_BG.blue}`)}>{icon}</div>
         <div>
-          <h3 className="text-sm font-semibold text-ink">{title}</h3>
-          <p className="text-[10px] text-ink-muted font-mono truncate max-w-[300px]" title={expression}>
+          <h3 className={cn("text-sm font-semibold text-ink")}>{title}</h3>
+          <p className={cn("text-[10px] text-ink-muted font-mono truncate max-w-[300px]")} title={expression}>
             {expression}
           </p>
         </div>
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      <div className={cn("grid grid-cols-3 gap-2 mb-4")}>
         {[
           { label: 'Average', val: fmt(avg) },
           { label: 'Median', val: fmt(median) },
@@ -78,22 +79,22 @@ export function NumericFormulaCard({
           { label: 'Max', val: fmt(max) },
           { label: 'Sum', val: fmt(sum) },
         ].map((s) => (
-          <div key={s.label} className="bg-surface-secondary rounded-lg p-2.5 text-center">
-            <div className="text-sm font-bold text-ink tabular-nums">{s.val}</div>
-            <div className="text-[9px] text-ink-muted mt-0.5">{s.label}</div>
+          <div key={s.label} className={cn("bg-surface-secondary rounded-lg p-2.5 text-center")}>
+            <div className={cn("text-sm font-bold text-ink tabular-nums")}>{s.val}</div>
+            <div className={cn("text-[9px] text-ink-muted mt-0.5")}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Histogram */}
-      <div className="flex items-end gap-1 h-16">
+      <div className={cn("flex items-end gap-1 h-16")}>
         {buckets.map((count, i) => {
           const pct = maxBucket > 0 ? (count / maxBucket) * 100 : 0;
           return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-              <span className="text-[8px] text-ink-muted tabular-nums">{count > 0 ? count : ''}</span>
+            <div key={i} className={cn("flex-1 flex flex-col items-center gap-0.5")}>
+              <span className={cn("text-[8px] text-ink-muted tabular-nums")}>{count > 0 ? count : ''}</span>
               <div
-                className="w-full rounded-t transition-all hover:opacity-80"
+                className={cn("w-full rounded-t transition-all hover:opacity-80")}
                 style={{ height: `${Math.max(pct, 3)}%`, backgroundColor: COLORS[i % COLORS.length] }}
                 title={`${fmt(min + i * bucketSize)} – ${fmt(min + (i + 1) * bucketSize)}: ${count}`}
               />
@@ -101,7 +102,7 @@ export function NumericFormulaCard({
           );
         })}
       </div>
-      <div className="flex justify-between text-[8px] text-ink-muted mt-1">
+      <div className={cn("flex justify-between text-[8px] text-ink-muted mt-1")}>
         <span>{fmt(min)}</span>
         <span>Distribution</span>
         <span>{fmt(max)}</span>

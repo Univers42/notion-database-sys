@@ -5,6 +5,11 @@ node_modules/
 build/
 dist/
 coverage/
+packages/*/dist/
+.turbo/
+
+# Native addon build artifacts (cmake-js)
+src/server/logger/native/build/
 
 scripts/
 # Rust build artifacts

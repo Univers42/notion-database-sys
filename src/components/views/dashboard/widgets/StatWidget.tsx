@@ -15,6 +15,7 @@ import { Hash, TrendingUp, Activity, BarChart3, PieChart, Users } from 'lucide-r
 import type { DashboardWidget, SchemaProperty } from '../../../../types/database';
 import { STAT_COLORS, formatNumber } from '../constants';
 import { StatIconBadge } from '../StatComponents';
+import { cn } from '../../../../utils/cn';
 
 // ─── Computed data shape ─────────────────────────────────────────────────────
 
@@ -31,9 +32,9 @@ export type ChartItem = { count: number; color: string; label: string };
 // ─── Stat widget ─────────────────────────────────────────────────────────────
 
 const STAT_ICONS = [
-  <Hash className="w-5 h-5" />, <TrendingUp className="w-5 h-5" />,
-  <Activity className="w-5 h-5" />, <BarChart3 className="w-5 h-5" />,
-  <PieChart className="w-5 h-5" />, <Users className="w-5 h-5" />,
+  <Hash className={cn("w-5 h-5")} />, <TrendingUp className={cn("w-5 h-5")} />,
+  <Activity className={cn("w-5 h-5")} />, <BarChart3 className={cn("w-5 h-5")} />,
+  <PieChart className={cn("w-5 h-5")} />, <Users className={cn("w-5 h-5")} />,
 ];
 
 export function resolveStatValue(prop: SchemaProperty | null, data: ComputedData, widget: DashboardWidget, total: number) {
@@ -59,12 +60,12 @@ export function resolveStatValue(prop: SchemaProperty | null, data: ComputedData
 export function renderStatWidget(widget: DashboardWidget, idx: number, prop: SchemaProperty | null, data: ComputedData, total: number) {
   const { value, subtext } = resolveStatValue(prop, data, widget, total);
   return (
-    <div className="p-4 h-full flex items-start gap-3">
+    <div className={cn("p-4 h-full flex items-start gap-3")}>
       <StatIconBadge color={STAT_COLORS[idx % STAT_COLORS.length]}>{STAT_ICONS[idx % STAT_ICONS.length]}</StatIconBadge>
-      <div className="flex-1 min-w-0">
-        <div className="text-2xl font-bold text-ink tabular-nums leading-none mb-1">{formatNumber(value)}</div>
-        <div className="text-xs text-ink-secondary truncate">{widget.title}</div>
-        {subtext && <div className="text-[10px] text-ink-muted mt-0.5">{subtext}</div>}
+      <div className={cn("flex-1 min-w-0")}>
+        <div className={cn("text-2xl font-bold text-ink tabular-nums leading-none mb-1")}>{formatNumber(value)}</div>
+        <div className={cn("text-xs text-ink-secondary truncate")}>{widget.title}</div>
+        {subtext && <div className={cn("text-[10px] text-ink-muted mt-0.5")}>{subtext}</div>}
       </div>
     </div>
   );

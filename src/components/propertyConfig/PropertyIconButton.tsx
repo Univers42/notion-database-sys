@@ -16,6 +16,7 @@ import type { SchemaProperty } from '../../types/database';
 import { IconPickerPopover } from '../ui/IconPickerPopover';
 import { Icon } from '../ui/Icon';
 import { DEFAULT_PROPERTY_ICONS } from './constants';
+import { cn } from '../../utils/cn';
 
 export function PropertyIconButton({ property, databaseId }: Readonly<{ property: SchemaProperty; databaseId: string }>) {
   const [showPicker, setShowPicker] = useState(false);
@@ -29,10 +30,10 @@ export function PropertyIconButton({ property, databaseId }: Readonly<{ property
       <button
         ref={btnRef}
         onClick={(e) => { e.stopPropagation(); setShowPicker(!showPicker); }}
-        className="p-1.5 rounded-md hover:bg-hover-surface2 text-ink-muted transition-colors"
+        className={cn("p-1.5 rounded-md hover:bg-hover-surface2 text-ink-muted transition-colors")}
         title="Change icon"
       >
-        <Icon name={currentIconName} className="w-4 h-4 text-ink-muted" />
+        <Icon name={currentIconName} className={cn("w-4 h-4 text-ink-muted")} />
       </button>
       {showPicker && (
         <IconPickerPopover

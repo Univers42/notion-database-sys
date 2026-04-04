@@ -6,51 +6,41 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 19:40:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { ChevronRightIcon } from './Icons';
+import { ToggleSwitch } from './ToggleSwitch';
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Toggle & Setting Row primitives (no-icon variants for layout-settings panels)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/* ─── ToggleSwitch ─────────────────────────────────────────────────────
-   Notion-style inline toggle switch (14px height, 26px width).
-   Use standalone or inside ToggleSettingRow.
-   ─────────────────────────────────────────────────────────────────── */
-export function ToggleSwitch({ checked, onChange }: Readonly<{ checked: boolean; onChange: (v: boolean) => void }>) {
-  return (
-    <button onClick={e => { e.stopPropagation(); onChange(!checked); }}
-      className="relative shrink-0"
-      role="switch" aria-checked={checked}>
-      <div className={`flex shrink-0 h-[14px] w-[26px] rounded-full p-[2px] transition-colors duration-200 ${
-        checked ? 'bg-accent' : 'bg-surface-strong'
-      }`} style={{ boxSizing: 'content-box' }}>
-        <div className={`w-[14px] h-[14px] rounded-full bg-surface-primary shadow-sm transition-transform duration-200 ${
-          checked ? 'translate-x-[12px]' : 'translate-x-0'
-        }`} />
-      </div>
-    </button>
-  );
-}
+export { ToggleSwitch };
 
 /* ─── ToggleSettingRow ──────────────────────────────────────────────────
    Full-row toggle: label on left, ToggleSwitch on right.
    No left icon — used in per-view layout settings panels.
    ─────────────────────────────────────────────────────────────────── */
-export function ToggleSettingRow({ label, checked, onChange }: Readonly<{ label: string; checked: boolean; onChange: (v: boolean) => void }>) {
+export type ToggleSettingRowSlots = {
+  root?: string;
+  label?: string;
+  toggle?: string;
+};
+
+export function ToggleSettingRow({ label, checked, onChange, slots = {} }: Readonly<{ label: string; checked: boolean; onChange: (v: boolean) => void; slots?: Partial<ToggleSettingRowSlots> }>) {
   return (
     <button
       onClick={() => onChange(!checked)}
       role="menuitemcheckbox"
       aria-checked={checked}
-      className="w-full flex items-center rounded-md hover:bg-hover-surface-soft3 transition-colors px-2 py-[7px]"
+      className={cn("w-full flex items-center rounded-md hover:bg-hover-surface-soft3 transition-colors px-2 py-[7px]", slots.root)}
     >
-      <span className="flex-1 text-sm text-ink-strong truncate text-left">{label}</span>
-      <div className="shrink-0 ml-2">
+      <span className={cn("flex-1 text-sm text-ink-strong truncate text-left", slots.label)}>{label}</span>
+      <div className={cn("shrink-0 ml-2", slots.toggle)}>
         <ToggleSwitch checked={checked} onChange={onChange} />
       </div>
     </button>
@@ -61,17 +51,25 @@ export function ToggleSettingRow({ label, checked, onChange }: Readonly<{ label:
    Navigation row: label on left, optional value + chevron on right.
    No left icon — used in per-view layout settings panels.
    ─────────────────────────────────────────────────────────────────── */
-export function NavSettingRow({ label, value, onClick }: Readonly<{ label: string; value?: string; onClick: () => void }>) {
+export type NavSettingRowSlots = {
+  root?: string;
+  label?: string;
+  valueWrap?: string;
+  value?: string;
+  chevron?: string;
+};
+
+export function NavSettingRow({ label, value, onClick, slots = {} }: Readonly<{ label: string; value?: string; onClick: () => void; slots?: Partial<NavSettingRowSlots> }>) {
   return (
     <button
       onClick={onClick}
       role="menuitem"
-      className="w-full flex items-center rounded-md hover:bg-hover-surface-soft3 transition-colors px-2 py-[7px]"
+      className={cn("w-full flex items-center rounded-md hover:bg-hover-surface-soft3 transition-colors px-2 py-[7px]", slots.root)}
     >
-      <span className="flex-1 text-sm text-ink-strong truncate text-left">{label}</span>
-      <span className="flex items-center text-ink-muted shrink-0 ml-2">
-        {value && <span className="text-sm text-ink-muted truncate max-w-[120px]">{value}</span>}
-        <ChevronRightIcon className="w-[14px] h-[14px] ml-1.5" />
+      <span className={cn("flex-1 text-sm text-ink-strong truncate text-left", slots.label)}>{label}</span>
+      <span className={cn("flex items-center text-ink-muted shrink-0 ml-2", slots.valueWrap)}>
+        {value && <span className={cn("text-sm text-ink-muted truncate max-w-[120px]", slots.value)}>{value}</span>}
+        <ChevronRightIcon className={cn("w-[14px] h-[14px] ml-1.5", slots.chevron)} />
       </span>
     </button>
   );
@@ -87,6 +85,12 @@ export function NavSettingRow({ label, value, onClick }: Readonly<{ label: strin
    Used in dropdown menus, context menus, and action panels.
    ─────────────────────────────────────────────────────────────────────── */
 
+export type MenuRowSlots = {
+  root?: string;
+  icon?: string;
+  label?: string;
+};
+
 export interface MenuRowProps {
   icon: React.ReactNode;
   label: string;
@@ -94,22 +98,23 @@ export interface MenuRowProps {
   className?: string;
   /** Render the label in red (destructive action) */
   danger?: boolean;
+  slots?: Partial<MenuRowSlots>;
 }
 
-export function MenuRow({ icon, label, onClick, className = '', danger = false }: Readonly<MenuRowProps>) {
+export function MenuRow({ icon, label, onClick, className = '', danger = false, slots = {} }: Readonly<MenuRowProps>) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 px-3 py-[6px] text-sm rounded-md transition-colors
-        ${danger
-          ? 'text-danger-text hover:bg-hover-danger'
-          : 'text-ink-body hover:bg-hover-surface-soft2'
-        } ${className}`}
+      className={cn(
+        'w-full flex items-center gap-2.5 px-3 py-[6px] text-sm rounded-md transition-colors',
+        danger ? 'text-danger-text hover:bg-hover-danger' : 'text-ink-body hover:bg-hover-surface-soft2',
+        className, slots.root,
+      )}
     >
-      <span className={`flex items-center justify-center shrink-0 ${danger ? 'text-danger-text-soft' : 'text-ink-muted'}`}>
+      <span className={cn('flex items-center justify-center shrink-0', danger ? 'text-danger-text-soft' : 'text-ink-muted', slots.icon)}>
         {icon}
       </span>
-      <span className="truncate">{label}</span>
+      <span className={cn('truncate', slots.label)}>{label}</span>
     </button>
   );
 }
@@ -120,6 +125,16 @@ export function MenuRow({ icon, label, onClick, className = '', danger = false }
    Used in ViewSettingsPanel and sub-screens.
    ─────────────────────────────────────────────────────────────────────── */
 
+export type SettingsRowSlots = {
+  root?: string;
+  inner?: string;
+  icon?: string;
+  label?: string;
+  valueWrap?: string;
+  value?: string;
+  chevron?: string;
+};
+
 export interface SettingsRowProps {
   icon: React.ReactNode;
   label: string;
@@ -128,32 +143,33 @@ export interface SettingsRowProps {
   /** Whether to show the right-side chevron. Default: true when onClick provided */
   showChevron?: boolean;
   onClick?: () => void;
+  slots?: Partial<SettingsRowSlots>;
 }
 
-export function SettingsRow({ icon, label, value, showChevron, onClick }: Readonly<SettingsRowProps>) {
+export function SettingsRow({ icon, label, value, showChevron, onClick, slots = {} }: Readonly<SettingsRowProps>) {
   const hasChevron = showChevron ?? !!onClick;
   return (
     <button
       onClick={onClick}
       role="menuitem"
-      className="w-full flex rounded-md transition-colors text-ink-strong hover:bg-hover-surface-soft3"
+      className={cn('w-full flex rounded-md transition-colors text-ink-strong hover:bg-hover-surface-soft3', slots.root)}
       style={{ fill: 'currentColor' }}
     >
-      <div className="flex items-center gap-0 w-full px-2 py-[6px]">
+      <div className={cn('flex items-center gap-0 w-full px-2 py-[6px]', slots.inner)}>
         {/* Left icon */}
-        <span className="flex items-center justify-center shrink-0 w-5 h-5 text-ink-secondary">
+        <span className={cn('flex items-center justify-center shrink-0 w-5 h-5 text-ink-secondary', slots.icon)}>
           {icon}
         </span>
         {/* Label */}
-        <span className="flex-1 text-sm leading-5 text-left ml-2 truncate">{label}</span>
+        <span className={cn('flex-1 text-sm leading-5 text-left ml-2 truncate', slots.label)}>{label}</span>
         {/* Right side: value + chevron */}
         {(value || hasChevron) && (
-          <span className="flex items-center text-ink-muted shrink-0 ml-2">
+          <span className={cn('flex items-center text-ink-muted shrink-0 ml-2', slots.valueWrap)}>
             {value && (
-              <span className="text-sm leading-5 truncate max-w-[120px]">{value}</span>
+              <span className={cn('text-sm leading-5 truncate max-w-[120px]', slots.value)}>{value}</span>
             )}
             {hasChevron && (
-              <ChevronRightIcon className="w-[14px] h-[14px] ml-1.5" />
+              <ChevronRightIcon className={cn('w-[14px] h-[14px] ml-1.5', slots.chevron)} />
             )}
           </span>
         )}

@@ -3,7 +3,7 @@
 // Persists the active source in the URL hash so page refreshes restore it.
 
 import { create } from 'zustand';
-import type { DbSourceType } from '../services/dbms/types.ts';
+import type { DbSourceType } from '../../services/dbms/types.ts';
 
 const VALID_SOURCES = new Set<string>(['json', 'csv', 'mongodb', 'postgresql']);
 

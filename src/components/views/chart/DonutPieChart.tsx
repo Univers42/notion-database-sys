@@ -12,6 +12,7 @@
 
 import React from 'react';
 import type { ChartDataItem } from './useChartData';
+import { cn } from '../../../utils/cn';
 
 interface DonutPieChartProps {
   chartData: ChartDataItem[];
@@ -42,8 +43,8 @@ export function DonutPieChart({ chartData, total, isDonut }: Readonly<DonutPieCh
   };
 
   return (
-    <div className="flex-1 overflow-auto p-8 bg-surface-primary">
-      <div className="flex items-center justify-center gap-12">
+    <div className={cn("flex-1 overflow-auto p-8 bg-surface-primary")}>
+      <div className={cn("flex items-center justify-center gap-12")}>
         <svg width={size} height={size}>
           {slices.map((slice, i) => {
             const sx = cx + outerR * Math.cos(slice.startAngle);
@@ -62,7 +63,7 @@ export function DonutPieChart({ chartData, total, isDonut }: Readonly<DonutPieCh
 
             return (
               <path key={i} d={d} fill={slice.color} stroke="white" strokeWidth={2}
-                className="transition-all duration-200 hover:opacity-80 cursor-pointer" />
+                className={cn("transition-all duration-200 hover:opacity-80 cursor-pointer")} />
             );
           })}
           {isDonut && (
@@ -73,13 +74,13 @@ export function DonutPieChart({ chartData, total, isDonut }: Readonly<DonutPieCh
         </svg>
 
         {/* Legend */}
-        <div className="flex flex-col gap-2">
+        <div className={cn("flex flex-col gap-2")}>
           {chartData.map((d, _i) => (
-            <div key={d.label} className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: d.color }} />
-              <span className="text-sm text-ink-body">{d.label}</span>
-              <span className="text-sm text-ink-muted tabular-nums ml-1">{d.value}</span>
-              <span className="text-xs text-ink-muted">({Math.round((d.value / total) * 100)}%)</span>
+            <div key={d.label} className={cn("flex items-center gap-2")}>
+              <div className={cn("w-3 h-3 rounded-sm shrink-0")} style={{ backgroundColor: d.color }} />
+              <span className={cn("text-sm text-ink-body")}>{d.label}</span>
+              <span className={cn("text-sm text-ink-muted tabular-nums ml-1")}>{d.value}</span>
+              <span className={cn("text-xs text-ink-muted")}>({Math.round((d.value / total) * 100)}%)</span>
             </div>
           ))}
         </div>

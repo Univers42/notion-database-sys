@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { STAT_BG } from './constants';
+import { cn } from '../../../utils/cn';
 
 export function KpiCard({
   icon,
@@ -27,14 +28,14 @@ export function KpiCard({
   subtext?: string;
 }>) {
   return (
-    <div className="bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3">
-      <div className={`p-2.5 rounded-lg ${STAT_BG[color] || STAT_BG.blue}`}>{icon}</div>
+    <div className={cn("bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3")}>
+      <div className={cn(`p-2.5 rounded-lg ${STAT_BG[color] || STAT_BG.blue}`)}>{icon}</div>
       <div>
-        <div className="text-2xl font-bold text-ink tabular-nums leading-none mb-1">
+        <div className={cn("text-2xl font-bold text-ink tabular-nums leading-none mb-1")}>
           {typeof value === 'number' ? value.toLocaleString() : value}
         </div>
-        <div className="text-xs text-ink-secondary">{label}</div>
-        {subtext && <div className="text-[10px] text-ink-muted mt-0.5">{subtext}</div>}
+        <div className={cn("text-xs text-ink-secondary")}>{label}</div>
+        {subtext && <div className={cn("text-[10px] text-ink-muted mt-0.5")}>{subtext}</div>}
       </div>
     </div>
   );

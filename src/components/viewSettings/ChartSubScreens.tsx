@@ -19,6 +19,7 @@ import { CHART_TYPE_META } from './constants';
 import { SubPanelHeader, OptionList, PropertyOptionList, Toggle } from './SubComponents';
 import type { PanelScreen } from './constants';
 import type { SchemaProperty, ViewSettings } from '../../types/database';
+import { cn } from '../../utils/cn';
 
 export interface ChartScreensProps {
   screen: PanelScreen;
@@ -36,18 +37,18 @@ export interface ChartScreensProps {
 
 export function ChartTypeScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Chart type" onBack={() => setScreen('editChart')} onClose={onClose} />
-      <div className="p-4 grid grid-cols-2 gap-2">
+      <div className={cn("p-4 grid grid-cols-2 gap-2")}>
         {CHART_TYPE_META.map(ct => {
           const isActive = (settings.chartType || 'vertical_bar') === ct.type;
           return (
             <button key={ct.type} onClick={() => { updateSetting('chartType', ct.type); setScreen('editChart'); }}
-              className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
+              className={cn(`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
                 isActive ? 'border-accent-border bg-accent-soft3 text-accent-text-light' : 'border-line hover:border-hover-border text-ink-secondary'
-              }`}>
-              <span className={isActive ? 'text-accent-text-soft' : 'text-ink-muted'}>{ct.icon}</span>
-              <span className="text-xs font-medium">{ct.label}</span>
+              }`)}>
+              <span className={cn(isActive ? 'text-accent-text-soft' : 'text-ink-muted')}>{ct.icon}</span>
+              <span className={cn("text-xs font-medium")}>{ct.label}</span>
             </button>
           );
         })}
@@ -59,7 +60,7 @@ export function ChartTypeScreen({ setScreen, settings, updateSetting, onClose }:
 export function XAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: Readonly<ChartScreensProps>) {
   const eligible = allProps.filter(p => ['select', 'multi_select', 'status', 'checkbox', 'user', 'person', 'text', 'date'].includes(p.type));
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="X-Axis: What to show" onBack={() => setScreen('editChart')} onClose={onClose} />
       <PropertyOptionList properties={eligible} activeId={settings.xAxisProperty || ''} onSelect={id => { updateSetting('xAxisProperty', id); setScreen('editChart'); }} />
     </div>
@@ -68,7 +69,7 @@ export function XAxisWhatScreen({ setScreen, settings, updateSetting, allProps, 
 
 export function XAxisSortScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="X-Axis: Sort by" onBack={() => setScreen('editChart')} onClose={onClose} />
       <OptionList
         options={[{ id: 'ascending', label: 'Ascending' }, { id: 'descending', label: 'Descending' }, { id: 'manual', label: 'Manual' }]}
@@ -82,7 +83,7 @@ export function XAxisSortScreen({ setScreen, settings, updateSetting, onClose }:
 export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: Readonly<ChartScreensProps>) {
   const eligible = allProps.filter(p => p.type === 'number');
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Y-Axis: What to show" onBack={() => setScreen('editChart')} onClose={onClose} />
       <PropertyOptionList properties={eligible} activeId={settings.yAxisProperty || ''} onSelect={id => { updateSetting('yAxisProperty', id); setScreen('editChart'); }} noneLabel="Count (all)" />
     </div>
@@ -91,7 +92,7 @@ export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, 
 
 export function YAxisGroupByScreen({ setScreen, settings, updateSetting, groupableProps, onClose }: Readonly<ChartScreensProps>) {
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Y-Axis: Group by" onBack={() => setScreen('editChart')} onClose={onClose} />
       <PropertyOptionList properties={groupableProps} activeId={settings.yAxisGroupBy || ''} onSelect={id => { updateSetting('yAxisGroupBy', id); setScreen('editChart'); }} noneLabel="None" />
     </div>
@@ -100,7 +101,7 @@ export function YAxisGroupByScreen({ setScreen, settings, updateSetting, groupab
 
 export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Y-Axis: Range" onBack={() => setScreen('editChart')} onClose={onClose} />
       <OptionList
         options={[{ id: 'auto', label: 'Auto' }, { id: '0-100', label: '0 – 100' }, { id: '0-1000', label: '0 – 1,000' }, { id: 'custom', label: 'Custom' }]}
@@ -113,16 +114,16 @@ export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }
 
 export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Reference line" onBack={() => setScreen('editChart')} onClose={onClose} />
-      <div className="p-4 flex flex-col gap-3">
+      <div className={cn("p-4 flex flex-col gap-3")}>
         <Toggle label="Show reference line" checked={!!settings.showReferenceLine} onChange={v => updateSetting('showReferenceLine', v)} />
         {settings.showReferenceLine && (
-          <label className="flex flex-col gap-1">
-            <span className="text-xs text-ink-secondary">Value</span>
+          <label className={cn("flex flex-col gap-1")}>
+            <span className={cn("text-xs text-ink-secondary")}>Value</span>
             <input type="number" value={settings.referenceLineValue ?? ''}
               onChange={e => updateSetting('referenceLineValue', e.target.value ? Number(e.target.value) : null)}
-              className="px-3 py-2 border border-line rounded-lg text-sm bg-surface-primary focus:outline-none focus:ring-2 focus:ring-focus-ring-muted" placeholder="e.g. 50" />
+              className={cn("px-3 py-2 border border-line rounded-lg text-sm bg-surface-primary focus:outline-none focus:ring-2 focus:ring-focus-ring-muted")} placeholder="e.g. 50" />
           </label>
         )}
       </div>
@@ -132,7 +133,7 @@ export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, o
 
 export function ColorPaletteScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Color palette" onBack={() => setScreen('editChart')} onClose={onClose} />
       <OptionList
         options={['default', 'blue', 'green', 'warm', 'cool', 'pastel', 'vivid'].map(p => ({ id: p, label: p.charAt(0).toUpperCase() + p.slice(1) }))}
@@ -145,9 +146,9 @@ export function ColorPaletteScreen({ setScreen, settings, updateSetting, onClose
 
 export function MoreStyleScreen({ setScreen, settings, updateSetting, onClose }: Readonly<ChartScreensProps>) {
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Style options" onBack={() => setScreen('editChart')} onClose={onClose} />
-      <div className="p-4 flex flex-col gap-3">
+      <div className={cn("p-4 flex flex-col gap-3")}>
         <Toggle label="Show legend" checked={settings.showLegend !== false} onChange={v => updateSetting('showLegend', v)} />
         <Toggle label="Show grid lines" checked={settings.showGridLines !== false} onChange={v => updateSetting('showGridLines', v)} />
         <Toggle label="Show data labels" checked={!!settings.showDataLabels} onChange={v => updateSetting('showDataLabels', v)} />

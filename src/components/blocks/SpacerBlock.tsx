@@ -16,6 +16,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import { cn } from '../../utils/cn';
 
 export function SpacerBlock({ block, pageId }: { block: { id: string; spacerHeight?: number }; pageId: string }) {
   const updateBlock = useDatabaseStore(s => s.updateBlock);
@@ -48,15 +49,15 @@ export function SpacerBlock({ block, pageId }: { block: { id: string; spacerHeig
 
   return (
     <div
-      className="group/spacer relative"
+      className={cn("group/spacer relative")}
       style={{ height }}
     >
       <div
-        className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 rounded-full cursor-row-resize transition-colors ${
+        className={cn(`absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 rounded-full cursor-row-resize transition-colors ${
           dragging
             ? 'bg-accent'
             : 'bg-transparent group-hover/spacer:bg-line-medium'
-        }`}
+        }`)}
         onMouseDown={handleMouseDown}
         title="Drag to resize"
       />

@@ -1416,9 +1416,9 @@
         }
       ],
       "createdAt": "2026-03-23T15:22:50.751Z",
-      "updatedAt": "2026-04-02T16:40:39.820Z",
+      "updatedAt": "2026-04-03T15:35:08.660Z",
       "createdBy": "Alice",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t2": {
       "id": "t2",
@@ -1431,7 +1431,7 @@
         "prop-tags": "tag-infra",
         "prop-assignee": "Bob",
         "prop-due": "2026-04-04T14:22:50.751Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 13,
         "prop-task-id": "TASK-2",
         "prop-project": [
@@ -1448,7 +1448,7 @@
         }
       ],
       "createdAt": "2026-03-26T15:22:50.751Z",
-      "updatedAt": "2026-04-03T10:57:18.802Z",
+      "updatedAt": "2026-04-03T15:35:10.958Z",
       "createdBy": "Bob",
       "lastEditedBy": "You"
     },
@@ -1463,7 +1463,7 @@
         "prop-tags": "Bug",
         "prop-assignee": "Charlie",
         "prop-due": "2026-04-07T22:00:00.000Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 3,
         "prop-task-id": "TASK-3",
         "prop-project": [
@@ -1475,7 +1475,7 @@
       },
       "content": [],
       "createdAt": "2026-03-30T14:22:50.751Z",
-      "updatedAt": "2026-04-03T10:56:00.333Z",
+      "updatedAt": "2026-04-03T15:35:10.990Z",
       "createdBy": "Charlie",
       "lastEditedBy": "You"
     },
@@ -1490,7 +1490,7 @@
         "prop-tags": "Documentation",
         "prop-assignee": "Alice",
         "prop-due": "2026-04-12T00:00:00Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 2,
         "prop-task-id": "TASK-4",
         "prop-project": [
@@ -1502,7 +1502,7 @@
       },
       "content": [],
       "createdAt": "2026-03-31T14:22:50.751Z",
-      "updatedAt": "2026-04-03T10:53:18.734Z",
+      "updatedAt": "2026-04-03T15:35:11.014Z",
       "createdBy": "Alice",
       "lastEditedBy": "You"
     },
@@ -1517,7 +1517,7 @@
         "prop-tags": "Infrastructure",
         "prop-assignee": "Bob",
         "prop-due": "2026-04-09T00:00:00Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 8,
         "prop-task-id": "TASK-5",
         "prop-project": [
@@ -1528,7 +1528,7 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-03T10:53:20.813Z",
+      "updatedAt": "2026-04-03T15:35:11.040Z",
       "createdBy": "Bob",
       "lastEditedBy": "You"
     },
@@ -1543,7 +1543,7 @@
         "prop-tags": "Feature|Infrastructure",
         "prop-assignee": "Diana",
         "prop-due": "2026-04-05T00:00:00Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 5,
         "prop-task-id": "TASK-6",
         "prop-project": [
@@ -1554,7 +1554,7 @@
       },
       "content": [],
       "createdAt": "2026-03-28T15:22:50.751Z",
-      "updatedAt": "2026-04-03T10:57:19.921Z",
+      "updatedAt": "2026-04-03T15:35:10.963Z",
       "createdBy": "Diana",
       "lastEditedBy": "You"
     },
@@ -1569,7 +1569,7 @@
         "prop-tags": "Infrastructure",
         "prop-assignee": "Eve",
         "prop-due": "2026-04-10T22:00:00.000Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 8,
         "prop-task-id": "TASK-7",
         "prop-project": [
@@ -1581,7 +1581,7 @@
       },
       "content": [],
       "createdAt": "2026-03-29T14:22:50.751Z",
-      "updatedAt": "2026-04-03T10:56:37.276Z",
+      "updatedAt": "2026-04-03T15:35:10.974Z",
       "createdBy": "Eve",
       "lastEditedBy": "You"
     },
@@ -1596,7 +1596,7 @@
         "prop-tags": "tag-feature",
         "prop-assignee": "Alice",
         "prop-due": "2026-04-10T00:00:00Z",
-        "prop-done": false,
+        "prop-done": true,
         "prop-points": 3,
         "prop-task-id": "TASK-8",
         "prop-project": [
@@ -1608,9 +1608,9 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "updatedAt": "2026-04-03T15:35:10.969Z",
       "createdBy": "Alice",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "c1": {
       "id": "c1",
@@ -19272,13 +19272,13 @@
         "prop-tags": "",
         "prop-assignee": "",
         "prop-due": "2026-04-09T22:00:00.000Z",
-        "prop-done": "",
+        "prop-done": false,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:46:41.890Z",
-      "updatedAt": "2026-04-03T10:55:58.022Z",
+      "updatedAt": "2026-04-03T15:35:45.116Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19293,13 +19293,13 @@
         "prop-tags": "",
         "prop-assignee": "",
         "prop-due": "2026-04-09T22:00:00.000Z",
-        "prop-done": "",
+        "prop-done": false,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:46.506Z",
-      "updatedAt": "2026-04-03T10:55:58.022Z",
+      "updatedAt": "2026-04-03T15:35:45.116Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19314,13 +19314,13 @@
         "prop-tags": "",
         "prop-assignee": "",
         "prop-due": "2026-04-08T22:00:00.000Z",
-        "prop-done": "",
+        "prop-done": false,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:47.178Z",
-      "updatedAt": "2026-04-03T10:55:58.022Z",
+      "updatedAt": "2026-04-03T15:35:45.116Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19335,13 +19335,13 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-due": "2026-04-09T22:00:00.000Z",
-        "prop-done": "",
+        "prop-done": false,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:47.793Z",
-      "updatedAt": "2026-04-03T10:55:58.022Z",
+      "updatedAt": "2026-04-03T15:35:45.116Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19356,13 +19356,13 @@
         "prop-tags": "",
         "prop-assignee": "",
         "prop-due": "2026-04-08T22:00:00.000Z",
-        "prop-done": "",
+        "prop-done": false,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:47:48.611Z",
-      "updatedAt": "2026-04-03T10:55:58.022Z",
+      "updatedAt": "2026-04-03T15:35:45.116Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19372,11 +19372,12 @@
       "properties": {
         "prop-title": "fafdsaf",
         "prop-task-id": "TASK-9",
-        "prop-status": "opt-review"
+        "prop-status": "opt-review",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:32.361Z",
-      "updatedAt": "2026-04-02T16:40:39.459Z",
+      "updatedAt": "2026-04-03T15:35:11.035Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19386,11 +19387,12 @@
       "properties": {
         "prop-title": "fasfasdfs",
         "prop-task-id": "TASK-10",
-        "prop-status": "opt-review"
+        "prop-status": "opt-review",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:42.331Z",
-      "updatedAt": "2026-04-02T16:40:39.465Z",
+      "updatedAt": "2026-04-03T15:35:11.019Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19400,11 +19402,12 @@
       "properties": {
         "prop-title": "fasdfasdfds",
         "prop-task-id": "TASK-11",
-        "prop-status": "opt-review"
+        "prop-status": "opt-review",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:58.546Z",
-      "updatedAt": "2026-04-02T16:40:39.508Z",
+      "updatedAt": "2026-04-03T15:35:11.025Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19414,11 +19417,12 @@
       "properties": {
         "prop-title": "fssdfsadf",
         "prop-task-id": "TASK-12",
-        "prop-status": "opt-review"
+        "prop-status": "opt-review",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:59.197Z",
-      "updatedAt": "2026-04-02T16:40:39.472Z",
+      "updatedAt": "2026-04-03T15:35:11.030Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19428,11 +19432,12 @@
       "properties": {
         "prop-title": "gdfdffsdafs",
         "prop-task-id": "TASK-13",
-        "prop-status": "opt-review"
+        "prop-status": "opt-review",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T15:49:59.759Z",
-      "updatedAt": "2026-04-02T16:40:39.478Z",
+      "updatedAt": "2026-04-03T15:35:11.061Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19447,15 +19452,15 @@
         "prop-tags": "",
         "prop-assignee": "",
         "prop-due": "2026-04-09T22:00:00.000Z",
-        "prop-done": "",
+        "prop-done": true,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:50:51.957Z",
-      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "updatedAt": "2026-04-03T15:35:11.045Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "f0e90c98-e4f6-4642-a52e-1c5932bdca25": {
       "id": "f0e90c98-e4f6-4642-a52e-1c5932bdca25",
@@ -19468,15 +19473,15 @@
         "prop-tags": "",
         "prop-assignee": "",
         "prop-due": "2026-04-08T22:00:00.000Z",
-        "prop-done": "",
+        "prop-done": true,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-02T15:50:54.705Z",
-      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "updatedAt": "2026-04-03T15:35:42.905Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "38acf83c-1f05-44a1-aa3c-0fb8ca72ab01": {
       "id": "38acf83c-1f05-44a1-aa3c-0fb8ca72ab01",
@@ -19484,11 +19489,12 @@
       "properties": {
         "prop-title": "",
         "prop-task-id": "TASK-9",
-        "prop-status": "opt-review"
+        "prop-status": "opt-review",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-02T15:51:14.702Z",
-      "updatedAt": "2026-04-02T16:40:39.513Z",
+      "updatedAt": "2026-04-03T15:35:44.723Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19543,11 +19549,12 @@
         "prop-due": "2026-04-09T22:00:00.000Z",
         "prop-title": "",
         "prop-task-id": "TASK-9",
-        "prop-cdc79fa5": "2026-05-06T22:00:00.000Z"
+        "prop-cdc79fa5": "2026-05-06T22:00:00.000Z",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:04.316Z",
-      "updatedAt": "2026-04-03T10:53:25.897Z",
+      "updatedAt": "2026-04-03T15:35:44.730Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19558,11 +19565,12 @@
         "prop-due": "2026-04-09T22:00:00.000Z",
         "prop-title": "",
         "prop-task-id": "TASK-10",
-        "prop-cdc79fa5": "2026-05-07T22:00:00.000Z"
+        "prop-cdc79fa5": "2026-05-07T22:00:00.000Z",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:06.438Z",
-      "updatedAt": "2026-04-03T10:53:27.384Z",
+      "updatedAt": "2026-04-03T15:35:44.741Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19573,11 +19581,12 @@
         "prop-due": "2026-04-08T22:00:00.000Z",
         "prop-title": "",
         "prop-task-id": "TASK-11",
-        "prop-cdc79fa5": "2026-04-27T22:00:00.000Z"
+        "prop-cdc79fa5": "2026-04-27T22:00:00.000Z",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:06.866Z",
-      "updatedAt": "2026-04-03T10:53:29.010Z",
+      "updatedAt": "2026-04-03T15:35:44.761Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19588,11 +19597,12 @@
         "prop-due": "2026-04-09T22:00:00.000Z",
         "prop-title": "",
         "prop-task-id": "TASK-12",
-        "prop-cdc79fa5": "2026-04-27T22:00:00.000Z"
+        "prop-cdc79fa5": "2026-04-27T22:00:00.000Z",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:07.234Z",
-      "updatedAt": "2026-04-03T10:53:30.915Z",
+      "updatedAt": "2026-04-03T15:35:44.786Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19602,11 +19612,12 @@
       "properties": {
         "prop-due": "2026-04-08T22:00:00.000Z",
         "prop-title": "",
-        "prop-task-id": "TASK-13"
+        "prop-task-id": "TASK-13",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:07.669Z",
-      "updatedAt": "2026-04-03T10:53:07.669Z",
+      "updatedAt": "2026-04-03T15:35:44.810Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19616,11 +19627,12 @@
       "properties": {
         "prop-due": "2026-04-09T22:00:00.000Z",
         "prop-title": "",
-        "prop-task-id": "TASK-14"
+        "prop-task-id": "TASK-14",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:08.126Z",
-      "updatedAt": "2026-04-03T10:53:08.126Z",
+      "updatedAt": "2026-04-03T15:35:44.736Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19630,11 +19642,12 @@
       "properties": {
         "prop-due": "2026-04-08T22:00:00.000Z",
         "prop-title": "",
-        "prop-task-id": "TASK-15"
+        "prop-task-id": "TASK-15",
+        "prop-done": true
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:08.771Z",
-      "updatedAt": "2026-04-03T10:53:08.771Z",
+      "updatedAt": "2026-04-03T15:35:44.752Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19649,15 +19662,15 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-done": "",
+        "prop-done": true,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:13.159Z",
-      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "updatedAt": "2026-04-03T15:35:44.747Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "883238dc-13c3-469e-ae99-2775a61a28b4": {
       "id": "883238dc-13c3-469e-ae99-2775a61a28b4",
@@ -19670,15 +19683,15 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-done": "",
+        "prop-done": true,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:13.504Z",
-      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "updatedAt": "2026-04-03T15:35:44.781Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "3bf9d65f-2403-4a0c-a64e-2ef8239746f5": {
       "id": "3bf9d65f-2403-4a0c-a64e-2ef8239746f5",
@@ -19691,15 +19704,15 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-done": "",
+        "prop-done": true,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:13.811Z",
-      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "updatedAt": "2026-04-03T15:35:44.769Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "b3521844-7ec5-43b1-859c-6ddc1c845d7f": {
       "id": "b3521844-7ec5-43b1-859c-6ddc1c845d7f",
@@ -19712,15 +19725,15 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-done": "",
+        "prop-done": true,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-03T10:53:14.096Z",
-      "updatedAt": "2026-04-03T10:55:35.460Z",
+      "updatedAt": "2026-04-03T15:35:44.775Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "5af29ab8-c296-4504-9638-1ffe6c20999f": {
       "id": "5af29ab8-c296-4504-9638-1ffe6c20999f",
@@ -19733,15 +19746,15 @@
         "prop-priority": "",
         "prop-tags": "",
         "prop-assignee": "",
-        "prop-done": "",
+        "prop-done": true,
         "prop-points": "",
         "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-03T10:55:55.015Z",
-      "updatedAt": "2026-04-03T10:55:58.022Z",
+      "updatedAt": "2026-04-03T15:35:44.804Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "28a3a96e-a5a8-4925-a12a-ea31fbacd67e": {
       "id": "28a3a96e-a5a8-4925-a12a-ea31fbacd67e",
@@ -19749,11 +19762,18 @@
       "properties": {
         "prop-due": "2026-05-29T22:00:00.000Z",
         "prop-title": "",
-        "prop-task-id": "TASK-21"
+        "prop-task-id": "TASK-21",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-done": true,
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-03T10:56:00.872Z",
-      "updatedAt": "2026-04-03T10:56:00.872Z",
+      "updatedAt": "2026-04-03T15:35:44.793Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19763,11 +19783,18 @@
       "properties": {
         "prop-due": "2026-06-09T22:00:00.000Z",
         "prop-title": "",
-        "prop-task-id": "TASK-22"
+        "prop-task-id": "TASK-22",
+        "prop-status": "",
+        "prop-priority": "",
+        "prop-tags": "",
+        "prop-assignee": "",
+        "prop-done": true,
+        "prop-points": "",
+        "prop-created": ""
       },
       "content": [],
       "createdAt": "2026-04-03T10:56:18.101Z",
-      "updatedAt": "2026-04-03T10:56:18.101Z",
+      "updatedAt": "2026-04-03T15:35:44.799Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     }

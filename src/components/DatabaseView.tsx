@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:15 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 00:41:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ import { DashboardView } from './views/dashboard/DashboardView';
 import { FeedView } from './views/feed/FeedView';
 import { MapView } from './views/map/MapView';
 import { FileText } from 'lucide-react';
+import { cn } from '../utils/cn';
 
 const VIEW_COMPONENTS: Record<ViewType, React.ComponentType> = {
   table: TableView,
@@ -80,7 +81,7 @@ export function DatabaseView({ viewId, compact = false }: Readonly<DatabaseViewP
   }
 
   const content = (
-    <div className={compact ? 'database-view-compact' : 'flex-1 flex flex-col min-h-0'}>
+    <div className={cn(compact ? 'database-view-compact' : 'flex-1 flex flex-col min-h-0')}>
       <ErrorBoundary>
         <ViewComponent />
       </ErrorBoundary>
@@ -101,11 +102,11 @@ export function DatabaseView({ viewId, compact = false }: Readonly<DatabaseViewP
 
 function EmptyDatabaseState() {
   return (
-    <div className="flex-1 flex items-center justify-center p-8">
-      <div className="text-center text-ink-muted max-w-sm">
-        <FileText className="w-12 h-12 mx-auto mb-3 text-ink-disabled" />
-        <h3 className="text-lg font-semibold text-ink-body-light mb-2">No view selected</h3>
-        <p className="text-sm">Select a database and view from the sidebar to get started.</p>
+    <div className={cn("flex-1 flex items-center justify-center p-8")}>
+      <div className={cn("text-center text-ink-muted max-w-sm")}>
+        <FileText className={cn("w-12 h-12 mx-auto mb-3 text-ink-disabled")} />
+        <h3 className={cn("text-lg font-semibold text-ink-body-light mb-2")}>No view selected</h3>
+        <p className={cn("text-sm")}>Select a database and view from the sidebar to get started.</p>
       </div>
     </div>
   );

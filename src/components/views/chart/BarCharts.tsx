@@ -12,6 +12,7 @@
 
 import React from 'react';
 import type { ChartDataItem } from './useChartData';
+import { cn } from '../../../utils/cn';
 
 interface BarChartProps {
   chartData: ChartDataItem[];
@@ -24,9 +25,9 @@ export function VerticalBarChart({ chartData, maxValue }: Readonly<BarChartProps
   const chartHeight = 300;
 
   return (
-    <div className="flex-1 overflow-auto p-8 bg-surface-primary">
-      <div className="flex flex-col items-center">
-        <svg width={chartWidth} height={chartHeight + 60} className="overflow-visible">
+    <div className={cn("flex-1 overflow-auto p-8 bg-surface-primary")}>
+      <div className={cn("flex flex-col items-center")}>
+        <svg width={chartWidth} height={chartHeight + 60} className={cn("overflow-visible")}>
           {/* Y-axis grid lines */}
           {[0, 0.25, 0.5, 0.75, 1].map(pct => (
             <g key={pct}>
@@ -47,9 +48,9 @@ export function VerticalBarChart({ chartData, maxValue }: Readonly<BarChartProps
             return (
               <g key={d.label}>
                 <rect x={x} y={y} width={barWidth} height={barHeight}
-                  fill={d.color} rx={4} className="transition-all duration-200 hover:opacity-80" />
+                  fill={d.color} rx={4} className={cn("transition-all duration-200 hover:opacity-80")} />
                 <text x={x + barWidth / 2} y={chartHeight + 28}
-                  textAnchor="middle" fontSize={11} fill="var(--color-chart-label)" className="select-none">
+                  textAnchor="middle" fontSize={11} fill="var(--color-chart-label)" className={cn("select-none")}>
                   {d.label.length > 10 ? d.label.slice(0, 10) + '…' : d.label}
                 </text>
                 <text x={x + barWidth / 2} y={y - 6}
@@ -71,8 +72,8 @@ export function HorizontalBarChart({ chartData, maxValue }: Readonly<BarChartPro
   const labelWidth = 120;
 
   return (
-    <div className="flex-1 overflow-auto p-8 bg-surface-primary">
-      <div className="max-w-2xl mx-auto">
+    <div className={cn("flex-1 overflow-auto p-8 bg-surface-primary")}>
+      <div className={cn("max-w-2xl mx-auto")}>
         <svg width={chartWidth + labelWidth + 60} height={chartData.length * (barHeight + 8) + 20}>
           {chartData.map((d, i) => {
             const barW = (d.value / maxValue) * chartWidth;
@@ -85,7 +86,7 @@ export function HorizontalBarChart({ chartData, maxValue }: Readonly<BarChartPro
                   {d.label.length > 16 ? d.label.slice(0, 16) + '…' : d.label}
                 </text>
                 <rect x={labelWidth} y={y} width={barW} height={barHeight}
-                  fill={d.color} rx={4} className="transition-all duration-200 hover:opacity-80" />
+                  fill={d.color} rx={4} className={cn("transition-all duration-200 hover:opacity-80")} />
                 <text x={labelWidth + barW + 8} y={y + barHeight / 2 + 4}
                   fontSize={12} fill="var(--color-chart-axis)" fontWeight={600}>
                   {d.value % 1 === 0 ? d.value : d.value.toFixed(1)}

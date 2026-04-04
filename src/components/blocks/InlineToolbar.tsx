@@ -23,6 +23,7 @@ import { createPortal } from 'react-dom';
 import { Bold, Italic, Strikethrough, Code, Link } from 'lucide-react';
 import { wrapSelection, insertLinkMarkdown, getSelectionRect, ToolbarButton } from './InlineToolbarHelpers';
 import type { ToolbarPosition } from './InlineToolbarHelpers';
+import { cn } from '../../utils/cn';
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
@@ -71,33 +72,33 @@ export function InlineToolbar() {
         transform: 'translateY(-100%)',
         zIndex: 10000,
       }}
-      className="flex items-center gap-0.5 px-1 py-0.5 bg-surface-primary border border-line rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-150"
+      className={cn("flex items-center gap-0.5 px-1 py-0.5 bg-surface-primary border border-line rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-150")}
     >
       <ToolbarButton
-        icon={<Bold className="w-4 h-4" />}
+        icon={<Bold className={cn("w-4 h-4")} />}
         label="Bold (Ctrl+B)"
         onClick={() => wrapSelection('**', '**')}
       />
       <ToolbarButton
-        icon={<Italic className="w-4 h-4" />}
+        icon={<Italic className={cn("w-4 h-4")} />}
         label="Italic (Ctrl+I)"
         onClick={() => wrapSelection('*', '*')}
       />
       <ToolbarButton
-        icon={<Strikethrough className="w-4 h-4" />}
+        icon={<Strikethrough className={cn("w-4 h-4")} />}
         label="Strikethrough"
         onClick={() => wrapSelection('~~', '~~')}
       />
       <ToolbarButton
-        icon={<Code className="w-4 h-4" />}
+        icon={<Code className={cn("w-4 h-4")} />}
         label="Inline code"
         onClick={() => wrapSelection('`', '`')}
       />
 
-      <div className="w-px h-5 bg-line mx-0.5" />
+      <div className={cn("w-px h-5 bg-line mx-0.5")} />
 
       <ToolbarButton
-        icon={<Link className="w-4 h-4" />}
+        icon={<Link className={cn("w-4 h-4")} />}
         label="Link"
         onClick={insertLinkMarkdown}
       />

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:35:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import type { SchemaProperty, PropertyValue } from '../../types/database';
 import { Fingerprint } from 'lucide-react';
 import { CellPortal } from './CellPortal';
 import type { IdFormat } from './constants';
+import { cn } from '../../utils/cn';
 
 interface IdCellEditorProps {
   property: SchemaProperty;
@@ -68,10 +69,10 @@ export function IdCellEditor({ property, databaseId, value, onClose }: Readonly<
 
 function CurrentValueHeader({ value }: Readonly<{ value: PropertyValue }>) {
   return (
-    <div className="px-3 py-2 bg-surface-secondary border-b border-line-light">
-      <div className="flex items-center gap-2">
-        <Fingerprint className="w-4 h-4 text-ink-muted" />
-        <span className="text-sm font-mono text-ink-body-light">{value || '—'}</span>
+    <div className={cn("px-3 py-2 bg-surface-secondary border-b border-line-light")}>
+      <div className={cn("flex items-center gap-2")}>
+        <Fingerprint className={cn("w-4 h-4 text-ink-muted")} />
+        <span className={cn("text-sm font-mono text-ink-body-light")}>{value || '—'}</span>
       </div>
     </div>
   );
@@ -95,18 +96,18 @@ function getExample(f: IdFormat, prefix: string): string {
 
 function FormatPicker({ format, prefix, onSelect }: Readonly<{ format: IdFormat; prefix: string; onSelect: (f: IdFormat) => void }>) {
   return (
-    <div className="py-1">
-      <div className="px-3 py-1.5 text-xs font-medium text-ink-muted uppercase tracking-wide">ID Format</div>
+    <div className={cn("py-1")}>
+      <div className={cn("px-3 py-1.5 text-xs font-medium text-ink-muted uppercase tracking-wide")}>ID Format</div>
       {FORMAT_OPTIONS.map(f => (
         <button key={f.value} onClick={() => onSelect(f.value)}
-          className={`w-full flex items-start gap-3 px-3 py-2 text-left hover:bg-hover-surface transition-colors ${format === f.value ? 'bg-accent-soft2' : ''}`}>
-          <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${format === f.value ? 'border-accent-border' : 'border-line-medium'}`}>
-            {format === f.value && <div className="w-2 h-2 rounded-full bg-accent" />}
+          className={cn(`w-full flex items-start gap-3 px-3 py-2 text-left hover:bg-hover-surface transition-colors ${format === f.value ? 'bg-accent-soft2' : ''}`)}>
+          <div className={cn(`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${format === f.value ? 'border-accent-border' : 'border-line-medium'}`)}>
+            {format === f.value && <div className={cn("w-2 h-2 rounded-full bg-accent")} />}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-ink-body">{f.label}</div>
-            <div className="text-xs text-ink-muted">{f.desc}</div>
-            <div className="text-xs text-ink-disabled mt-0.5 font-mono">{getExample(f.value, prefix)}</div>
+          <div className={cn("flex-1 min-w-0")}>
+            <div className={cn("text-sm font-medium text-ink-body")}>{f.label}</div>
+            <div className={cn("text-xs text-ink-muted")}>{f.desc}</div>
+            <div className={cn("text-xs text-ink-disabled mt-0.5 font-mono")}>{getExample(f.value, prefix)}</div>
           </div>
         </button>
       ))}
@@ -119,15 +120,15 @@ function PrefixInput({ prefix, setPrefix, currentCounter, onSave, onClose }: Rea
   onSave: (p: string) => void; onClose: () => void;
 }>) {
   return (
-    <div className="px-3 py-2 border-t border-line-light">
-      <label htmlFor="id-prefix-input" className="text-xs font-medium text-ink-secondary mb-1 block">Prefix</label>
+    <div className={cn("px-3 py-2 border-t border-line-light")}>
+      <label htmlFor="id-prefix-input" className={cn("text-xs font-medium text-ink-secondary mb-1 block")}>Prefix</label>
       <input id="id-prefix-input" autoFocus type="text" value={prefix} onChange={e => setPrefix(e.target.value)}
         onBlur={() => onSave(prefix)}
         onKeyDown={e => { if (e.key === 'Enter') { onSave(prefix); onClose(); } }}
-        className="w-full text-sm px-2.5 py-1.5 rounded-md border border-line bg-surface-secondary-soft outline-none focus:border-focus-border focus:bg-surface-primary transition-colors font-mono"
+        className={cn("w-full text-sm px-2.5 py-1.5 rounded-md border border-line bg-surface-secondary-soft outline-none focus:border-focus-border focus:bg-surface-primary transition-colors font-mono")}
         placeholder="TASK-" />
-      <div className="text-xs text-ink-muted mt-1">
-        Next ID: <span className="font-mono">{prefix || 'ID-'}{currentCounter}</span>
+      <div className={cn("text-xs text-ink-muted mt-1")}>
+        Next ID: <span className={cn("font-mono")}>{prefix || 'ID-'}{currentCounter}</span>
       </div>
     </div>
   );
@@ -135,9 +136,9 @@ function PrefixInput({ prefix, setPrefix, currentCounter, onSave, onClose }: Rea
 
 function CounterInfo({ currentCounter }: Readonly<{ currentCounter: number }>) {
   return (
-    <div className="px-3 py-2 border-t border-line-light bg-surface-secondary-soft">
-      <div className="text-xs text-ink-muted">
-        Next auto-increment: <span className="font-mono font-medium text-ink-body-light">{currentCounter}</span>
+    <div className={cn("px-3 py-2 border-t border-line-light bg-surface-secondary-soft")}>
+      <div className={cn("text-xs text-ink-muted")}>
+        Next auto-increment: <span className={cn("font-mono font-medium text-ink-body-light")}>{currentCounter}</span>
       </div>
     </div>
   );

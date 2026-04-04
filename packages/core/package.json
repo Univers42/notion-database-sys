@@ -1,0 +1,28 @@
+{
+  "name": "@notion-db/core",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --build --watch"
+  },
+  "dependencies": {
+    "@notion-db/types": "workspace:*",
+    "mongoose": "^8.14.3",
+    "bcrypt": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "typescript": "~5.8.2"
+  }
+}

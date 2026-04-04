@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../utils/cn';
 
 // ─── Formatting actions ─────────────────────────────────────────────────────
 
@@ -92,11 +93,11 @@ export function ToolbarButton({ icon, label, onClick, active }: Readonly<{
         e.preventDefault(); // keep selection
         onClick();
       }}
-      className={`p-1.5 rounded transition-colors ${
+      className={cn(`p-1.5 rounded transition-colors ${
         active
           ? 'bg-accent text-ink-inverse'
           : 'text-ink-body-light hover:bg-hover-surface hover:text-ink-strong'
-      }`}
+      }`)}
     >
       {icon}
     </button>

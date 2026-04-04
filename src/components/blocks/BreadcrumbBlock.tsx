@@ -14,6 +14,7 @@ import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { ChevronRight, FileText } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 function getCrumbs(pageId: string, pages: Record<string, { title: string; icon?: string }>) {
   // For now show currentPage. Future: walk parent chain.
@@ -26,17 +27,17 @@ export function BreadcrumbBlock({ pageId }: Readonly<BlockRendererProps>) {
   const crumbs = getCrumbs(pageId, pages as unknown as Record<string, { title: string; icon?: string }>);
 
   return (
-    <nav className="flex items-center gap-1 py-2 text-sm text-ink-secondary select-none">
+    <nav className={cn("flex items-center gap-1 py-2 text-sm text-ink-secondary select-none")}>
       {crumbs.map((crumb, i) => (
         <React.Fragment key={crumb.id}>
-          {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-ink-faint shrink-0" />}
-          <span className="flex items-center gap-1 hover:text-ink-primary cursor-default">
+          {i > 0 && <ChevronRight className={cn("w-3.5 h-3.5 text-ink-faint shrink-0")} />}
+          <span className={cn("flex items-center gap-1 hover:text-ink-primary cursor-default")}>
             {crumb.icon ? (
-              <span className="text-sm">{crumb.icon}</span>
+              <span className={cn("text-sm")}>{crumb.icon}</span>
             ) : (
-              <FileText className="w-3.5 h-3.5" />
+              <FileText className={cn("w-3.5 h-3.5")} />
             )}
-            <span className="max-w-[200px] truncate">{crumb.title}</span>
+            <span className={cn("max-w-[200px] truncate")}>{crumb.title}</span>
           </span>
         </React.Fragment>
       ))}

@@ -15,6 +15,7 @@ import { ChevronRight } from 'lucide-react';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { ActionButtons, PageInnerContent } from './PageInnerContent';
 import type { Page, DatabaseSchema } from '../../types/database';
+import { cn } from '../../utils/cn';
 
 const CONTENT_WIDTHS = { narrow: 640, default: 896, wide: 1152, full: -1 } as const;
 type ContentWidth = keyof typeof CONTENT_WIDTHS;
@@ -33,7 +34,7 @@ export function FullPageView({ page, database, pageId, onClose }: Readonly<{
   const fullPageMaxW = contentWidth === 'full' ? 'none' : `${CONTENT_WIDTHS[contentWidth]}px`;
 
   return (
-    <div className="fixed inset-0 z-50 bg-surface-primary flex flex-col animate-in fade-in duration-150">
+    <div className={cn("fixed inset-0 z-50 bg-surface-primary flex flex-col animate-in fade-in duration-150")}>
       <FullPageHeader
         database={database}
         title={title}
@@ -44,8 +45,8 @@ export function FullPageView({ page, database, pageId, onClose }: Readonly<{
         deletePage={deletePage}
         duplicatePage={duplicatePage}
       />
-      <div className="flex-1 overflow-auto">
-        <div className="mx-auto transition-all duration-200" style={{ maxWidth: fullPageMaxW }}>
+      <div className={cn("flex-1 overflow-auto")}>
+        <div className={cn("mx-auto transition-all duration-200")} style={{ maxWidth: fullPageMaxW }}>
           <PageInnerContent page={page} database={database} pageId={pageId} hPad="px-16" />
         </div>
       </div>
@@ -64,18 +65,18 @@ function FullPageHeader({ database, title, pageId, onClose, contentWidth, setCon
   duplicatePage: (id: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between px-8 py-4 border-b border-line shrink-0">
-      <div className="flex items-center gap-3 text-sm text-ink-muted">
+    <div className={cn("flex items-center justify-between px-8 py-4 border-b border-line shrink-0")}>
+      <div className={cn("flex items-center gap-3 text-sm text-ink-muted")}>
         <button onClick={onClose}
-          className="p-1.5 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors" title="Back">
-          <ChevronRight className="w-4 h-4 rotate-180" />
+          className={cn("p-1.5 text-ink-muted hover:text-hover-text rounded-lg hover:bg-hover-surface2 transition-colors")} title="Back">
+          <ChevronRight className={cn("w-4 h-4 rotate-180")} />
         </button>
-        {database.icon && <span className="text-lg">{database.icon}</span>}
-        <span className="text-ink-secondary">{database.name}</span>
-        <ChevronRight className="w-3.5 h-3.5" />
-        <span className="text-ink-strong font-medium truncate max-w-[300px]">{title || 'Untitled'}</span>
+        {database.icon && <span className={cn("text-lg")}>{database.icon}</span>}
+        <span className={cn("text-ink-secondary")}>{database.name}</span>
+        <ChevronRight className={cn("w-3.5 h-3.5")} />
+        <span className={cn("text-ink-strong font-medium truncate max-w-[300px]")}>{title || 'Untitled'}</span>
       </div>
-      <div className="flex items-center gap-1">
+      <div className={cn("flex items-center gap-1")}>
         <WidthToggle contentWidth={contentWidth} setContentWidth={setContentWidth} />
         <ActionButtons pageId={pageId} onClose={onClose} deletePage={deletePage} duplicatePage={duplicatePage} />
       </div>
@@ -87,12 +88,12 @@ function WidthToggle({ contentWidth, setContentWidth }: Readonly<{ contentWidth:
   const widths: ContentWidth[] = ['narrow', 'default', 'wide', 'full'];
   const labels: Record<ContentWidth, string> = { narrow: '▕▏', default: '▕ ▏', wide: '▕  ▏', full: '▕   ▏' };
   return (
-    <div className="flex items-center border border-line rounded-lg overflow-hidden mr-2">
+    <div className={cn("flex items-center border border-line rounded-lg overflow-hidden mr-2")}>
       {widths.map(w => (
         <button
           key={w}
           onClick={() => setContentWidth(w)}
-          className={`px-2 py-1 text-xs transition-colors ${contentWidth === w ? 'bg-surface-tertiary text-ink-strong font-medium' : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface'}`}
+          className={cn(`px-2 py-1 text-xs transition-colors ${contentWidth === w ? 'bg-surface-tertiary text-ink-strong font-medium' : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface'}`)}
           title={`${w.charAt(0).toUpperCase() + w.slice(1)} width`}
         >
           {labels[w]}

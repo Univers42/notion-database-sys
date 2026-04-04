@@ -13,6 +13,7 @@
 import React from 'react';
 import type { SchemaProperty } from '../../../types/database';
 import { COLORS, smoothLine } from './constants';
+import { cn } from '../../../utils/cn';
 
 // ─── Bucket builder ──────────────────────────────────────────────────────────
 
@@ -95,8 +96,8 @@ export function MultiLineChart({ data, pages, propsMap }: {
   const gridLines = [0.25, 0.5, 0.75, 1].map(f => pad.top + innerH * (1 - f));
 
   return (
-    <div className="w-full">
-      <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+    <div className={cn("w-full")}>
+      <svg width="100%" viewBox={`0 0 ${width} ${height}`} className={cn("overflow-visible")}>
         <defs>
           {categories.map((_, i) => (
             <linearGradient key={i} id={`mlGrad${i}`} x1="0" y1="0" x2="0" y2="1">
@@ -131,15 +132,15 @@ export function MultiLineChart({ data, pages, propsMap }: {
           const x = pad.left + (i / Math.max(buckets.length - 1, 1)) * innerW;
           return (
             <text key={i} x={x} y={pad.top + innerH + 16} textAnchor="middle"
-              className="text-[7px] fill-fill-secondary font-medium">{b.label}</text>
+              className={cn("text-[7px] fill-fill-secondary font-medium")}>{b.label}</text>
           );
         })}
       </svg>
-      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 px-1">
+      <div className={cn("flex flex-wrap gap-x-3 gap-y-1 mt-2 px-1")}>
         {categories.map((cat, i) => (
-          <div key={cat} className="flex items-center gap-1 text-[9px]">
-            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-            <span className="text-ink-secondary truncate max-w-[70px]">{cat}</span>
+          <div key={cat} className={cn("flex items-center gap-1 text-[9px]")}>
+            <div className={cn("w-2 h-2 rounded-full shrink-0")} style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+            <span className={cn("text-ink-secondary truncate max-w-[70px]")}>{cat}</span>
           </div>
         ))}
       </div>

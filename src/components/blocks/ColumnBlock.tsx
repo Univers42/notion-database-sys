@@ -29,6 +29,7 @@ import { BlockRenderer } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { Plus } from 'lucide-react';
 import { ColumnResizeHandle } from './ColumnResizeHandle';
+import { cn } from '../../utils/cn';
 
 export interface ColumnBlockProps {
   block: Block;
@@ -96,8 +97,8 @@ export function ColumnBlock({ block, pageId }: Readonly<ColumnBlockProps>) {
   const _handleKeyDownNoop = useCallback(() => {}, []);
 
   return (
-    <div className="my-2">
-      <div className="flex gap-4" style={{ display: 'flex' }}>
+    <div className={cn("my-2")}>
+      <div className={cn("flex gap-4")} style={{ display: 'flex' }}>
         {columns.map((col, colIdx) => (
           <React.Fragment key={colIdx}>{/* NOSONAR - columns identified by position */}
             {colIdx > 0 && (
@@ -110,20 +111,20 @@ export function ColumnBlock({ block, pageId }: Readonly<ColumnBlockProps>) {
               />
             )}
             <div
-              className="min-w-0 flex-1 group/column"
+              className={cn("min-w-0 flex-1 group/column")}
               style={{ flex: ratios[colIdx] || 1 }}
             >
-              <div className="min-h-[40px] rounded-md border border-transparent hover:border-line-light transition-colors p-1">
+              <div className={cn("min-h-[40px] rounded-md border border-transparent hover:border-line-light transition-colors p-1")}>
                 {col.length === 0 ? (
                   <button
                     onClick={() => handleAddBlockToColumn(colIdx)}
-                    className="w-full py-3 text-xs text-ink-disabled hover:text-hover-text-muted hover:bg-hover-surface rounded transition-colors"
+                    className={cn("w-full py-3 text-xs text-ink-disabled hover:text-hover-text-muted hover:bg-hover-surface rounded transition-colors")}
                   >
                     + Add block
                   </button>
                 ) : (
                   col.map((childBlock, blockIdx) => (
-                    <div key={childBlock.id} className="group/nested relative">
+                    <div key={childBlock.id} className={cn("group/nested relative")}>
                       <BlockRenderer
                         block={childBlock}
                         pageId={pageId}
@@ -137,9 +138,9 @@ export function ColumnBlock({ block, pageId }: Readonly<ColumnBlockProps>) {
                 {col.length > 0 && (
                   <button
                     onClick={() => handleAddBlockToColumn(colIdx)}
-                    className="w-full flex items-center gap-1 text-xs text-ink-disabled hover:text-hover-text-muted py-1 opacity-0 group-hover/column:opacity-100 transition-opacity"
+                    className={cn("w-full flex items-center gap-1 text-xs text-ink-disabled hover:text-hover-text-muted py-1 opacity-0 group-hover/column:opacity-100 transition-opacity")}
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className={cn("w-3 h-3")} />
                   </button>
                 )}
               </div>
@@ -150,9 +151,9 @@ export function ColumnBlock({ block, pageId }: Readonly<ColumnBlockProps>) {
       {columns.length < 5 && (
         <button
           onClick={handleAddColumn}
-          className="mt-1 text-xs text-ink-disabled hover:text-hover-text-muted transition-colors flex items-center gap-1"
+          className={cn("mt-1 text-xs text-ink-disabled hover:text-hover-text-muted transition-colors flex items-center gap-1")}
         >
-          <Plus className="w-3 h-3" /> Add column
+          <Plus className={cn("w-3 h-3")} /> Add column
         </button>
       )}
     </div>

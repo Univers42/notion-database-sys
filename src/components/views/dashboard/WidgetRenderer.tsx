@@ -19,6 +19,7 @@ import { renderSelectChart } from './widgets/ChartStyles';
 import { renderNumberChart } from './widgets/NumberChartWidget';
 import { renderTableWidget } from './widgets/TableWidget';
 import type { ComputedData } from './widgets/StatWidget';
+import { cn } from '../../../utils/cn';
 
 export type { ComputedData } from './widgets/StatWidget';
 
@@ -50,9 +51,9 @@ export function renderWidget(
   if (widget.type === 'list') {
     const recent = [...pages].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 10);
     return (
-      <div className="p-5 h-full flex flex-col">
-        <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
-        <div className="flex-1 overflow-auto"><RecentList pages={recent} openPage={openPage} getPageTitle={getPageTitle} /></div>
+      <div className={cn("p-5 h-full flex flex-col")}>
+        <h3 className={cn("text-sm font-semibold text-ink mb-3")}>{widget.title}</h3>
+        <div className={cn("flex-1 overflow-auto")}><RecentList pages={recent} openPage={openPage} getPageTitle={getPageTitle} /></div>
       </div>
     );
   }

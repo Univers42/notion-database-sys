@@ -22,6 +22,7 @@ import { VIEW_META, LAYOUT_ORDER } from './constants';
 import { SubPanelHeader, CardLayoutPicker } from './SubComponents';
 import type { PanelScreen } from './constants';
 import type { ViewType, SchemaProperty, ViewSettings } from '../../types/database';
+import { cn } from '../../utils/cn';
 
 export interface LayoutScreenProps {
   viewId: string;
@@ -149,11 +150,11 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
 export function LayoutScreen(props: LayoutScreenProps) {
   const { viewId, viewType, settings, setScreen, goHome, onClose, updateView, updateSetting } = props;
   return (
-    <div className="flex flex-col h-full" style={{ minWidth: 290, maxWidth: 290 }}>
+    <div className={cn("flex flex-col h-full")} style={{ minWidth: 290, maxWidth: 290 }}>
       <SubPanelHeader title="Layout" onBack={goHome} onClose={onClose} />
-      <div className="flex-1 overflow-auto" style={{ minHeight: 0 }}>
-        <div className="px-3 pt-2">
-          <div className="grid grid-cols-3 gap-2">
+      <div className={cn("flex-1 overflow-auto")} style={{ minHeight: 0 }}>
+        <div className={cn("px-3 pt-2")}>
+          <div className={cn("grid grid-cols-3 gap-2")}>
             {LAYOUT_ORDER.map(type => (
               <ViewTypeCard
                 key={type}
@@ -168,7 +169,7 @@ export function LayoutScreen(props: LayoutScreenProps) {
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-px px-2 py-2">
+        <div className={cn("flex flex-col gap-px px-2 py-2")}>
           <PerViewSettings {...props} />
         </div>
         {(viewType === 'board' || viewType === 'gallery') && (

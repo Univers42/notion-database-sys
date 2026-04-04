@@ -6,12 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useMemo } from 'react';
 import type { SchemaProperty, PropertyValue, SelectOption } from '../../../types/database';
+import { CHART_COLORS } from '../../../utils/color';
 
 export type ChartType = 'vertical_bar' | 'horizontal_bar' | 'line' | 'donut' | 'pie' | 'number';
 
@@ -20,11 +21,6 @@ export interface ChartDataItem {
   value: number;
   color: string;
 }
-
-export const CHART_COLORS = [
-  'var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)', 'var(--color-chart-4)', 'var(--color-chart-5)',
-  'var(--color-chart-6)', 'var(--color-chart-7)', 'var(--color-chart-8)', 'var(--color-chart-9)', 'var(--color-chart-10)',
-];
 
 export function useChartData(
   database: { properties: Record<string, SchemaProperty> } | null,

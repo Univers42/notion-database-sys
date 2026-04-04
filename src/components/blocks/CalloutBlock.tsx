@@ -14,6 +14,7 @@ import React, { useState, useCallback } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import { cn } from '../../utils/cn';
 
 const CALLOUT_ICONS = ['💡', '⚠️', '❗', '📌', '✅', '❌', 'ℹ️', '🔥', '💬', '📝', '🎯', '⭐'];
 
@@ -48,23 +49,23 @@ export function CalloutBlock({ block, pageId, onChange, onKeyDown }: Readonly<Bl
   );
 
   return (
-    <div className={`flex items-start gap-3 p-3 rounded-lg border my-0.5 ${colors.bg} ${colors.border}`}>
-      <div className="relative">
+    <div className={cn(`flex items-start gap-3 p-3 rounded-lg border my-0.5 ${colors.bg} ${colors.border}`)}>
+      <div className={cn("relative")}>
         <button
           type="button"
           onClick={() => setShowIconPicker(!showIconPicker)}
-          className="text-lg hover:bg-hover-surface-white-soft3 rounded p-0.5 transition-colors shrink-0"
+          className={cn("text-lg hover:bg-hover-surface-white-soft3 rounded p-0.5 transition-colors shrink-0")}
         >
           {icon}
         </button>
         {showIconPicker && (
-          <div className="absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-lg shadow-lg z-50 p-2 grid grid-cols-6 gap-1 w-48">
+          <div className={cn("absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-lg shadow-lg z-50 p-2 grid grid-cols-6 gap-1 w-48")}>
             {CALLOUT_ICONS.map(emoji => (
               <button
                 key={emoji}
                 type="button"
                 onClick={() => handleIconSelect(emoji)}
-                className="text-lg hover:bg-hover-surface2 rounded p-1 transition-colors"
+                className={cn("text-lg hover:bg-hover-surface2 rounded p-1 transition-colors")}
               >
                 {emoji}
               </button>
@@ -74,7 +75,7 @@ export function CalloutBlock({ block, pageId, onChange, onKeyDown }: Readonly<Bl
       </div>
       <EditableContent
         content={block.content}
-        className="text-sm text-ink-body leading-relaxed py-0.5 flex-1"
+        className={cn("text-sm text-ink-body leading-relaxed py-0.5 flex-1")}
         placeholder="Type something..."
         onChange={onChange}
         onKeyDown={onKeyDown}

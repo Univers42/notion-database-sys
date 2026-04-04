@@ -12,10 +12,11 @@
 
 import React from 'react';
 import { ICON_REGISTRY } from './iconRegistry';
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Generic <Icon /> renderer — looks up from the registry by kebab-case name.
-// Usage: <Icon name="airplane" className="w-5 h-5" />
+// Usage: <Icon name="airplane" className={cn("w-5 h-5")} />
 // ═══════════════════════════════════════════════════════════════════════════════
 
 interface IconProps {

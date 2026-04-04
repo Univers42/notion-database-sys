@@ -13,6 +13,7 @@
 import React from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
+import { cn } from '../../utils/cn';
 
 const HEADING_STYLES: Record<string, string> = {
   heading_1: 'text-2xl font-bold text-ink mt-6 mb-1 leading-tight',
@@ -36,7 +37,7 @@ export function HeadingBlock({ block, onChange, onKeyDown }: Readonly<BlockRende
   return (
     <EditableContent
       content={block.content}
-      className={HEADING_STYLES[block.type] || HEADING_STYLES.heading_1}
+      className={cn(HEADING_STYLES[block.type] || HEADING_STYLES.heading_1)}
       placeholder={HEADING_PLACEHOLDERS[block.type] || 'Heading'}
       onChange={onChange}
       onKeyDown={onKeyDown}

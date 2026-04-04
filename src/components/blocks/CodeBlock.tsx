@@ -14,6 +14,7 @@ import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { tokenize, renderTokensToHtml } from '../../lib/syntax/tokenizer';
+import { cn } from '../../utils/cn';
 
 const LANGUAGES = [
   'plaintext', 'javascript', 'typescript', 'python', 'rust', 'cpp', 'c',
@@ -86,27 +87,27 @@ export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   }, [localContent, block.language]);
 
   return (
-    <div className="my-1 rounded-lg bg-surface-secondary border border-line overflow-hidden">
+    <div className={cn("my-1 rounded-lg bg-surface-secondary border border-line overflow-hidden")}>
       {/* Language selector header */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-surface-tertiary-soft2 border-b border-line">
-        <div className="relative">
+      <div className={cn("flex items-center justify-between px-3 py-1.5 bg-surface-tertiary-soft2 border-b border-line")}>
+        <div className={cn("relative")}>
           <button
             type="button"
             onClick={() => setShowLangPicker(!showLangPicker)}
-            className="text-xs text-ink-secondary hover:text-hover-text-strong font-mono px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors"
+            className={cn("text-xs text-ink-secondary hover:text-hover-text-strong font-mono px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors")}
           >
             {block.language || 'plaintext'}
           </button>
           {showLangPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto w-40">
+            <div className={cn("absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto w-40")}>
               {LANGUAGES.map(lang => (
                 <button
                   key={lang}
                   type="button"
                   onClick={() => handleLangSelect(lang)}
-                  className={`w-full text-left px-3 py-1.5 text-xs font-mono hover:bg-hover-accent-soft ${
+                  className={cn(`w-full text-left px-3 py-1.5 text-xs font-mono hover:bg-hover-accent-soft ${
                     lang === (block.language || 'plaintext') ? 'bg-accent-soft text-accent-text-light' : 'text-ink-body-light'
-                  }`}
+                  }`)}
                 >
                   {lang}
                 </button>
@@ -119,18 +120,18 @@ export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
           onClick={() => {
             navigator.clipboard.writeText(block.content);
           }}
-          className="text-xs text-ink-muted hover:text-hover-text px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors"
+          className={cn("text-xs text-ink-muted hover:text-hover-text px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors")}
         >
           Copy
         </button>
       </div>
 
       {/* Code editor with syntax highlighting overlay */}
-      <div className="relative">
+      <div className={cn("relative")}>
         {/* Highlighted code layer (visual, behind textarea) */}
         <pre
           aria-hidden
-          className="px-4 py-3 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words pointer-events-none"
+          className={cn("px-4 py-3 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words pointer-events-none")}
           dangerouslySetInnerHTML={{ __html: highlightedHtml + '\n' }}
         />
         {/* Textarea layer (input, transparent text on top) */}
@@ -142,7 +143,7 @@ export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           spellCheck={false}
-          className="absolute inset-0 px-4 py-3 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words bg-transparent text-transparent caret-ink-strong outline-none resize-none overflow-hidden w-full"
+          className={cn("absolute inset-0 px-4 py-3 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words bg-transparent text-transparent caret-ink-strong outline-none resize-none overflow-hidden w-full")}
         />
       </div>
 
@@ -178,7 +179,7 @@ function MermaidPreview({ code }: Readonly<{ code: string }>) {
 
   if (error) {
     return (
-      <div className="px-4 py-2 text-xs text-danger border-t border-line bg-danger-surface-muted">
+      <div className={cn("px-4 py-2 text-xs text-danger border-t border-line bg-danger-surface-muted")}>
         Mermaid: {error}
       </div>
     );
@@ -186,7 +187,7 @@ function MermaidPreview({ code }: Readonly<{ code: string }>) {
   if (!svgHtml) return null;
 
   return (
-    <div className="border-t border-line bg-surface-primary p-4 flex justify-center overflow-auto"
+    <div className={cn("border-t border-line bg-surface-primary p-4 flex justify-center overflow-auto")}
       dangerouslySetInnerHTML={{ __html: svgHtml }} />
   );
 }

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,26 @@ import { PropertyTypeIcon } from './PropertyTypeIcon';
 import { PortalDropdown } from './PortalDropdown';
 import { FilterValueEditor } from './FilterValueEditors';
 import { FilterPropertyPicker } from './FilterPropertyPicker';
+import { cn } from '../../utils/cn';
 
-export function FilterBar({ filters, properties, conjunction: _conjunction, viewId, onOpenAdvanced }: {
+export type FilterBarSlots = {
+  root: string;
+  wrapper: string;
+  scrollArea: string;
+  rulesPill: string;
+  filterPill: string;
+  filterPillIcon: string;
+  filterPillName: string;
+  addButton: string;
+};
+
+export function FilterBar({ filters, properties, conjunction: _conjunction, viewId, onOpenAdvanced, slots }: {
   filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   properties: Record<string, SchemaProperty>;
   conjunction: 'and' | 'or';
   viewId: string;
   onOpenAdvanced: () => void;
+  slots?: Partial<FilterBarSlots>;
 }) {
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
   const [showAddPicker, setShowAddPicker] = useState(false);
@@ -35,14 +48,14 @@ export function FilterBar({ filters, properties, conjunction: _conjunction, view
   const { addFilter, updateFilter, removeFilter } = useDatabaseStore();
 
   return (
-    <div className="flex pt-1" style={{ paddingTop: 4 }}>
-      <div className="relative flex-grow overflow-hidden">
-        <div className="flex items-center gap-1.5 overflow-x-auto px-2 py-2">
+    <div className={cn("flex pt-1", slots?.root)} style={{ paddingTop: 4 }}>
+      <div className={cn("relative flex-grow overflow-hidden", slots?.wrapper)}>
+        <div className={cn("flex items-center gap-1.5 overflow-x-auto px-2 py-2", slots?.scrollArea)}>
           <button ref={rulesBtnRef} onClick={onOpenAdvanced}
-            className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full bg-accent-soft text-accent-text-light whitespace-nowrap shrink-0">
-            <Filter className="w-3 h-3" />
+            className={cn("inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full bg-accent-soft text-accent-text-light whitespace-nowrap shrink-0", slots?.rulesPill)}>
+            <Filter className={cn("w-3 h-3")} />
             <span>{filters.length} rule{filters.length === 1 ? '' : 's'}</span>
-            <ChevronDown className="w-3 h-3" />
+            <ChevronDown className={cn("w-3 h-3")} />
           </button>
           {filters.map(filter => {
             const prop = properties[filter.propertyId];
@@ -50,16 +63,16 @@ export function FilterBar({ filters, properties, conjunction: _conjunction, view
             return (
               <button key={filter.id} ref={el => { pillRefs.current[filter.id] = el; }}
                 onClick={() => setActiveFilterId(activeFilterId === filter.id ? null : filter.id)}
-                className="inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full text-ink-body-light whitespace-nowrap shrink-0 hover:bg-hover-surface2 transition-colors">
-                <PropertyTypeIcon type={prop.type} className="w-3.5 h-3.5 text-ink-muted" />
-                <span className="max-w-[180px] truncate">{prop.name}</span>
-                <ChevronDown className="w-3 h-3 text-ink-muted" />
+                className={cn("inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full text-ink-body-light whitespace-nowrap shrink-0 hover:bg-hover-surface2 transition-colors", slots?.filterPill)}>
+                <PropertyTypeIcon type={prop.type} className={cn("w-3.5 h-3.5 text-ink-muted", slots?.filterPillIcon)} />
+                <span className={cn("max-w-[180px] truncate", slots?.filterPillName)}>{prop.name}</span>
+                <ChevronDown className={cn("w-3 h-3 text-ink-muted")} />
               </button>
             );
           })}
           <button ref={addBtnRef} onClick={() => setShowAddPicker(true)}
-            className="inline-flex items-center gap-1 h-6 px-2 text-sm rounded-xl text-ink-muted hover:bg-hover-surface2 whitespace-nowrap shrink-0 transition-colors">
-            <Plus className="w-3 h-3" /> Filter
+            className={cn("inline-flex items-center gap-1 h-6 px-2 text-sm rounded-xl text-ink-muted hover:bg-hover-surface2 whitespace-nowrap shrink-0 transition-colors", slots?.addButton)}>
+            <Plus className={cn("w-3 h-3")} /> Filter
           </button>
         </div>
       </div>

@@ -13,6 +13,7 @@
 import React from 'react';
 import type { DashboardWidget, SchemaProperty } from '../../../../types/database';
 import { formatCellValue } from '../constants';
+import { cn } from '../../../../utils/cn';
 
 export function renderTableWidget(
   widget: DashboardWidget, prop: SchemaProperty | null,
@@ -21,24 +22,24 @@ export function renderTableWidget(
 ) {
   const tablePages = pages.slice(0, 20);
   return (
-    <div className="p-5 h-full flex flex-col">
-      <h3 className="text-sm font-semibold text-ink mb-3">{widget.title}</h3>
-      <div className="flex-1 overflow-auto">
-        <table className="w-full text-sm">
+    <div className={cn("p-5 h-full flex flex-col")}>
+      <h3 className={cn("text-sm font-semibold text-ink mb-3")}>{widget.title}</h3>
+      <div className={cn("flex-1 overflow-auto")}>
+        <table className={cn("w-full text-sm")}>
           <thead>
-            <tr className="border-b border-line">
-              <th className="text-left py-1.5 text-xs text-ink-secondary font-medium">Name</th>
-              {prop && <th className="text-right py-1.5 text-xs text-ink-secondary font-medium">{prop.name}</th>}
+            <tr className={cn("border-b border-line")}>
+              <th className={cn("text-left py-1.5 text-xs text-ink-secondary font-medium")}>Name</th>
+              {prop && <th className={cn("text-right py-1.5 text-xs text-ink-secondary font-medium")}>{prop.name}</th>}
             </tr>
           </thead>
           <tbody>
             {tablePages.map(page => (
-              <tr key={page.id} className="border-b border-line-light hover:bg-hover-surface cursor-pointer" onClick={() => openPage(page.id)}>
-                <td className="py-1.5 text-ink truncate max-w-[200px]">
-                  {page.icon && <span className="mr-1">{page.icon}</span>}
+              <tr key={page.id} className={cn("border-b border-line-light hover:bg-hover-surface cursor-pointer")} onClick={() => openPage(page.id)}>
+                <td className={cn("py-1.5 text-ink truncate max-w-[200px]")}>
+                  {page.icon && <span className={cn("mr-1")}>{page.icon}</span>}
                   {getPageTitle(page) || 'Untitled'}
                 </td>
-                {prop && <td className="py-1.5 text-right text-ink-body-light tabular-nums">{formatCellValue(page.properties[prop.id], prop)}</td>}
+                {prop && <td className={cn("py-1.5 text-right text-ink-body-light tabular-nums")}>{formatCellValue(page.properties[prop.id], prop)}</td>}
               </tr>
             ))}
           </tbody>

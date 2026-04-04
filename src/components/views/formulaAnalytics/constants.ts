@@ -6,24 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:16 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 01:19:23 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:45 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { PropertyValue } from '../../../types/database';
-
-// ─── COLORS & PALETTE ──────────────────────────────────────────────────────
-export const COLORS = ['var(--color-chart-1)', 'var(--color-chart-2)', 'var(--color-chart-3)', 'var(--color-chart-4)', 'var(--color-chart-5)', 'var(--color-chart-6)', 'var(--color-chart-7)', 'var(--color-chart-8)', 'var(--color-chart-9)', 'var(--color-chart-10)'];
-export const STAT_BG: Record<string, string> = {
-  blue: 'bg-accent-soft text-accent-text-light',
-  purple: 'bg-purple-surface text-purple-text',
-  green: 'bg-success-surface text-success-text',
-  amber: 'bg-amber-surface text-amber-text',
-  pink: 'bg-pink-surface text-pink-text',
-  cyan: 'bg-cyan-surface text-cyan-text',
-  red: 'bg-danger-surface text-danger-text',
-  indigo: 'bg-indigo-surface text-indigo-text',
-};
+export { CHART_COLORS as COLORS, STAT_BG } from '../../../utils/color';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 export interface FormulaResult {

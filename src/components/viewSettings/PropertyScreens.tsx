@@ -19,6 +19,7 @@ import { SubPanelHeader, OptionList, PropertyOptionList, PropertyVisibilityRow }
 import { DEFAULT_PROPERTY_ICONS } from './constants';
 import type { PanelScreen } from './constants';
 import type { SchemaProperty, PropertyValue } from '../../types/database';
+import { cn } from '../../utils/cn';
 
 // ─── Option screen configs ───────────────────────────────────────────────────
 
@@ -97,7 +98,7 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
   if (optionCfgFactory) {
     const cfg = optionCfgFactory(settings);
     return (
-      <div className="flex flex-col h-full">
+      <div className={cn("flex flex-col h-full")}>
         <SubPanelHeader title={cfg.title} onBack={() => setScreen(cfg.back)} onClose={onClose} />
         <OptionList
           options={cfg.options}
@@ -111,7 +112,7 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
   // ─── Property-picker sub-screens ────────────────────────────────────
   if (screen === 'showCalendarBy') {
     return (
-      <div className="flex flex-col h-full">
+      <div className={cn("flex flex-col h-full")}>
         <SubPanelHeader title="Show calendar by" onBack={() => setScreen('layout')} onClose={onClose} />
         <PropertyOptionList properties={ctx.dateProps} activeId={settings.showCalendarBy || ''}
           onSelect={id => { updateSetting('showCalendarBy', id); setScreen('layout'); }} noneLabel="Auto (first date)" />
@@ -120,7 +121,7 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
   }
   if (screen === 'showTimelineBy') {
     return (
-      <div className="flex flex-col h-full">
+      <div className={cn("flex flex-col h-full")}>
         <SubPanelHeader title="Show timeline by" onBack={() => setScreen('layout')} onClose={onClose} />
         <PropertyOptionList properties={ctx.dateProps} activeId={settings.showTimelineBy || ''}
           onSelect={id => { updateSetting('showTimelineBy', id); setScreen('layout'); }} noneLabel="Auto" />
@@ -129,7 +130,7 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
   }
   if (screen === 'mapBy') {
     return (
-      <div className="flex flex-col h-full">
+      <div className={cn("flex flex-col h-full")}>
         <SubPanelHeader title="Map by" onBack={() => setScreen('layout')} onClose={onClose} />
         <PropertyOptionList properties={ctx.placeProps} activeId={settings.mapBy || ''}
           onSelect={id => { updateSetting('mapBy', id); setScreen('layout'); }} />
@@ -140,19 +141,19 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
   // ─── Group by ───────────────────────────────────────────────────────
   if (screen === 'groupBy') {
     return (
-      <div className="flex flex-col h-full">
+      <div className={cn("flex flex-col h-full")}>
         <SubPanelHeader title="Group by" onBack={() => setScreen('layout')} onClose={onClose} />
-        <div className="p-4 flex flex-col gap-1">
+        <div className={cn("p-4 flex flex-col gap-1")}>
           <button onClick={() => { ctx.setGrouping(ctx.viewId, undefined); setScreen('layout'); }}
-            className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
+            className={cn(`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
               !ctx.grouping ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
-            }`}>None</button>
+            }`)}>None</button>
           {ctx.groupableProps.map(p => (
             <button key={p.id} onClick={() => { ctx.setGrouping(ctx.viewId, { propertyId: p.id }); setScreen('layout'); }}
-              className={`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
+              className={cn(`px-3 py-2.5 text-sm rounded-lg text-left transition-colors ${
                 ctx.grouping?.propertyId === p.id
                   ? 'bg-accent-soft text-accent-text font-medium' : 'text-ink-body hover:bg-hover-surface'
-              }`}>{p.name}</button>
+              }`)}>{p.name}</button>
           ))}
         </div>
       </div>
@@ -162,9 +163,9 @@ export function renderPropertyScreen(screen: string, ctx: PropertyScreensContext
   // ─── Property visibility ────────────────────────────────────────────
   if (screen === 'propertyVisibility') {
     return (
-      <div className="flex flex-col h-full">
+      <div className={cn("flex flex-col h-full")}>
         <SubPanelHeader title="Property visibility" onBack={() => setScreen('main')} onClose={onClose} />
-        <div className="flex-1 overflow-auto p-2 flex flex-col gap-0.5">
+        <div className={cn("flex-1 overflow-auto p-2 flex flex-col gap-0.5")}>
           {ctx.allProps.map(prop => {
             const visible = ctx.visibleProperties.includes(prop.id);
             const iconName = prop.icon || DEFAULT_PROPERTY_ICONS[prop.type] || 'document';

@@ -14,6 +14,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import type { BlockRendererProps } from './BlockRenderer';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { Globe, ExternalLink } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 /** Known embed providers with URL patterns → iframe src transforms */
 const EMBED_PROVIDERS: { pattern: RegExp; transform: (url: string, match: RegExpMatchArray) => string; aspectRatio?: string }[] = [
@@ -64,29 +65,29 @@ export function EmbedBlock({ block, pageId }: Readonly<BlockRendererProps>) {
 
   if (block.url && embed) {
     return (
-      <div className="my-2">
+      <div className={cn("my-2")}>
         <div
-          className="relative w-full rounded-lg overflow-hidden border border-line"
+          className={cn("relative w-full rounded-lg overflow-hidden border border-line")}
           style={{ aspectRatio: embed.aspectRatio }}
         >
           <iframe
             title="Embedded content"
             src={embed.src}
-            className="absolute inset-0 w-full h-full"
+            className={cn("absolute inset-0 w-full h-full")}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
           />
         </div>
-        <div className="flex items-center gap-1 mt-1">
+        <div className={cn("flex items-center gap-1 mt-1")}>
           <a
             href={block.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-ink-muted hover:text-accent-text-light flex items-center gap-1"
+            className={cn("text-xs text-ink-muted hover:text-accent-text-light flex items-center gap-1")}
           >
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className={cn("w-3 h-3")} />
             {block.url.length > 60 ? block.url.slice(0, 60) + '…' : block.url}
           </a>
         </div>
@@ -96,24 +97,24 @@ export function EmbedBlock({ block, pageId }: Readonly<BlockRendererProps>) {
 
   // Empty state — URL input
   return (
-    <div className="my-2 border border-dashed border-line-medium rounded-lg p-6 flex flex-col items-center gap-3 bg-surface-secondary-soft">
-      <div className="w-10 h-10 rounded-lg bg-surface-tertiary flex items-center justify-center">
-        <Globe className="w-5 h-5 text-ink-muted" />
+    <div className={cn("my-2 border border-dashed border-line-medium rounded-lg p-6 flex flex-col items-center gap-3 bg-surface-secondary-soft")}>
+      <div className={cn("w-10 h-10 rounded-lg bg-surface-tertiary flex items-center justify-center")}>
+        <Globe className={cn("w-5 h-5 text-ink-muted")} />
       </div>
-      <p className="text-sm text-ink-secondary">Embed a URL</p>
-      <p className="text-xs text-ink-muted">YouTube, Figma, Vimeo, CodePen, and more</p>
-      <div className="flex items-center gap-2 w-full max-w-sm">
+      <p className={cn("text-sm text-ink-secondary")}>Embed a URL</p>
+      <p className={cn("text-xs text-ink-muted")}>YouTube, Figma, Vimeo, CodePen, and more</p>
+      <div className={cn("flex items-center gap-2 w-full max-w-sm")}>
         <input
           type="text"
           value={urlInput}
           onChange={e => setUrlInput(e.target.value)}
           placeholder="Paste embed URL..."
-          className="flex-1 text-xs px-3 py-1.5 border border-line rounded-md outline-none focus:ring-1 focus:ring-focus-ring-solid bg-surface-primary"
+          className={cn("flex-1 text-xs px-3 py-1.5 border border-line rounded-md outline-none focus:ring-1 focus:ring-focus-ring-solid bg-surface-primary")}
           onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
         />
         <button
           onClick={handleSubmit}
-          className="text-xs px-3 py-1.5 bg-accent text-ink-inverse rounded-md hover:bg-hover-accent transition-colors"
+          className={cn("text-xs px-3 py-1.5 bg-accent text-ink-inverse rounded-md hover:bg-hover-accent transition-colors")}
         >
           Embed
         </button>

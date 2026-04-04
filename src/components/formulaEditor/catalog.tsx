@@ -6,9 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:29 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:36:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FORMULA FUNCTION CATALOG — static data for the formula editor
@@ -155,7 +157,7 @@ const RETURN_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
 export function getReturnTypeBadge(returnType: string) {
   const colors = RETURN_TYPE_COLORS[returnType] || RETURN_TYPE_COLORS['Any'];
   return (
-    <span className={`ml-2 shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${colors.bg} ${colors.text}`}>
+    <span className={cn(`ml-2 shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${colors.bg} ${colors.text}`)}>
       {returnType}
     </span>
   );

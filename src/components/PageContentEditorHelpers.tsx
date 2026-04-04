@@ -14,6 +14,7 @@ import React, { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '../types/database';
+import { cn } from '../utils/cn';
 
 export const DND_TYPE = 'application/x-block-id';
 
@@ -38,13 +39,13 @@ export function BlockHoverControls({ block, content, pageId, focusBlock }: Reado
   };
 
   return (
-    <div className="absolute -left-8 top-1 opacity-0 group-hover/block:opacity-100 transition-opacity flex items-center gap-0.5">
+    <div className={cn("absolute -left-8 top-1 opacity-0 group-hover/block:opacity-100 transition-opacity flex items-center gap-0.5")}>
       <button
         onClick={handleInsertBefore}
-        className="p-0.5 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors"
+        className={cn("p-0.5 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors")}
         title="Add block"
       >
-        <Plus className="w-4 h-4" />
+        <Plus className={cn("w-4 h-4")} />
       </button>
       <DragHandle blockId={block.id} />
     </div>
@@ -64,9 +65,9 @@ function DragHandle({ blockId }: Readonly<{ blockId: string }>) {
     <div
       draggable
       onDragStart={handleDragStart}
-      className="p-0.5 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors cursor-grab active:cursor-grabbing"
+      className={cn("p-0.5 text-ink-disabled hover:text-hover-text-muted rounded hover:bg-hover-surface2 transition-colors cursor-grab active:cursor-grabbing")}
     >
-      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+      <svg className={cn("w-4 h-4")} viewBox="0 0 16 16" fill="currentColor">
         <circle cx="5.5" cy="3.5" r="1.5" />
         <circle cx="10.5" cy="3.5" r="1.5" />
         <circle cx="5.5" cy="8" r="1.5" />
@@ -84,9 +85,9 @@ export function DropIndicator({ position }: Readonly<{ position: DropPosition }>
   if (!position) return null;
   return (
     <div
-      className={`absolute left-0 right-0 h-0.5 bg-accent-text-light rounded-full pointer-events-none z-10 ${
+      className={cn(`absolute left-0 right-0 h-0.5 bg-accent-text-light rounded-full pointer-events-none z-10 ${
         position === 'above' ? '-top-px' : '-bottom-px'
-      }`}
+      }`)}
     />
   );
 }
@@ -142,7 +143,7 @@ export function DraggableBlockWrapper({
   return (
     <div
       data-block-id={block.id}
-      className={`group/block relative transition-opacity ${isDragged ? 'opacity-30' : ''}`}
+      className={cn(`group/block relative transition-opacity ${isDragged ? 'opacity-30' : ''}`)}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -160,7 +161,7 @@ export function EmptyBlockPlaceholder({ onFocus }: Readonly<{ onFocus: () => voi
     <div
       contentEditable
       data-block-editor
-      className="text-sm text-ink-muted outline-none py-1 focus:text-focus-text"
+      className={cn("text-sm text-ink-muted outline-none py-1 focus:text-focus-text")}
       onFocus={onFocus}
       suppressContentEditableWarning
     >

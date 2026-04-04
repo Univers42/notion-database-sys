@@ -6,16 +6,18 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:05 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/02 15:07:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useMemo } from 'react';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty, RollupFunction } from '../../types/database';
+import type { RollupFunctionMeta } from '../../utils/rollup';
 import { CellPortal } from './CellPortal';
 import { ROLLUP_FUNCTIONS } from './constants';
 import { RelationSection, PropertySection, CalculateSection } from './RollupCellEditorSections';
+import { cn } from '../../utils/cn';
 
 interface RollupCellEditorProps {
   property: SchemaProperty;
@@ -63,7 +65,7 @@ export function RollupCellEditor({ property, databaseId, onClose }: Readonly<Rol
   };
 
   const fnGroups = useMemo(() => {
-    const groups: Record<string, typeof ROLLUP_FUNCTIONS> = {};
+    const groups: Record<string, RollupFunctionMeta[]> = {};
     for (const f of ROLLUP_FUNCTIONS) {
       if (!groups[f.group]) groups[f.group] = [];
       groups[f.group].push(f);
@@ -79,8 +81,8 @@ export function RollupCellEditor({ property, databaseId, onClose }: Readonly<Rol
 
   return (
     <CellPortal onClose={onClose}>
-      <div className="flex flex-col min-w-[200px] max-h-[70vh]">
-        <div className="overflow-y-auto flex-1">
+      <div className={cn("flex flex-col min-w-[200px] max-h-[70vh]")}>
+        <div className={cn("overflow-y-auto flex-1")}>
           <RelationSection
             relationProps={relationProps} selected={selectedRelProp}
             open={showRelPicker}

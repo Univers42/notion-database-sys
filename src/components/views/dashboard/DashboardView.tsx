@@ -23,6 +23,7 @@ import {
   renderWidget,
 } from '.';
 import type { ComputedData } from '.';
+import { cn } from '../../../utils/cn';
 
 // ─── Aggregation hook ────────────────────────────────────────────────────────
 
@@ -75,12 +76,12 @@ function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageT
   getPageTitle: (page: unknown) => string;
 }) {
   return (
-    <div className="flex-1 overflow-auto p-6 bg-surface-secondary">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-4 gap-4 auto-rows-min">
+    <div className={cn("flex-1 overflow-auto p-6 bg-surface-secondary")}>
+      <div className={cn("max-w-7xl mx-auto")}>
+        <div className={cn("grid grid-cols-4 gap-4 auto-rows-min")}>
           {widgets.map((widget, idx) => (
             <div key={widget.id}
-              className="bg-surface-primary rounded-xl border border-line overflow-hidden"
+              className={cn("bg-surface-primary rounded-xl border border-line overflow-hidden")}
               style={{ gridColumn: `span ${Math.min(widget.width, 4)}`, minHeight: widget.height === 2 ? '320px' : '140px' }}>
               {renderWidget(widget, idx, pages, propsMap, computedData, openPage, getPageTitle)}
             </div>
@@ -111,41 +112,41 @@ function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageT
   const recentPages = [...pages].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 8);
 
   return (
-    <div className="flex-1 overflow-auto p-6 bg-surface-secondary">
-      <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard icon={<Hash className="w-5 h-5" />} label="Total Records" value={pages.length} color="blue" />
-          <StatCard icon={<Clock className="w-5 h-5" />} label="Updated This Week" value={computedData.recentCount} color="purple" />
+    <div className={cn("flex-1 overflow-auto p-6 bg-surface-secondary")}>
+      <div className={cn("max-w-6xl mx-auto flex flex-col gap-6")}>
+        <div className={cn("grid grid-cols-2 md:grid-cols-4 gap-4")}>
+          <StatCard icon={<Hash className={cn("w-5 h-5")} />} label="Total Records" value={pages.length} color="blue" />
+          <StatCard icon={<Clock className={cn("w-5 h-5")} />} label="Updated This Week" value={computedData.recentCount} color="purple" />
           {checkboxProps.length > 0 ? (
-            <StatCard icon={<CheckCircle className="w-5 h-5" />} label="Completed" value={computedData.checked}
+            <StatCard icon={<CheckCircle className={cn("w-5 h-5")} />} label="Completed" value={computedData.checked}
               subtext={`${pages.length > 0 ? Math.round((computedData.checked / Math.max(computedData.checked + computedData.unchecked, 1)) * 100) : 0}%`}
               color="green" />
           ) : (
-            <StatCard icon={<Users className="w-5 h-5" />} label="Properties" value={allProps.length} color="green" />
+            <StatCard icon={<Users className={cn("w-5 h-5")} />} label="Properties" value={allProps.length} color="green" />
           )}
           {numberProps[0] && computedData.numberAggs[numberProps[0].id] ? (
-            <StatCard icon={<TrendingUp className="w-5 h-5" />} label={`Total ${numberProps[0].name}`}
+            <StatCard icon={<TrendingUp className={cn("w-5 h-5")} />} label={`Total ${numberProps[0].name}`}
               value={computedData.numberAggs[numberProps[0].id].sum} color="amber" />
           ) : (
-            <StatCard icon={<BarChart3 className="w-5 h-5" />} label="Categories" value={mainSelectData.length} color="amber" />
+            <StatCard icon={<BarChart3 className={cn("w-5 h-5")} />} label="Categories" value={mainSelectData.length} color="amber" />
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={cn("grid grid-cols-1 lg:grid-cols-3 gap-6")}>
           {mainSelectProp && mainSelectData.length > 0 && (
-            <div className="bg-surface-primary rounded-xl border border-line p-5">
-              <h3 className="text-sm font-semibold text-ink mb-4">By {mainSelectProp.name}</h3>
+            <div className={cn("bg-surface-primary rounded-xl border border-line p-5")}>
+              <h3 className={cn("text-sm font-semibold text-ink mb-4")}>By {mainSelectProp.name}</h3>
               <BarChartWidget data={mainSelectData} total={pages.length} />
             </div>
           )}
           {numberProps.length > 0 && (
-            <div className="bg-surface-primary rounded-xl border border-line p-5">
-              <h3 className="text-sm font-semibold text-ink mb-4">Number Summary</h3>
+            <div className={cn("bg-surface-primary rounded-xl border border-line p-5")}>
+              <h3 className={cn("text-sm font-semibold text-ink mb-4")}>Number Summary</h3>
               <NumberSummaryWidget numberProps={numberProps as SchemaProperty[]} numberAggs={computedData.numberAggs} />
             </div>
           )}
-          <div className={`bg-surface-primary rounded-xl border border-line p-5 ${!mainSelectData.length && !numberProps.length ? 'lg:col-span-3' : ''}`}>
-            <h3 className="text-sm font-semibold text-ink mb-4">Recent Activity</h3>
+          <div className={cn(`bg-surface-primary rounded-xl border border-line p-5 ${!mainSelectData.length && !numberProps.length ? 'lg:col-span-3' : ''}`)}>
+            <h3 className={cn("text-sm font-semibold text-ink mb-4")}>Recent Activity</h3>
             <RecentList pages={recentPages} openPage={openPage} getPageTitle={getPageTitle} />
           </div>
         </div>

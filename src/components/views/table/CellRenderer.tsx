@@ -39,6 +39,7 @@ import {
   renderDueDate,
   renderCustom,
 } from './cellRenderers';
+import { cn } from '../../../utils/cn';
 
 export interface CellRendererProps {
   prop: SchemaProperty;
@@ -89,6 +90,6 @@ export function renderCellContent(props: CellRendererProps): React.ReactNode {
     case 'last_edited_time': return renderTimestamp(prop, page);
     case 'created_by':
     case 'last_edited_by':  return renderUserMeta(prop, page);
-    default:                return <span className="text-sm text-ink-secondary truncate block">{String(value || '')}</span>;
+    default:                return <span className={cn("text-sm text-ink-secondary truncate block")}>{String(value || '')}</span>;
   }
 }

@@ -15,6 +15,7 @@ import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import type { FillDragState } from './useFillDrag';
 import { MemoTableRow } from './MemoTableRow';
+import { cn } from '../../../utils/cn';
 
 interface GroupData {
   groupId: string;
@@ -112,32 +113,32 @@ export function TableGroupRows({
         return (
           <React.Fragment key={group.groupId}>
             {/* ── Group header row ── */}
-            <tr className="group/hdr">
-              <td colSpan={colCount} className="p-0 border-b border-line bg-surface-secondary-soft2">
-                <div className="flex items-center gap-2 px-3 py-2 select-none">
+            <tr className={cn("group/hdr")}>
+              <td colSpan={colCount} className={cn("p-0 border-b border-line bg-surface-secondary-soft2")}>
+                <div className={cn("flex items-center gap-2 px-3 py-2 select-none")}>
                   <button
                     onClick={() => toggleGroup(group.groupId)}
-                    className="p-0.5 hover:bg-hover-surface3 rounded transition-colors shrink-0"
+                    className={cn("p-0.5 hover:bg-hover-surface3 rounded transition-colors shrink-0")}
                   >
-                    <ChevronRight className={`w-3.5 h-3.5 text-ink-secondary transition-transform duration-150 ${isCollapsed ? '' : 'rotate-90'}`} />
+                    <ChevronRight className={cn(`w-3.5 h-3.5 text-ink-secondary transition-transform duration-150 ${isCollapsed ? '' : 'rotate-90'}`)} />
                   </button>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${bgColor} ${textColor}`}>
+                  <span className={cn(`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${bgColor} ${textColor}`)}>
                     {group.groupLabel}
                   </span>
-                  <span className="text-xs text-ink-muted tabular-nums">{group.pages.length}</span>
-                  <div className="ml-auto flex items-center gap-1 opacity-0 group-hover/hdr:opacity-100 transition-opacity">
+                  <span className={cn("text-xs text-ink-muted tabular-nums")}>{group.pages.length}</span>
+                  <div className={cn("ml-auto flex items-center gap-1 opacity-0 group-hover/hdr:opacity-100 transition-opacity")}>
                     <button
                       onClick={() => addPage(databaseId)}
-                      className="p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors"
+                      className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors")}
                       title="Add page to group"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className={cn("w-3.5 h-3.5")} />
                     </button>
                     <button
-                      className="p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors"
+                      className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors")}
                       title="Group options"
                     >
-                      <MoreHorizontal className="w-3.5 h-3.5" />
+                      <MoreHorizontal className={cn("w-3.5 h-3.5")} />
                     </button>
                   </div>
                 </div>
@@ -150,7 +151,7 @@ export function TableGroupRows({
             {/* Empty group placeholder */}
             {!isCollapsed && group.pages.length === 0 && (
               <tr>
-                <td colSpan={colCount} className="px-8 py-3 text-sm text-ink-muted border-b border-line bg-surface-secondary-soft5">
+                <td colSpan={colCount} className={cn("px-8 py-3 text-sm text-ink-muted border-b border-line bg-surface-secondary-soft5")}>
                   No pages
                 </td>
               </tr>
@@ -159,10 +160,10 @@ export function TableGroupRows({
             {/* + New in group */}
             {!isCollapsed && (
               <tr>
-                <td colSpan={colCount} className="p-0 border-b border-line-light">
+                <td colSpan={colCount} className={cn("p-0 border-b border-line-light")}>
                   <button onClick={() => addPage(databaseId)}
-                    className="w-full text-left px-8 py-1.5 text-xs text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent3 transition-colors flex items-center gap-1.5">
-                    <Plus className="w-3 h-3" /> New
+                    className={cn("w-full text-left px-8 py-1.5 text-xs text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent3 transition-colors flex items-center gap-1.5")}>
+                    <Plus className={cn("w-3 h-3")} /> New
                   </button>
                 </td>
               </tr>
@@ -173,10 +174,10 @@ export function TableGroupRows({
 
       {/* Global footer */}
       <tr>
-        <td colSpan={colCount} className="p-0">
+        <td colSpan={colCount} className={cn("p-0")}>
           <button onClick={() => addPage(databaseId)}
-            className="w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent">
-            <Plus className="w-4 h-4" /> New
+            className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
+            <Plus className={cn("w-4 h-4")} /> New
           </button>
         </td>
       </tr>

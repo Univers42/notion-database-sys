@@ -160,7 +160,7 @@
           "name": "Task ID",
           "type": "id",
           "prefix": "TASK-",
-          "autoIncrement": 15
+          "autoIncrement": 16
         },
         "prop-project": {
           "id": "prop-project",
@@ -1468,7 +1468,7 @@
         }
       ],
       "createdAt": "2026-03-23T15:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.946Z",
+      "updatedAt": "2026-04-04T00:02:15.591Z",
       "createdBy": "Alice",
       "lastEditedBy": "External"
     },
@@ -1503,7 +1503,11 @@
         }
       ],
       "createdAt": "2026-03-26T15:22:50.751Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.946Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.591Z",
+>>>>>>> playground
       "createdBy": "Bob",
       "lastEditedBy": "External"
     },
@@ -1531,7 +1535,11 @@
       },
       "content": [],
       "createdAt": "2026-03-30T14:22:50.751Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.946Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.591Z",
+>>>>>>> playground
       "createdBy": "Charlie",
       "lastEditedBy": "External"
     },
@@ -1560,7 +1568,11 @@
       },
       "content": [],
       "createdAt": "2026-03-31T14:22:50.751Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.946Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.591Z",
+>>>>>>> playground
       "createdBy": "Alice",
       "lastEditedBy": "External"
     },
@@ -1588,7 +1600,11 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.946Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.591Z",
+>>>>>>> playground
       "createdBy": "Bob",
       "lastEditedBy": "External"
     },
@@ -1618,7 +1634,11 @@
       },
       "content": [],
       "createdAt": "2026-03-28T15:22:50.751Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.946Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.592Z",
+>>>>>>> playground
       "createdBy": "Diana",
       "lastEditedBy": "External"
     },
@@ -1646,7 +1666,11 @@
       },
       "content": [],
       "createdAt": "2026-03-29T14:22:50.751Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.947Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.592Z",
+>>>>>>> playground
       "createdBy": "Eve",
       "lastEditedBy": "External"
     },
@@ -1678,7 +1702,11 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.947Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.592Z",
+>>>>>>> playground
       "createdBy": "Alice",
       "lastEditedBy": "External"
     },
@@ -19341,7 +19369,11 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:06.582Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.947Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.592Z",
+>>>>>>> playground
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19363,7 +19395,11 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:17.316Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.947Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.592Z",
+>>>>>>> playground
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19385,7 +19421,11 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:18.650Z",
+<<<<<<< HEAD
       "updatedAt": "2026-04-04T00:02:33.947Z",
+=======
+      "updatedAt": "2026-04-04T00:02:15.593Z",
+>>>>>>> playground
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19404,7 +19444,7 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:52:31.215Z",
-      "updatedAt": "2026-04-02T21:36:15.066Z",
+      "updatedAt": "2026-04-03T16:20:14.781Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19416,11 +19456,14 @@
         "prop-title": "",
         "prop-task-id": "TASK-9",
         "prop-status": "opt-todo",
-        "prop-done": true
+        "prop-done": true,
+        "prop-tags": [
+          "tag-bug"
+        ]
       },
       "content": [],
       "createdAt": "2026-04-02T22:58:49.851Z",
-      "updatedAt": "2026-04-03T13:08:05.938Z",
+      "updatedAt": "2026-04-03T16:20:10.934Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19431,11 +19474,14 @@
         "prop-due": "2026-04-05T22:00:00.000Z",
         "prop-title": "",
         "prop-task-id": "TASK-10",
-        "prop-done": true
+        "prop-done": true,
+        "prop-tags": [
+          "tag-bug"
+        ]
       },
       "content": [],
       "createdAt": "2026-04-02T23:52:32.039Z",
-      "updatedAt": "2026-04-03T13:08:06.267Z",
+      "updatedAt": "2026-04-03T16:30:31.080Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19450,7 +19496,7 @@
       },
       "content": [],
       "createdAt": "2026-04-03T00:25:07.375Z",
-      "updatedAt": "2026-04-03T13:08:06.569Z",
+      "updatedAt": "2026-04-03T16:30:35.213Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     },
@@ -19465,16 +19511,16 @@
         "prop-priority": null,
         "prop-tags": null,
         "prop-assignee": null,
-        "prop-done": null,
+        "prop-done": true,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null
       },
       "content": [],
       "createdAt": "2026-04-03T00:25:10.075Z",
-      "updatedAt": "2026-04-03T00:25:10.322Z",
+      "updatedAt": "2026-04-03T16:30:36.600Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "0dc71d50-9ca1-42bd-af84-517c42f21839": {
       "id": "0dc71d50-9ca1-42bd-af84-517c42f21839",
@@ -19483,20 +19529,20 @@
         "prop-due": "2026-04-04T22:00:00.000Z",
         "prop-title": "",
         "prop-task-id": "TASK-13",
-        "prop-status": null,
+        "prop-status": "opt-review",
         "prop-priority": null,
         "prop-tags": null,
         "prop-assignee": null,
-        "prop-done": null,
+        "prop-done": true,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null
       },
       "content": [],
       "createdAt": "2026-04-03T00:25:12.482Z",
-      "updatedAt": "2026-04-03T00:25:21.487Z",
+      "updatedAt": "2026-04-03T16:30:36.930Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "a58263ef-096c-46c6-940a-590ce2e01f1c": {
       "id": "a58263ef-096c-46c6-940a-590ce2e01f1c",
@@ -19509,16 +19555,38 @@
         "prop-priority": null,
         "prop-tags": null,
         "prop-assignee": null,
-        "prop-done": null,
+        "prop-done": false,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null
       },
       "content": [],
       "createdAt": "2026-04-03T00:25:21.175Z",
-      "updatedAt": "2026-04-03T00:25:21.487Z",
+      "updatedAt": "2026-04-03T16:28:56.149Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
+    },
+    "9ea3bc1e-5cb0-4c1c-935a-92c05020a376": {
+      "id": "9ea3bc1e-5cb0-4c1c-935a-92c05020a376",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-15",
+        "prop-status": null,
+        "prop-priority": null,
+        "prop-tags": null,
+        "prop-assignee": null,
+        "prop-due": null,
+        "prop-done": true,
+        "prop-points": null,
+        "prop-created": null,
+        "prop-project": null
+      },
+      "content": [],
+      "createdAt": "2026-04-03T15:12:07.621Z",
+      "updatedAt": "2026-04-03T15:34:46.929Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
     }
   },
   "views": {

@@ -15,6 +15,7 @@ import type { BlockRendererProps } from './BlockRenderer';
 import { EditableContent } from './EditableContent';
 import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { ChevronRight } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 export function ToggleBlock({ block, pageId, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   const toggleCollapsed = useDatabaseStore(s => s.toggleBlockCollapsed);
@@ -24,37 +25,37 @@ export function ToggleBlock({ block, pageId, onChange, onKeyDown }: Readonly<Blo
   }, [toggleCollapsed, pageId, block.id]);
 
   return (
-    <div className="pl-0.5">
-      <div className="flex items-start gap-1">
+    <div className={cn("pl-0.5")}>
+      <div className={cn("flex items-start gap-1")}>
         <button
           type="button"
           onClick={handleToggle}
-          className="shrink-0 mt-[3px] w-5 h-5 rounded hover:bg-hover-surface2 flex items-center justify-center transition-transform"
+          className={cn("shrink-0 mt-[3px] w-5 h-5 rounded hover:bg-hover-surface2 flex items-center justify-center transition-transform")}
         >
           <ChevronRight
-            className={`w-3.5 h-3.5 text-ink-secondary transition-transform ${
+            className={cn(`w-3.5 h-3.5 text-ink-secondary transition-transform ${
               !block.collapsed ? 'rotate-90' : ''
-            }`}
+            }`)}
           />
         </button>
         <EditableContent
           content={block.content}
-          className="text-sm text-ink-body leading-relaxed py-0.5 flex-1"
+          className={cn("text-sm text-ink-body leading-relaxed py-0.5 flex-1")}
           placeholder="Toggle"
           onChange={onChange}
           onKeyDown={onKeyDown}
         />
       </div>
       {!block.collapsed && block.children && block.children.length > 0 && (
-        <div className="ml-6 mt-0.5 pl-3 border-l-2 border-line-light">
-          <div className="text-xs text-ink-muted py-1">
+        <div className={cn("ml-6 mt-0.5 pl-3 border-l-2 border-line-light")}>
+          <div className={cn("text-xs text-ink-muted py-1")}>
             {block.children.length} nested block(s)
           </div>
         </div>
       )}
       {!block.collapsed && (!block.children || block.children.length === 0) && (
-        <div className="ml-6 mt-0.5 pl-3 border-l-2 border-line-light">
-          <div className="text-xs text-ink-disabled py-1 italic">Empty toggle. Click to add content.</div>
+        <div className={cn("ml-6 mt-0.5 pl-3 border-l-2 border-line-light")}>
+          <div className={cn("text-xs text-ink-disabled py-1 italic")}>Empty toggle. Click to add content.</div>
         </div>
       )}
     </div>

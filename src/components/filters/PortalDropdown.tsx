@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 16:36:22 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { cn } from '../../utils/cn';
 
-export function PortalDropdown({ anchorRef, children, onClose, width, align = 'left' }: Readonly<{
+export type PortalDropdownSlots = {
+  root: string;
+};
+
+export function PortalDropdown({ anchorRef, children, onClose, width, align = 'left', slots }: Readonly<{
   anchorRef: React.RefObject<HTMLElement | null>;
   children: React.ReactNode;
   onClose: () => void;
   width?: number;
   align?: 'left' | 'right';
+  slots?: Partial<PortalDropdownSlots>;
 }>) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
@@ -48,7 +54,7 @@ export function PortalDropdown({ anchorRef, children, onClose, width, align = 'l
 
   return createPortal(
     <div ref={ref}
-      className="fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden"
+      className={cn("fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden", slots?.root)}
       style={{ top: pos.top, left: pos.left, ...(width ? { width } : {}) }}>
       {children}
     </div>,

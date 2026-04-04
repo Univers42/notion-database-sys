@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 00:30:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/03 01:07:54 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 16:15:42 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,7 +229,7 @@ export function TimelineDatePicker({
       {/* Backdrop */}
       <button
         type="button"
-        className="fixed inset-0 z-[9998] appearance-none border-0 bg-transparent cursor-default"
+        className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent cursor-default")}
         onClick={() => {
           setShowFormatDropdown(false);
           setShowRemindDropdown(false);
@@ -244,26 +244,26 @@ export function TimelineDatePicker({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        className="fixed z-[9999] bg-surface-primary border border-line rounded-lg shadow-xl
-                   flex flex-col overflow-visible"
+        className={cn(`fixed z-[9999] bg-surface-primary border border-line rounded-lg shadow-xl
+                   flex flex-col overflow-visible`)}
         style={{ ...style, width: 280, minWidth: 180, maxWidth: 'calc(100vw - 24px)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* ════════════════════════════════════════════════════════════ */}
         {/*  Date input                                                 */}
         {/* ════════════════════════════════════════════════════════════ */}
-        <div className="px-2 pt-2 pb-2 flex">
+        <div className={cn("px-2 pt-2 pb-2 flex")}>
           <div
-            className="flex items-center rounded-md h-7 leading-[1.2] px-2
+            className={cn(`flex items-center rounded-md h-7 leading-[1.2] px-2
                        flex-1 text-sm bg-surface-secondary/60
                        shadow-[inset_0_0_0_1px_var(--line)] focus-within:shadow-[inset_0_0_0_1px_var(--accent)]
-                       transition-shadow"
+                       transition-shadow`)}
           >
             <input
               ref={inputRef}
               type="text"
-              className="w-full bg-transparent border-0 outline-none text-sm text-ink
-                         placeholder:text-ink-muted"
+              className={cn(`w-full bg-transparent border-0 outline-none text-sm text-ink
+                         placeholder:text-ink-muted`)}
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               onKeyDown={e => {
@@ -278,50 +278,50 @@ export function TimelineDatePicker({
         {/* ════════════════════════════════════════════════════════════ */}
         {/*  Calendar                                                    */}
         {/* ════════════════════════════════════════════════════════════ */}
-        <div className="px-2 pb-1 text-center">
+        <div className={cn("px-2 pb-1 text-center")}>
           {/* Caption: month label + Today + nav */}
-          <div className="flex items-center justify-between mb-1">
-            <h2 className="text-sm font-semibold text-ink" aria-live="polite" aria-atomic>
+          <div className={cn("flex items-center justify-between mb-1")}>
+            <h2 className={cn("text-sm font-semibold text-ink")} aria-live="polite" aria-atomic>
               {format(currentMonth, 'MMM yyyy')}
             </h2>
-            <div className="flex items-center gap-2">
+            <div className={cn("flex items-center gap-2")}>
               <button
                 type="button"
                 onClick={() => setCurrentMonth(new Date())}
-                className="flex items-center justify-center rounded-[3px] h-5 px-2
+                className={cn(`flex items-center justify-center rounded-[3px] h-5 px-2
                            text-[12px] font-medium text-ink-secondary
-                           hover:bg-hover-surface2 transition-colors"
+                           hover:bg-hover-surface2 transition-colors`)}
               >
                 Today
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                className="flex items-center justify-center rounded-[3px] w-5 h-5
-                           hover:bg-hover-surface2 transition-colors"
+                className={cn(`flex items-center justify-center rounded-[3px] w-5 h-5
+                           hover:bg-hover-surface2 transition-colors`)}
               >
-                <ChevronLeft className="w-[11px] h-[17px] text-ink-muted" />
+                <ChevronLeft className={cn("w-[11px] h-[17px] text-ink-muted")} />
               </button>
               <button
                 type="button"
                 onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                className="flex items-center justify-center rounded-[3px] w-5 h-5
-                           hover:bg-hover-surface2 transition-colors"
+                className={cn(`flex items-center justify-center rounded-[3px] w-5 h-5
+                           hover:bg-hover-surface2 transition-colors`)}
               >
-                <ChevronRight className="w-[11px] h-[17px] text-ink-muted" />
+                <ChevronRight className={cn("w-[11px] h-[17px] text-ink-muted")} />
               </button>
             </div>
           </div>
 
           {/* Weekday headers (Mo–Su) */}
-          <table className="w-full border-collapse" role="grid">
+          <table className={cn("w-full border-collapse")} role="grid">
             <thead>
               <tr>
                 {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
                   <th
                     key={d}
                     scope="col"
-                    className="h-6 text-center text-[10px] font-medium text-ink-muted"
+                    className={cn("h-6 text-center text-[10px] font-medium text-ink-muted")}
                   >
                     <span aria-hidden="true">{d}</span>
                   </th>
@@ -347,7 +347,7 @@ export function TimelineDatePicker({
                       btnCls = 'bg-blue-500 text-white hover:bg-blue-600';
 
                     return (
-                      <td key={day.toISOString()} className="p-0 relative">
+                      <td key={day.toISOString()} className={cn("p-0 relative")}>
                         <button
                           name="day"
                           type="button"
@@ -355,10 +355,10 @@ export function TimelineDatePicker({
                           aria-pressed={start || end || undefined}
                           tabIndex={start ? 0 : -1}
                           onClick={() => handleDayClick(day)}
-                          className={`w-full h-8 flex items-center justify-center text-xs
+                          className={cn(`w-full h-8 flex items-center justify-center text-xs
                                       rounded-md transition-colors cursor-pointer
                                       ${btnCls}
-                                      ${today && !start && !end ? 'font-bold' : ''}`}
+                                      ${today && !start && !end ? 'font-bold' : ''}`)}
                           style={
                             today && start
                               ? { backgroundColor: 'var(--accent, #2383e2)' }
@@ -368,7 +368,7 @@ export function TimelineDatePicker({
                           {format(day, 'd')}
                         </button>
                         {/* range overflow connector (between start/end) */}
-                        {range && <div className="absolute inset-0 bg-accent-soft/20 pointer-events-none" />}
+                        {range && <div className={cn("absolute inset-0 bg-accent-soft/20 pointer-events-none")} />}
                       </td>
                     );
                   })}
@@ -387,11 +387,11 @@ export function TimelineDatePicker({
 
         {/* ── End date toggle ─────────────────────────────────────── */}
         <OptionRow label="End date" onClick={handleToggleEnd}>
-          <ToggleSwitch enabled={hasEndDate} />
+          <TimelineToggleSwitch enabled={hasEndDate} />
         </OptionRow>
 
         {/* ── Date format dropdown ────────────────────────────────── */}
-        <div className="relative">
+        <div className={cn("relative")}>
           <OptionRow
             label="Date format"
             onClick={() => {
@@ -416,11 +416,11 @@ export function TimelineDatePicker({
 
         {/* ── Include time toggle ─────────────────────────────────── */}
         <OptionRow label="Include time" onClick={() => setIncludeTime(v => !v)}>
-          <ToggleSwitch enabled={includeTime} />
+          <TimelineToggleSwitch enabled={includeTime} />
         </OptionRow>
 
         {/* ── Remind dropdown ─────────────────────────────────────── */}
-        <div className="relative">
+        <div className={cn("relative")}>
           <OptionRow
             label="Remind"
             onClick={() => {
@@ -463,14 +463,14 @@ export function TimelineDatePicker({
           href="https://www.notion.com/help/reminders"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-2 text-xs text-ink-secondary
-                     hover:bg-hover-surface transition-colors no-underline"
+          className={cn(`flex items-center gap-2 px-3 py-2 text-xs text-ink-secondary
+                     hover:bg-hover-surface transition-colors no-underline`)}
         >
-          <HelpCircle className="w-4 h-4 text-ink-muted shrink-0" />
-          <span className="text-ink-secondary">Learn about reminders</span>
+          <HelpCircle className={cn("w-4 h-4 text-ink-muted shrink-0")} />
+          <span className={cn("text-ink-secondary")}>Learn about reminders</span>
         </a>
 
-        <footer className="w-full" />
+        <footer className={cn("w-full")} />
       </div>
     </>,
     document.body,
@@ -483,25 +483,14 @@ export function TimelineDatePicker({
 
 /** Horizontal divider between sections */
 function Divider() {
-  return <div className="h-px bg-line mx-0" />;
+  return <div className={cn("h-px bg-line mx-0")} />;
 }
 
-/** Toggle switch matching Notion's 14×26 switch */
-function ToggleSwitch({ enabled }: Readonly<{ enabled: boolean }>) {
-  return (
-    <div className="flex items-center justify-center gap-1">
-      <div
-        className={`relative flex shrink-0 h-[14px] w-[26px] rounded-full p-[2px]
-                    box-content transition-colors duration-200
-                    ${enabled ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}
-      >
-        <div
-          className={`w-[14px] h-[14px] rounded-full bg-white transition-transform duration-200 ease-out
-                      ${enabled ? 'translate-x-[12px]' : 'translate-x-0'}`}
-        />
-      </div>
-    </div>
-  );
+/** Toggle switch matching Notion's 14×26 switch — now uses canonical ToggleSwitch */
+import { ToggleSwitch as CanonicalToggle } from '../../ui/ToggleSwitch';
+import { cn } from '../../../utils/cn';
+function TimelineToggleSwitch({ enabled }: Readonly<{ enabled: boolean }>) {
+  return <CanonicalToggle checked={enabled} onChange={() => {}} size="sm" />;
 }
 
 /** A settings row: label on left, controls on right */
@@ -518,11 +507,11 @@ function OptionRow({
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center justify-between px-3 py-[7px]
-                 hover:bg-hover-surface transition-colors cursor-pointer text-left"
+      className={cn(`w-full flex items-center justify-between px-3 py-[7px]
+                 hover:bg-hover-surface transition-colors cursor-pointer text-left`)}
     >
-      <span className="text-[13px] text-ink-body leading-tight">{label}</span>
-      {children && <div className="flex items-center">{children}</div>}
+      <span className={cn("text-[13px] text-ink-body leading-tight")}>{label}</span>
+      {children && <div className={cn("flex items-center")}>{children}</div>}
     </button>
   );
 }
@@ -530,9 +519,9 @@ function OptionRow({
 /** Dropdown trigger value (text + chevron) */
 function DropdownValue({ label }: Readonly<{ label: string }>) {
   return (
-    <div className="flex items-center gap-0.5">
-      <span className="text-[12px] text-ink-secondary">{label}</span>
-      <ChevronDown className="w-3 h-3 text-ink-muted" />
+    <div className={cn("flex items-center gap-0.5")}>
+      <span className={cn("text-[12px] text-ink-secondary")}>{label}</span>
+      <ChevronDown className={cn("w-3 h-3 text-ink-muted")} />
     </div>
   );
 }
@@ -553,26 +542,26 @@ function DropdownMenu({
     <>
       <button
         type="button"
-        className="fixed inset-0 z-[10000] appearance-none border-0 bg-transparent cursor-default"
+        className={cn("fixed inset-0 z-[10000] appearance-none border-0 bg-transparent cursor-default")}
         onClick={onClose}
         tabIndex={-1}
         aria-label="Close dropdown"
       />
       <div
-        className="absolute right-2 top-full mt-1 z-[10001] bg-surface-primary border border-line
-                   rounded-lg shadow-xl py-1 min-w-[140px] max-h-[200px] overflow-y-auto"
+        className={cn(`absolute right-2 top-full mt-1 z-[10001] bg-surface-primary border border-line
+                   rounded-lg shadow-xl py-1 min-w-[140px] max-h-[200px] overflow-y-auto`)}
       >
         {items.map(item => (
           <button
             key={item}
             type="button"
             onClick={() => onSelect(item)}
-            className={`w-full text-left px-3 py-1.5 text-xs transition-colors
+            className={cn(`w-full text-left px-3 py-1.5 text-xs transition-colors
                         ${
                           item === selected
                             ? 'bg-accent-soft text-accent-text font-medium'
                             : 'text-ink-body hover:bg-hover-surface'
-                        }`}
+                        }`)}
           >
             {item}
           </button>

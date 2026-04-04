@@ -5,7 +5,7 @@
 import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/useDatabaseStore';
 import { useDbSource } from './useDbSource.ts';
-import type { DbSourceType } from '../services/dbms/types.ts';
+import type { DbSourceType } from '../../services/dbms/types.ts';
 
 interface UseDbRecordsResult {
   /** The active database source. */

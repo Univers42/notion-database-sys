@@ -16,6 +16,7 @@ import type { CellRendererProps } from '../CellRenderer';
 import type { PropertyValue } from '../../../../types/database';
 import { RelationCellEditor } from '../../../cellEditors';
 import { ArrowUpRight, Sigma } from 'lucide-react';
+import { cn } from '../../../../utils/cn';
 
 function formatBoolish(v: PropertyValue): string {
   if (v === true) return '✓';
@@ -43,15 +44,15 @@ export function renderFormula(p: CellRendererProps): React.ReactNode {
     ? resolveFormula(databaseId, page, prop.formulaConfig.expression)
     : '#N/A';
   return (
-    <div className="text-sm text-ink-body tabular-nums truncate font-mono cursor-pointer group/formula"
+    <div className={cn("text-sm text-ink-body tabular-nums truncate font-mono cursor-pointer group/formula")}
       onClick={e => { e.stopPropagation(); onFormulaEdit(prop.id); }} title="Click to edit formula">
-      <div className="flex items-center gap-1.5">
-        <span className="truncate">
+      <div className={cn("flex items-center gap-1.5")}>
+        <span className={cn("truncate")}>
           {formulaResult != null && formulaResult !== '' && formulaResult !== '#ERROR'
             ? (typeof formulaResult === 'number' ? formulaResult.toLocaleString() : String(formulaResult))
-            : <span className="text-danger-text-faint">{formulaResult === '#ERROR' ? '#ERROR' : 'Empty'}</span>}
+            : <span className={cn("text-danger-text-faint")}>{formulaResult === '#ERROR' ? '#ERROR' : 'Empty'}</span>}
         </span>
-        <Sigma className="w-3 h-3 text-ink-disabled opacity-0 group-hover/formula:opacity-100 shrink-0" />
+        <Sigma className={cn("w-3 h-3 text-ink-disabled opacity-0 group-hover/formula:opacity-100 shrink-0")} />
       </div>
     </div>
   );
@@ -63,24 +64,24 @@ export function renderRollup(p: CellRendererProps): React.ReactNode {
   const rollupResult = resolveRollup(databaseId, page, prop.id);
   const displayAs = prop.rollupConfig?.displayAs || 'number';
 
-  if (rollupResult == null) return <span className="text-ink-muted text-sm">—</span>;
+  if (rollupResult == null) return <span className={cn("text-ink-muted text-sm")}>—</span>;
 
   if (Array.isArray(rollupResult)) return renderRollupArray(rollupResult, wrapContent);
   if (displayAs === 'bar' && typeof rollupResult === 'number') return renderRollupBar(rollupResult);
   if (displayAs === 'ring' && typeof rollupResult === 'number') return renderRollupRing(rollupResult);
   return (
-    <div className="text-sm text-ink-body tabular-nums truncate font-mono">
+    <div className={cn("text-sm text-ink-body tabular-nums truncate font-mono")}>
       {typeof rollupResult === 'number' ? rollupResult.toLocaleString() : String(rollupResult)}
     </div>
   );
 }
 
 export function renderRollupArray(arr: PropertyValue[], wrapContent: boolean): React.ReactNode {
-  if (arr.length === 0) return <span className="text-ink-muted text-sm">Empty</span>;
+  if (arr.length === 0) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
   return (
-    <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
+    <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
       {arr.map((v, i) => (
-        <span key={i} className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-tertiary text-xs text-ink-body-light font-medium shrink-0 max-w-[120px] truncate">
+        <span key={i} className={cn("inline-flex items-center px-1.5 py-0.5 rounded bg-surface-tertiary text-xs text-ink-body-light font-medium shrink-0 max-w-[120px] truncate")}>
           {formatBoolish(v)}
         </span>
       ))}
@@ -91,11 +92,11 @@ export function renderRollupArray(arr: PropertyValue[], wrapContent: boolean): R
 export function renderRollupBar(value: number): React.ReactNode {
   const pct = Math.min(100, Math.max(0, (value / 15) * 100));
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 h-2 bg-surface-tertiary rounded-full overflow-hidden min-w-[40px]">
-        <div className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
+    <div className={cn("flex items-center gap-2")}>
+      <div className={cn("flex-1 h-2 bg-surface-tertiary rounded-full overflow-hidden min-w-[40px]")}>
+        <div className={cn("h-full bg-accent rounded-full")} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs text-ink-secondary tabular-nums shrink-0">{value}</span>
+      <span className={cn("text-xs text-ink-secondary tabular-nums shrink-0")}>{value}</span>
     </div>
   );
 }
@@ -107,12 +108,12 @@ export function renderRollupRing(value: number): React.ReactNode {
   const offset = circ - (pct / 100) * circ;
   const stroke = getRingStroke(pct);
   return (
-    <div className="flex items-center gap-2">
-      <svg width="22" height="22" className="shrink-0 -rotate-90">
+    <div className={cn("flex items-center gap-2")}>
+      <svg width="22" height="22" className={cn("shrink-0 -rotate-90")}>
         <circle cx="11" cy="11" r={r} fill="none" stroke="var(--color-chart-grid)" strokeWidth="3" />
         <circle cx="11" cy="11" r={r} fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} />
       </svg>
-      <span className="text-xs text-ink-body-light tabular-nums">{pct}%</span>
+      <span className={cn("text-xs text-ink-body-light tabular-nums")}>{pct}%</span>
     </div>
   );
 }
@@ -127,10 +128,10 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
         onClose={() => { onStopEditing(); tableRef.current?.focus(); }} />
     );
   }
-  if (relatedIds.length === 0) return <span className="text-ink-muted text-sm">Empty</span>;
+  if (relatedIds.length === 0) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
   const storePages = useDatabaseStore.getState().pages;
   return (
-    <div className={`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`}>
+    <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
       {relatedIds.map(rid => {
         const relPage = storePages[rid];
         if (!relPage) return null;
@@ -139,8 +140,8 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
         const title = titlePropId ? relPage.properties[titlePropId] : relPage.id;
         return (
           <button key={rid} onClick={e => { e.stopPropagation(); onOpenPage(rid); }}
-            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-tertiary hover:bg-hover-surface3 text-xs text-ink-body font-medium shrink-0 max-w-[140px]">
-            <ArrowUpRight className="w-2.5 h-2.5 shrink-0" /><span className="truncate">{title || 'Untitled'}</span>
+            className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-tertiary hover:bg-hover-surface3 text-xs text-ink-body font-medium shrink-0 max-w-[140px]")}>
+            <ArrowUpRight className={cn("w-2.5 h-2.5 shrink-0")} /><span className={cn("truncate")}>{title || 'Untitled'}</span>
           </button>
         );
       })}
@@ -150,15 +151,15 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
 
 export function renderAssignedTo(value: PropertyValue, wrapContent: boolean): React.ReactNode {
   const assignees: string[] = toStringArray(value);
-  if (assignees.length === 0) return <span className="text-ink-muted text-sm">Unassigned</span>;
+  if (assignees.length === 0) return <span className={cn("text-ink-muted text-sm")}>Unassigned</span>;
   return (
-    <div className={`flex items-center ${wrapContent ? 'flex-wrap gap-1' : '-space-x-1.5'}`}>
+    <div className={cn(`flex items-center ${wrapContent ? 'flex-wrap gap-1' : '-space-x-1.5'}`)}>
       {assignees.map((name, i) => (
-        <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-br from-gradient-violet2-from to-gradient-violet2-to text-ink-inverse flex items-center justify-center text-[10px] font-bold border-2 border-surface-primary shrink-0" title={name}>
+        <div key={i} className={cn("w-6 h-6 rounded-full bg-gradient-to-br from-gradient-violet2-from to-gradient-violet2-to text-ink-inverse flex items-center justify-center text-[10px] font-bold border-2 border-surface-primary shrink-0")} title={name}>
           {String(name).charAt(0).toUpperCase()}
         </div>
       ))}
-      {!wrapContent && assignees.length > 1 && <span className="text-xs text-ink-secondary ml-2">{assignees.length} assigned</span>}
+      {!wrapContent && assignees.length > 1 && <span className={cn("text-xs text-ink-secondary ml-2")}>{assignees.length} assigned</span>}
     </div>
   );
 }

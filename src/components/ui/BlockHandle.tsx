@@ -13,6 +13,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GripHandleIcon } from './Icons';
 import { ActionPanel, type ActionPanelProps } from './ActionPanel';
+import { cn } from '../../utils/cn';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BlockHandle — the "dotted square" drag handle that Notion shows on hover.
@@ -106,14 +107,14 @@ export function BlockHandle({
 
   /* ─── The handle element ─────────────────────────────────────────────── */
   const handle = (
-    <div className="relative flex items-start">
+    <div className={cn("relative flex items-start")}>
       <button
         ref={handleRef}
         onClick={handleClick}
         draggable={!!onDragStart || !!dragData}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        className={`
+        className={cn(`
           flex items-center justify-center
           w-[18px] h-6 rounded-[3px]
           text-ink-muted hover:text-hover-text
@@ -121,18 +122,18 @@ export function BlockHandle({
           cursor-grab active:cursor-grabbing
           transition-colors
           ${handleClassName}
-        `}
+        `)}
         title="Drag to move · Click for actions"
         aria-label="Block handle"
       >
-        <GripHandleIcon className="w-[10px] h-[14px]" />
+        <GripHandleIcon className={cn("w-[10px] h-[14px]")} />
       </button>
 
       {/* Action panel — positioned to the right of the handle */}
       {showPanel && panelProps && (
         <div
           ref={panelRef}
-          className="absolute z-50"
+          className={cn("absolute z-50")}
           style={{ top: 0, left: '100%', marginLeft: 4 }}
         >
           <ActionPanel {...panelProps} />
@@ -146,15 +147,15 @@ export function BlockHandle({
 
   /* ─── Wrapper mode: wraps children with a hover container ────────────── */
   return (
-    <div className={`relative group/block flex flex-col min-h-0 ${className}`}>
+    <div className={cn(`relative group/block flex flex-col min-h-0 ${className}`)}>
       {/* Handle floats to the left of the content, visible on hover */}
       <div
-        className={`
+        className={cn(`
           absolute top-0 z-10
           opacity-0 group-hover/block:opacity-100
           transition-opacity duration-150
           ${showPanel ? '!opacity-100' : ''}
-        `}
+        `)}
         style={{ right: '100%', marginRight: 2 }}
       >
         {handle}

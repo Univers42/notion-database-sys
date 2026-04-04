@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 import { Icon } from './Icon';
+import { cn } from '../../utils/cn';
 
 interface IconProps {
   className?: string;

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
+import { cn } from '../../utils/cn';
 
 function getButtonStyle(disabled?: boolean, danger?: boolean): string {
   if (disabled) return 'text-ink-disabled cursor-not-allowed';
@@ -31,8 +32,8 @@ export function ActionButton({ icon, label, onClick, disabled, danger }: Readonl
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${getButtonStyle(disabled, danger)}`}>
-      <span className={getIconColor(disabled, danger)}>{icon}</span>
+      className={cn(`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${getButtonStyle(disabled, danger)}`)}>
+      <span className={cn(getIconColor(disabled, danger))}>{icon}</span>
       {label}
     </button>
   );

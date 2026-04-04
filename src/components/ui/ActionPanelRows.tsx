@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/01 18:35:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/03 17:11:29 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 import React from 'react';
 import type { ActionItem, ToggleItem, LinkItem, InfoItem, PanelItem } from './ActionPanel';
+import { cn } from '../../utils/cn';
 
 /* ─── Item dispatcher ──────────────────────────────────────────────────── */
 
@@ -31,22 +32,23 @@ function ActionRow({ item }: Readonly<{ item: ActionItem }>) {
   return (
     <button
       onClick={item.onClick}
-      className={`w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md transition-colors
-        ${item.danger
+      className={cn(
+        'w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md transition-colors',
+        item.danger
           ? 'text-danger-text hover:bg-hover-danger'
           : item.active
             ? 'bg-surface-tertiary-soft2 text-ink'
-            : 'text-ink-body hover:bg-hover-surface-soft2'
-        }`}
+            : 'text-ink-body hover:bg-hover-surface-soft2',
+      )}
     >
       {item.icon && (
-        <span className={`flex items-center justify-center shrink-0 w-5 h-5 ${item.danger ? 'text-danger-text-soft' : 'text-ink-secondary'}`}>
+        <span className={cn('flex items-center justify-center shrink-0 w-5 h-5', item.danger ? 'text-danger-text-soft' : 'text-ink-secondary')}>
           {item.icon}
         </span>
       )}
-      <span className="flex-1 text-left truncate">{item.label}</span>
+      <span className={cn("flex-1 text-left truncate")}>{item.label}</span>
       {item.shortcut && (
-        <span className="shrink-0 text-xs text-ink-muted whitespace-nowrap">{item.shortcut}</span>
+        <span className={cn("shrink-0 text-xs text-ink-muted whitespace-nowrap")}>{item.shortcut}</span>
       )}
     </button>
   );
@@ -57,15 +59,15 @@ function ToggleRow({ item }: Readonly<{ item: ToggleItem }>) {
   return (
     <button
       onClick={() => item.onToggle(!item.checked)}
-      className="w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md text-ink-body hover:bg-hover-surface-soft2 transition-colors"
+      className={cn("w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md text-ink-body hover:bg-hover-surface-soft2 transition-colors")}
     >
       {item.icon && (
-        <span className="flex items-center justify-center shrink-0 w-5 h-5 text-ink-secondary">
+        <span className={cn("flex items-center justify-center shrink-0 w-5 h-5 text-ink-secondary")}>
           {item.icon}
         </span>
       )}
-      <span className="flex-1 text-left truncate">{item.label}</span>
-      <span className="shrink-0 ml-2">
+      <span className={cn("flex-1 text-left truncate")}>{item.label}</span>
+      <span className={cn("shrink-0 ml-2")}>
         <ToggleSwitch checked={item.checked} />
       </span>
     </button>
@@ -79,14 +81,14 @@ function LinkRow({ item }: Readonly<{ item: LinkItem }>) {
       href={item.href}
       target={item.external !== false ? '_blank' : undefined}
       rel={item.external !== false ? 'noopener noreferrer' : undefined}
-      className="w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md text-ink-body hover:bg-hover-surface-soft2 transition-colors no-underline"
+      className={cn("w-full flex items-center gap-2.5 px-2 py-[5px] text-sm rounded-md text-ink-body hover:bg-hover-surface-soft2 transition-colors no-underline")}
     >
       {item.icon && (
-        <span className={`flex items-center justify-center shrink-0 w-5 h-5 ${item.muted ? 'text-ink-muted' : 'text-ink-secondary'}`}>
+        <span className={cn('flex items-center justify-center shrink-0 w-5 h-5', item.muted ? 'text-ink-muted' : 'text-ink-secondary')}>
           {item.icon}
         </span>
       )}
-      <span className={`flex-1 text-left truncate ${item.muted ? 'text-ink-muted' : ''}`}>{item.label}</span>
+      <span className={cn('flex-1 text-left truncate', item.muted && 'text-ink-muted')}>{item.label}</span>
     </a>
   );
 }
@@ -94,9 +96,9 @@ function LinkRow({ item }: Readonly<{ item: LinkItem }>) {
 /* Info row: plain text lines */
 function InfoRow({ item }: Readonly<{ item: InfoItem }>) {
   return (
-    <div className="px-2 py-1">
+    <div className={cn("px-2 py-1")}>
       {item.lines.map((line, i) => (
-        <div key={i} className="text-xs text-ink-muted leading-5 truncate">{line}</div>
+        <div key={i} className={cn("text-xs text-ink-muted leading-5 truncate")}>{line}</div>
       ))}
     </div>
   );
@@ -106,8 +108,8 @@ function InfoRow({ item }: Readonly<{ item: InfoItem }>) {
 
 export function SectionDivider() {
   return (
-    <div className="relative mt-px">
-      <div className="absolute top-0 left-3 right-3 h-px bg-surface-muted-soft" />
+    <div className={cn("relative mt-px")}>
+      <div className={cn("absolute top-0 left-3 right-3 h-px bg-surface-muted-soft")} />
     </div>
   );
 }
@@ -115,7 +117,7 @@ export function SectionDivider() {
 export function ToggleSwitch({ checked }: Readonly<{ checked: boolean }>) {
   return (
     <div
-      className="flex shrink-0 items-center rounded-full p-[2px] transition-colors"
+      className={cn("flex shrink-0 items-center rounded-full p-[2px] transition-colors")}
       style={{
         width: 30,
         height: 18,
@@ -123,7 +125,7 @@ export function ToggleSwitch({ checked }: Readonly<{ checked: boolean }>) {
       }}
     >
       <div
-        className="rounded-full bg-surface-primary transition-transform"
+        className={cn("rounded-full bg-surface-primary transition-transform")}
         style={{
           width: 14,
           height: 14,
