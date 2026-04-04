@@ -6,6 +6,7 @@ build/
 dist/
 coverage/
 packages/*/dist/
+*.tsbuildinfo
 .turbo/
 
 # Native addon build artifacts (cmake-js)
