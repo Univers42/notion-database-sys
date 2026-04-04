@@ -28,7 +28,6 @@ src/lib/engine/pkg/
 .env*
 !.env.example
 
-# Reference / prompt files
 prom/
 
 # This script (runs once, then is gitignored)

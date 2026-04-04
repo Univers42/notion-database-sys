@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+# ─── Reusable anchors ────────────────────────────────────────────────────────
+# pnpm store cache is handled by setup-node (cache: pnpm).
+# node_modules cache is a best-effort optimisation; every job falls back
+# to a full `pnpm install` when the cache is missing.
+
 jobs:
   install:
     name: Install
@@ -39,6 +44,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Init submodules
+        run: git submodule update --init --recursive
+        continue-on-error: true
+
+      - name: Stub engine bridge if submodule unavailable
+        run: |
+          if [ ! -f src/lib/engine/bridge.ts ]; then
+            bash .github/scripts/stub-engine.sh
+          fi
+
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
@@ -52,6 +67,9 @@ jobs:
             node_modules
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies (fallback)
+        run: pnpm install --frozen-lockfile
 
       - name: Build packages
         run: pnpm turbo run build --filter='./packages/*'
@@ -83,6 +101,9 @@ jobs:
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
+      - name: Install dependencies (fallback)
+        run: pnpm install --frozen-lockfile
+
       - name: Build packages
         run: pnpm turbo run build --filter='./packages/*'
 
@@ -105,6 +126,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Init submodules
+        run: git submodule update --init --recursive
+        continue-on-error: true
+
+      - name: Stub engine bridge if submodule unavailable
+        run: |
+          if [ ! -f src/lib/engine/bridge.ts ]; then
+            bash .github/scripts/stub-engine.sh
+          fi
+
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
@@ -118,6 +149,9 @@ jobs:
             node_modules
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies (fallback)
+        run: pnpm install --frozen-lockfile
 
       - name: Build all packages
         run: pnpm turbo run build

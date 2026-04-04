@@ -44,6 +44,9 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.22.1
+      katex:
+        specifier: ^0.16.44
+        version: 0.16.44
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -81,6 +84,9 @@ importers:
         specifier: ^5.0.12
         version: 5.0.12(@types/react@19.2.14)(react@19.2.4)
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.39.4
+        version: 9.39.4
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
