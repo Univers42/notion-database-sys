@@ -5,8 +5,8 @@
 # Services:
 #   postgres   — PostgreSQL 16 (schema in docker/init-databases.sql)
 #   mongodb    — MongoDB 7.0
-#   redis      — Redis 7 (used by SonarQube embedded cache + general purpose)
-#   sonarqube  — SonarQube Community Edition 25.4 (static analysis dashboard)
+#   redis      — Redis 7 (general purpose cache)
+#   sonarqube  — SonarQube Community Edition (static analysis dashboard)
 #
 # All images use stock upstream tags.  Configuration files are bind-mounted
 # from the services/ directory so you can edit them without rebuilding.
@@ -67,9 +67,8 @@ services:
       start_period: 5s
 
   redis:
-    build:
-      context: ./services/redis
-      dockerfile: Dockerfile
+    image: redis:7-alpine
+    pull_policy: if_not_present
     container_name: notion_redis
     restart: unless-stopped
     ports:
@@ -77,6 +76,7 @@ services:
     volumes:
       - redis_data:/data
       - ./services/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 3s
@@ -85,14 +85,10 @@ services:
       start_period: 3s
 
   sonarqube:
-    build:
-      context: ./services/sonarqube
-      dockerfile: Dockerfile
+    image: sonarqube:community
+    pull_policy: if_not_present
     container_name: notion_sonarqube
     restart: unless-stopped
-    depends_on:
-      redis:
-        condition: service_healthy
     environment:
       SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
     ports:
