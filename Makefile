@@ -6,7 +6,7 @@
 #    By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/04/04 18:15:22 by dlesieur          #+#    #+#              #
-#    Updated: 2026/04/04 18:15:24 by dlesieur         ###   ########.fr        #
+#    Updated: 2026/04/04 18:45:04 by dlesieur         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -169,6 +169,11 @@ clean: ## Remove containers, volumes, node_modules, dist
 	rm -rf node_modules dist .vite .turbo packages/*/dist .scannerwork
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
+sonar-issues: ## Fetch all SonarCloud issues into sonarcloud-report.txt + sonarcloud-issues.json
+	@SONAR_TOKEN=$${SONAR_TOKEN:-$$(grep SONAR_TOKEN .env 2>/dev/null | cut -d= -f2)} \
+		python3 .github/scripts/fetch-sonar-issues.py
+	@echo -e "$(GREEN)✔ Reports saved: sonarcloud-report.txt  sonarcloud-issues.json$(RESET)"
+
 .PHONY: help pull up up-db up-sonar down restart logs db-reset db-status status \
 	psql mongo-shell redis-cli install build-packages typecheck lint lint-fix \
-	audit sonar-up sonar-scan sonar-status ci clean
+	audit sonar-up sonar-scan sonar-issues sonar-status ci clean
