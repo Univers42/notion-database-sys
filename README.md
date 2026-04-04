@@ -118,6 +118,15 @@ The API server also reads:
 - [packages/README.md](packages/README.md) — Backend packages (types, core, api)
 - [services/README.md](services/README.md) — Docker service configs
 
+## Community
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [License](LICENSE)
+- [Issue Templates](.github/ISSUE_TEMPLATE/)
+- [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md)
+
 ## Tech stack
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · Zustand · Fastify · Mongoose · @fastify/jwt · @fastify/websocket · Rust/WASM · Docker · pnpm workspaces · Turborepo
