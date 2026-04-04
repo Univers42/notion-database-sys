@@ -156,3 +156,33 @@ jobs:
 
       - name: Build all packages
         run: pnpm turbo run build
+
+  sonarqube:
+    name: SonarQube
+    needs: [typecheck, lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=notion-database-sys
+            -Dsonar.sources=src,packages,playground,services/dbms
+            -Dsonar.inclusions=**/*.ts,**/*.tsx
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,src/lib/engine/**,src/lib/libcpp/**,vendor/**,**/pkg/**
+            -Dsonar.qualitygate.wait=false
+
+      - name: SonarQube Quality Gate
+        if: always()
+        uses: SonarSource/sonarqube-quality-gate-action@v1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        timeout-minutes: 5

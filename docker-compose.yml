@@ -54,9 +54,58 @@ services:
       retries: 5
       start_period: 5s
 
+  # ── Redis (cache for SonarQube & general purpose) ──────────────────────────
+  redis:
+    build:
+      context: ./services/redis
+      dockerfile: Dockerfile
+    container_name: notion_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+      - ./services/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+      start_period: 3s
+
+  # ── SonarQube (static analysis) ────────────────────────────────────────────
+  sonarqube:
+    build:
+      context: ./services/sonarqube
+      dockerfile: Dockerfile
+    container_name: notion_sonarqube
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "${SONAR_PORT:-9000}:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - ./services/sonarqube/conf/sonar.properties:/opt/sonarqube/conf/sonar.properties:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/api/system/status | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
 volumes:
   postgres_data:
   mongo_data:
+  redis_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
 
 # ─── API server is run outside Docker via `make dev-api` or `pnpm dev:api` ───
 # It connects to the above containers at localhost:27017 and localhost:5432.
