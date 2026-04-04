@@ -1,164 +1,123 @@
 # notion-database-sys
 
-A fully client-side, Notion-style database engine built with **React 19**, **TypeScript**, **Vite**, and a custom **Rust/WASM formula evaluator**. No backend, no cloud dependency — everything runs in the browser.
+Full-stack Notion clone with 10+ database views, a block-based page editor, a Rust/WASM formula engine, and multi-user real-time collaboration via WebSocket.
 
----
+## Quick start
 
-## Features
-
-### 10 View Types
-| View | Description |
-|---|---|
-| **Table** | Spreadsheet-style grid with inline editing, column resize, fill-handle, keyboard navigation |
-| **Board** | Kanban board grouped by any select/status property |
-| **Gallery** | Card grid with cover image and property pills |
-| **List** | Compact rows with collapsible group headers |
-| **Timeline** | Gantt-style date-range bars |
-| **Calendar** | Monthly grid with event tiles |
-| **Chart** | Bar, line and pie chart modes |
-| **Dashboard** | Configurable widget grid |
-| **Feed** | Card feed ordered by date |
-| **Map** | Location property renderer |
-
-### Property Types
-`title` · `text` · `number` · `select` · `multi_select` · `status` · `date` · `checkbox` · `person` · `email` · `url` · `phone` · `place` · `files_media` · `id` · `button` · `formula` · `rollup` · `relation` · `assigned_to` · `due_date` · `created_time` · `last_edited_time` · `created_by` · `last_edited_by` · `custom`
-
-### Formula Engine (Rust → WASM)
-- Compiled with `wasm-pack` targeting the browser
-- Lexer → Pratt parser → bytecode compiler → register VM pipeline
-- Built-in functions: **math** (`abs`, `ceil`, `floor`, `round`, `sqrt`), **text** (`upper`, `lower`, `len`, `concat`, `contains`), **date** (`now`, `today`, `dateAdd`, `dateDiff`, `dateFormat`), **array** (`count`, `sum`, `min`, `max`, `avg`, `unique`), **logic** (`if`, `ifs`, `switch`, `and`, `or`, `not`)
-- Formula handle cache — compiled expressions are reused across rows
-- Live preview in the **FormulaEditorPanel** (validates + shows result as you type)
-
-### Other Highlights
-- **Filters** — multi-condition builder with all common operators
-- **Sorts** — N-level sort with direction control
-- **Grouping** — group any view by select/status/person property
-- **Relations & Rollups** — link two databases, aggregate across the relation
-- **Page editor** — block-level paragraph editing in side-peek / center-peek / full-page modal
-- **Performance** — `React.memo` rows, selective Zustand selectors, single shared row menu (replaces per-row Radix portals), `requestAnimationFrame` resize throttle
-
----
-
-## Stack
-
-| Layer | Technology |
-|---|---|
-| UI framework | React 19 |
-| Language | TypeScript 5.8 |
-| Build tool | Vite 6 |
-| Styling | Tailwind CSS v4 |
-| State | Zustand 5 |
-| UI primitives | Radix UI |
-| Formula engine | Rust + wasm-pack (WebAssembly) |
-
----
-
-## Getting Started
-
-### Prerequisites
-- [Node.js](https://nodejs.org/) ≥ 18
-- *(optional — only if you rebuild the WASM engine)* [Rust](https://rustup.rs/) + `wasm-pack`
-
-### Install & run
+**Prerequisites**: Node.js 20+, pnpm 10+, Docker
 
 ```bash
-git clone https://github.com/Univers42/notion-database-sys.git
-cd notion-database-sys
-npm install
-npm run dev
+# Clone & install
+git clone <repo-url> && cd notion-database-sys
+cp .env.example .env
+pnpm install
+
+# Start databases (MongoDB + PostgreSQL)
+make up
+
+# Seed data for the main app
+cd src && make seed-all && cd ..
+
+# Run the main frontend
+pnpm dev:src          # http://localhost:3000
 ```
 
-The dev server starts at **http://localhost:5173** (or the next available port).
-
-### Build for production
+To run the multi-user playground instead:
 
 ```bash
-npm run build        # outputs to dist/
-npm run preview      # preview the production bundle locally
+pnpm dev:api          # Fastify API on :4000
+pnpm dev:playground   # Playground UI on :3001
 ```
 
----
+## Project structure
 
-## Project Structure
-
-```
-src/
-├── App.tsx                        # View router + PageModal
-├── main.tsx                       # React entry point
-├── index.css                      # Tailwind base + reset
-├── types/
-│   └── database.ts                # All shared TypeScript interfaces
-├── store/
-│   ├── useDatabaseStore.ts        # Zustand store — all state & actions
-│   ├── productSeed.ts             # 300-item product database seed
-│   └── relationSeed.ts            # Project tracker database seed
-├── components/
-│   ├── Sidebar.tsx                # Database/view navigator
-│   ├── TopBar.tsx                 # View tabs, search, filter, sort
-│   ├── ViewSettingsPanel.tsx      # Column, row and grouping options
-│   ├── PropertyConfigPanel.tsx    # Property type + options editor
-│   ├── FormulaEditorPanel.tsx     # Live WASM formula preview
-│   ├── RollupEditorPanel.tsx      # Aggregation config
-│   ├── RelationEditorPanel.tsx    # Relation target-database picker
-│   ├── ErrorBoundary.tsx
-│   ├── ui/                        # Icon, IconPicker, MenuPrimitives, …
-│   └── views/
-│       ├── TableView.tsx
-│       ├── BoardView.tsx
-│       ├── GalleryView.tsx
-│       ├── ListView.tsx
-│       ├── TimelineView.tsx
-│       ├── CalendarView.tsx
-│       ├── ChartView.tsx
-│       ├── DashboardView.tsx
-│       ├── FeedView.tsx
-│       ├── MapView.tsx
-│       ├── FormulaAnalyticsDashboard.tsx
-│       └── RelationRollupDashboard.tsx
-└── lib/
-    └── engine/                    # Rust WASM formula engine
-        ├── Cargo.toml
-        ├── bridge.ts              # TypeScript wrapper for WASM exports
-        └── src/
-            ├── lib.rs             # WASM entry — compile / evaluate / validate
-            ├── lexer.rs
-            ├── parser.rs
-            ├── compiler.rs
-            ├── vm.rs
-            ├── types.rs
-            ├── error.rs
-            └── functions/
-                ├── math.rs · text.rs · date.rs · array.rs · logic.rs
-                └── mod.rs
-```
-
----
-
-## Keyboard Shortcuts (Table View)
-
-| Key | Action |
+| Directory | What it is |
 |---|---|
-| `Arrow keys` | Move focus between cells |
-| `Enter` | Open cell editor |
-| `Shift+Enter` | Create new row below |
-| `Esc` | Stop editing / close editor |
-| `Tab` | Move to next cell |
-| `Delete` / `Backspace` | Clear cell value (non-title cells) |
+| `src/` | Main frontend React app (Vite) — full Notion DBMS clone |
+| `playground/` | Multi-user sandbox app, connects to the Fastify API |
+| `packages/api/` | Fastify REST API — auth (JWT), CRUD, WebSocket real-time sync |
+| `packages/core/` | Shared MongoDB models (Mongoose), services, ABAC permissions |
+| `packages/types/` | Shared TypeScript type definitions |
+| `services/` | Docker configs for MongoDB 7 and PostgreSQL 16 |
+| `services/dbms/` | Database adapter layer (JSON, CSV, MongoDB, PostgreSQL) |
+| `scripts/` | Build helpers, seed scripts, code generation |
+| `docker/` | SQL init scripts for Docker entrypoints |
 
----
+## Make targets
 
-## Rebuilding the WASM Engine
+Run `make help` at root for the full list. Here are the main ones:
 
-The pre-compiled WASM binary is included. Only needed if you modify the Rust source:
+### Root
 
-```bash
-cd src/lib/engine
-wasm-pack build --target web --out-dir pkg
-```
+| Target | What it does |
+|---|---|
+| `make up` | Start Docker containers (MongoDB + PostgreSQL) |
+| `make down` | Stop containers |
+| `make restart` | Stop + start |
+| `make db-reset` | Destroy volumes and recreate containers |
+| `make db-status` | Show container health + DB connectivity |
+| `make psql` | Open a psql shell |
+| `make mongo-shell` | Open a mongosh shell |
+| `make build-packages` | Build all packages (types → core → api) |
+| `make clean` | Remove containers, volumes, node_modules, dist |
+| `make logs` | Tail container logs |
 
----
+### src/ (run from `src/`)
 
-## License
+| Target | What it does |
+|---|---|
+| `make dev` | Vite dev server on :3000 |
+| `make seed-all` | Seed both PostgreSQL and MongoDB |
+| `make re` | Full reset — wipe DBs, re-seed |
+| `make verify` | Show row/doc counts in both databases |
+| `make build-rust` | Build Rust WASM crates |
 
-MIT
+### playground/ (run from `playground/`)
+
+| Target | What it does |
+|---|---|
+| `make dev` | Playground Vite on :3001 |
+| `make dev-api` | Start Fastify API server |
+| `make dev-all` | Start playground + API in parallel |
+| `make seed` | Seed MongoDB with 3 users + workspaces |
+| `make re` | Full restart — wipe DB, re-seed |
+
+## Environment variables
+
+Copy `.env.example` → `.env` at project root:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `POSTGRES_USER` | `notion_user` | PostgreSQL username |
+| `POSTGRES_PASSWORD` | `notion_pass` | PostgreSQL password |
+| `POSTGRES_DB` | `notion_db` | PostgreSQL database |
+| `POSTGRES_PORT` | `5432` | PostgreSQL port |
+| `DATABASE_URL` | `postgresql://...` | Full PostgreSQL connection string |
+| `MONGO_USER` | `notion_user` | MongoDB username |
+| `MONGO_PASSWORD` | `notion_pass` | MongoDB password |
+| `MONGO_DB` | `notion_db` | MongoDB database |
+| `MONGO_PORT` | `27017` | MongoDB port |
+| `MONGO_URI` | `mongodb://...` | Full MongoDB connection string |
+| `JSON_DB_PATH` | `./src/store/dbms/json` | JSON flat-file DB path |
+| `CSV_DB_PATH` | `./src/store/dbms/csv` | CSV flat-file DB path |
+| `ACTIVE_DB_SOURCE` | `json` | Active backend: `json` / `csv` / `mongodb` / `postgresql` |
+
+The API server also reads:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `API_PORT` | `4000` | Fastify listen port |
+| `JWT_SECRET` | `dev-secret-change-in-production` | JWT signing secret |
+| `JWT_EXPIRES_IN` | `15m` | JWT token lifetime |
+| `VITE_API_URL` | `http://localhost:4000` | API URL for the playground frontend |
+
+## Sub-READMEs
+
+- [src/README.md](src/README.md) — Main frontend app
+- [playground/README.md](playground/README.md) — Multi-user playground
+- [packages/README.md](packages/README.md) — Backend packages (types, core, api)
+- [services/README.md](services/README.md) — Docker service configs
+
+## Tech stack
+
+React 19 · TypeScript · Vite · Tailwind CSS v4 · Zustand · Fastify · Mongoose · @fastify/jwt · @fastify/websocket · Rust/WASM · Docker · pnpm workspaces · Turborepo
