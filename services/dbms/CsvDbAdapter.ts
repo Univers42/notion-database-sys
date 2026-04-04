@@ -1,4 +1,15 @@
-// ─── CSV Database Adapter ────────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   CsvDbAdapter.ts                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:10:27 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:10:28 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Reads / writes CSV seed files from a local directory.
 
 import { readFileSync, readdirSync, writeFileSync, renameSync } from 'node:fs';

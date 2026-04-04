@@ -1,4 +1,15 @@
-// ─── JSON Database Adapter ───────────────────────────────────────────────────
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   JsonDbAdapter.ts                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/04 15:10:50 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/04 15:10:52 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Reads / writes JSON seed files from a local directory.
 
 import { readFileSync, readdirSync, writeFileSync, renameSync } from 'node:fs';
