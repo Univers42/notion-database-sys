@@ -216,8 +216,26 @@ jobs:
 
       - name: Wait for quality gate result
         if: steps.check.outputs.skip != 'true'
-        uses: SonarSource/sonarqube-quality-gate-action@v1.2.0
         timeout-minutes: 5
+        run: |
+          PROJECT_KEY="Univers42_notion-database-sys"
+          echo "Waiting for SonarCloud to process the analysis…"
+          for i in $(seq 1 30); do
+            STATUS=$(curl -sf -u "$SONAR_TOKEN:" \
+              "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${PROJECT_KEY}" \
+              | python3 -c "import sys,json; print(json.load(sys.stdin)['projectStatus']['status'])" 2>/dev/null) || true
+            if [ "$STATUS" = "OK" ]; then
+              echo "✅ Quality gate passed"
+              exit 0
+            elif [ "$STATUS" = "ERROR" ]; then
+              echo "❌ Quality gate failed"
+              exit 1
+            fi
+            echo "  Attempt $i/30 — analysis still processing (status: ${STATUS:-pending})…"
+            sleep 10
+          done
+          echo "⏱ Timed out waiting for quality gate"
+          exit 1
 
       - name: Print analysis summary
         if: steps.check.outputs.skip != 'true' && always()
