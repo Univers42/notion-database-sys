@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# ── Trust /app so git (used by turbo for dirty-hash) works inside container ─
+git config --global --add safe.directory /app
+
 # ── Install dependencies if needed ──────────────────────────────────────────
 # Uses pnpm-lock.yaml modification time to detect staleness.
 # Named volume persists node_modules across restarts.
