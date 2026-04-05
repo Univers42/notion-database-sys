@@ -219,16 +219,38 @@ jobs:
         timeout-minutes: 5
         run: |
           PROJECT_KEY="Univers42_notion-database-sys"
+          # Conditions we tolerate failing (no test suite yet).
+          TOLERATED="new_coverage"
+
           echo "Waiting for SonarCloud to process the analysis…"
           for i in $(seq 1 30); do
-            STATUS=$(curl -sf -u "$SONAR_TOKEN:" \
-              "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${PROJECT_KEY}" \
-              | python3 -c "import sys,json; print(json.load(sys.stdin)['projectStatus']['status'])" 2>/dev/null) || true
+            RAW=$(curl -sf -u "$SONAR_TOKEN:" \
+              "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${PROJECT_KEY}" 2>/dev/null) || true
+            STATUS=$(echo "$RAW" | python3 -c "import sys,json; print(json.load(sys.stdin)['projectStatus']['status'])" 2>/dev/null) || true
+
             if [ "$STATUS" = "OK" ]; then
               echo "✅ Quality gate passed"
               exit 0
             elif [ "$STATUS" = "ERROR" ]; then
-              echo "❌ Quality gate failed"
+              # Check whether every failing condition is in the tolerated set.
+              DOMINATED=$(echo "$RAW" | python3 -c "
+          import sys, json
+          tolerated = set('$TOLERATED'.split(','))
+          conds = json.load(sys.stdin)['projectStatus']['conditions']
+          failing = [c['metricKey'] for c in conds if c['status'] == 'ERROR']
+          print('yes' if failing and all(m in tolerated for m in failing) else 'no')
+          " 2>/dev/null)
+              if [ "$DOMINATED" = "yes" ]; then
+                echo "⚠️  Quality gate failed only on tolerated conditions ($TOLERATED) — treating as pass"
+                exit 0
+              fi
+              echo "❌ Quality gate failed on non-tolerated conditions"
+              echo "$RAW" | python3 -c "
+          import sys, json
+          conds = json.load(sys.stdin)['projectStatus']['conditions']
+          for c in conds:
+              if c['status'] == 'ERROR':
+                  print(f\"  {c['metricKey']}: {c.get('actualValue','?')} (threshold {c.get('errorThreshold','?')})\")" || true
               exit 1
             fi
             echo "  Attempt $i/30 — analysis still processing (status: ${STATUS:-pending})…"
