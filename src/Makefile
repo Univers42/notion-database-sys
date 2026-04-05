@@ -25,8 +25,9 @@ dev: ## Start src dev stack (Vite :3000 + DBs)
 	@until docker inspect --format='{{.State.Health.Status}}' notion_mongodb 2>/dev/null | grep -q healthy; do sleep 2; done
 	@echo -e "$(GREEN)✔ Databases ready$(RESET)"
 	@$(MAKE) check-seed --no-print-directory
-	@echo -e "$(GREEN)✔ Stack up — tailing src logs (Ctrl-C to detach)$(RESET)"
-	cd $(ROOT) && $(DC) logs -f --tail=20 src
+	@echo -e "$(GREEN)✔ Stack up — tailing src logs (Ctrl-C to stop)$(RESET)"
+	@trap '$(MAKE) -C $(ROOT)/src stop --no-print-directory' EXIT; \
+	 cd $(ROOT) && $(DC) logs -f --tail=20 src || true
 
 dev-d: ## Start src dev stack (detached)
 	cd $(ROOT) && $(DC) up -d postgres mongodb src

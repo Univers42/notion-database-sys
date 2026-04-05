@@ -24,8 +24,9 @@ dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)
 	@until docker inspect --format='{{.State.Health.Status}}' notion_api 2>/dev/null | grep -q healthy; do sleep 2; done
 	@echo -e "$(GREEN)✔ API ready$(RESET)"
 	@$(MAKE) check-seed --no-print-directory
-	@echo -e "$(GREEN)✔ Stack up — tailing playground logs (Ctrl-C to detach)$(RESET)"
-	cd $(ROOT) && $(DC) logs -f --tail=10 playground
+	@echo -e "$(GREEN)✔ Stack up — tailing playground logs (Ctrl-C to stop)$(RESET)"
+	@trap '$(MAKE) -C $(ROOT)/playground stop --no-print-directory' EXIT; \
+	 cd $(ROOT) && $(DC) logs -f --tail=10 playground || true
 
 dev-d: ## Start playground stack (detached)
 	cd $(ROOT) && $(DC) up -d mongodb api playground
