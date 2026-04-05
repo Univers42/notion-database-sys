@@ -2,7 +2,7 @@ SHELL := /bin/bash
 -include .env
 export
 
-.DEFAULT_GOAL := stack
+.DEFAULT_GOAL := help
 
 COMPOSE := docker compose
 APP_IMAGE := notion-database-sys/app:local
@@ -176,11 +176,11 @@ up: up-db up-sonar up-app ## Start the full stack (infra + app services)
 	@echo -e "$(GREEN)✔ Full stack up$(RESET)"
 
 up-db: check-docker check-compose check-db-ports ensure-db-images ## Start only PostgreSQL + MongoDB
-	$(COMPOSE) up -d $(DB_SERVICES)
+	$(COMPOSE) up -d --remove-orphans $(DB_SERVICES)
 	@echo -e "$(GREEN)✔ Database containers up$(RESET)"
 
 up-sonar: check-docker check-compose check-sonar-ports ensure-sonar-images ## Start Redis + SonarQube
-	$(COMPOSE) up -d $(SONAR_SERVICES)
+	$(COMPOSE) up -d --remove-orphans $(SONAR_SERVICES)
 	@echo -e "$(GREEN)✔ SonarQube + Redis up$(RESET)"
 
 up-app: check-docker check-compose check-app-ports build-app ## Start src, api, and playground
@@ -198,9 +198,9 @@ up-app: check-docker check-compose check-app-ports build-app ## Start src, api, 
 	done; \
 	if [ "$$recreate" -eq 0 ]; then \
 		echo -e "$(GREEN)✔ App containers already match current image; reusing healthy containers$(RESET)"; \
-		$(COMPOSE) up -d --no-recreate $(APP_SERVICES); \
+		$(COMPOSE) up -d --no-recreate --remove-orphans $(APP_SERVICES); \
 	else \
-		$(COMPOSE) up -d $(APP_SERVICES); \
+		$(COMPOSE) up -d --remove-orphans $(APP_SERVICES); \
 	fi
 	@echo -e "$(GREEN)✔ App services up$(RESET)"
 
@@ -371,10 +371,17 @@ clean: ## Remove containers, volumes, local image, node_modules, dist
 		tsconfig.tsbuildinfo packages/*/tsconfig.tsbuildinfo .make
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
+fclean: ## Full clean: stop+remove all containers (incl. orphans) + volumes, image, cache, and generated files
+	$(COMPOSE) down -v --remove-orphans 2>/dev/null || true
+	docker image rm $(APP_IMAGE) 2>/dev/null || true
+	rm -rf node_modules dist .vite .turbo packages/*/dist .scannerwork \
+		tsconfig.tsbuildinfo packages/*/tsconfig.tsbuildinfo .make
+	@echo -e "$(GREEN)✔ Full clean done$(RESET)"
+
 .PHONY: help preflight check-docker check-compose check-db-ports check-app-ports \
 	check-sonar-ports check-ports stack check-app-image-cache build build-app pull \
 	ensure-db-images ensure-sonar-images ensure-stock-images up up-db up-sonar up-app \
 	down restart logs stack-status doctor app-image-status show-endpoints db-reset db-status \
 	status psql mongo-shell redis-cli seed seed-src ensure-api wait-api \
 	seed-playground seed-all install build-packages typecheck lint lint-fix \
-	audit wait-sonar sonar-up sonar-scan sonar-status ci clean
+	audit wait-sonar sonar-up sonar-scan sonar-status ci clean fclean
