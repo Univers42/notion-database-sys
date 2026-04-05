@@ -20,6 +20,10 @@ help: ## Show available targets
 dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)  [default]
 	@echo -e "$(CYAN)Starting playground on http://localhost:3001$(RESET)"
 	cd $(ROOT) && $(DC) up -d mongodb api playground
+	@echo "Waiting for API to become healthy…"
+	@until docker inspect --format='{{.State.Health.Status}}' notion_api 2>/dev/null | grep -q healthy; do sleep 2; done
+	@echo -e "$(GREEN)✔ API ready$(RESET)"
+	@$(MAKE) seed --no-print-directory
 	@echo -e "$(GREEN)✔ Stack up — tailing playground logs (Ctrl-C to detach)$(RESET)"
 	cd $(ROOT) && $(DC) logs -f --tail=10 playground
 
