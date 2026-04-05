@@ -12,7 +12,8 @@
     "**/.scannerwork": true,
     "**/.pnpm-store": true,
     "**/.turbo": true,
-    "**/.github": true
+    "**/.github": true,
+    "**/prom*": true
   },
   // Keeps your global search (Ctrl/Cmd + Shift + F) fast and clean
   "search.exclude": {
