@@ -52,7 +52,7 @@ export async function handlePostColumn(req: Req, res: Res): Promise<void> {
   const columnName = body.columnName as string;
   const propType = (body.propType as string) ?? 'text';
 
-  const result = dispatchAddColumn(activeSource, databaseId, columnName, propType);
+  const result = await dispatchAddColumn(activeSource, databaseId, columnName, propType);
 
   if (!isLiveDbSource(activeSource)) {
     const state = readState(activeSource);
@@ -81,7 +81,7 @@ export async function handleDeleteColumn(_req: Req, res: Res, params?: string[])
 
   let result = null;
   if (fieldName) {
-    result = dispatchDropColumn(activeSource, databaseId, fieldName);
+    result = await dispatchDropColumn(activeSource, databaseId, fieldName);
   }
 
   if (!isLiveDbSource(activeSource)) {
@@ -112,7 +112,7 @@ export async function handleChangeColumnType(req: Req, res: Res, params?: string
 
   let result = null;
   if (fieldName) {
-    result = dispatchChangeType(activeSource, databaseId, fieldName, oldType, newType);
+    result = await dispatchChangeType(activeSource, databaseId, fieldName, oldType, newType);
   }
 
   res.writeHead(200);
@@ -142,7 +142,7 @@ export async function handlePostOps(req: Req, res: Res): Promise<void> {
   const allFieldMaps = readFieldMap(activeSource);
   const fieldMap = allFieldMaps[databaseId] ?? {};
 
-  let result: ReturnType<typeof dispatchInsert> = null;
+  let result: { query: string } | null = null;
 
   switch (action) {
     case 'insert': {
@@ -150,27 +150,27 @@ export async function handlePostOps(req: Req, res: Res): Promise<void> {
       const opsDb = opsState.databases[databaseId] as { properties: Record<string, SchemaProp> } | undefined;
       const properties = (body.properties ?? {}) as Record<string, unknown>;
       const pageId = body.pageId as string;
-      result = dispatchInsert(activeSource, databaseId,
+      result = await dispatchInsert(activeSource, databaseId,
         buildFlatRecord(fieldMap, properties, pageId, activeSource, opsDb?.properties), fieldMap);
       break;
     }
     case 'delete': {
       const deleteId = resolveOpsDeleteId(activeSource, body.pageId as string, fieldMap);
-      result = dispatchDelete(activeSource, databaseId, deleteId, fieldMap);
+      result = await dispatchDelete(activeSource, databaseId, deleteId, fieldMap);
       break;
     }
     case 'addColumn': {
       const columnName = body.columnName as string;
       const propType = (body.propType as string) ?? 'text';
-      result = dispatchAddColumn(activeSource, databaseId, columnName, propType);
+      result = await dispatchAddColumn(activeSource, databaseId, columnName, propType);
       break;
     }
     case 'dropColumn':
-      result = dispatchDropColumn(activeSource, databaseId, body.columnName as string);
+      result = await dispatchDropColumn(activeSource, databaseId, body.columnName as string);
       break;
     case 'changeType': {
       const { columnName, oldType, newType } = body as Record<string, string>;
-      result = dispatchChangeType(activeSource, databaseId, columnName, oldType, newType);
+      result = await dispatchChangeType(activeSource, databaseId, columnName, oldType, newType);
       break;
     }
     default:

@@ -53,7 +53,7 @@ export async function handlePatchPage(req: Req, res: Res, params?: string[]): Pr
     const fieldName = fieldMap[propertyId];
     if (fieldName) {
       const dbValue = convertValueToDisplay(value, prop as SchemaProp | undefined);
-      dispatchUpdate(activeSource, dbId, page.id, fieldName, dbValue, fieldMap);
+      await dispatchUpdate(activeSource, dbId, page.id, fieldName, dbValue, fieldMap);
     }
   } else {
     writeState(activeSource, state);
@@ -62,7 +62,7 @@ export async function handlePatchPage(req: Req, res: Res, params?: string[]): Pr
     const flatId = resolveFlatId(page, fieldMap);
     const fieldName = fieldMap[propertyId];
     if (flatId && fieldName) {
-      dispatchUpdate(activeSource, dbId, flatId, fieldName, value, fieldMap);
+      await dispatchUpdate(activeSource, dbId, flatId, fieldName, value, fieldMap);
     }
   }
 
@@ -95,7 +95,7 @@ export async function handlePostRecord(req: Req, res: Res): Promise<void> {
     lastEditedBy: 'You',
   };
 
-  const result = dispatchInsert(activeSource, databaseId, flatRecord, fieldMap);
+  const result = await dispatchInsert(activeSource, databaseId, flatRecord, fieldMap);
   if (!isLiveDbSource(activeSource)) writeState(activeSource, state);
 
   res.writeHead(201);
@@ -121,7 +121,7 @@ export async function handleDeleteRecord(_req: Req, res: Res, params?: string[])
   delete state.pages[pageId];
 
   const result = flatId
-    ? dispatchDelete(activeSource, dbId, flatId, fieldMap)
+    ? await dispatchDelete(activeSource, dbId, flatId, fieldMap)
     : null;
 
   if (!isLiveDbSource(activeSource)) writeState(activeSource, state);
