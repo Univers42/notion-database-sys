@@ -10,31 +10,21 @@ RESET := \033[0m
 
 DC := docker compose -f $(ROOT)/docker-compose.yml
 
-.DEFAULT_GOAL := dev
+.DEFAULT_GOAL := help
 help: ## Show available targets
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "$(CYAN)%-22s$(RESET) %s\n", $$1, $$2}'
 
 # ── Development ──────────────────────────────────────────────────────────
 
-dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)  [default]
+dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)
 	@echo -e "$(CYAN)Starting playground on http://localhost:3001$(RESET)"
 	cd $(ROOT) && $(DC) up -d mongodb api playground
 	@echo "Waiting for API to become healthy…"
 	@until docker inspect --format='{{.State.Health.Status}}' notion_api 2>/dev/null | grep -q healthy; do sleep 2; done
 	@echo -e "$(GREEN)✔ API ready$(RESET)"
-	@$(MAKE) seed --no-print-directory
+	@$(MAKE) check-seed --no-print-directory
 	@echo -e "$(GREEN)✔ Stack up — tailing playground logs (Ctrl-C to detach)$(RESET)"
-	cd $(ROOT) && $(DC) logs -f --tail=10 playground
-
-dev-all: ## Start playground + auto-seed + attach logs
-	@echo -e "$(CYAN)Starting playground with auto-seed…$(RESET)"
-	cd $(ROOT) && $(DC) up -d mongodb api playground
-	@echo "Waiting for API to become healthy…"
-	@until docker inspect --format='{{.State.Health.Status}}' notion_api 2>/dev/null | grep -q healthy; do sleep 2; done
-	@echo -e "$(GREEN)✔ API ready$(RESET)"
-	@$(MAKE) seed --no-print-directory
-	@echo -e "$(GREEN)✔ Playground ready on http://localhost:3001$(RESET)"
 	cd $(ROOT) && $(DC) logs -f --tail=10 playground
 
 dev-d: ## Start playground stack (detached)
@@ -57,6 +47,19 @@ build: ## Full rebuild: destroy volumes, rebuild images, start + seed
 	@echo -e "$(GREEN)══ playground: Build complete ══$(RESET)"
 
 # ── Seed ─────────────────────────────────────────────────────────────────
+
+API_URL := http://localhost:$${API_PORT:-4000}
+
+check-seed: ## Verify whether the DB has been seeded; warn if not
+	@status=$$(curl -s -o /dev/null -w '%{http_code}' -X POST $(API_URL)/api/auth/login \
+	  -H 'Content-Type: application/json' \
+	  -d '{"email":"admin@playground.local","password":"playground123"}' 2>/dev/null); \
+	if [ "$$status" = "200" ]; then \
+	  echo -e "$(GREEN)✔ Database already seeded$(RESET)"; \
+	else \
+	  echo -e "$(RED)⚠  Database is NOT seeded — playground will run in offline mode (no persistence).$(RESET)"; \
+	  echo -e "$(RED)   Run $(CYAN)make seed$(RED) first to enable persistent storage.$(RESET)"; \
+	fi
 
 seed: ## Seed MongoDB with playground data (3 users + workspaces)
 	@echo -e "$(CYAN)Seeding playground data…$(RESET)"
@@ -99,4 +102,4 @@ kill-ports: ## Kill any process occupying playground-related ports (3001, 4000)
 	done
 	@echo -e "$(GREEN)✔ Ports freed$(RESET)"
 
-.PHONY: help dev dev-all dev-d stop build seed re build-packages logs kill-ports
+.PHONY: help dev dev-d stop build check-seed seed re build-packages logs kill-ports
