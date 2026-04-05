@@ -6,17 +6,18 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 03:46:49 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { ViteDevServer } from 'vite';
-import { watch, readFileSync, writeFileSync, existsSync, type FSWatcher } from 'node:fs';
+import { watch, readFileSync, existsSync, type FSWatcher } from 'node:fs';
 import { join, basename, extname } from 'node:path';
 import type { DbSourceType, Changeset, NotionState } from './fileWatcher.types';
 import { SOURCE_DIR, FILE_TO_DB, STATE_FILE, FIELD_MAP_FILE } from './fileWatcher.constants';
 import { markOwnWrite, isOwnWrite } from './fileWatcher.guard';
 import { syncJsonToState, syncCsvToState } from './fileWatcher.sync';
+import { atomicWriteSync } from './atomicWrite';
 
 // Re-export public API so consumers keep the same import path
 export { markOwnWrite } from './fileWatcher.guard';
@@ -119,7 +120,7 @@ function handleFileChange(
 
     // 4) Write updated state (mark as own write so we don't loop)
     markOwnWrite(stateFilePath);
-    writeFileSync(stateFilePath, JSON.stringify(state, null, 2), 'utf-8');
+    atomicWriteSync(stateFilePath, JSON.stringify(state, null, 2));
     const patchCount = Object.values(patches).reduce(
       (n, p) => n + Object.keys(p).length, 0,
     );

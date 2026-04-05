@@ -19,7 +19,19 @@ help: ## Show available targets
 
 dev: ## Start src dev stack (Vite :3000 + DBs)  [default]
 	@echo -e "$(CYAN)Starting src on http://localhost:3000$(RESET)"
-	cd $(ROOT) && $(DC) up
+	cd $(ROOT) && $(DC) up -d
+	@cd $(ROOT) && $(DC) logs -f --tail=40 src-app
+
+dev-all: ## Start src + auto-seed + attach logs
+	@echo -e "$(CYAN)Starting src with auto-seed…$(RESET)"
+	cd $(ROOT) && $(DC) up -d
+	@echo "Waiting for databases…"
+	@until docker inspect --format='{{.State.Health.Status}}' notion_postgres 2>/dev/null | grep -q healthy; do sleep 2; done
+	@until docker inspect --format='{{.State.Health.Status}}' notion_mongodb 2>/dev/null | grep -q healthy; do sleep 2; done
+	@echo -e "$(GREEN)✔ Databases ready$(RESET)"
+	@$(MAKE) seed --no-print-directory
+	@echo -e "$(GREEN)✔ Src ready on http://localhost:3000$(RESET)"
+	cd $(ROOT) && $(DC) logs -f --tail=20 src-app
 
 dev-d: ## Start src dev stack (detached)
 	cd $(ROOT) && $(DC) up -d
@@ -103,5 +115,5 @@ verify: verify-pg verify-mongo ## Verify both databases
 logs: ## Tail src stack logs
 	cd $(ROOT) && $(DC) logs -f --tail=50
 
-.PHONY: help dev dev-d dev-verbose stop build seed seed-pg seed-mongo \
+.PHONY: help dev dev-all dev-d dev-verbose stop build seed seed-pg seed-mongo \
 	seed-state re verify-pg verify-mongo verify logs

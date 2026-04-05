@@ -1,10 +1,11 @@
 /** @file stateManager.ts — State read/write, live-DB caching, source management. */
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DbSourceType, NotionState, SchemaProp } from './dbmsTypes';
 import { SOURCE_DIR, STATE_FILE, FIELD_MAP_FILE } from './dbmsTypes';
 import { markOwnWrite } from './fileWatcher';
+import { atomicWriteSync } from './atomicWrite';
 import { logLifecycle } from './logger';
 import { normalizePageToOptionIds } from './optionConversion';
 import { pgLoadPages } from './db/pgLoader';
@@ -57,7 +58,7 @@ export function readState(source: DbSourceType): NotionState {
 export function writeState(source: DbSourceType, state: NotionState): void {
   const p = statePath(source);
   markOwnWrite(p);
-  writeFileSync(p, JSON.stringify(state, null, 2), 'utf-8');
+  atomicWriteSync(p, JSON.stringify(state, null, 2));
 }
 
 export function readFieldMap(source: DbSourceType): Record<string, Record<string, string>> {

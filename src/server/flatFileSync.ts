@@ -1,11 +1,12 @@
 /** @file flatFileSync.ts — JSON / CSV flat-file sync helpers. */
 
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { safeString } from '../utils/safeString';
 import type { PageLike } from './dbmsTypes';
 import { SOURCE_DIR } from './dbmsTypes';
 import { markOwnWrite } from './fileWatcher';
+import { atomicWriteSync } from './atomicWrite';
 
 /** Resolve possible flat-file IDs for this page.
  *  Returns candidates: auto-increment property value (if mapped) + page ID. */
@@ -101,7 +102,7 @@ export function syncJsonEntity(source: string, page: PageLike, fieldMap: Record<
       updateFlatRecord(records[idx], page, fieldMap);
       markOwnWrite(filePath);
       const output = raw.records ? { ...raw, records } : records;
-      writeFileSync(filePath, JSON.stringify(output, null, 2), 'utf-8');
+      atomicWriteSync(filePath, JSON.stringify(output, null, 2));
       return;
     } catch {
       // skip files that don't parse
@@ -155,7 +156,7 @@ export function syncCsvEntity(source: string, page: PageLike, fieldMap: Record<s
 
       if (findAndUpdateCsvRow(lines, headers, idCol, flatIds, page, fieldMap)) {
         markOwnWrite(filePath);
-        writeFileSync(filePath, lines.join('\n'), 'utf-8');
+        atomicWriteSync(filePath, lines.join('\n'));
         return;
       }
     } catch {
