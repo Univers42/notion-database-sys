@@ -1,23 +1,9 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   smoke-test.ts                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:11:04 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-// Tests all file-based adapters (JSON, CSV) without Docker.
-// For MongoDB/PostgreSQL, run `make up && make seed-all` first.
-//
-// Usage:
-//   npx tsx src/services/dbms/smoke-test.ts [--all]
-//
-// Flags:
-//   --all   Also test MongoDB and PostgreSQL (requires running containers)
+/**
+ * @file smoke-test.ts — Tests all database adapters.
+ *
+ * Usage: npx tsx docker/services/dbms/smoke-test.ts [--all]
+ * Flags: --all  Also run MongoDB and PostgreSQL tests (requires running containers).
+ */
 
 import { resolve } from 'node:path';
 import { JsonDbAdapter } from './JsonDbAdapter.ts';

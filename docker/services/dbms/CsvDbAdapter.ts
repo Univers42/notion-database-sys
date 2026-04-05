@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   CsvDbAdapter.ts                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:10:27 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-// Reads / writes CSV seed files from a local directory.
+/** @file CsvDbAdapter.ts — Reads and writes CSV seed files from a local directory. */
 
 import { readFileSync, readdirSync, writeFileSync, renameSync } from 'node:fs';
 import { join, basename } from 'node:path';

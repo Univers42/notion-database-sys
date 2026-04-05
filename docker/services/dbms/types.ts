@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   types.ts                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:11:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:11:10 by dlesieur         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-// Shared types for all database adapters.
+/** @file types.ts — Shared types and interfaces for all database adapters. */
 
 /** Supported database source types. */
 export type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';

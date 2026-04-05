@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   PostgresDbAdapter.ts                               :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:11:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-// Connects to PostgreSQL and performs CRUD on tables.
+/** @file PostgresDbAdapter.ts — Connects to PostgreSQL and performs CRUD on tables. */
 
 import pg from 'pg';
 import type { DbAdapter, DbConnectionConfig, DbEntitySchema, DbRecord } from './types.ts';

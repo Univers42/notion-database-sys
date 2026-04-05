@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   MongoDbAdapter.ts                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:10:55 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-// Connects to a MongoDB instance and performs CRUD on collections.
+/** @file MongoDbAdapter.ts — Connects to MongoDB and performs CRUD on collections. */
 
 import { MongoClient, type Db, type Document } from 'mongodb';
 import type { DbAdapter, DbConnectionConfig, DbEntitySchema, DbRecord } from './types.ts';

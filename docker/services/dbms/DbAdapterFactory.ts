@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   DbAdapterFactory.ts                                :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:10:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:10:32 by dlesieur         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-// Creates a DbAdapter instance based on the source type.
+/** @file DbAdapterFactory.ts — Creates a DbAdapter for the given source type. */
 
 import type { DbAdapter, DbConnectionConfig, DbSourceType } from './types.ts';
 import { JsonDbAdapter } from './JsonDbAdapter.ts';

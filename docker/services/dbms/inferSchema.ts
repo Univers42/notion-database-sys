@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   inferSchema.ts                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/04 15:10:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 21:01:06 by dlesieur         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-// Derives DbFieldSchema[] from a sample of DbRecord objects.
+/** @file inferSchema.ts — Derives field schemas from a sample of records. */
 
 import type { DbFieldSchema, DbRecord } from './types.ts';
 
