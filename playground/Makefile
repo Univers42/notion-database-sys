@@ -20,7 +20,8 @@ help: ## Show available targets
 dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)  [default]
 	@echo -e "$(CYAN)Starting playground on http://localhost:3001$(RESET)"
 	cd $(ROOT) && $(DC) up -d mongodb api playground
-	cd $(ROOT) && $(DC) logs -f --tail=40 api playground
+	@echo -e "$(GREEN)✔ Stack up — tailing playground logs (Ctrl-C to detach)$(RESET)"
+	cd $(ROOT) && $(DC) logs -f --tail=10 playground
 
 dev-all: ## Start playground + auto-seed + attach logs
 	@echo -e "$(CYAN)Starting playground with auto-seed…$(RESET)"
@@ -30,7 +31,7 @@ dev-all: ## Start playground + auto-seed + attach logs
 	@echo -e "$(GREEN)✔ API ready$(RESET)"
 	@$(MAKE) seed --no-print-directory
 	@echo -e "$(GREEN)✔ Playground ready on http://localhost:3001$(RESET)"
-	cd $(ROOT) && $(DC) logs -f --tail=20 api playground
+	cd $(ROOT) && $(DC) logs -f --tail=10 playground
 
 dev-d: ## Start playground stack (detached)
 	cd $(ROOT) && $(DC) up -d mongodb api playground
@@ -79,6 +80,19 @@ build-packages: ## Build all packages (types → core → api)
 	@echo -e "$(GREEN)✔ All packages built$(RESET)"
 
 logs: ## Tail playground stack logs
-	cd $(ROOT) && $(DC) logs -f --tail=50
+	cd $(ROOT) && $(DC) logs -f --tail=50 playground
 
-.PHONY: help dev dev-all dev-d stop build seed re build-packages logs
+kill-ports: ## Kill any process occupying playground-related ports (3001, 4000)
+	@echo -e "$(CYAN)Killing processes on ports 3001, 4000…$(RESET)"
+	@for port in 3001 4000; do \
+		pids=$$(lsof -ti :$$port 2>/dev/null || true); \
+		if [ -n "$$pids" ]; then \
+			echo "  Killing PID(s) $$pids on :$$port"; \
+			echo "$$pids" | xargs kill -9 2>/dev/null || true; \
+		else \
+			echo "  Port :$$port is free"; \
+		fi; \
+	done
+	@echo -e "$(GREEN)✔ Ports freed$(RESET)"
+
+.PHONY: help dev dev-all dev-d stop build seed re build-packages logs kill-ports

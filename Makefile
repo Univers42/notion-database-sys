@@ -378,10 +378,21 @@ fclean: ## Full clean: stop+remove all containers (incl. orphans) + volumes, ima
 		tsconfig.tsbuildinfo packages/*/tsconfig.tsbuildinfo .make
 	@echo -e "$(GREEN)✔ Full clean done$(RESET)"
 
+kill-ports: ## Kill any process occupying stack-related ports (3000, 3001, 4000, 5432, 6379, 9000, 27017)
+	@echo -e "$(CYAN)Killing processes on stack ports…$(RESET)"
+	@for port in 3000 3001 4000 5432 6379 9000 27017; do \
+		pids=$$(lsof -ti :$$port 2>/dev/null || true); \
+		if [ -n "$$pids" ]; then \
+			echo -e "  $(RED)Killing PID(s) $$pids on :$$port$(RESET)"; \
+			echo "$$pids" | xargs kill -9 2>/dev/null || true; \
+		fi; \
+	done
+	@echo -e "$(GREEN)✔ Ports freed$(RESET)"
+
 .PHONY: help preflight check-docker check-compose check-db-ports check-app-ports \
 	check-sonar-ports check-ports stack check-app-image-cache build build-app pull \
 	ensure-db-images ensure-sonar-images ensure-stock-images up up-db up-sonar up-app \
 	down restart logs stack-status doctor app-image-status show-endpoints db-reset db-status \
 	status psql mongo-shell redis-cli seed seed-src ensure-api wait-api \
 	seed-playground seed-all install build-packages typecheck lint lint-fix \
-	audit wait-sonar sonar-up sonar-scan sonar-status ci clean fclean
+	audit wait-sonar sonar-up sonar-scan sonar-status ci clean fclean kill-ports
