@@ -13,7 +13,7 @@
 // Blocks are stored as a standalone collection (not embedded in pages)
 // to avoid the 16MB BSON document limit on large databases.
 
-import type { Timestamps, SoftDeletable } from './common';
+import type { Timestamps, SoftDeletable } from './common.js';
 
 export type BlockType =
   | 'paragraph'

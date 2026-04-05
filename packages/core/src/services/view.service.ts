@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { ViewConfigModel } from '../models/view.model';
-import { UserViewOverrideModel } from '../models/userViewOverride.model';
+import { ViewConfigModel } from '../models/view.model.js';
+import { UserViewOverrideModel } from '../models/userViewOverride.model.js';
 import type { ViewConfig, UserViewOverride } from '@notion-db/types';
 
 export class ViewService {

@@ -9,7 +9,6 @@
 /*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 /** Refresh token stored in MongoDB with TTL */
 export interface Session {
   _id: string;

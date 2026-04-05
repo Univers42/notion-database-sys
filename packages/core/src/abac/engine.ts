@@ -11,10 +11,10 @@
 /* ************************************************************************** */
 
 import type { PermissionLevel } from '@notion-db/types';
-import { AccessRuleModel } from '../models/accessRule.model';
-import { EffectivePermissionModel } from '../models/effectivePermission.model';
-import { WorkspaceMemberModel } from '../models/member.model';
-import { resolvePermission } from './resolver';
+import { AccessRuleModel } from '../models/accessRule.model.js';
+import { EffectivePermissionModel } from '../models/effectivePermission.model.js';
+import { WorkspaceMemberModel } from '../models/member.model.js';
+import { resolvePermission } from './resolver.js';
 
 /** Default TTL for cached permissions: 5 minutes */
 const CACHE_TTL_MS = 5 * 60 * 1000;

@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-export * from './models';
-export * from './abac';
-export * from './services';
-export * from './utils';
-export { connectDatabase, disconnectDatabase, syncIndexes } from './database';
+export * from './models/index.js';
+export * from './abac/index.js';
+export * from './services/index.js';
+export * from './utils/index.js';
+export { connectDatabase, disconnectDatabase, syncIndexes } from './database.js';

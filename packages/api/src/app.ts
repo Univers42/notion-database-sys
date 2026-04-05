@@ -15,13 +15,13 @@ import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
 import websocket from '@fastify/websocket';
 import { connectDatabase, syncIndexes } from '@notion-db/core';
-import { authRoutes } from './routes/auth.routes';
-import { workspaceRoutes } from './routes/workspace.routes';
-import { pageRoutes } from './routes/page.routes';
-import { blockRoutes } from './routes/block.routes';
-import { viewRoutes } from './routes/view.routes';
-import { wsRoutes } from './routes/ws.routes';
-import { authHook } from './hooks/auth.hook';
+import { authRoutes } from './routes/auth.routes.js';
+import { workspaceRoutes } from './routes/workspace.routes.js';
+import { pageRoutes } from './routes/page.routes.js';
+import { blockRoutes } from './routes/block.routes.js';
+import { viewRoutes } from './routes/view.routes.js';
+import { wsRoutes } from './routes/ws.routes.js';
+import { authHook } from './hooks/auth.hook.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -71,4 +71,3 @@ export async function buildApp() {
 
   return app;
 }
-

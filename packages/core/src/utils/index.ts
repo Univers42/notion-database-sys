@@ -10,4 +10,4 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-export { isValidObjectId } from './objectId';
+export { isValidObjectId } from './objectId.js';

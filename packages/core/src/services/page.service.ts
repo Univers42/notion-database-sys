@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { PageModel } from '../models/page.model';
+import { PageModel } from '../models/page.model.js';
 
 export class PageService {
   /**

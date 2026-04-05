@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { BlockModel } from '../models/block.model';
+import { BlockModel } from '../models/block.model.js';
 import type { Block, BlockType } from '@notion-db/types';
 
 export class BlockService {

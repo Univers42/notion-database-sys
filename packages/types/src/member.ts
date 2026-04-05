@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Timestamps } from './common';
+import type { Timestamps } from './common.js';
 
 export type WorkspaceRole = 'owner' | 'admin' | 'member' | 'guest';
 

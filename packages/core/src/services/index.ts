@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-export { AuthService } from './auth.service';
-export { WorkspaceService } from './workspace.service';
-export { PageService } from './page.service';
-export { BlockService } from './block.service';
-export { ViewService } from './view.service';
+export { AuthService } from './auth.service.js';
+export { WorkspaceService } from './workspace.service.js';
+export { PageService } from './page.service.js';
+export { BlockService } from './block.service.js';
+export { ViewService } from './view.service.js';

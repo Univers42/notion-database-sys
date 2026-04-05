@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Timestamps } from './common';
+import type { Timestamps } from './common.js';
 
 /** Permission levels, ordered from least to most access */
 export type PermissionLevel =

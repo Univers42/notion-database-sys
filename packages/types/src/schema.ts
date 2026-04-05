@@ -14,7 +14,7 @@ import type {
   PropertyType, SelectOption, StatusGroup,
   FormulaConfig, RollupConfig, RelationConfig,
   ButtonConfig, CustomFieldConfig,
-} from './property';
+} from './property.js';
 
 /** A single property definition within a database schema */
 export interface SchemaProperty {

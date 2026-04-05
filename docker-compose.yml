@@ -1,28 +1,14 @@
-# docker-compose.yml
-#
-# Full Docker development environment.  No host dependencies beyond Docker.
-#
-# Profiles:
-#   src         — Main app (Vite on :3000) + PostgreSQL + MongoDB
-#   playground  — Playground app (Vite on :3001) + API (:4000) + MongoDB
-#   sonar       — SonarQube CE for local static analysis
-#
-# Usage (from project root via Makefiles):
-#   make -C src dev         # start src app stack
-#   make -C playground dev  # start playground stack
-#
-# Database volumes are destroyed on `make build` to guarantee
-# a clean seed when switching between apps.
+x-app-service: &app-service
+  image: notion-database-sys/app:local
+  working_dir: /app
+  init: true
+  restart: unless-stopped
 
 services:
-
-  # ── Databases ──────────────────────────────────────────────────────────────
-
   postgres:
     image: postgres:16-alpine
     container_name: notion_postgres
     restart: unless-stopped
-    profiles: ["src"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-notion_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notion_pass}
@@ -31,10 +17,10 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./docker/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql:ro
+      - ./src/store/dbms/relational:/seed:ro
       - ./docker/services/postgresql/conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - ./docker/services/postgresql/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
-      - ./src/store/dbms/relational:/seed:ro
+      - ./docker/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql:ro
     command:
       - postgres
       - -c
@@ -43,9 +29,9 @@ services:
       - hba_file=/etc/postgresql/pg_hba.conf
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      interval: 3s
+      timeout: 2s
+      retries: 5
       start_period: 5s
     shm_size: 128mb
 
@@ -53,7 +39,6 @@ services:
     image: mongo:7.0
     container_name: notion_mongodb
     restart: unless-stopped
-    profiles: ["src", "playground"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-notion_user}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
@@ -62,26 +47,20 @@ services:
       - "${MONGO_PORT:-27017}:27017"
     volumes:
       - mongo_data:/data/db
-      - ./docker/services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
       - ./src/store/dbms/mongodb:/seed:ro
+      - ./docker/services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
     command: ["mongod", "--bind_ip_all", "--quiet"]
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--norc", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 3s
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 3s
+      timeout: 2s
       retries: 5
       start_period: 5s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "5m"
-        max-file: "1"
 
   redis:
     image: redis:7-alpine
     container_name: notion_redis
     restart: unless-stopped
-    profiles: ["src", "playground"]
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -90,106 +69,18 @@ services:
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
+      interval: 3s
+      timeout: 2s
       retries: 5
       start_period: 3s
 
-  # ── src app (Vite dev server on :3000) ─────────────────────────────────────
-
-  src-app:
-    build:
-      context: .
-      dockerfile: docker/services/node/Dockerfile
-    container_name: notion_src
-    profiles: ["src"]
-    volumes:
-      - .:/app
-      - node_modules:/app/node_modules
-    ports:
-      - "3000:3000"
-    command: ["pnpm", "dev:src"]
-    depends_on:
-      postgres:
-        condition: service_healthy
-      mongodb:
-        condition: service_healthy
-    environment:
-      TURBO_TELEMETRY_DISABLED: "1"
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: "5432"
-      POSTGRES_USER: ${POSTGRES_USER:-notion_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notion_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-notion_db}
-      SRC_POSTGRES_DB: ${SRC_POSTGRES_DB:-notion_src_db}
-      MONGO_HOST: mongodb
-      MONGO_PORT: "27017"
-      MONGO_USER: ${MONGO_USER:-notion_user}
-      MONGO_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
-      MONGO_DB: ${MONGO_DB:-notion_db}
-      SRC_MONGO_DB: ${SRC_MONGO_DB:-notion_src_db}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-notion_user}:${POSTGRES_PASSWORD:-notion_pass}@postgres:5432/${POSTGRES_DB:-notion_db}
-      MONGO_URI: mongodb://${MONGO_USER:-notion_user}:${MONGO_PASSWORD:-notion_pass}@mongodb:27017/${MONGO_DB:-notion_db}?authSource=admin
-
-  # ── playground app (Vite dev server on :3001) ──────────────────────────────
-
-  playground-app:
-    build:
-      context: .
-      dockerfile: docker/services/node/Dockerfile
-    container_name: notion_playground
-    profiles: ["playground"]
-    volumes:
-      - .:/app
-      - node_modules:/app/node_modules
-    ports:
-      - "3001:3001"
-    command: ["pnpm", "dev:playground"]
-    depends_on:
-      api:
-        condition: service_healthy
-    environment:
-      VITE_API_URL: http://localhost:4000
-
-  # ── Fastify API (serves playground on :4000) ───────────────────────────────
-
-  api:
-    build:
-      context: .
-      dockerfile: docker/services/node/Dockerfile
-    container_name: notion_api
-    profiles: ["playground"]
-    volumes:
-      - .:/app
-      - node_modules:/app/node_modules
-    ports:
-      - "4000:4000"
-    command: ["pnpm", "dev:api"]
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"const s=require('net').createConnection(4000,'localhost');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))\""]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-      start_period: 20s
-    environment:
-      TURBO_TELEMETRY_DISABLED: "1"
-      MONGO_HOST: mongodb
-      MONGO_PORT: "27017"
-      MONGO_USER: ${MONGO_USER:-notion_user}
-      MONGO_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
-      MONGO_DB: ${MONGO_DB:-notion_db}
-      MONGO_URI: mongodb://${MONGO_USER:-notion_user}:${MONGO_PASSWORD:-notion_pass}@mongodb:27017/${MONGO_DB:-notion_db}?authSource=admin
-
-  # ── SonarQube (optional, for local static analysis) ────────────────────────
-
   sonarqube:
-    image: sonarqube:community
+    image: ${SONARQUBE_IMAGE:-sonarqube:26.3.0.120487-community}
     container_name: notion_sonarqube
-    profiles: ["sonar"]
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     environment:
       SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
     ports:
@@ -206,14 +97,111 @@ services:
       retries: 12
       start_period: 60s
 
+  api:
+    <<: *app-service
+    container_name: notion_api
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      API_HOST: 0.0.0.0
+      API_PORT: ${API_PORT:-4000}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      SYNC_INDEXES: ${SYNC_INDEXES:-true}
+      MONGO_USER: ${MONGO_USER:-notion_user}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: ${PLAYGROUND_MONGO_DB:-notion_playground_db}
+      MONGO_URI: mongodb://${MONGO_USER:-notion_user}:${MONGO_PASSWORD:-notion_pass}@mongodb:27017/${PLAYGROUND_MONGO_DB:-notion_playground_db}?authSource=admin
+    ports:
+      - "${API_PORT:-4000}:4000"
+    command: ["node", "packages/api/dist/index.js"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 8s
+
+  src:
+    <<: *app-service
+    container_name: notion_src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      ACTIVE_DB_SOURCE: ${ACTIVE_DB_SOURCE:-json}
+      POSTGRES_USER: ${POSTGRES_USER:-notion_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notion_pass}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      SRC_POSTGRES_DB: ${SRC_POSTGRES_DB:-notion_src_db}
+      MONGO_USER: ${MONGO_USER:-notion_user}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      SRC_MONGO_DB: ${SRC_MONGO_DB:-notion_src_db}
+      JSON_DB_PATH: ./src/store/dbms/json
+      CSV_DB_PATH: ./src/store/dbms/csv
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    ports:
+      - "${SRC_PORT:-3000}:3000"
+    command: ["pnpm", "exec", "vite", "--config", "src/vite.config.ts", "--host", "0.0.0.0", "--port", "3000"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  playground:
+    <<: *app-service
+    container_name: notion_playground
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:${API_PORT:-4000}
+    ports:
+      - "${PLAYGROUND_PORT:-3001}:3001"
+    command: ["pnpm", "exec", "vite", "--config", "playground/vite.config.ts", "--host", "0.0.0.0", "--port", "3001"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
 volumes:
-  # Shared
-  node_modules:
-  redis_data:
-  # Database
   pg_data:
   mongo_data:
-  # SonarQube
+  redis_data:
   sonarqube_data:
   sonarqube_logs:
   sonarqube_extensions:

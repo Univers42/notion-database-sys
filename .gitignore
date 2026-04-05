@@ -39,6 +39,7 @@ src/lib/rust/*/target/
 
 # SonarQube scanner working directory
 .scannerwork/
+.make/
 
 # Generated reports (now in build/reports/)
 audit-report.json
@@ -47,4 +48,3 @@ sonarcloud-report.txt
 
 # Stale root-level files
 metadata.json
-

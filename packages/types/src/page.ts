@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Timestamps, SoftDeletable } from './common';
-import type { Block } from './block';
+import type { Timestamps, SoftDeletable } from './common.js';
+import type { Block } from './block.js';
 
 /**
  * Page document — stored in the `pages` collection.

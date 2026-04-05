@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Timestamps } from './common';
+import type { Timestamps } from './common.js';
 
 export interface WorkspaceSettings {
   defaultPermission: 'full_access' | 'can_edit' | 'can_comment' | 'can_view';

@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import 'dotenv/config';
-import { buildApp } from './app';
+import { buildApp } from './app.js';
 
 const PORT = Number.parseInt(process.env.API_PORT ?? '4000', 10);
 const HOST = process.env.API_HOST ?? '0.0.0.0';

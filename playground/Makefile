@@ -8,7 +8,7 @@ GREEN := \033[32m
 RED   := \033[31m
 RESET := \033[0m
 
-DC := docker compose -f $(ROOT)/docker-compose.yml --profile playground
+DC := docker compose -f $(ROOT)/docker-compose.yml
 
 .DEFAULT_GOAL := dev
 help: ## Show available targets
@@ -19,32 +19,34 @@ help: ## Show available targets
 
 dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)  [default]
 	@echo -e "$(CYAN)Starting playground on http://localhost:3001$(RESET)"
-	cd $(ROOT) && $(DC) up --no-attach mongodb --no-attach redis
+	cd $(ROOT) && $(DC) up -d mongodb api playground
+	cd $(ROOT) && $(DC) logs -f --tail=40 api playground
 
 dev-all: ## Start playground + auto-seed + attach logs
 	@echo -e "$(CYAN)Starting playground with auto-seed…$(RESET)"
-	cd $(ROOT) && $(DC) up -d
+	cd $(ROOT) && $(DC) up -d mongodb api playground
 	@echo "Waiting for API to become healthy…"
 	@until docker inspect --format='{{.State.Health.Status}}' notion_api 2>/dev/null | grep -q healthy; do sleep 2; done
 	@echo -e "$(GREEN)✔ API ready$(RESET)"
 	@$(MAKE) seed --no-print-directory
 	@echo -e "$(GREEN)✔ Playground ready on http://localhost:3001$(RESET)"
-	cd $(ROOT) && $(DC) logs -f --tail=20 api playground-app
+	cd $(ROOT) && $(DC) logs -f --tail=20 api playground
 
 dev-d: ## Start playground stack (detached)
-	cd $(ROOT) && $(DC) up -d
+	cd $(ROOT) && $(DC) up -d mongodb api playground
 	@echo -e "$(GREEN)✔ playground stack running (detached)$(RESET)"
 
 stop: ## Stop playground stack
-	cd $(ROOT) && $(DC) down --remove-orphans
+	cd $(ROOT) && $(DC) stop playground api mongodb
 	@echo -e "$(GREEN)✔ playground stack stopped$(RESET)"
 
 # ── Build (destroy volumes, rebuild, seed) ───────────────────────────────
 
 build: ## Full rebuild: destroy volumes, rebuild images, start + seed
 	@echo -e "$(CYAN)══ playground: Full rebuild ══$(RESET)"
-	cd $(ROOT) && docker compose --profile src --profile playground down -v --remove-orphans 2>/dev/null || true
-	cd $(ROOT) && $(DC) up --build -d
+	cd $(ROOT) && $(DC) down -v --remove-orphans 2>/dev/null || true
+	cd $(ROOT) && $(MAKE) build-app --no-print-directory
+	cd $(ROOT) && $(DC) up -d mongodb api playground
 	@sleep 2
 	@$(MAKE) seed --no-print-directory
 	@echo -e "$(GREEN)══ playground: Build complete ══$(RESET)"
@@ -73,7 +75,7 @@ re: ## Full restart: wipe DBs, re-seed
 
 build-packages: ## Build all packages (types → core → api)
 	@echo -e "$(CYAN)Building packages…$(RESET)"
-	cd $(ROOT) && $(DC) exec playground-app pnpm turbo run build --filter='./packages/*'
+	cd $(ROOT) && $(DC) exec playground pnpm turbo run build --filter='./packages/*'
 	@echo -e "$(GREEN)✔ All packages built$(RESET)"
 
 logs: ## Tail playground stack logs

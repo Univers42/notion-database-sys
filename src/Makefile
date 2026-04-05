@@ -8,7 +8,7 @@ GREEN := \033[32m
 RED   := \033[31m
 RESET := \033[0m
 
-DC := docker compose -f $(ROOT)/docker-compose.yml --profile src
+DC := docker compose -f $(ROOT)/docker-compose.yml
 
 .DEFAULT_GOAL := dev
 help: ## Show available targets
@@ -19,37 +19,38 @@ help: ## Show available targets
 
 dev: ## Start src dev stack (Vite :3000 + DBs)  [default]
 	@echo -e "$(CYAN)Starting src on http://localhost:3000$(RESET)"
-	cd $(ROOT) && $(DC) up -d
-	@cd $(ROOT) && $(DC) logs -f --tail=40 src-app
+	cd $(ROOT) && $(DC) up -d postgres mongodb src
+	@cd $(ROOT) && $(DC) logs -f --tail=40 src
 
 dev-all: ## Start src + auto-seed + attach logs
 	@echo -e "$(CYAN)Starting src with auto-seed…$(RESET)"
-	cd $(ROOT) && $(DC) up -d
+	cd $(ROOT) && $(DC) up -d postgres mongodb src
 	@echo "Waiting for databases…"
 	@until docker inspect --format='{{.State.Health.Status}}' notion_postgres 2>/dev/null | grep -q healthy; do sleep 2; done
 	@until docker inspect --format='{{.State.Health.Status}}' notion_mongodb 2>/dev/null | grep -q healthy; do sleep 2; done
 	@echo -e "$(GREEN)✔ Databases ready$(RESET)"
 	@$(MAKE) seed --no-print-directory
 	@echo -e "$(GREEN)✔ Src ready on http://localhost:3000$(RESET)"
-	cd $(ROOT) && $(DC) logs -f --tail=20 src-app
+	cd $(ROOT) && $(DC) logs -f --tail=20 src
 
 dev-d: ## Start src dev stack (detached)
-	cd $(ROOT) && $(DC) up -d
+	cd $(ROOT) && $(DC) up -d postgres mongodb src
 	@echo -e "$(GREEN)✔ src stack running (detached)$(RESET)"
 
 dev-verbose: ## Start with verbose DB query logging
-	cd $(ROOT) && DBMS_VERBOSE=1 $(DC) up
+	cd $(ROOT) && DBMS_VERBOSE=1 $(DC) up postgres mongodb src
 
 stop: ## Stop src stack
-	cd $(ROOT) && $(DC) down --remove-orphans
+	cd $(ROOT) && $(DC) stop src postgres mongodb
 	@echo -e "$(GREEN)✔ src stack stopped$(RESET)"
 
 # ── Build (destroy volumes, rebuild, seed) ───────────────────────────────
 
 build: ## Full rebuild: destroy volumes, rebuild images, start + seed
 	@echo -e "$(CYAN)══ src: Full rebuild ══$(RESET)"
-	cd $(ROOT) && docker compose --profile src --profile playground down -v --remove-orphans 2>/dev/null || true
-	cd $(ROOT) && $(DC) up --build -d
+	cd $(ROOT) && $(DC) down -v --remove-orphans 2>/dev/null || true
+	cd $(ROOT) && $(MAKE) build-app --no-print-directory
+	cd $(ROOT) && $(DC) up -d postgres mongodb src
 	@sleep 2
 	@$(MAKE) seed --no-print-directory
 	@echo -e "$(GREEN)══ src: Build complete ══$(RESET)"
@@ -57,6 +58,8 @@ build: ## Full rebuild: destroy volumes, rebuild images, start + seed
 # ── Seed ─────────────────────────────────────────────────────────────────
 
 seed: seed-pg seed-mongo ## Seed both PostgreSQL and MongoDB
+
+seed-all: seed-pg seed-mongo ## Seed both PostgreSQL and MongoDB
 
 seed-pg: ## Seed PostgreSQL with src schema + data
 	@echo "Waiting for PostgreSQL…"
@@ -78,7 +81,7 @@ seed-mongo: ## Seed MongoDB with src collections
 	@echo -e "$(GREEN)✔ MongoDB seeded (src)$(RESET)"
 
 seed-state: ## Regenerate _notion_state.json
-	cd $(ROOT) && $(DC) exec src-app npx tsx scripts/generate-state-files.ts
+	cd $(ROOT) && $(DC) exec src npx tsx scripts/generate-state-files.ts
 
 # ── Reset ────────────────────────────────────────────────────────────────
 
@@ -87,7 +90,7 @@ re: ## Full restart: wipe src DBs, re-seed, preserve standalone data
 	@echo "1/4  Stopping containers…"
 	cd $(ROOT) && $(DC) down -v --remove-orphans
 	@echo "2/4  Starting fresh containers…"
-	cd $(ROOT) && $(DC) up -d
+	cd $(ROOT) && $(DC) up -d postgres mongodb src
 	@echo "3/4  Waiting for databases…"
 	@sleep 3
 	@echo "4/4  Seeding databases…"
@@ -116,4 +119,4 @@ logs: ## Tail src stack logs
 	cd $(ROOT) && $(DC) logs -f --tail=50
 
 .PHONY: help dev dev-all dev-d dev-verbose stop build seed seed-pg seed-mongo \
-	seed-state re verify-pg verify-mongo verify logs
+	seed-all seed-state re verify-pg verify-mongo verify logs

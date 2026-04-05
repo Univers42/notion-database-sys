@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Timestamps } from './common';
-import type { FilterNode, Filter, Sort, Grouping, SubGrouping } from './filter';
+import type { Timestamps } from './common.js';
+import type { FilterNode, Filter, Sort, Grouping, SubGrouping } from './filter.js';
 
 export type ViewType =
   | 'table'

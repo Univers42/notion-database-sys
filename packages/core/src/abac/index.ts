@@ -10,5 +10,5 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-export { AbacEngine } from './engine';
-export { resolvePermission, PERMISSION_HIERARCHY } from './resolver';
+export { AbacEngine } from './engine.js';
+export { resolvePermission, PERMISSION_HIERARCHY } from './resolver.js';

@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { WorkspaceModel } from '../models/workspace.model';
-import { WorkspaceMemberModel } from '../models/member.model';
+import { WorkspaceModel } from '../models/workspace.model.js';
+import { WorkspaceMemberModel } from '../models/member.model.js';
 import type { WorkspaceRole } from '@notion-db/types';
 
 export class WorkspaceService {

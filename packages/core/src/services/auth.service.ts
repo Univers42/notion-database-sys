@@ -11,8 +11,8 @@
 /* ************************************************************************** */
 
 import crypto from 'node:crypto';
-import { UserModel } from '../models/user.model';
-import { SessionModel } from '../models/session.model';
+import { UserModel } from '../models/user.model.js';
+import { SessionModel } from '../models/session.model.js';
 
 /** 30 days in milliseconds */
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;

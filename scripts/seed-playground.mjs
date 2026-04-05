@@ -170,4 +170,4 @@ console.log('\n4/4  Inviting members to shared workspace…');
 if (alexId)  await ensureMember(sharedWs._id, alexId, 'member', adminJwt);
 if (samId)   await ensureMember(sharedWs._id, samId,  'guest',  adminJwt);
 
-console.log('\n✅  Seed complete! Start the playground with: make dev-playground\n');
+console.log('\n✅  Playground seed complete.\n');
