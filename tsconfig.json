@@ -1,27 +1,26 @@
 {
   "compilerOptions": {
+    /* ── Shared (inherited by packages via extends) ── */
     "target": "ES2022",
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
     "module": "ESNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "skipLibCheck": true,
     "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "isolatedModules": true,
     "moduleDetection": "force",
+
+    /* ── src/ app specific ── */
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@src/*": [
-        "./src/*"
-      ]
+      "@/*": ["./*"],
+      "@src/*": ["./src/*"]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
