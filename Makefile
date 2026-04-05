@@ -230,9 +230,10 @@ show-endpoints: ## Print the effective localhost URLs and ports for the current 
 	@echo -e "  Playground:    $(LBLUE)$(PLAYGROUND_URL)$(RESET)"
 	@echo -e "  API health:    $(LBLUE)$(API_URL)/health$(RESET)"
 	@echo -e "  SonarQube:     $(LBLUE)$(SONAR_URL)$(RESET)"
-	@echo -e "  PostgreSQL:    $(LBLUE)$(POSTGRES_HOST_URL)$(RESET)"
-	@echo -e "  MongoDB:       $(LBLUE)$(MONGO_HOST_URL)$(RESET)"
-	@echo -e "  Redis:         $(LBLUE)$(REDIS_HOST_URL)$(RESET)"
+	@echo -e "  PostgreSQL TCP:$(LBLUE)$(POSTGRES_HOST_URL)$(RESET)"
+	@echo -e "  MongoDB TCP:   $(LBLUE)$(MONGO_HOST_URL)$(RESET)"
+	@echo -e "  Redis TCP:     $(LBLUE)$(REDIS_HOST_URL)$(RESET)"
+	@echo -e "  Note: DB/Redis ports are not browser URLs; use a client or 'make psql' / 'make mongo-shell'."
 
 db-reset: ## Destroy DB volumes and restart only PostgreSQL + MongoDB
 	$(COMPOSE) down -v

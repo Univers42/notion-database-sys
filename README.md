@@ -47,6 +47,9 @@ pnpm dev:playground   # Playground UI on :3001
 
 Run `make help` at root for the full list. Here are the main ones:
 
+PostgreSQL, MongoDB and Redis are exposed as TCP ports, not web pages. Use a DB client,
+`make psql`, `make mongo-shell`, or `make redis-cli` instead of opening those ports in a browser.
+
 ### Root
 
 | Target | What it does |
@@ -56,7 +59,7 @@ Run `make help` at root for the full list. Here are the main ones:
 | `make restart` | Stop + start |
 | `make db-reset` | Destroy volumes and recreate containers |
 | `make db-status` | Show container health + DB connectivity |
-| `make psql` | Open a psql shell |
+| `make psql` | Open a `psql` shell inside the PostgreSQL container |
 | `make mongo-shell` | Open a mongosh shell |
 | `make build-packages` | Build all packages (types → core → api) |
 | `make clean` | Remove containers, volumes, node_modules, dist |
@@ -92,6 +95,9 @@ Run `make help` at root for the full list. Here are the main ones:
 ## Environment variables
 
 Copy `.env.example` → `.env` at project root:
+
+If you override any published host port in `.env` (for example `POSTGRES_PORT=55432`),
+update any host-side connection strings to use the same port.
 
 | Variable | Default | Purpose |
 |---|---|---|
