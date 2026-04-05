@@ -68,7 +68,7 @@
     "*.tsx": "${capture}.ts, ${capture}.css, ${capture}.scss, ${capture}.module.css, ${capture}.test.tsx, ${capture}.spec.tsx",
     // ── Vite config nests under the HTML entry ──────────────
     "index.html": "vite.config.ts, vite-env.d.ts, tsconfig.json, tsconfig.*.json, Makefile"
-  }
+  },
   // =========================================================
   // 5. EXTENSION SPECIFIC RULES (Your SonarLint etc.)
   // =========================================================
