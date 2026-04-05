@@ -1,6 +1,6 @@
 # SonarQube / SonarCloud — Cheatsheet
 
-> **Image**: `sonarqube:community` · **Port**: 9000 · **Default login**: `admin`/`admin`  
+> **Image**: `sonarqube:community` · **Port**: 9000 · **Default login**: `admin`/`admin`
 > Two modes: **local** (Docker SonarQube CE) and **cloud** (SonarCloud CI)
 
 ---
@@ -27,10 +27,10 @@ security vulnerabilities, and duplications without running the code.
 
 Two analysis modes:
 
-| Mode | When | Where | URL |
-|---|---|---|---|
+| Mode      | When              | Where                            | URL                     |
+| --------- | ----------------- | -------------------------------- | ----------------------- |
 | **Local** | Manual, on demand | Docker container on your machine | `http://localhost:9000` |
-| **Cloud** | Every push / PR | GitHub Actions CI | `https://sonarcloud.io` |
+| **Cloud** | Every push / PR   | GitHub Actions CI                | `https://sonarcloud.io` |
 
 Both use the same config file: `sonar-project.properties` at project root.
 
@@ -141,11 +141,12 @@ sonarqube:
     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     SONAR_HOST_URL: https://sonarcloud.io
   steps:
-    - uses: SonarSource/sonarqube-scan-action@v6    # runs the scanner
-    - uses: SonarSource/sonarqube-quality-gate-action@v1  # checks the gate
+    - uses: SonarSource/sonarqube-scan-action@v6 # runs the scanner
+    - uses: SonarSource/sonarqube-quality-gate-action@v1 # checks the gate
 ```
 
 The scanner:
+
 1. Reads `sonar-project.properties` for project key, sources, exclusions
 2. Uses `SONAR_HOST_URL` env var for the server URL
 3. Uses `SONAR_TOKEN` env var for authentication
@@ -222,6 +223,7 @@ sonar-scanner -Dsonar.exclusions="**/*.test.ts,**/dist/**"
 ### How the scanner resolves config
 
 Priority (highest wins):
+
 1. Command-line `-D` flags
 2. Environment variables (`SONAR_TOKEN`, `SONAR_HOST_URL`)
 3. `sonar-project.properties` file
@@ -263,6 +265,7 @@ sonar.qualitygate.timeout=120    # seconds to wait
 ### Adding a new package
 
 If you add a new TypeScript package, update:
+
 1. `sonar.sources` — add its directory
 2. `sonar.typescript.tsconfigPaths` — add its tsconfig path
 
@@ -275,12 +278,12 @@ the gate status is "Failed" and the CI check goes red.
 
 ### Default SonarCloud conditions
 
-| Metric | Condition |
-|---|---|
-| New code coverage | ≥ 80% |
-| New duplicated lines | ≤ 3% |
-| New reliability rating | A (no new bugs) |
-| New security rating | A (no new vulnerabilities) |
+| Metric                     | Condition                              |
+| -------------------------- | -------------------------------------- |
+| New code coverage          | ≥ 80%                                  |
+| New duplicated lines       | ≤ 3%                                   |
+| New reliability rating     | A (no new bugs)                        |
+| New security rating        | A (no new vulnerabilities)             |
 | New maintainability rating | A (no new code smells above threshold) |
 
 ### Checking the gate locally
@@ -308,21 +311,21 @@ curl -sf "https://sonarcloud.io/api/qualitygates/project_status?projectKey=Unive
 
 SonarQube classifies findings into three types:
 
-| Type | Icon | What it means |
-|---|---|---|
-| **Bug** | 🪲 | Code that is demonstrably wrong or will crash |
-| **Vulnerability** | 🔓 | Code that could be exploited (security) |
-| **Code Smell** | 💩 | Code that works but is hard to maintain |
+| Type              | Icon | What it means                                 |
+| ----------------- | ---- | --------------------------------------------- |
+| **Bug**           | 🪲   | Code that is demonstrably wrong or will crash |
+| **Vulnerability** | 🔓   | Code that could be exploited (security)       |
+| **Code Smell**    | 💩   | Code that works but is hard to maintain       |
 
 Severities (from worst to meh):
 
-| Severity | Impact |
-|---|---|
-| **Blocker** | Will crash in production or is a critical security hole |
-| **Critical** | High risk of bugs or security issues |
-| **Major** | Significant quality issue worth fixing |
-| **Minor** | Low-impact improvement |
-| **Info** | Nice to know, not urgent |
+| Severity     | Impact                                                  |
+| ------------ | ------------------------------------------------------- |
+| **Blocker**  | Will crash in production or is a critical security hole |
+| **Critical** | High risk of bugs or security issues                    |
+| **Major**    | Significant quality issue worth fixing                  |
+| **Minor**    | Low-impact improvement                                  |
+| **Info**     | Nice to know, not urgent                                |
 
 ### Browsing issues
 
@@ -420,19 +423,19 @@ These are the TypeScript rules that come up most often in this project.
 The rule key format is `typescript:SXXXX` (SonarSource rules) or
 `typescript:XXXX` (ESLint-derived rules).
 
-| Rule | What it catches | Fix |
-|---|---|---|
-| `S1854` | Dead stores (unused assignments) | Remove the assignment or use the variable |
-| `S1481` | Unused variables | Remove or prefix with `_` |
-| `S3776` | Cognitive complexity too high | Break into smaller functions |
-| `S1066` | Collapsible `if` statements | Merge `if (a) { if (b) }` → `if (a && b)` |
-| `S4144` | Duplicate function bodies | Extract shared logic |
-| `S1135` | `TODO` / `FIXME` in comments | Just resolve them |
-| `S6606` | Prefer nullish coalescing (`??`) | Replace `\|\|` with `??` for null/undefined |
-| `S6582` | Prefer optional chaining (`?.`) | Replace `a && a.b` with `a?.b` |
-| `S4138` | Use `for...of` instead of `forEach` | Swap to `for (const x of arr)` |
-| `S6747` | JSX uses `any` | Add proper types |
-| `S6666` | Use `Array.isArray()` | Replace `instanceof Array` |
+| Rule    | What it catches                     | Fix                                         |
+| ------- | ----------------------------------- | ------------------------------------------- |
+| `S1854` | Dead stores (unused assignments)    | Remove the assignment or use the variable   |
+| `S1481` | Unused variables                    | Remove or prefix with `_`                   |
+| `S3776` | Cognitive complexity too high       | Break into smaller functions                |
+| `S1066` | Collapsible `if` statements         | Merge `if (a) { if (b) }` → `if (a && b)`   |
+| `S4144` | Duplicate function bodies           | Extract shared logic                        |
+| `S1135` | `TODO` / `FIXME` in comments        | Just resolve them                           |
+| `S6606` | Prefer nullish coalescing (`??`)    | Replace `\|\|` with `??` for null/undefined |
+| `S6582` | Prefer optional chaining (`?.`)     | Replace `a && a.b` with `a?.b`              |
+| `S4138` | Use `for...of` instead of `forEach` | Swap to `for (const x of arr)`              |
+| `S6747` | JSX uses `any`                      | Add proper types                            |
+| `S6666` | Use `Array.isArray()`               | Replace `instanceof Array`                  |
 
 ### Suppressing false positives
 
@@ -452,18 +455,18 @@ But be careful — if you suppress everything, you lose the point of static anal
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---|---|
-| **`Project not found`** in CI | The project doesn't exist on SonarCloud, or `SONAR_TOKEN` is wrong/expired. See [Verifying your setup](#verifying-your-setup). |
-| `SONAR_TOKEN` not set | Add it to GitHub repo secrets (for CI) or to `.env` (for local). |
-| Scanner can't find TypeScript files | Check `sonar.sources` and `sonar.inclusions` in `sonar-project.properties`. |
-| Scanner fails with invalid URL | `sonar.host.url` might be set both in properties AND env var. We keep it out of the properties file on purpose — see the comment in the file. |
-| Quality gate always fails on coverage | We have no tests yet → 0% coverage. Either add tests or customize the quality gate to relax the coverage threshold. |
-| Local SonarQube won't start | Needs ~1 GB RAM. Check `docker logs notion_sonarqube` and increase JVM heap in `conf/sonar.properties`. |
-| SonarQube takes forever to boot | Normal — first boot takes 60-90s. Use `wait-sonarqube.sh` to wait. |
-| `Elasticsearch exception` | ES needs `vm.max_map_count >= 262144`. On Linux: `sudo sysctl -w vm.max_map_count=262144`. |
-| Analysis runs but shows 0 lines | `sonar.sources` doesn't point to the right directories, or `sonar.exclusions` is too aggressive. |
-| Duplicate code false positives | SonarQube flags similar-looking code as duplicates. If it's intentional, just accept it. |
+| Problem                               | Fix                                                                                                                                           |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`Project not found`** in CI         | The project doesn't exist on SonarCloud, or `SONAR_TOKEN` is wrong/expired. See [Verifying your setup](#verifying-your-setup).                |
+| `SONAR_TOKEN` not set                 | Add it to GitHub repo secrets (for CI) or to `.env` (for local).                                                                              |
+| Scanner can't find TypeScript files   | Check `sonar.sources` and `sonar.inclusions` in `sonar-project.properties`.                                                                   |
+| Scanner fails with invalid URL        | `sonar.host.url` might be set both in properties AND env var. We keep it out of the properties file on purpose — see the comment in the file. |
+| Quality gate always fails on coverage | We have no tests yet → 0% coverage. Either add tests or customize the quality gate to relax the coverage threshold.                           |
+| Local SonarQube won't start           | Needs ~1 GB RAM. Check `docker logs notion_sonarqube` and increase JVM heap in `conf/sonar.properties`.                                       |
+| SonarQube takes forever to boot       | Normal — first boot takes 60-90s. Use `wait-sonarqube.sh` to wait.                                                                            |
+| `Elasticsearch exception`             | ES needs `vm.max_map_count >= 262144`. On Linux: `sudo sysctl -w vm.max_map_count=262144`.                                                    |
+| Analysis runs but shows 0 lines       | `sonar.sources` doesn't point to the right directories, or `sonar.exclusions` is too aggressive.                                              |
+| Duplicate code false positives        | SonarQube flags similar-looking code as duplicates. If it's intentional, just accept it.                                                      |
 
 ### The "Project not found" CI fix (step by step)
 
@@ -501,4 +504,4 @@ gh secret set SONAR_TOKEN
 
 ---
 
-*Last updated: April 2026*
+_Last updated: April 2026_
