@@ -37,7 +37,7 @@ export function buildFlatRecord(
       let val = properties[propId] ?? null;
       if (isLiveDbSource(source) && val != null) {
         const sp = dbSchema?.[propId];
-        val = convertValueToDisplay(val, sp);
+        val = convertValueToDisplay(val, sp) as {} | null;
       }
       flatRecord[fieldName] = val;
     }

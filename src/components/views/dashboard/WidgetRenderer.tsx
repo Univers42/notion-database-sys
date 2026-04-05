@@ -40,7 +40,7 @@ export function renderWidget(
   propsMap: Record<string, SchemaProperty>,
   data: ComputedData,
   openPage: (id: string) => void,
-  getPageTitle: (page: unknown) => string,
+  getPageTitle: (page: { properties: Record<string, unknown> }) => string,
 ) {
   const prop = widget.propertyId ? propsMap[widget.propertyId] || null : null;
 

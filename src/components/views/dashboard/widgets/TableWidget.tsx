@@ -19,7 +19,7 @@ import { cn } from '../../../../utils/cn';
 export function renderTableWidget(
   widget: DashboardWidget, prop: SchemaProperty | null,
   pages: { id: string; icon?: string; properties: Record<string, unknown> }[],
-  openPage: (id: string) => void, getPageTitle: (p: unknown) => string,
+  openPage: (id: string) => void, getPageTitle: (p: { properties: Record<string, unknown> }) => string,
 ) {
   const tablePages = pages.slice(0, 20);
   return (

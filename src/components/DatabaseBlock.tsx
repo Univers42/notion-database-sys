@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 02:43:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ export function DatabaseBlock({
         <div className={cn("my-3 border border-line rounded-xl overflow-hidden bg-surface-primary shadow-sm")}>
           <TopBar onViewChange={handleViewChange} />
           <div className={cn("max-h-[500px] overflow-auto")}>
-            <DatabaseView viewId={resolvedViewId} compact />
+            <DatabaseView viewId={resolvedViewId ?? undefined} compact />
           </div>
           <InlineFooter databaseId={database.id} />
         </div>

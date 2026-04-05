@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 02:43:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useMemo } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import type { DashboardWidget, SchemaProperty } from '../../../types/database';
+import type { DashboardWidget, Page, SchemaProperty } from '../../../types/database';
 import { Hash, TrendingUp, Users, CheckCircle, Clock, BarChart3 } from 'lucide-react';
 import { isThisWeek, parseISO } from 'date-fns';
 import { FormulaAnalyticsDashboard } from './FormulaAnalyticsDashboard';
@@ -79,7 +79,7 @@ function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageT
   propsMap: Record<string, SchemaProperty>;
   computedData: ComputedData;
   openPage: (id: string) => void;
-  getPageTitle: (page: unknown) => string;
+  getPageTitle: (page: { properties: Record<string, unknown> }) => string;
 }>) {
   return (
     <div className={cn("flex-1 overflow-auto p-6 bg-surface-secondary")}>
@@ -103,7 +103,7 @@ function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageT
   allProps: { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }[];
   computedData: ComputedData;
   openPage: (id: string) => void;
-  getPageTitle: (page: unknown) => string;
+  getPageTitle: (page: { properties: Record<string, unknown> }) => string;
 }>) {
   const checkboxProps = allProps.filter(p => p.type === 'checkbox');
   const numberProps = allProps.filter(p => p.type === 'number');
@@ -176,11 +176,13 @@ export function DashboardView() {
   if (!view || !database) return null;
 
   const widgets: DashboardWidget[] = view.settings?.widgets || [];
+  const titleFn = (page: { properties: Record<string, unknown> }) =>
+    getPageTitle(page as Page);
   if (widgets.length > 0) {
     return <WidgetGrid widgets={widgets} pages={pages} propsMap={propsMap}
-      computedData={computedData} openPage={openPage} getPageTitle={getPageTitle} />;
+      computedData={computedData} openPage={openPage} getPageTitle={titleFn} />;
   }
 
   return <AutoDetectDashboard pages={pages} allProps={allProps}
-    computedData={computedData} openPage={openPage} getPageTitle={getPageTitle} />;
+    computedData={computedData} openPage={openPage} getPageTitle={titleFn} />;
 }

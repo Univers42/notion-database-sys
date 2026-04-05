@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 02:43:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ export function getMonthGroups(days: Date[]): MonthGroup[] {
   for (const d of days) {
     const m = getMonth(d);
     const y = d.getFullYear();
-    if (currentGroup?.month !== m || currentGroup?.year !== y) {
+    if (!currentGroup || currentGroup.month !== m || currentGroup.year !== y) {
       currentGroup = {
         label: format(startOfMonth(d), 'MMM yyyy'),
         colSpan: 1,

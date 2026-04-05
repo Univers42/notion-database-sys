@@ -76,7 +76,7 @@ export function NumberSummaryWidget({ numberProps, numberAggs }: Readonly<{
 export function RecentList({ pages, openPage, getPageTitle }: Readonly<{
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
   openPage: (id: string) => void;
-  getPageTitle: (p: unknown) => string;
+  getPageTitle: (p: { properties: Record<string, unknown> }) => string;
 }>) {
   return (
     <div className={cn("flex flex-col gap-1")}>

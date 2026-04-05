@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 02:43:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ export interface ViewTabsRowProps {
   view: ViewConfig;
   database: DatabaseSchema;
   setActiveView: (id: string) => void;
-  addView: (view: Partial<ViewConfig>) => void;
+  addView: (view: Omit<ViewConfig, 'id'>) => void;
   updateView: (id: string, updates: Partial<ViewConfig>) => void;
   duplicateView: (id: string) => void;
   deleteView: (id: string) => void;
