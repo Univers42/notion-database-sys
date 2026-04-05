@@ -6,11 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 03:57:43 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { api } from '../api/client';
+import { isMongoId } from './pageStore.helpers';
 import type { PageEntry } from './pageStore.types';
 
 /** Lazy JWT getter — avoids importing useUserStore at module top level */
@@ -51,6 +52,7 @@ function flushPendingPersists() {
   for (const [pageId, timer] of _contentTimers.entries()) {
     clearTimeout(timer);
     _contentTimers.delete(pageId);
+    if (!isMongoId(pageId)) continue;  // offline seed page — skip API call
     // Use registered lookup instead of direct store import (avoids circular dep)
     const page = _pageByIdFn?.(pageId);
     if (!page?.content) continue;
@@ -77,6 +79,7 @@ if (globalThis.window !== undefined) {
 }
 
 async function persistPageContent(pageId: string) {
+  if (!isMongoId(pageId)) return;  // offline seed page — skip API call
   const page = _pageByIdFn?.(pageId);
   if (!page?.content) return;
 
@@ -91,6 +94,7 @@ async function persistPageContent(pageId: string) {
 }
 
 export async function persistPageTitle(pageId: string, title: string) {
+  if (!isMongoId(pageId)) return;  // offline seed page — skip API call
   const jwt = getActiveJwt();
   if (!jwt) return;
   try {

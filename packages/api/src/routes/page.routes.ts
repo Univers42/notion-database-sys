@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:03:17 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:03:21 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 03:56:11 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
-import { PageService } from '@notion-db/core';
+import { PageService, isValidObjectId } from '@notion-db/core';
 
 export async function pageRoutes(app: FastifyInstance) {
   const svc = new PageService();
@@ -48,6 +48,9 @@ export async function pageRoutes(app: FastifyInstance) {
 
   // GET /api/pages/:id
   app.get<{ Params: { id: string } }>('/:id', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid page ID' });
+    }
     const page = await svc.getById(request.params.id);
     if (!page) return reply.code(404).send({ error: 'Page not found' });
     return page;
@@ -69,6 +72,9 @@ export async function pageRoutes(app: FastifyInstance) {
     Params: { id: string };
     Body: { title?: string; icon?: string; cover?: string; content?: unknown[]; parentPageId?: string | null };
   }>('/:id', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid page ID' });
+    }
     const page = await svc.updatePage(
       request.params.id,
       request.body,
@@ -83,6 +89,9 @@ export async function pageRoutes(app: FastifyInstance) {
     Params: { id: string };
     Body: { properties: Record<string, unknown> };
   }>('/:id/properties', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid page ID' });
+    }
     const page = await svc.updateProperties(
       request.params.id,
       request.body.properties,
@@ -93,13 +102,19 @@ export async function pageRoutes(app: FastifyInstance) {
   });
 
   // DELETE /api/pages/:id (soft delete)
-  app.delete<{ Params: { id: string } }>('/:id', async (request) => {
+  app.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid page ID' });
+    }
     await svc.archive(request.params.id, request.user.sub);
     return { ok: true };
   });
 
   // POST /api/pages/:id/restore
-  app.post<{ Params: { id: string } }>('/:id/restore', async (request) => {
+  app.post<{ Params: { id: string } }>('/:id/restore', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid page ID' });
+    }
     await svc.restore(request.params.id);
     return { ok: true };
   });

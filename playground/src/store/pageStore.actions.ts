@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 03:57:43 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { api } from '../api/client';
 import { SEED_PAGES } from '../data/seedPages';
-import { seedToEntry, localId, updatePageInState } from './pageStore.helpers';
+import { seedToEntry, localId, updatePageInState, isMongoId } from './pageStore.helpers';
 import type { PageEntry, PageStore } from './pageStore.types';
 
 type SetFn = (partial: Partial<PageStore> | ((s: PageStore) => Partial<PageStore>)) => void;
@@ -84,7 +84,7 @@ export function createFetchPages(set: SetFn, get: GetFn) {
 
 export function createFetchPageContent(set: SetFn) {
   return async (pageId: string, jwt: string) => {
-    if (!jwt) return;
+    if (!jwt || !isMongoId(pageId)) return;  // skip for offline seed pages
     try {
       const fullPage = await api.get<PageEntry>(`/api/pages/${pageId}`, jwt);
       if (!fullPage) return;
@@ -145,7 +145,7 @@ export function createAddPage(set: SetFn) {
 
 export function createDeletePage(set: SetFn) {
   return async (pageId: string, workspaceId: string, jwt: string) => {
-    if (jwt) {
+    if (jwt && isMongoId(pageId)) {
       try { await api.delete(`/api/pages/${pageId}`, jwt); } catch { /* silent */ }
     }
     set(s => ({

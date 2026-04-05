@@ -19,7 +19,17 @@ help: ## Show available targets
 
 dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)  [default]
 	@echo -e "$(CYAN)Starting playground on http://localhost:3001$(RESET)"
-	cd $(ROOT) && $(DC) up
+	cd $(ROOT) && $(DC) up --no-attach mongodb --no-attach redis
+
+dev-all: ## Start playground + auto-seed + attach logs
+	@echo -e "$(CYAN)Starting playground with auto-seed…$(RESET)"
+	cd $(ROOT) && $(DC) up -d
+	@echo "Waiting for API to become healthy…"
+	@until docker inspect --format='{{.State.Health.Status}}' notion_api 2>/dev/null | grep -q healthy; do sleep 2; done
+	@echo -e "$(GREEN)✔ API ready$(RESET)"
+	@$(MAKE) seed --no-print-directory
+	@echo -e "$(GREEN)✔ Playground ready on http://localhost:3001$(RESET)"
+	cd $(ROOT) && $(DC) logs -f --tail=20 api playground-app
 
 dev-d: ## Start playground stack (detached)
 	cd $(ROOT) && $(DC) up -d
@@ -69,4 +79,4 @@ build-packages: ## Build all packages (types → core → api)
 logs: ## Tail playground stack logs
 	cd $(ROOT) && $(DC) logs -f --tail=50
 
-.PHONY: help dev dev-d stop build seed re build-packages logs
+.PHONY: help dev dev-all dev-d stop build seed re build-packages logs

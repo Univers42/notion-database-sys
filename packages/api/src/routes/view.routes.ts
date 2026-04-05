@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:03:26 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:03:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 03:56:10 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
-import { ViewService } from '@notion-db/core';
+import { ViewService, isValidObjectId } from '@notion-db/core';
 
 export async function viewRoutes(app: FastifyInstance) {
   const svc = new ViewService();
@@ -38,6 +38,9 @@ export async function viewRoutes(app: FastifyInstance) {
 
   // GET /api/views/:id — effective view (base + user overrides)
   app.get<{ Params: { id: string } }>('/:id', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid view ID' });
+    }
     try {
       return await svc.getEffective(request.params.id, request.user.sub);
     } catch {
@@ -49,7 +52,10 @@ export async function viewRoutes(app: FastifyInstance) {
   app.put<{
     Params: { id: string };
     Body: { workspaceId: string; overrides: Record<string, unknown> };
-  }>('/:id/overrides', async (request) => {
+  }>('/:id/overrides', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid view ID' });
+    }
     await svc.saveOverride(
       request.params.id,
       request.user.sub,
@@ -60,7 +66,10 @@ export async function viewRoutes(app: FastifyInstance) {
   });
 
   // DELETE /api/views/:id/overrides — reset user overrides
-  app.delete<{ Params: { id: string } }>('/:id/overrides', async (request) => {
+  app.delete<{ Params: { id: string } }>('/:id/overrides', async (request, reply) => {
+    if (!isValidObjectId(request.params.id)) {
+      return reply.code(400).send({ error: 'Invalid view ID' });
+    }
     await svc.resetOverride(request.params.id, request.user.sub);
     return { ok: true };
   });

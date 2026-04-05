@@ -7,7 +7,7 @@
   "scripts": {
     "dev:src": "vite --config src/vite.config.ts",
     "dev:playground": "vite --config playground/vite.config.ts",
-    "dev:api": "turbo run dev --filter=@notion-db/api",
+    "dev:api": "node scripts/dev-api.mjs",
     "seed:playground": "node scripts/seed-playground.mjs",
     "build": "turbo run build",
     "build:types": "turbo run build --filter=@notion-db/types",

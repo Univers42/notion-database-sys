@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 03:57:44 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,14 @@ import type { SeedPage } from '../data/seedPages';
 import type { ActivePage, PageEntry } from './pageStore.types';
 
 const RECENTS_KEY = 'pg:recents';
+
+/** A 24-hex-char string that looks like a MongoDB ObjectId. */
+const OBJECT_ID_RE = /^[a-f\d]{24}$/i;
+
+/** Returns `true` when `id` looks like a valid MongoDB ObjectId. */
+export function isMongoId(id: string): boolean {
+  return OBJECT_ID_RE.test(id);
+}
 
 export function loadRecents(): ActivePage[] {
   try {

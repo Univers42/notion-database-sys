@@ -23,7 +23,6 @@ src/lib/engine/pkg/
 .DS_Store
 *.log
 .idea/
-.vscode/settings.json
 *.swp
 
 # Environment (keep example)
