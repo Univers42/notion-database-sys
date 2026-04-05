@@ -161,7 +161,7 @@
       ],
       "assignee": "Alice",
       "due_date": "2026-04-12T14:22:50.751Z",
-      "completed": true,
+      "completed": false,
       "story_points": 2,
       "icon": "📖",
       "created_at": "2026-03-31T00:00:00Z",

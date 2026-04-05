@@ -1468,7 +1468,7 @@
         }
       ],
       "createdAt": "2026-03-23T15:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:15.591Z",
+      "updatedAt": "2026-04-05T20:43:57.587Z",
       "createdBy": "Alice",
       "lastEditedBy": "External"
     },
@@ -1503,7 +1503,7 @@
         }
       ],
       "createdAt": "2026-03-26T15:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.946Z",
+      "updatedAt": "2026-04-05T20:43:57.588Z",
       "createdBy": "Bob",
       "lastEditedBy": "External"
     },
@@ -1531,9 +1531,9 @@
       },
       "content": [],
       "createdAt": "2026-03-30T14:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.946Z",
+      "updatedAt": "2026-04-05T21:11:34.062Z",
       "createdBy": "Charlie",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t4": {
       "id": "t4",
@@ -1548,7 +1548,7 @@
         ],
         "prop-assignee": "Alice",
         "prop-due": "2026-04-12T14:22:50.751Z",
-        "prop-done": true,
+        "prop-done": false,
         "prop-points": 2,
         "prop-task-id": "TASK-4",
         "prop-project": [
@@ -1560,9 +1560,9 @@
       },
       "content": [],
       "createdAt": "2026-03-31T14:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.946Z",
+      "updatedAt": "2026-04-05T20:44:00.281Z",
       "createdBy": "Alice",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t5": {
       "id": "t5",
@@ -1588,9 +1588,9 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.946Z",
+      "updatedAt": "2026-04-05T21:11:34.307Z",
       "createdBy": "Bob",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t6": {
       "id": "t6",
@@ -1618,9 +1618,9 @@
       },
       "content": [],
       "createdAt": "2026-03-28T15:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.946Z",
+      "updatedAt": "2026-04-05T21:11:33.553Z",
       "createdBy": "Diana",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t7": {
       "id": "t7",
@@ -1646,9 +1646,9 @@
       },
       "content": [],
       "createdAt": "2026-03-29T14:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.947Z",
+      "updatedAt": "2026-04-05T21:11:33.821Z",
       "createdBy": "Eve",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "t8": {
       "id": "t8",
@@ -1678,9 +1678,9 @@
       },
       "content": [],
       "createdAt": "2026-04-01T14:22:50.751Z",
-      "updatedAt": "2026-04-04T00:02:33.947Z",
+      "updatedAt": "2026-04-05T21:11:34.683Z",
       "createdBy": "Alice",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "c1": {
       "id": "c1",
@@ -19333,7 +19333,7 @@
         "prop-tags": null,
         "prop-assignee": null,
         "prop-due": "2026-04-05T22:00:00.000Z",
-        "prop-done": null,
+        "prop-done": true,
         "prop-points": null,
         "prop-created": null,
         "prop-project": null,
@@ -19341,9 +19341,9 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:06.582Z",
-      "updatedAt": "2026-04-04T00:02:33.947Z",
+      "updatedAt": "2026-04-05T21:11:35.073Z",
       "createdBy": "You",
-      "lastEditedBy": "External"
+      "lastEditedBy": "You"
     },
     "3131ba01-c1b3-45ec-b257-4a620face2d0": {
       "id": "3131ba01-c1b3-45ec-b257-4a620face2d0",
@@ -19363,7 +19363,7 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:17.316Z",
-      "updatedAt": "2026-04-04T00:02:33.947Z",
+      "updatedAt": "2026-04-05T20:43:57.588Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
@@ -19385,7 +19385,7 @@
       },
       "content": [],
       "createdAt": "2026-04-02T15:48:18.650Z",
-      "updatedAt": "2026-04-04T00:02:33.947Z",
+      "updatedAt": "2026-04-05T20:43:57.588Z",
       "createdBy": "You",
       "lastEditedBy": "External"
     },
