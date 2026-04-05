@@ -159,7 +159,14 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     ports:
       - "${SRC_PORT:-3000}:3000"
-    command: ["pnpm", "exec", "vite", "--config", "src/vite.config.ts", "--host", "0.0.0.0", "--port", "3000"]
+    volumes:
+      - ./src:/app/src
+    command:
+      - sh
+      - -c
+      - |
+        [ -f src/lib/engine/pkg/formula_engine.js ] || cp -r /wasm-cache/pkg src/lib/engine/
+        exec pnpm exec vite --config src/vite.config.ts --host 0.0.0.0 --port 3000
     healthcheck:
       test:
         [
@@ -184,7 +191,15 @@ services:
       VITE_API_URL: http://localhost:${API_PORT:-4000}
     ports:
       - "${PLAYGROUND_PORT:-3001}:3001"
-    command: ["pnpm", "exec", "vite", "--config", "playground/vite.config.ts", "--host", "0.0.0.0", "--port", "3001"]
+    volumes:
+      - ./src:/app/src
+      - ./playground:/app/playground
+    command:
+      - sh
+      - -c
+      - |
+        [ -f src/lib/engine/pkg/formula_engine.js ] || cp -r /wasm-cache/pkg src/lib/engine/
+        exec pnpm exec vite --config playground/vite.config.ts --host 0.0.0.0 --port 3001
     healthcheck:
       test:
         [

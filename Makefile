@@ -133,6 +133,13 @@ check-app-image-cache:
 		rm -f $(APP_IMAGE_STAMP); \
 	fi
 
+ensure-submodules: ## Initialise git submodules if absent
+	@if [ ! -f src/lib/engine/Cargo.toml ]; then \
+		echo -e "$(CYAN)Initialising git submodules…$(RESET)"; \
+		git submodule update --init --recursive; \
+		echo -e "$(GREEN)✔ Submodules ready$(RESET)"; \
+	fi
+
 $(APP_IMAGE_STAMP): $(APP_IMAGE_INPUTS)
 	@mkdir -p $(@D)
 	@echo -e "$(CYAN)Building shared app image…$(RESET)"
@@ -142,7 +149,7 @@ $(APP_IMAGE_STAMP): $(APP_IMAGE_INPUTS)
 
 build: build-app ## Alias for build-app
 
-build-app: check-app-image-cache $(APP_IMAGE_STAMP) ## Build the shared Docker image for src, api, and playground
+build-app: ensure-submodules check-app-image-cache $(APP_IMAGE_STAMP) ## Build the shared Docker image for src, api, and playground
 
 pull: ## Pull latest stock images (postgres, mongodb, redis, sonarqube)
 	@$(COMPOSE) pull --quiet $(DB_SERVICES) $(SONAR_SERVICES)
@@ -390,7 +397,8 @@ kill-ports: ## Kill any process occupying stack-related ports (3000, 3001, 4000,
 	@echo -e "$(GREEN)✔ Ports freed$(RESET)"
 
 .PHONY: help preflight check-docker check-compose check-db-ports check-app-ports \
-	check-sonar-ports check-ports stack check-app-image-cache build build-app pull \
+	check-sonar-ports check-ports stack check-app-image-cache ensure-submodules \
+	build build-app pull \
 	ensure-db-images ensure-sonar-images ensure-stock-images up up-db up-sonar up-app \
 	down restart logs stack-status doctor app-image-status show-endpoints db-reset db-status \
 	status psql mongo-shell redis-cli seed seed-src ensure-api wait-api \

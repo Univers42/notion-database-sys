@@ -1,17 +1,15 @@
 # syntax=docker/dockerfile:1.7
 
-# ── Stage 1: Build WASM formula engine ───────────────────────────────────────
-FROM rust:1.86-slim-bookworm AS wasm-builder
+FROM rust:1.88-slim-bookworm AS wasm-builder
 
 RUN rustup target add wasm32-unknown-unknown \
- && cargo install wasm-pack --version 0.13.1 --locked
+    && cargo install wasm-pack --version 0.13.1 --locked
 WORKDIR /engine
 COPY src/lib/engine/Cargo.toml src/lib/engine/Cargo.lock ./
 COPY src/lib/engine/src ./src
 
 RUN wasm-pack build --target web --out-dir pkg --release
 
-# ── Stage 2: Node app ───────────────────────────────────────────────────────
 FROM node:22-bookworm-slim
 
 ENV PNPM_HOME="/pnpm"
@@ -40,5 +38,8 @@ COPY scripts ./scripts
 
 # Copy pre-built WASM artefacts into the engine directory
 COPY --from=wasm-builder /engine/pkg ./src/lib/engine/pkg
+
+# Keep a separate copy so bind-mounted ./src doesn't shadow the build
+COPY --from=wasm-builder /engine/pkg /wasm-cache/pkg
 
 CMD ["node", "--version"]
