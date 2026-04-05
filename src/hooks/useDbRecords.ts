@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 01:32:15 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/useDatabaseStore';
 import { useDbSource } from './useDbSource.ts';
-import type { DbSourceType } from '../../services/dbms/types.ts';
+import type { DbSourceType } from '../../docker/services/dbms/types.ts';
 
 interface UseDbRecordsResult {
   /** The active database source. */

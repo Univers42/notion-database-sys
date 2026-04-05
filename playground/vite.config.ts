@@ -29,11 +29,14 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      outDir: path.resolve(workspace, 'dist/playground'),
+      outDir: path.resolve(root, 'build'),
     },
     server: {
       port: 3001,
       host: '0.0.0.0',
+      watch: {
+        usePolling: true,
+      },
     },
     optimizeDeps: {
       exclude: ['formula-engine', 'mermaid'],

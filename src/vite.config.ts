@@ -46,13 +46,14 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      outDir: path.resolve(workspace, 'dist'),
+      outDir: path.resolve(root, 'build'),
     },
     server: {
       port: 3000,
       host: '0.0.0.0',
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
+        usePolling: true,
         ignored: [
           '**/store/dbms/**/_notion_state.json',
           '**/store/dbms/**/_field_map.json',

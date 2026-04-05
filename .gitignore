@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+.pnpm-store/
+package-lock.json
 
 # Build outputs
 build/
@@ -39,7 +41,10 @@ src/lib/rust/*/target/
 # SonarQube scanner working directory
 .scannerwork/
 
-# SonarCloud issue reports (generated locally by fetch-sonar-issues.py)
+# Generated reports (now in build/reports/)
+audit-report.json
 sonarcloud-issues.json
 sonarcloud-report.txt
-audit-report.json
+
+# Stale root-level files
+metadata.json

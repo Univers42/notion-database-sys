@@ -1,23 +1,28 @@
 # docker-compose.yml
 #
-# Local development services.  Start everything with `make up`.
+# Full Docker development environment.  No host dependencies beyond Docker.
 #
-# Services:
-#   postgres   — PostgreSQL 16 (schema in docker/init-databases.sql)
-#   mongodb    — MongoDB 7.0
-#   redis      — Redis 7 (general purpose cache)
-#   sonarqube  — SonarQube Community Edition (static analysis dashboard)
+# Profiles:
+#   src         — Main app (Vite on :3000) + PostgreSQL + MongoDB
+#   playground  — Playground app (Vite on :3001) + API (:4000) + MongoDB
+#   sonar       — SonarQube CE for local static analysis
 #
-# All images use stock upstream tags.  Configuration files are bind-mounted
-# from the services/ directory so you can edit them without rebuilding.
+# Usage (from project root via Makefiles):
+#   make -C src dev         # start src app stack
+#   make -C playground dev  # start playground stack
 #
-# Ports, credentials, and database names are read from .env (see .env.example).
+# Database volumes are destroyed on `make build` to guarantee
+# a clean seed when switching between apps.
 
 services:
+
+  # ── Databases ──────────────────────────────────────────────────────────────
+
   postgres:
     image: postgres:16-alpine
     container_name: notion_postgres
     restart: unless-stopped
+    profiles: ["src"]
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-notion_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notion_pass}
@@ -25,11 +30,11 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./src/store/dbms/relational:/seed:ro
-      - ./services/postgresql/conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      - ./services/postgresql/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - pg_data:/var/lib/postgresql/data
       - ./docker/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql:ro
+      - ./docker/services/postgresql/conf/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./docker/services/postgresql/conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - ./src/store/dbms/relational:/seed:ro
     command:
       - postgres
       - -c
@@ -38,16 +43,17 @@ services:
       - hba_file=/etc/postgresql/pg_hba.conf
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}"]
-      interval: 3s
+      interval: 2s
       timeout: 2s
-      retries: 5
-      start_period: 5s
+      retries: 10
+      start_period: 3s
     shm_size: 128mb
 
   mongodb:
     image: mongo:7.0
     container_name: notion_mongodb
     restart: unless-stopped
+    profiles: ["src", "playground"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-notion_user}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
@@ -56,38 +62,120 @@ services:
       - "${MONGO_PORT:-27017}:27017"
     volumes:
       - mongo_data:/data/db
+      - ./docker/services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
       - ./src/store/dbms/mongodb:/seed:ro
-      - ./services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
     command: ["mongod", "--bind_ip_all", "--quiet"]
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
-      interval: 3s
+      interval: 2s
       timeout: 2s
-      retries: 5
-      start_period: 5s
+      retries: 10
+      start_period: 3s
 
   redis:
     image: redis:7-alpine
-    pull_policy: if_not_present
     container_name: notion_redis
     restart: unless-stopped
+    profiles: ["src", "playground"]
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-      - ./services/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./docker/services/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 3s
+      interval: 2s
       timeout: 2s
       retries: 5
-      start_period: 3s
+      start_period: 2s
+
+  # ── src app (Vite dev server on :3000) ─────────────────────────────────────
+
+  src-app:
+    build:
+      context: .
+      dockerfile: docker/services/node/Dockerfile
+    container_name: notion_src
+    profiles: ["src"]
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    command: ["pnpm", "dev:src"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-notion_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notion_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-notion_db}
+      SRC_POSTGRES_DB: ${SRC_POSTGRES_DB:-notion_src_db}
+      MONGO_HOST: mongodb
+      MONGO_PORT: "27017"
+      MONGO_USER: ${MONGO_USER:-notion_user}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
+      MONGO_DB: ${MONGO_DB:-notion_db}
+      SRC_MONGO_DB: ${SRC_MONGO_DB:-notion_src_db}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-notion_user}:${POSTGRES_PASSWORD:-notion_pass}@postgres:5432/${POSTGRES_DB:-notion_db}
+      MONGO_URI: mongodb://${MONGO_USER:-notion_user}:${MONGO_PASSWORD:-notion_pass}@mongodb:27017/${MONGO_DB:-notion_db}?authSource=admin
+
+  # ── playground app (Vite dev server on :3001) ──────────────────────────────
+
+  playground-app:
+    build:
+      context: .
+      dockerfile: docker/services/node/Dockerfile
+    container_name: notion_playground
+    profiles: ["playground"]
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "3001:3001"
+    command: ["pnpm", "dev:playground"]
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      VITE_API_URL: http://localhost:4000
+
+  # ── Fastify API (serves playground on :4000) ───────────────────────────────
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/services/node/Dockerfile
+    container_name: notion_api
+    profiles: ["playground"]
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "4000:4000"
+    command: ["pnpm", "dev:api"]
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_PORT: "27017"
+      MONGO_USER: ${MONGO_USER:-notion_user}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
+      MONGO_DB: ${MONGO_DB:-notion_db}
+      MONGO_URI: mongodb://${MONGO_USER:-notion_user}:${MONGO_PASSWORD:-notion_pass}@mongodb:27017/${MONGO_DB:-notion_db}?authSource=admin
+
+  # ── SonarQube (optional, for local static analysis) ────────────────────────
 
   sonarqube:
     image: sonarqube:community
-    pull_policy: if_not_present
     container_name: notion_sonarqube
+    profiles: ["sonar"]
     restart: unless-stopped
     environment:
       SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
@@ -97,7 +185,7 @@ services:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_logs:/opt/sonarqube/logs
       - sonarqube_extensions:/opt/sonarqube/extensions
-      - ./services/sonarqube/conf/sonar.properties:/opt/sonarqube/conf/sonar.properties:ro
+      - ./docker/services/sonarqube/conf/sonar.properties:/opt/sonarqube/conf/sonar.properties:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9000/api/system/status | grep -q UP"]
       interval: 10s
@@ -106,13 +194,13 @@ services:
       start_period: 60s
 
 volumes:
-  postgres_data:
-  mongo_data:
+  # Shared
+  node_modules:
   redis_data:
+  # Database
+  pg_data:
+  mongo_data:
+  # SonarQube
   sonarqube_data:
   sonarqube_logs:
   sonarqube_extensions:
-
-# The API server (packages/api) runs outside Docker.
-# Start it with: make dev-api  or  pnpm dev:api
-# It connects to postgres and mongodb at localhost.

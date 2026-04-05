@@ -20,7 +20,7 @@ name: CI
 
 on:
   push:
-    branches: [main, master, develop, 'fix/**', 'feat/**']
+    branches: [main, master, develop, 'fix/**', 'feat/**', 'migrate/**']
   pull_request:
     branches: [main, master, develop]
 
@@ -136,8 +136,8 @@ jobs:
       - name: Lint playground/
         run: pnpm eslint playground/ --max-warnings=0
 
-      - name: Lint services/
-        run: pnpm eslint services/ --max-warnings=0
+      - name: Lint docker/services/dbms/
+        run: pnpm eslint docker/services/dbms/ --max-warnings=0
 
   # 4. Full production build (runs only after typecheck + lint pass).
   build:

@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 01:32:15 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { create } from 'zustand';
-import type { DbSourceType } from '../../services/dbms/types.ts';
+import type { DbSourceType } from '../../docker/services/dbms/types.ts';
 
 const VALID_SOURCES = new Set<string>(['json', 'csv', 'mongodb', 'postgresql']);
 

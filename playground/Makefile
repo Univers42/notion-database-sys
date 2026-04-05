@@ -8,53 +8,65 @@ GREEN := \033[32m
 RED   := \033[31m
 RESET := \033[0m
 
+DC := docker compose -f $(ROOT)/docker-compose.yml --profile playground
+
+.DEFAULT_GOAL := dev
 help: ## Show available targets
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "$(CYAN)%-22s$(RESET) %s\n", $$1, $$2}'
 
-# ── Development ──────────────────────────────────────────────────────────────
+# ── Development ──────────────────────────────────────────────────────────
 
-dev: ## Start playground Vite dev server (port 3001)
+dev: ## Start playground stack (Vite :3001 + API :4000 + Mongo)  [default]
 	@echo -e "$(CYAN)Starting playground on http://localhost:3001$(RESET)"
-	cd $(ROOT) && npx vite --config playground/vite.config.ts --port 3001 --host 0.0.0.0
+	cd $(ROOT) && $(DC) up
 
-dev-api: ## Start Fastify API server (packages/api)
-	@echo -e "$(CYAN)Starting API server…$(RESET)"
-	cd $(ROOT)/packages/api && pnpm dev
+dev-d: ## Start playground stack (detached)
+	cd $(ROOT) && $(DC) up -d
+	@echo -e "$(GREEN)✔ playground stack running (detached)$(RESET)"
 
-dev-all: ## Start playground + API in parallel
-	@echo -e "$(CYAN)Starting playground + API…$(RESET)"
-	$(MAKE) dev-api &
-	$(MAKE) dev &
-	wait
+stop: ## Stop playground stack
+	cd $(ROOT) && $(DC) down --remove-orphans
+	@echo -e "$(GREEN)✔ playground stack stopped$(RESET)"
 
-# ── Seed (playground uses its own database: notion_playground_db) ────────────
+# ── Build (destroy volumes, rebuild, seed) ───────────────────────────────
 
-seed: ## Seed MongoDB with 3 users + workspaces for playground
+build: ## Full rebuild: destroy volumes, rebuild images, start + seed
+	@echo -e "$(CYAN)══ playground: Full rebuild ══$(RESET)"
+	cd $(ROOT) && docker compose --profile src --profile playground down -v --remove-orphans 2>/dev/null || true
+	cd $(ROOT) && $(DC) up --build -d
+	@sleep 2
+	@$(MAKE) seed --no-print-directory
+	@echo -e "$(GREEN)══ playground: Build complete ══$(RESET)"
+
+# ── Seed ─────────────────────────────────────────────────────────────────
+
+seed: ## Seed MongoDB with playground data (3 users + workspaces)
 	@echo -e "$(CYAN)Seeding playground data…$(RESET)"
-	cd $(ROOT) && node scripts/seed-playground.mjs
+	cd $(ROOT) && $(DC) exec api node scripts/seed-playground.mjs
 	@echo -e "$(GREEN)✔ Playground seeded$(RESET)"
 
-# ── Reset ────────────────────────────────────────────────────────────────────
+# ── Reset ────────────────────────────────────────────────────────────────
 
-re: ## Full restart — wipe playground DB, re-seed
+re: ## Full restart: wipe DBs, re-seed
 	@echo -e "$(CYAN)══ playground: Full restart ══$(RESET)"
-	@echo "1/4  Pulling latest images..."
-	@docker compose -f $(ROOT)/docker-compose.yml pull --quiet
-	@echo "2/4  Wiping volumes and stopping containers..."
-	@docker compose -f $(ROOT)/docker-compose.yml down -v
-	@echo "3/4  Starting fresh containers..."
-	@docker compose -f $(ROOT)/docker-compose.yml up -d
-	@echo "4/4  Seeding playground database..."
-	@sleep 4
+	@echo "1/3  Stopping containers…"
+	cd $(ROOT) && $(DC) down -v --remove-orphans
+	@echo "2/3  Starting fresh containers…"
+	cd $(ROOT) && $(DC) up -d
+	@echo "3/3  Seeding playground database…"
+	@sleep 3
 	@$(MAKE) seed --no-print-directory
 	@echo -e "$(GREEN)══ playground: restart complete ══$(RESET)"
 
-# ── Packages ─────────────────────────────────────────────────────────────────
+# ── Packages ─────────────────────────────────────────────────────────────
 
 build-packages: ## Build all packages (types → core → api)
 	@echo -e "$(CYAN)Building packages…$(RESET)"
-	cd $(ROOT) && pnpm run build
+	cd $(ROOT) && $(DC) exec playground-app pnpm turbo run build --filter='./packages/*'
 	@echo -e "$(GREEN)✔ All packages built$(RESET)"
 
-.PHONY: help dev dev-api dev-all seed re build-packages
+logs: ## Tail playground stack logs
+	cd $(ROOT) && $(DC) logs -f --tail=50
+
+.PHONY: help dev dev-d stop build seed re build-packages logs

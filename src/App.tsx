@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 01:32:15 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useDatabaseStore } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
-import type { DbSourceType } from '../services/dbms/types';
+import type { DbSourceType } from '../docker/services/dbms/types';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { DatabaseBlock } from './components/DatabaseBlock';
 import { BlockHandle } from './components/ui/BlockHandle';
