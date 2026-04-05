@@ -4,16 +4,48 @@ Full-stack Notion clone with 10+ database views, a block-based page editor, a Ru
 
 ## Quick start
 
-**Prerequisites**: Node.js 20+, pnpm 10+, Docker
+Primary workflow: `make` boots the full Dockerized stack for this repository.
+
+**Prerequisites for the main workflow**: Docker + Docker Compose plugin + GNU Make
 
 ```bash
-# Clone & install
+# Clone & configure
 git clone <repo-url> && cd notion-database-sys
 cp .env.example .env
+
+# Boot the full stack
+make
+```
+
+`make` is the default bootstrap flow in this branch. It runs the same sequence as
+`make stack`:
+
+- runs preflight checks for Docker, Compose, and host ports
+- pulls stock images if they are missing locally
+- builds or reuses the shared app image for `src`, `api`, and `playground`
+- starts PostgreSQL, MongoDB, Redis, SonarQube, API, main app, and playground
+- seeds the playground data through the API
+- prints the effective localhost endpoints for the running stack
+
+After `make` completes, the main endpoints are:
+
+- `http://localhost:33000` for the main app
+- `http://localhost:3001` for the playground
+- `http://localhost:4000/health` for the API health endpoint
+- `http://localhost:9000` for SonarQube
+
+PostgreSQL, MongoDB, and Redis are exposed as TCP ports, not web pages.
+
+## Local non-Docker workflow
+
+If you want to run parts of the project directly with local Node.js tooling instead of
+the main Docker bootstrap:
+
+```bash
 pnpm install
 
-# Start databases (MongoDB + PostgreSQL)
-make up
+# Start only the infrastructure containers
+make up-db
 
 # Seed data for the main app
 cd src && make seed-all && cd ..
@@ -54,7 +86,12 @@ PostgreSQL, MongoDB and Redis are exposed as TCP ports, not web pages. Use a DB 
 
 | Target | What it does |
 |---|---|
-| `make up` | Start Docker containers (MongoDB + PostgreSQL) |
+| `make` | Default bootstrap: same as `make stack` |
+| `make stack` | Full stack bootstrap: checks, start services, seed playground, print endpoints |
+| `make up` | Start the full stack services without the extra bootstrap steps from `make stack` |
+| `make up-db` | Start only PostgreSQL + MongoDB |
+| `make up-sonar` | Start only Redis + SonarQube |
+| `make up-app` | Start only API, main app, and playground |
 | `make down` | Stop containers |
 | `make restart` | Stop + start |
 | `make db-reset` | Destroy volumes and recreate containers |

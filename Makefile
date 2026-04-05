@@ -2,7 +2,7 @@ SHELL := /bin/bash
 -include .env
 export
 
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := stack
 
 COMPOSE := docker compose
 APP_IMAGE := notion-database-sys/app:local
