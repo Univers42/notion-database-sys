@@ -103,6 +103,22 @@ export function applyBlockDelete(blockId: string): (page: PageEntry) => PageEntr
   });
 }
 
+/** Creates a page updater that reorders a block to a target index. */
+export function applyBlockMove(blockId: string, targetIndex: number): (page: PageEntry) => PageEntry {
+  return (page) => {
+    const content = [...(page.content ?? [])];
+    const fromIdx = content.findIndex(b => b.id === blockId);
+    if (fromIdx < 0) return page;
+
+    const [moved] = content.splice(fromIdx, 1);
+    const boundedTarget = Math.max(0, Math.min(targetIndex, content.length));
+    const insertIdx = fromIdx < targetIndex ? boundedTarget - 1 : boundedTarget;
+    content.splice(Math.max(0, insertIdx), 0, moved);
+
+    return { ...page, content };
+  };
+}
+
 /** Creates a page updater that changes a block's type. */
 export function applyBlockTypeChange(blockId: string, newType: BlockType): (page: PageEntry) => PageEntry {
   return (page) => ({

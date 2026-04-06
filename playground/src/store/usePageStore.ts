@@ -14,7 +14,7 @@ import { create } from 'zustand';
 import {
   loadRecents, saveRecents,
   updatePageInState,
-  applyBlockUpdate, applyBlockInsert, applyBlockDelete, applyBlockTypeChange,
+  applyBlockUpdate, applyBlockInsert, applyBlockDelete, applyBlockMove, applyBlockTypeChange,
 } from './pageStore.helpers';
 import {
   createSeedOfflinePages, createSeedOnlinePages,
@@ -76,6 +76,11 @@ export const usePageStore = create<PageStore>((set, get) => ({
 
   deleteBlock: (pageId, blockId) => {
     set(s => ({ pages: updatePageInState(s.pages, pageId, applyBlockDelete(blockId)) }));
+    debouncePersistContent(pageId);
+  },
+
+  moveBlock: (pageId, blockId, targetIndex) => {
+    set(s => ({ pages: updatePageInState(s.pages, pageId, applyBlockMove(blockId, targetIndex)) }));
     debouncePersistContent(pageId);
   },
 
