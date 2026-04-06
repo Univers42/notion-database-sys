@@ -17,6 +17,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
+import { createPortal } from "react-dom";
 import type { BlockRendererProps } from "./BlockRenderer";
 import { useDatabaseStore } from "../../store/dbms/hardcoded/useDatabaseStore";
 import { tokenize, renderTokensToHtml } from "../../lib/syntax/tokenizer";
@@ -51,7 +52,9 @@ const LANGUAGES = [
 /** Renders a code block with syntax highlighting and language selector. */
 export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   const updateBlock = useDatabaseStore((s) => s.updateBlock);
+  const deleteBlock = useDatabaseStore((s) => s.deleteBlock);
   const [showLangPicker, setShowLangPicker] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [localContent, setLocalContent] = useState(block.content);
   const [isFocused, setIsFocused] = useState(false);
@@ -169,17 +172,34 @@ export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
             </div>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            navigator.clipboard.writeText(block.content);
-          }}
-          className={cn(
-            "text-xs text-ink-muted hover:text-hover-text px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors",
-          )}
-        >
-          Copy
-        </button>
+        <div className={cn("flex items-center gap-1")}>
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(block.content);
+            }}
+            className={cn(
+              "text-xs text-ink-muted hover:text-hover-text px-1.5 py-0.5 rounded hover:bg-hover-surface3 transition-colors",
+            )}
+          >
+            Copy
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!block.content.trim()) {
+                deleteBlock(pageId, block.id);
+                return;
+              }
+              setShowDeleteConfirm(true);
+            }}
+            className={cn(
+              "text-xs text-danger-text-soft hover:text-hover-danger-text-bold px-1.5 py-0.5 rounded hover:bg-danger-surface-muted transition-colors",
+            )}
+          >
+            Delete
+          </button>
+        </div>
       </div>
 
       {/* Code editor with syntax highlighting overlay */}
@@ -211,6 +231,67 @@ export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
       {block.language === "mermaid" && block.content.trim() && (
         <MermaidPreview code={block.content} />
       )}
+
+      {showDeleteConfirm &&
+        createPortal(
+          <>
+            <button
+              type="button"
+              className={cn(
+                "fixed inset-0 z-[9998] appearance-none border-0 bg-scrim-light p-0 cursor-default",
+              )}
+              onClick={() => setShowDeleteConfirm(false)}
+              tabIndex={-1}
+              aria-label="Close"
+            />
+            <dialog
+              open
+              className={cn(
+                "fixed z-[9999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] max-w-[calc(100vw-24px)] bg-surface-primary border border-line rounded-xl shadow-2xl overflow-hidden",
+              )}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
+              <div className={cn("p-4")}>
+                <h3 className={cn("text-sm font-semibold text-ink-strong")}>
+                  Delete code block?
+                </h3>
+                <p className={cn("mt-1 text-sm text-ink-secondary")}>
+                  This code snippet has content. Deleting it will permanently
+                  remove the text.
+                </p>
+              </div>
+              <div
+                className={cn(
+                  "flex items-center justify-end gap-2 px-4 py-3 border-t border-line bg-surface-secondary",
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className={cn(
+                    "px-3 py-1.5 text-sm rounded-lg border border-line text-ink-body hover:bg-hover-surface transition-colors",
+                  )}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    deleteBlock(pageId, block.id);
+                    setShowDeleteConfirm(false);
+                  }}
+                  className={cn(
+                    "px-3 py-1.5 text-sm rounded-lg bg-danger text-ink-inverse hover:bg-danger-vivid transition-colors",
+                  )}
+                >
+                  Delete
+                </button>
+              </div>
+            </dialog>
+          </>,
+          document.body,
+        )}
     </div>
   );
 }
