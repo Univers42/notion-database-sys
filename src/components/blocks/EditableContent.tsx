@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useRef, useEffect, useCallback } from 'react';
-import { parseInlineMarkdown } from '../../lib/markdown';
-import { cn } from '../../utils/cn';
+import React, { useRef, useEffect, useLayoutEffect, useCallback } from "react";
+import { parseInlineMarkdown } from "../../lib/markdown";
+import { cn } from "../../utils/cn";
 
 /** Props for {@link EditableContent}. */
 export interface EditableContentProps {
@@ -21,26 +21,29 @@ export interface EditableContentProps {
   placeholder?: string;
   onChange: (text: string) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
-  tag?: 'div' | 'span';
+  tag?: "div" | "span";
 }
 
 /** Contenteditable wrapper that syncs with block state and renders inline markdown. */
 export function EditableContent({
   content,
-  className = '',
-  placeholder = '',
+  className = "",
+  placeholder = "",
   onChange,
   onKeyDown,
 }: Readonly<EditableContentProps>) {
   const ref = useRef<HTMLDivElement>(null);
+  const selectionRef = useRef<{ start: number; end: number } | null>(null);
 
   // Sync rendered markdown whenever block content changes.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ref.current) return;
     const el = ref.current;
     const html = parseInlineMarkdown(escapeHtml(content));
     if (el.innerHTML !== html) {
       el.innerHTML = html;
+      restoreSelection(el, selectionRef.current);
+      selectionRef.current = null;
     }
   }, [content]);
 
@@ -54,6 +57,7 @@ export function EditableContent({
 
   const handleInput = useCallback(() => {
     if (!ref.current) return;
+    selectionRef.current = captureSelection(ref.current);
     const markdown = serializeEditableMarkdown(ref.current);
     onChange(markdown);
   }, [onChange]);
@@ -66,7 +70,9 @@ export function EditableContent({
       contentEditable
       suppressContentEditableWarning
       data-block-editor
-      className={cn(`outline-none ${className} empty:before:content-[attr(data-placeholder)] empty:before:text-ink-muted`)}
+      className={cn(
+        `outline-none ${className} empty:before:content-[attr(data-placeholder)] empty:before:text-ink-muted`,
+      )}
       data-placeholder={placeholder}
       onInput={handleInput}
       onKeyDown={onKeyDown}
@@ -77,48 +83,134 @@ export function EditableContent({
 
 function escapeHtml(text: string): string {
   return text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 function serializeEditableMarkdown(root: HTMLElement): string {
-  return Array.from(root.childNodes).map(node => serializeNode(node)).join('');
+  return Array.from(root.childNodes)
+    .map((node) => serializeNode(node))
+    .join("");
+}
+
+function captureSelection(
+  root: HTMLElement,
+): { start: number; end: number } | null {
+  const selection = globalThis.getSelection();
+  if (!selection || selection.rangeCount === 0) return null;
+
+  const range = selection.getRangeAt(0);
+  if (
+    !root.contains(range.startContainer) ||
+    !root.contains(range.endContainer)
+  )
+    return null;
+
+  return {
+    start: getOffsetWithin(root, range.startContainer, range.startOffset),
+    end: getOffsetWithin(root, range.endContainer, range.endOffset),
+  };
+}
+
+function restoreSelection(
+  root: HTMLElement,
+  selection: { start: number; end: number } | null,
+): void {
+  if (!selection) return;
+
+  const range = document.createRange();
+  const start = getNodeAtOffset(root, selection.start);
+  const end = getNodeAtOffset(root, selection.end);
+  if (!start || !end) return;
+
+  range.setStart(start.node, start.offset);
+  range.setEnd(end.node, end.offset);
+
+  const selectionObj = globalThis.getSelection();
+  selectionObj?.removeAllRanges();
+  selectionObj?.addRange(range);
+}
+
+function getOffsetWithin(
+  root: HTMLElement,
+  target: Node,
+  targetOffset: number,
+): number {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  let offset = 0;
+
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node === target) return offset + targetOffset;
+    offset += node.textContent?.length ?? 0;
+  }
+
+  return offset;
+}
+
+function getNodeAtOffset(
+  root: HTMLElement,
+  targetOffset: number,
+): { node: Node; offset: number } | null {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  let offset = 0;
+
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const length = node.textContent?.length ?? 0;
+    if (targetOffset <= offset + length) {
+      return { node, offset: Math.max(0, targetOffset - offset) };
+    }
+    offset += length;
+  }
+
+  const last = root.lastChild;
+  if (last) {
+    if (last.nodeType === Node.TEXT_NODE) {
+      return { node: last, offset: last.textContent?.length ?? 0 };
+    }
+    return { node: root, offset: root.childNodes.length };
+  }
+
+  return null;
 }
 
 function serializeNode(node: ChildNode): string {
   if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent || '';
+    return node.textContent || "";
   }
 
   if (node.nodeType !== Node.ELEMENT_NODE) {
-    return '';
+    return "";
   }
 
   const el = node as HTMLElement;
-  const inner = Array.from(el.childNodes).map(child => serializeNode(child)).join('');
+  const inner = Array.from(el.childNodes)
+    .map((child) => serializeNode(child))
+    .join("");
   const tag = el.tagName.toLowerCase();
 
   switch (tag) {
-    case 'br':
-      return '\n';
-    case 'strong':
-    case 'b':
+    case "br":
+      return "\n";
+    case "strong":
+    case "b":
       return `**${inner}**`;
-    case 'em':
-    case 'i':
+    case "em":
+    case "i":
       return `*${inner}*`;
-    case 'u':
+    case "u":
       return `__${inner}__`;
-    case 'del':
-    case 's':
+    case "del":
+    case "s":
       return `~~${inner}~~`;
-    case 'code':
+    case "code":
       return `\`${inner}\``;
-    case 'mark':
+    case "mark":
       return `==${inner}==`;
-    case 'a': {
-      const href = el.getAttribute('href') || '';
+    case "a": {
+      const href = el.getAttribute("href") || "";
       return href ? `[${inner}](${href})` : inner;
     }
     default:

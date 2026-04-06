@@ -160,7 +160,7 @@
           "name": "Task ID",
           "type": "id",
           "prefix": "TASK-",
-          "autoIncrement": 25
+          "autoIncrement": 28
         },
         "prop-project": {
           "id": "prop-project",
@@ -19663,6 +19663,45 @@
       "content": [],
       "createdAt": "2026-04-06T07:26:56.798Z",
       "updatedAt": "2026-04-06T07:27:23.075Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "87341eb1-0ede-4e7a-803b-50563d503849": {
+      "id": "87341eb1-0ede-4e7a-803b-50563d503849",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-25"
+      },
+      "content": [],
+      "createdAt": "2026-04-06T07:43:33.229Z",
+      "updatedAt": "2026-04-06T07:43:33.229Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "fce2b233-2f0b-4393-ae2c-edf0bbb564ae": {
+      "id": "fce2b233-2f0b-4393-ae2c-edf0bbb564ae",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-26"
+      },
+      "content": [],
+      "createdAt": "2026-04-06T07:46:05.428Z",
+      "updatedAt": "2026-04-06T07:46:05.428Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "3a70c357-3834-487f-9c81-3f02ed40ec89": {
+      "id": "3a70c357-3834-487f-9c81-3f02ed40ec89",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-27"
+      },
+      "content": [],
+      "createdAt": "2026-04-06T07:49:26.859Z",
+      "updatedAt": "2026-04-06T07:49:26.859Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     }
