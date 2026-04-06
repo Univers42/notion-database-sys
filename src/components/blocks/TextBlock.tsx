@@ -16,12 +16,12 @@ import { EditableContent } from './EditableContent';
 import { cn } from '../../utils/cn';
 
 /** Renders a paragraph text block with editable content and inline markdown. */
-export function TextBlock({ block, index, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
+export function TextBlock({ block, onChange, onKeyDown }: Readonly<BlockRendererProps>) {
   return (
     <EditableContent
       content={block.content}
       className={cn("text-sm text-ink-body leading-relaxed py-0.5")}
-      placeholder={index === 0 ? "Type '/' for commands..." : ''}
+      placeholder="Type '/' for commands..."
       onChange={onChange}
       onKeyDown={onKeyDown}
     />

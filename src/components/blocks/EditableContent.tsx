@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useRef, useEffect, useLayoutEffect, useCallback } from "react";
+import React, { useRef, useEffect, useLayoutEffect, useCallback, useState } from "react";
 import { parseInlineMarkdown } from "../../lib/markdown";
 import { cn } from "../../utils/cn";
 
@@ -34,6 +34,7 @@ export function EditableContent({
 }: Readonly<EditableContentProps>) {
   const ref = useRef<HTMLDivElement>(null);
   const selectionRef = useRef<{ start: number; end: number } | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
 
   // Sync rendered markdown whenever block content changes.
   useLayoutEffect(() => {
@@ -70,12 +71,12 @@ export function EditableContent({
       contentEditable
       suppressContentEditableWarning
       data-block-editor
-      className={cn(
-        `outline-none ${className} empty:before:content-[attr(data-placeholder)] empty:before:text-ink-muted`,
-      )}
+      className={cn(`outline-none ${className}`, isFocused && "empty:before:content-[attr(data-placeholder)] empty:before:text-ink-muted")}
       data-placeholder={placeholder}
       onInput={handleInput}
       onKeyDown={onKeyDown}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
       spellCheck
     />
   );
