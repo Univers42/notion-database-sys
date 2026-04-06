@@ -41,8 +41,11 @@ src/lib/rust/*/target/
 .scannerwork/
 .make/
 
-# Generated reports (now in build/reports/)
+# Generated reports / audit logs
 audit-report.json
+audit-typecheck.log
+audit-lint.log
+audit-sonar.log
 sonarcloud-issues.json
 sonarcloud-report.txt
 
