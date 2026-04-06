@@ -20,13 +20,16 @@ export interface SlashMenuState {
 }
 
 export function handleEnterKey(
-  e: React.KeyboardEvent, blockId: string, slashMenu: SlashMenuState | null,
+  e: React.KeyboardEvent, blockId: string, blockType: Block['type'], slashMenu: SlashMenuState | null,
   pageId: string, insertBlock: (pid: string, bid: string, b: Block) => void,
   focusBlock: (id: string, end?: boolean) => void,
 ): void {
   if (slashMenu) return;
   e.preventDefault();
-  const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };
+  const nextType = blockType === 'bulleted_list' || blockType === 'numbered_list'
+    ? blockType
+    : 'paragraph';
+  const newBlock: Block = { id: crypto.randomUUID(), type: nextType, content: '' };
   insertBlock(pageId, blockId, newBlock);
   focusBlock(newBlock.id);
 }

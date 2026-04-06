@@ -112,8 +112,16 @@ export function useBlockEditor(pageId: string) {
     const block = content.find(b => b.id === blockId);
     if (!block) return;
 
+    if (e.key === ' ' && block.type === 'paragraph' && block.content === '-') {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'bulleted_list');
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
+      return;
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
-      handleEnterKey(e, blockId, slashMenu, pageId, insertBlock, focusBlock);
+      handleEnterKey(e, blockId, block.type, slashMenu, pageId, insertBlock, focusBlock);
       return;
     }
 
@@ -135,7 +143,7 @@ export function useBlockEditor(pageId: string) {
     if (e.key === 'Escape' && slashMenu) {
       setSlashMenu(null);
     }
-  }, [pageId, slashMenu, insertBlock, deleteBlock, focusBlock]);
+  }, [pageId, slashMenu, insertBlock, deleteBlock, changeBlockType, updateBlock, focusBlock]);
 
   /** Handle slash-command selection. */
   const handleSlashSelect = useSlashSelect({
