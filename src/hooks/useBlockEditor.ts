@@ -19,6 +19,7 @@ import {
   handleEnterKey, handleBackspaceKey, handleArrowUp, handleArrowDown,
 } from './blockEditorKeyHandlers';
 import type { SlashMenuState } from './blockEditorKeyHandlers';
+import { isHeadingType } from './blockTypeGuards';
 
 /**
  * Encapsulates block editing logic for the page content editor.
@@ -140,6 +141,14 @@ export function useBlockEditor(pageId: string) {
 
     if (e.key === 'Enter' && !e.shiftKey) {
       handleEnterKey(e, blockId, block.type, slashMenu, pageId, insertBlock, focusBlock);
+      return;
+    }
+
+    if (e.key === 'Backspace' && block.content === '' && isHeadingType(block.type)) {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'paragraph');
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
       return;
     }
 

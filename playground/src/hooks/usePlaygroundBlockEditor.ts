@@ -14,6 +14,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { usePageStore } from '../store/usePageStore';
 import { detectBlockType } from '@src/lib/markdown';
 import { useSlashSelect, repositionCursor } from '@src/hooks/useSlashSelect';
+import { isHeadingType } from '@src/hooks/blockTypeGuards';
 import type { Block } from '@src/types/database';
 import {
   handleArrowUp,
@@ -228,6 +229,14 @@ export function usePlaygroundBlockEditor(pageId: string) {
   ): boolean => {
     if (e.key !== 'Backspace' || !isEmpty) return false;
 
+    if (isHeadingType(block.type)) {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'paragraph');
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
+      return true;
+    }
+
     if (isListType(block.type)) {
       e.preventDefault();
       const prevBlockId = blockIdx > 0 ? content[blockIdx - 1].id : null;
@@ -247,7 +256,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
     }
 
     return false;
-  }, [pageId, deleteBlock, focusBlock]);
+  }, [pageId, deleteBlock, changeBlockType, updateBlock, focusBlock]);
 
   const handleArrowNavigation = useCallback((
     e: React.KeyboardEvent,

@@ -19,15 +19,19 @@ import { initFormulaEngine } from "@src/lib/engine/bridge";
 // Eagerly init theme so data-theme applies before first paint
 import "@src/store/dbms/hardcoded/useThemeStore.ts";
 
-try {
-  await initFormulaEngine();
-} finally {
-  const root = document.getElementById("root");
-  if (root) {
-    createRoot(root).render(
-      <StrictMode>
-        <App />
-      </StrictMode>,
-    );
+async function bootstrap() {
+  try {
+    await initFormulaEngine();
+  } finally {
+    const root = document.getElementById("root");
+    if (root) {
+      createRoot(root).render(
+        <StrictMode>
+          <App />
+        </StrictMode>,
+      );
+    }
   }
 }
+
+void bootstrap();
