@@ -71,6 +71,16 @@ export function renderInlineNode(
   o: any,
   key: number | string,
 ): React.ReactNode {
+  const inlineCodeStyle: React.CSSProperties = {
+    background: "var(--color-surface-tertiary-soft2)",
+    border: "1px solid var(--color-line)",
+    borderRadius: "6px",
+    padding: "0 0.35em",
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    fontSize: "0.92em",
+    color: "var(--color-ink-strong)",
+  };
+
   switch (node.type) {
     case "text":
       return node.value;
@@ -115,7 +125,11 @@ export function renderInlineNode(
       );
 
     case "code":
-      return React.createElement("code", { key }, node.value);
+      return React.createElement(
+        "code",
+        { key, className: "inline-code", style: inlineCodeStyle },
+        node.value,
+      );
 
     case "link": {
       const isExt = isExternal(node.href);

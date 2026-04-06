@@ -13,6 +13,7 @@ export function parseInlineMarkdown(text: string): string {
 }
 
 function renderInlineNodesToHtml(nodes: InlineNode[]): string {
+  const inlineCodeStyle = 'background:var(--color-surface-tertiary-soft2);border:1px solid var(--color-line);border-radius:6px;padding:0 0.35em;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:0.92em;color:var(--color-ink-strong);';
   return nodes.map(node => {
     switch (node.type) {
       case 'text': return escHtml(node.value);
@@ -21,7 +22,7 @@ function renderInlineNodesToHtml(nodes: InlineNode[]): string {
       case 'bold_italic': return `<strong><em style="font-style:italic">${renderInlineNodesToHtml(node.children)}</em></strong>`;
       case 'strikethrough': return `<del>${renderInlineNodesToHtml(node.children)}</del>`;
       case 'underline': return `<u>${renderInlineNodesToHtml(node.children)}</u>`;
-      case 'code': return `<code class="inline-code">${escHtml(node.value)}</code>`;
+      case 'code': return `<code class="inline-code" style="${inlineCodeStyle}">${escHtml(node.value)}</code>`;
       case 'link': return `<a href="${escHtml(node.href)}">${renderInlineNodesToHtml(node.children)}</a>`;
       case 'image': return `<img src="${escHtml(node.src)}" alt="${escHtml(node.alt)}" />`;
       case 'highlight': return `<mark>${renderInlineNodesToHtml(node.children)}</mark>`;

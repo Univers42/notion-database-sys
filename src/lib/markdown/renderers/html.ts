@@ -144,6 +144,7 @@ function renderInlines(nodes: InlineNode[], o: Required<HtmlRenderOptions>): str
 }
 
 function renderInline(node: InlineNode, o: Required<HtmlRenderOptions>): string {
+  const inlineCodeStyle = 'background:var(--color-surface-tertiary-soft2);border:1px solid var(--color-line);border-radius:6px;padding:0 0.35em;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:0.92em;color:var(--color-ink-strong);';
   switch (node.type) {
     case 'text':
       return esc(node.value);
@@ -158,7 +159,7 @@ function renderInline(node: InlineNode, o: Required<HtmlRenderOptions>): string 
     case 'underline':
       return `<u>${renderInlines(node.children, o)}</u>`;
     case 'code':
-      return `<code>${esc(node.value)}</code>`;
+      return `<code class="inline-code" style="${inlineCodeStyle}">${esc(node.value)}</code>`;
     case 'link': {
       const attrs = [
         `href="${esc(node.href)}"`,
