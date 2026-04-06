@@ -48,19 +48,6 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
     registerBlockRef,
   } = usePlaygroundBlockEditor(pageId);
 
-  const numberedIndices = useMemo(() => {
-    const map = new Map<string, number>();
-    let counter = 0;
-    for (const b of blocks) {
-      if (b.type === "numbered_list") {
-        map.set(b.id, ++counter);
-      } else {
-        counter = 0;
-      }
-    }
-    return map;
-  }, [blocks]);
-
   if (blocks.length === 0) {
     return (
       <button
