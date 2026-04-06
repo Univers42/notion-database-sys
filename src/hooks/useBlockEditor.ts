@@ -111,6 +111,7 @@ export function useBlockEditor(pageId: string) {
   const handleKeyDown = useCallback((e: React.KeyboardEvent, blockId: string, content: Block[]) => {
     const block = content.find(b => b.id === blockId);
     if (!block) return;
+    const blockIdx = content.findIndex(b => b.id === blockId);
 
     if (e.key === ' ' && block.type === 'paragraph' && block.content === '-') {
       e.preventDefault();
@@ -120,8 +121,28 @@ export function useBlockEditor(pageId: string) {
       return;
     }
 
+    if (e.key === ' ' && block.type === 'paragraph' && /^\d+\.$/.test(block.content)) {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'numbered_list');
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
+      return;
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
       handleEnterKey(e, blockId, block.type, slashMenu, pageId, insertBlock, focusBlock);
+      return;
+    }
+
+    if (
+      e.key === 'Backspace'
+      && block.content === ''
+      && (block.type === 'bulleted_list' || block.type === 'numbered_list')
+      && blockIdx === 0
+    ) {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'paragraph');
+      focusBlock(blockId);
       return;
     }
 
