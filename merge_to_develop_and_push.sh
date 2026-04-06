@@ -15,4 +15,4 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-# git push --delete origin "$1"; git merge "$1"; git branch -D "$1"; git push
+git push --delete origin "$1"; git merge "$1"; git branch -D "$1"; git push
