@@ -62,6 +62,16 @@ check_port() { \
 	fi; \
 	if [ "$$rc" -eq 0 ]; then \
 		echo -e "$(RED)✘ Port $$port is already in use before starting $$service$(RESET)"; \
+		local owner=""; \
+		if command -v lsof >/dev/null 2>&1; then \
+			owner=$$(lsof -nP -iTCP:$$port -sTCP:LISTEN 2>/dev/null | awk 'NR==2{print $$1" (PID "$$2")"}'); \
+		fi; \
+		if [ -z "$$owner" ]; then \
+			owner=$$(docker ps --filter "publish=$$port" --format '{{.Names}}' 2>/dev/null | head -1); \
+			[ -n "$$owner" ] && owner="container $$owner"; \
+		fi; \
+		[ -n "$$owner" ] && echo -e "  $(YELLOW)↳ Held by: $$owner$(RESET)"; \
+		echo -e "  $(YELLOW)Tip: run 'make kill-ports' or stop the conflicting service$(RESET)"; \
 		return 1; \
 	fi; \
 	if [ "$$rc" -eq 2 ]; then \
@@ -341,13 +351,15 @@ audit: ## Run full static analysis: typecheck + lint + SonarQube scan
 	@$(MAKE) lint
 	@echo ""
 	@echo -e "$(CYAN)[3/4] Ensuring SonarQube is running…$(RESET)"
-	@if ! curl -sf $(SONAR_URL)/api/system/status 2>/dev/null | grep -q UP; then \
-		echo -e "  $(YELLOW)SonarQube not running — starting it…$(RESET)"; \
-		$(COMPOSE) up -d $(SONAR_SERVICES); \
-		bash docker/services/sonarqube/tools/wait-sonarqube.sh $(SONAR_URL) 180; \
-	else \
+	@if curl -sf $(SONAR_URL)/api/system/status 2>/dev/null | grep -q UP; then \
 		echo -e "  $(GREEN)✔ SonarQube already running$(RESET)"; \
+	else \
+		echo -e "  $(YELLOW)SonarQube not running — starting it…$(RESET)"; \
+		$(MAKE) sonar-up --no-print-directory; \
 	fi
+	@echo ""
+	@echo -e "$(CYAN)[3½] Ensuring SonarQube token…$(RESET)"
+	@bash docker/services/sonarqube/tools/ensure-sonar-token.sh .env
 	@echo ""
 	@echo -e "$(CYAN)[4/4] Running SonarQube scanner…$(RESET)"
 	@bash docker/services/sonarqube/tools/run-scan.sh

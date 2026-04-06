@@ -63,7 +63,7 @@ fi
 
 echo "Running SonarQube analysis"
 echo "  URL   : ${SONAR_URL}"
-echo "  Token : ${SONAR_TOKEN:+(set)}${SONAR_TOKEN:-(not set)}"
+echo "  Token : $([ -n "$SONAR_TOKEN" ] && echo "(set)" || echo "(not set)")"
 echo "  Mode  : $([ "$CLOUD_MODE" = true ] && echo "cloud" || echo "local")"
 echo ""
 
