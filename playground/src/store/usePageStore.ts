@@ -14,7 +14,8 @@ import { create } from 'zustand';
 import {
   loadRecents, saveRecents,
   updatePageInState,
-  applyBlockUpdate, applyBlockInsert, applyBlockDelete, applyBlockMove, applyBlockTypeChange,
+  applyBlockUpdate, applyBlockInsert, applyBlockDelete, applyBlockMove,
+  applyBlockIndent, applyBlockOutdent, applyBlockTypeChange,
 } from './pageStore.helpers';
 import {
   createSeedOfflinePages, createSeedOnlinePages,
@@ -79,8 +80,18 @@ export const usePageStore = create<PageStore>((set, get) => ({
     debouncePersistContent(pageId);
   },
 
-  moveBlock: (pageId, blockId, targetIndex) => {
-    set(s => ({ pages: updatePageInState(s.pages, pageId, applyBlockMove(blockId, targetIndex)) }));
+  moveBlock: (pageId, blockId, targetIndex, parentBlockId = null) => {
+    set(s => ({ pages: updatePageInState(s.pages, pageId, applyBlockMove(blockId, targetIndex, parentBlockId)) }));
+    debouncePersistContent(pageId);
+  },
+
+  indentBlock: (pageId, blockId) => {
+    set(s => ({ pages: updatePageInState(s.pages, pageId, applyBlockIndent(blockId)) }));
+    debouncePersistContent(pageId);
+  },
+
+  outdentBlock: (pageId, blockId) => {
+    set(s => ({ pages: updatePageInState(s.pages, pageId, applyBlockOutdent(blockId)) }));
     debouncePersistContent(pageId);
   },
 

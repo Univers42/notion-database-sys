@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/06 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,27 +77,18 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
 
   return (
     <div className="flex flex-col">
-      {blocks.map((block) => (
-        <DraggablePlaygroundBlock
-          key={block.id}
-          block={block}
-          blocks={blocks}
-          pageId={pageId}
-          moveBlock={moveBlock}
-          draggedBlockId={draggedBlockId}
-          setDraggedBlockId={setDraggedBlockId}
-        >
-          <EditableBlock
-            block={block}
-            blocks={blocks}
-            numberedIndex={numberedIndices.get(block.id) ?? 0}
-            onChange={handleBlockChange}
-            onKeyDown={handleKeyDown}
-            onDeleteBlock={(blockId: string) => deleteBlock(pageId, blockId)}
-            registerRef={registerBlockRef}
-          />
-        </DraggablePlaygroundBlock>
-      ))}
+      <BlockTree
+        blocks={blocks}
+        pageId={pageId}
+        isRoot
+        moveBlock={moveBlock}
+        draggedBlockId={draggedBlockId}
+        setDraggedBlockId={setDraggedBlockId}
+        onChange={handleBlockChange}
+        onKeyDown={handleKeyDown}
+        onDeleteBlock={(blockId: string) => deleteBlock(pageId, blockId)}
+        registerRef={registerBlockRef}
+      />
 
       <button
         type="button"
@@ -125,11 +116,101 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
   );
 };
 
+interface BlockTreeProps {
+  blocks: Block[];
+  pageId: string;
+  isRoot?: boolean;
+  parentBlockId?: string | null;
+  moveBlock: (
+    pageId: string,
+    blockId: string,
+    targetIndex: number,
+    parentBlockId?: string | null,
+  ) => void;
+  draggedBlockId: string | null;
+  setDraggedBlockId: (id: string | null) => void;
+  onChange: (blockId: string, text: string, blocks: Block[]) => void;
+  onKeyDown: (e: React.KeyboardEvent, blockId: string, blocks: Block[]) => void;
+  onDeleteBlock: (blockId: string) => void;
+  registerRef: (blockId: string, el: HTMLElement | null) => void;
+}
+
+const BlockTree: React.FC<BlockTreeProps> = ({
+  blocks,
+  pageId,
+  isRoot = false,
+  parentBlockId = null,
+  moveBlock,
+  draggedBlockId,
+  setDraggedBlockId,
+  onChange,
+  onKeyDown,
+  onDeleteBlock,
+  registerRef,
+}) => {
+  let numberedCounter = 0;
+
+  return (
+    <div className={isRoot ? "" : "ml-7"}>
+      {blocks.map((block) => {
+        const numberedIndex =
+          block.type === "numbered_list" ? ++numberedCounter : 0;
+        if (block.type !== "numbered_list") numberedCounter = 0;
+
+        return (
+          <div key={block.id}>
+            <DraggablePlaygroundBlock
+              block={block}
+              blocks={blocks}
+              pageId={pageId}
+              parentBlockId={parentBlockId}
+              moveBlock={moveBlock}
+              draggedBlockId={draggedBlockId}
+              setDraggedBlockId={setDraggedBlockId}
+            >
+              <EditableBlock
+                block={block}
+                blocks={blocks}
+                numberedIndex={numberedIndex}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                onDeleteBlock={onDeleteBlock}
+                registerRef={registerRef}
+              />
+            </DraggablePlaygroundBlock>
+
+            {!!block.children?.length && (
+              <BlockTree
+                blocks={block.children}
+                pageId={pageId}
+                parentBlockId={block.id}
+                moveBlock={moveBlock}
+                draggedBlockId={draggedBlockId}
+                setDraggedBlockId={setDraggedBlockId}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                onDeleteBlock={onDeleteBlock}
+                registerRef={registerRef}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 interface DraggablePlaygroundBlockProps {
   block: Block;
   blocks: Block[];
   pageId: string;
-  moveBlock: (pageId: string, blockId: string, targetIndex: number) => void;
+  parentBlockId: string | null;
+  moveBlock: (
+    pageId: string,
+    blockId: string,
+    targetIndex: number,
+    parentBlockId?: string | null,
+  ) => void;
   draggedBlockId: string | null;
   setDraggedBlockId: (id: string | null) => void;
   children: React.ReactNode;
@@ -139,6 +220,7 @@ const DraggablePlaygroundBlock: React.FC<DraggablePlaygroundBlockProps> = ({
   block,
   blocks,
   pageId,
+  parentBlockId,
   moveBlock,
   draggedBlockId,
   setDraggedBlockId,
@@ -184,10 +266,10 @@ const DraggablePlaygroundBlock: React.FC<DraggablePlaygroundBlockProps> = ({
       const midY = rect.top + rect.height / 2;
       const insertionIdx = e.clientY < midY ? targetIdx : targetIdx + 1;
 
-      moveBlock(pageId, draggedId, insertionIdx);
+      moveBlock(pageId, draggedId, insertionIdx, parentBlockId);
       setDraggedBlockId(null);
     },
-    [block.id, blocks, moveBlock, pageId, setDraggedBlockId],
+    [block.id, blocks, moveBlock, pageId, parentBlockId, setDraggedBlockId],
   );
 
   const handleDragEnd = useCallback(() => {

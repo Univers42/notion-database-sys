@@ -20,28 +20,52 @@ export interface SlashMenuState {
 }
 
 export function handleArrowUp(blockId: string, content: Block[], focusBlock: (id: string, end?: boolean) => void): boolean {
-  const idx = content.findIndex(b => b.id === blockId);
-  if (idx <= 0) return false;
   const sel = globalThis.getSelection();
   const range = sel?.getRangeAt(0);
-  if (range?.startOffset === 0 && range.collapsed) {
-    focusBlock(content[idx - 1].id, true);
+  if (!range?.collapsed || range.startOffset !== 0) return false;
+
+  const orderedBlocks = Array.from(document.querySelectorAll<HTMLElement>('[data-block-id]'));
+  const idx = orderedBlocks.findIndex((el) => el.dataset.blockId === blockId);
+  if (idx > 0) {
+    const prevId = orderedBlocks[idx - 1].dataset.blockId;
+    if (prevId) {
+      focusBlock(prevId, true);
+      return true;
+    }
+  }
+
+  const fallbackIdx = content.findIndex(b => b.id === blockId);
+  if (fallbackIdx > 0) {
+    focusBlock(content[fallbackIdx - 1].id, true);
     return true;
   }
+
   return false;
 }
 
 export function handleArrowDown(
   blockId: string, content: Block[], el: HTMLElement, focusBlock: (id: string, end?: boolean) => void,
 ): boolean {
-  const idx = content.findIndex(b => b.id === blockId);
-  if (idx >= content.length - 1) return false;
   const sel = globalThis.getSelection();
   const range = sel?.getRangeAt(0);
-  if (range?.endOffset === (el.textContent?.length ?? 0) && range.collapsed) {
-    focusBlock(content[idx + 1].id);
+  if (!range?.collapsed || range.endOffset !== (el.textContent?.length ?? 0)) return false;
+
+  const orderedBlocks = Array.from(document.querySelectorAll<HTMLElement>('[data-block-id]'));
+  const idx = orderedBlocks.findIndex((node) => node.dataset.blockId === blockId);
+  if (idx >= 0 && idx < orderedBlocks.length - 1) {
+    const nextId = orderedBlocks[idx + 1].dataset.blockId;
+    if (nextId) {
+      focusBlock(nextId);
+      return true;
+    }
+  }
+
+  const fallbackIdx = content.findIndex(b => b.id === blockId);
+  if (fallbackIdx >= 0 && fallbackIdx < content.length - 1) {
+    focusBlock(content[fallbackIdx + 1].id);
     return true;
   }
+
   return false;
 }
 

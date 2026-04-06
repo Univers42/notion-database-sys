@@ -131,7 +131,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
           <div className="flex-1">
             <EditableContent
               content={block.content}
-              className="text-sm text-[var(--color-ink)] leading-relaxed py-0.5"
+              className="text-sm text-[var(--color-ink)] leading-relaxed py-0.5 whitespace-pre-wrap"
               placeholder="List item"
               onChange={onChange}
               onKeyDown={onKeyDown}
@@ -149,7 +149,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
           <div className="flex-1">
             <EditableContent
               content={block.content}
-              className="text-sm text-[var(--color-ink)] leading-relaxed py-0.5"
+              className="text-sm text-[var(--color-ink)] leading-relaxed py-0.5 whitespace-pre-wrap"
               placeholder="List item"
               onChange={onChange}
               onKeyDown={onKeyDown}

@@ -59,7 +59,9 @@ export interface PageStore {
   updateBlock: (pageId: string, blockId: string, updates: Partial<Block>) => void;
   insertBlock: (pageId: string, afterBlockId: string, block: Block) => void;
   deleteBlock: (pageId: string, blockId: string) => void;
-  moveBlock: (pageId: string, blockId: string, targetIndex: number) => void;
+  moveBlock: (pageId: string, blockId: string, targetIndex: number, parentBlockId?: string | null) => void;
+  indentBlock: (pageId: string, blockId: string) => void;
+  outdentBlock: (pageId: string, blockId: string) => void;
   changeBlockType: (pageId: string, blockId: string, newType: BlockType) => void;
   updatePageContent: (pageId: string, blocks: Block[]) => void;
   updatePageTitle: (pageId: string, title: string) => void;

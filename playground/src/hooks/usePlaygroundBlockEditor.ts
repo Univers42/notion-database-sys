@@ -30,6 +30,13 @@ function isListType(type: Block['type']): type is 'bulleted_list' | 'numbered_li
   return type === 'bulleted_list' || type === 'numbered_list';
 }
 
+function isEffectivelyEmpty(text: string): boolean {
+  return text
+    .replace(/\u00a0/g, ' ')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .trim() === '';
+}
+
 /** Manages block editing, slash commands, and keyboard navigation for playground pages. */
 export function usePlaygroundBlockEditor(pageId: string) {
   const {
@@ -38,6 +45,8 @@ export function usePlaygroundBlockEditor(pageId: string) {
     deleteBlock,
     changeBlockType,
     updateBlock,
+    indentBlock,
+    outdentBlock,
   } = usePageStore.getState();
 
   const [slashMenu, setSlashMenu] = useState<SlashMenuState | null>(null);
@@ -139,19 +148,96 @@ export function usePlaygroundBlockEditor(pageId: string) {
     return false;
   }, [pageId, changeBlockType, updateBlock, focusBlock]);
 
+  const handleListIndentation = useCallback((e: React.KeyboardEvent, blockId: string, block: Block): boolean => {
+    if (e.key !== 'Tab' || !isListType(block.type)) return false;
+
+    e.preventDefault();
+
+    if (e.shiftKey) {
+      outdentBlock(pageId, blockId);
+    } else {
+      indentBlock(pageId, blockId);
+    }
+
+    repositionCursor(blockId, block.content);
+
+    return true;
+  }, [pageId, indentBlock, outdentBlock]);
+
+  const handleEmptyListEnter = useCallback((
+    e: React.KeyboardEvent,
+    blockId: string,
+    block: Block,
+    blockIdx: number,
+    content: Block[],
+    isEmpty: boolean,
+  ): boolean => {
+    if (e.key !== 'Enter' || e.shiftKey || !isListType(block.type) || !isEmpty) {
+      return false;
+    }
+
+    e.preventDefault();
+
+    const prevBlockId = blockIdx > 0 ? content[blockIdx - 1].id : null;
+    const nextBlockId = blockIdx < content.length - 1 ? content[blockIdx + 1].id : null;
+
+    deleteBlock(pageId, blockId);
+    if (nextBlockId) {
+      focusBlock(nextBlockId);
+    } else if (prevBlockId) {
+      focusBlock(prevBlockId, true);
+    }
+
+    return true;
+  }, [pageId, deleteBlock, focusBlock]);
+
+  const handleEmptyListDelete = useCallback((
+    e: React.KeyboardEvent,
+    blockId: string,
+    block: Block,
+    blockIdx: number,
+    content: Block[],
+    isEmpty: boolean,
+  ): boolean => {
+    if (e.key !== 'Delete' || !isListType(block.type) || !isEmpty) {
+      return false;
+    }
+
+    e.preventDefault();
+
+    const nextBlockId = blockIdx < content.length - 1 ? content[blockIdx + 1].id : null;
+    const prevBlockId = blockIdx > 0 ? content[blockIdx - 1].id : null;
+
+    deleteBlock(pageId, blockId);
+    if (nextBlockId) {
+      focusBlock(nextBlockId);
+    } else if (prevBlockId) {
+      focusBlock(prevBlockId, true);
+    }
+
+    return true;
+  }, [pageId, deleteBlock, focusBlock]);
+
   const handleEmptyBackspace = useCallback((
     e: React.KeyboardEvent,
     blockId: string,
     block: Block,
     blockIdx: number,
     content: Block[],
+    isEmpty: boolean,
   ): boolean => {
-    if (e.key !== 'Backspace' || block.content !== '') return false;
+    if (e.key !== 'Backspace' || !isEmpty) return false;
 
-    if (isListType(block.type) && blockIdx === 0) {
+    if (isListType(block.type)) {
       e.preventDefault();
-      changeBlockType(pageId, blockId, 'paragraph');
-      focusBlock(blockId);
+      const prevBlockId = blockIdx > 0 ? content[blockIdx - 1].id : null;
+      const nextBlockId = blockIdx < content.length - 1 ? content[blockIdx + 1].id : null;
+      deleteBlock(pageId, blockId);
+      if (nextBlockId) {
+        focusBlock(nextBlockId);
+      } else if (prevBlockId) {
+        focusBlock(prevBlockId, true);
+      }
       return true;
     }
 
@@ -161,7 +247,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
     }
 
     return false;
-  }, [pageId, changeBlockType, deleteBlock, focusBlock]);
+  }, [pageId, deleteBlock, focusBlock]);
 
   const handleArrowNavigation = useCallback((
     e: React.KeyboardEvent,
@@ -186,8 +272,22 @@ export function usePlaygroundBlockEditor(pageId: string) {
     const block = content.find(b => b.id === blockId);
     if (!block) return;
     const blockIdx = content.findIndex(b => b.id === blockId);
+    const liveText = (e.currentTarget as HTMLElement | null)?.textContent ?? block.content;
+    const isEmpty = isEffectivelyEmpty(liveText);
+
+    if (handleListIndentation(e, blockId, block)) {
+      return;
+    }
 
     if (handleParagraphSpaceShortcut(e, blockId, block)) {
+      return;
+    }
+
+    if (handleEmptyListEnter(e, blockId, block, blockIdx, content, isEmpty)) {
+      return;
+    }
+
+    if (handleEmptyListDelete(e, blockId, block, blockIdx, content, isEmpty)) {
       return;
     }
 
@@ -196,7 +296,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
       return;
     }
 
-    if (handleEmptyBackspace(e, blockId, block, blockIdx, content)) {
+    if (handleEmptyBackspace(e, blockId, block, blockIdx, content, isEmpty)) {
       return;
     }
 
@@ -212,7 +312,10 @@ export function usePlaygroundBlockEditor(pageId: string) {
     slashMenu,
     insertBlock,
     focusBlock,
+    handleListIndentation,
     handleParagraphSpaceShortcut,
+    handleEmptyListEnter,
+    handleEmptyListDelete,
     handleEmptyBackspace,
     handleArrowNavigation,
   ]);
