@@ -46,8 +46,8 @@ SEP_CHAR="─"
 THICK_CHAR="═"
 
 repeat_char() {
-  local c="$1" n="$2"
-  printf '%*s' "$n" '' | tr ' ' "$c"
+  local c="$1" n="$2" i
+  for (( i=0; i<n; i++ )); do printf '%s' "$c"; done
 }
 
 sep()       { echo -e "${DIM}$(repeat_char "$SEP_CHAR" "$W_COL")${RST}"; }
