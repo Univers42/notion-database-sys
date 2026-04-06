@@ -212,13 +212,13 @@ up-app: check-docker check-compose check-app-ports build-app ## Start src, api, 
 	@echo -e "$(GREEN)✔ App services up$(RESET)"
 
 down: ## Stop all containers
-	$(COMPOSE) down
+	@$(COMPOSE) down
 	@echo -e "$(GREEN)✔ Containers down$(RESET)"
 
 restart: down stack ## Rebuild/restart the full stack
 
 logs: ## Tail container logs
-	$(COMPOSE) logs -f --tail=50
+	@$(COMPOSE) logs -f --tail=50
 
 stack-status: ## Show full stack status
 	@$(COMPOSE) ps
@@ -243,8 +243,8 @@ show-endpoints: ## Print the effective localhost URLs and ports for the current 
 	@echo -e "  Note: DB/Redis ports are not browser URLs; use a client or 'make psql' / 'make mongo-shell'."
 
 db-reset: ## Destroy DB volumes and restart only PostgreSQL + MongoDB
-	$(COMPOSE) down -v
-	$(COMPOSE) up -d $(DB_SERVICES)
+	@$(COMPOSE) down -v
+	@$(COMPOSE) up -d $(DB_SERVICES)
 	@echo -e "$(GREEN)✔ Database volumes destroyed, DB containers recreated$(RESET)"
 
 db-status: ## Show container & DB health
@@ -270,14 +270,14 @@ db-status: ## Show container & DB health
 status: stack-status ## Alias for stack-status
 
 psql: ## Open psql shell
-	$(COMPOSE) exec postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}
+	@$(COMPOSE) exec postgres psql -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}
 
 mongo-shell: ## Open mongosh shell
-	$(COMPOSE) exec mongodb mongosh \
+	@$(COMPOSE) exec mongodb mongosh \
 		"mongodb://$${MONGO_USER:-notion_user}:$${MONGO_PASSWORD:-notion_pass}@localhost:27017/$${MONGO_DB:-notion_db}?authSource=admin"
 
 redis-cli: ## Open redis-cli shell
-	$(COMPOSE) exec redis redis-cli
+	@$(COMPOSE) exec redis redis-cli
 
 seed: seed-playground ## Safe default seed for the docker stack
 
@@ -307,26 +307,26 @@ seed-all: seed-src seed-playground ## Seed src live DBs and playground data
 
 install: ## Install all local workspace dependencies with pnpm
 	@echo -e "$(CYAN)Installing dependencies…$(RESET)"
-	pnpm install
+	@pnpm install
 	@echo -e "$(GREEN)✔ Dependencies installed$(RESET)"
 
 build-packages: build-app ## Build all packages (types → core → api) inside the shared app image
 	@echo -e "$(CYAN)Building packages…$(RESET)"
-	$(COMPOSE) run --rm --no-deps src pnpm turbo run build --filter='./packages/*'
+	@$(COMPOSE) run --rm --no-deps src pnpm turbo run build --filter='./packages/*'
 	@echo -e "$(GREEN)✔ All packages built$(RESET)"
 
 typecheck: build-app ## Run TypeScript type-checking (no emit) inside the shared app image
 	@echo -e "$(CYAN)Type-checking…$(RESET)"
-	$(COMPOSE) run --rm --no-deps src sh -c 'pnpm turbo run build --filter="./packages/*" && pnpm tsc --noEmit'
+	@$(COMPOSE) run --rm --no-deps src sh -c 'pnpm turbo run build --filter="./packages/*" && pnpm tsc --noEmit'
 	@echo -e "$(GREEN)✔ No type errors$(RESET)"
 
 lint: build-app ## Run ESLint on all source directories inside the shared app image
 	@echo -e "$(CYAN)Linting…$(RESET)"
-	$(COMPOSE) run --rm --no-deps src pnpm eslint src/ packages/ playground/ docker/services/dbms/ --max-warnings=0
+	@$(COMPOSE) run --rm --no-deps src pnpm eslint src/ packages/ playground/ docker/services/dbms/ --max-warnings=0
 	@echo -e "$(GREEN)✔ No lint errors$(RESET)"
 
 lint-fix: build-app ## Run ESLint with --fix inside the shared app image
-	$(COMPOSE) run --rm --no-deps src pnpm eslint src/ packages/ playground/ docker/services/dbms/ --max-warnings=0 --fix
+	@$(COMPOSE) run --rm --no-deps src pnpm eslint src/ packages/ playground/ docker/services/dbms/ --max-warnings=0 --fix
 	@echo -e "$(GREEN)✔ Lint fix complete$(RESET)"
 
 audit: ## Run full static analysis: typecheck + lint + SonarQube scan
@@ -372,16 +372,16 @@ sonar-status: ## Check SonarQube server status
 ci: typecheck lint build-packages ## Run the same checks as GitHub Actions CI
 
 clean: ## Remove containers, volumes, local image, node_modules, dist
-	$(COMPOSE) down -v 2>/dev/null || true
-	docker image rm $(APP_IMAGE) 2>/dev/null || true
-	rm -rf node_modules dist .vite .turbo packages/*/dist .scannerwork \
+	@$(COMPOSE) down -v 2>/dev/null || true
+	@docker image rm $(APP_IMAGE) 2>/dev/null || true
+	@rm -rf node_modules dist .vite .turbo packages/*/dist .scannerwork \
 		tsconfig.tsbuildinfo packages/*/tsconfig.tsbuildinfo .make
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
 fclean: ## Full clean: stop+remove all containers (incl. orphans) + volumes, image, cache, and generated files
-	$(COMPOSE) down -v --remove-orphans 2>/dev/null || true
-	docker image rm $(APP_IMAGE) 2>/dev/null || true
-	rm -rf node_modules dist .vite .turbo packages/*/dist .scannerwork \
+	@$(COMPOSE) down -v --remove-orphans 2>/dev/null || true
+	@docker image rm $(APP_IMAGE) 2>/dev/null || true
+	@rm -rf node_modules dist .vite .turbo packages/*/dist .scannerwork \
 		tsconfig.tsbuildinfo packages/*/tsconfig.tsbuildinfo .make
 	@echo -e "$(GREEN)✔ Full clean done$(RESET)"
 
