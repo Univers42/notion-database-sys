@@ -20,6 +20,18 @@ function matchDelimited(
   return { start: pos, end: end + close.length, node: factory(parseInline(inner)) };
 }
 
+function findSingleEmphasisClose(text: string, pos: number, marker: '*' | '_'): number {
+  for (let i = pos + 1; i < text.length; i++) {
+    if (text[i] !== marker) continue;
+
+    // Single emphasis must not bind to a delimiter that belongs to a run.
+    if (text[i - 1] === marker || text[i + 1] === marker) continue;
+
+    return i;
+  }
+  return -1;
+}
+
 export function createInlineMatchers(parseInline: InlineParser): InlineMatcher[] {
   return [
     (text, pos) => {
@@ -100,8 +112,9 @@ export function createInlineMatchers(parseInline: InlineParser): InlineMatcher[]
     (text, pos) => {
       if (text[pos] !== '*' && text[pos] !== '_') return null;
       const c = text[pos];
+      if (pos > 0 && text[pos - 1] === c) return null; // part of an existing run
       if (text[pos + 1] === c) return null; // double = bold, not italic
-      const close = text.indexOf(c, pos + 1);
+      const close = findSingleEmphasisClose(text, pos, c as '*' | '_');
       if (close === -1 || close === pos + 1) return null;
       if (c === '_') {
         if (pos > 0 && /\w/.test(text[pos - 1])) return null;

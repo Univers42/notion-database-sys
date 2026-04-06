@@ -150,9 +150,9 @@ function renderInline(node: InlineNode, o: Required<HtmlRenderOptions>): string 
     case 'bold':
       return `<strong>${renderInlines(node.children, o)}</strong>`;
     case 'italic':
-      return `<em>${renderInlines(node.children, o)}</em>`;
+      return `<em style="font-style:italic">${renderInlines(node.children, o)}</em>`;
     case 'bold_italic':
-      return `<strong><em>${renderInlines(node.children, o)}</em></strong>`;
+      return `<strong><em style="font-style:italic">${renderInlines(node.children, o)}</em></strong>`;
     case 'strikethrough':
       return `<del>${renderInlines(node.children, o)}</del>`;
     case 'underline':

@@ -17,8 +17,8 @@ function renderInlineNodesToHtml(nodes: InlineNode[]): string {
     switch (node.type) {
       case 'text': return escHtml(node.value);
       case 'bold': return `<strong>${renderInlineNodesToHtml(node.children)}</strong>`;
-      case 'italic': return `<em>${renderInlineNodesToHtml(node.children)}</em>`;
-      case 'bold_italic': return `<strong><em>${renderInlineNodesToHtml(node.children)}</em></strong>`;
+      case 'italic': return `<em style="font-style:italic">${renderInlineNodesToHtml(node.children)}</em>`;
+      case 'bold_italic': return `<strong><em style="font-style:italic">${renderInlineNodesToHtml(node.children)}</em></strong>`;
       case 'strikethrough': return `<del>${renderInlineNodesToHtml(node.children)}</del>`;
       case 'underline': return `<u>${renderInlineNodesToHtml(node.children)}</u>`;
       case 'code': return `<code class="inline-code">${escHtml(node.value)}</code>`;
@@ -120,4 +120,3 @@ function blockToPlain(node: import('./ast').BlockNode): string {
     default: return '';
   }
 }
-

@@ -1,9 +1,9 @@
 // React renderer — table, inline, and helper functions
-import React from 'react';
-import type { BlockNode, InlineNode } from '../ast';
+import React from "react";
+import type { BlockNode, InlineNode } from "../ast";
 
 export function renderTable(
-  node: Extract<BlockNode, { type: 'table' }>,
+  node: Extract<BlockNode, { type: "table" }>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   o: any,
   key: number | string,
@@ -14,26 +14,45 @@ export function renderTable(
   };
 
   const headCells = node.head.cells.map((c, idx) => ({ c, idx }));
-  const thead = React.createElement('thead', null,
-    React.createElement('tr', null,
+  const thead = React.createElement(
+    "thead",
+    null,
+    React.createElement(
+      "tr",
+      null,
       ...headCells.map(({ c, idx }) =>
-        React.createElement('th', { key: `h-${idx}`, style: alignStyle(idx) }, ...renderInlines(c.children, o))
-      )
-    )
+        React.createElement(
+          "th",
+          { key: `h-${idx}`, style: alignStyle(idx) },
+          ...renderInlines(c.children, o),
+        ),
+      ),
+    ),
   );
 
-  const rowEntries = node.rows.map((row, idx) => ({ idx, cells: row.cells.map((c, ci) => ({ c, ci })) }));
-  const tbody = React.createElement('tbody', null,
+  const rowEntries = node.rows.map((row, idx) => ({
+    idx,
+    cells: row.cells.map((c, ci) => ({ c, ci })),
+  }));
+  const tbody = React.createElement(
+    "tbody",
+    null,
     ...rowEntries.map(({ idx: ri, cells }) =>
-      React.createElement('tr', { key: `r-${ri}` },
+      React.createElement(
+        "tr",
+        { key: `r-${ri}` },
         ...cells.map(({ c, ci }) =>
-          React.createElement('td', { key: `c-${ci}`, style: alignStyle(ci) }, ...renderInlines(c.children, o))
-        )
-      )
-    )
+          React.createElement(
+            "td",
+            { key: `c-${ci}`, style: alignStyle(ci) },
+            ...renderInlines(c.children, o),
+          ),
+        ),
+      ),
+    ),
   );
 
-  return React.createElement('table', { key }, thead, tbody);
+  return React.createElement("table", { key }, thead, tbody);
 }
 
 // INLINE RENDERING
@@ -53,45 +72,73 @@ export function renderInlineNode(
   key: number | string,
 ): React.ReactNode {
   switch (node.type) {
-    case 'text':
+    case "text":
       return node.value;
 
-    case 'bold':
-      return React.createElement('strong', { key }, ...renderInlines(node.children, o));
-
-    case 'italic':
-      return React.createElement('em', { key }, ...renderInlines(node.children, o));
-
-    case 'bold_italic':
-      return React.createElement('strong', { key },
-        React.createElement('em', null, ...renderInlines(node.children, o))
+    case "bold":
+      return React.createElement(
+        "strong",
+        { key },
+        ...renderInlines(node.children, o),
       );
 
-    case 'strikethrough':
-      return React.createElement('del', { key }, ...renderInlines(node.children, o));
+    case "italic":
+      return React.createElement(
+        "em",
+        { key, style: { fontStyle: "italic" } },
+        ...renderInlines(node.children, o),
+      );
 
-    case 'underline':
-      return React.createElement('u', { key }, ...renderInlines(node.children, o));
+    case "bold_italic":
+      return React.createElement(
+        "strong",
+        { key },
+        React.createElement(
+          "em",
+          { style: { fontStyle: "italic" } },
+          ...renderInlines(node.children, o),
+        ),
+      );
 
-    case 'code':
-      return React.createElement('code', { key }, node.value);
+    case "strikethrough":
+      return React.createElement(
+        "del",
+        { key },
+        ...renderInlines(node.children, o),
+      );
 
-    case 'link': {
+    case "underline":
+      return React.createElement(
+        "u",
+        { key },
+        ...renderInlines(node.children, o),
+      );
+
+    case "code":
+      return React.createElement("code", { key }, node.value);
+
+    case "link": {
       const isExt = isExternal(node.href);
       const props: Record<string, unknown> = {
         key,
         href: node.href,
         title: node.title || undefined,
-        ...(o.externalLinks && isExt ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
+        ...(o.externalLinks && isExt
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {}),
       };
-      return React.createElement('a', props, ...renderInlines(node.children, o));
+      return React.createElement(
+        "a",
+        props,
+        ...renderInlines(node.children, o),
+      );
     }
 
-    case 'image': {
+    case "image": {
       if (o.imageRenderer) {
         return o.imageRenderer(node.src, node.alt, node.title);
       }
-      return React.createElement('img', {
+      return React.createElement("img", {
         key,
         src: node.src,
         alt: node.alt,
@@ -99,26 +146,44 @@ export function renderInlineNode(
       });
     }
 
-    case 'line_break':
-      return React.createElement('br', { key });
+    case "line_break":
+      return React.createElement("br", { key });
 
-    case 'highlight':
-      return React.createElement('mark', { key }, ...renderInlines(node.children, o));
+    case "highlight":
+      return React.createElement(
+        "mark",
+        { key },
+        ...renderInlines(node.children, o),
+      );
 
-    case 'math_inline': {
+    case "math_inline": {
       if (o.mathRenderer) {
         return o.mathRenderer(node.value, false);
       }
-      return React.createElement('span', { key, className: `${o.classPrefix}-math-inline` }, node.value);
+      return React.createElement(
+        "span",
+        { key, className: `${o.classPrefix}-math-inline` },
+        node.value,
+      );
     }
 
-    case 'footnote_ref':
-      return React.createElement('sup', { key },
-        React.createElement('a', { href: `#fn-${node.label}` }, `[${node.label}]`)
+    case "footnote_ref":
+      return React.createElement(
+        "sup",
+        { key },
+        React.createElement(
+          "a",
+          { href: `#fn-${node.label}` },
+          `[${node.label}]`,
+        ),
       );
 
-    case 'emoji':
-      return React.createElement('span', { key, role: 'img', 'aria-label': node.raw, title: `:${node.raw}:` }, node.value);
+    case "emoji":
+      return React.createElement(
+        "span",
+        { key, role: "img", "aria-label": node.raw, title: `:${node.raw}:` },
+        node.value,
+      );
 
     default:
       return null;
