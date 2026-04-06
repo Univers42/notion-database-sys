@@ -23,6 +23,13 @@ import {
 } from './playgroundBlockEditor.helpers';
 import type { SlashMenuState } from './playgroundBlockEditor.helpers';
 
+const HEADING_SHORTCUT_RE = /^#{1,6}$/;
+const NUMBERED_SHORTCUT_RE = /^\d+\.$/;
+
+function isListType(type: Block['type']): type is 'bulleted_list' | 'numbered_list' {
+  return type === 'bulleted_list' || type === 'numbered_list';
+}
+
 /** Manages block editing, slash commands, and keyboard navigation for playground pages. */
 export function usePlaygroundBlockEditor(pageId: string) {
   const {
@@ -101,35 +108,114 @@ export function usePlaygroundBlockEditor(pageId: string) {
     }
   }, [pageId, slashMenu, changeBlockType, updateBlock, getCaretRect]);
 
-  /** Handle key presses — Enter, Backspace, Arrow navigation. */
-  const handleKeyDown = useCallback((e: React.KeyboardEvent, blockId: string, content: Block[]) => {
-    const block = content.find(b => b.id === blockId);
-    if (!block) return;
+  const handleParagraphSpaceShortcut = useCallback((e: React.KeyboardEvent, blockId: string, block: Block): boolean => {
+    if (e.key !== ' ' || block.type !== 'paragraph') return false;
 
-    if (e.key === 'Enter' && !e.shiftKey) {
-      handleEnterKey(e, blockId, slashMenu, pageId, insertBlock, focusBlock);
-      return;
+    if (block.content === '-') {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'bulleted_list');
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
+      return true;
     }
 
-    if (e.key === 'Backspace' && block.content === '' && content.length > 1) {
+    if (HEADING_SHORTCUT_RE.test(block.content)) {
+      e.preventDefault();
+      const level = block.content.length;
+      changeBlockType(pageId, blockId, `heading_${level}` as Block['type']);
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
+      return true;
+    }
+
+    if (NUMBERED_SHORTCUT_RE.test(block.content)) {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'numbered_list');
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
+      return true;
+    }
+
+    return false;
+  }, [pageId, changeBlockType, updateBlock, focusBlock]);
+
+  const handleEmptyBackspace = useCallback((
+    e: React.KeyboardEvent,
+    blockId: string,
+    block: Block,
+    blockIdx: number,
+    content: Block[],
+  ): boolean => {
+    if (e.key !== 'Backspace' || block.content !== '') return false;
+
+    if (isListType(block.type) && blockIdx === 0) {
+      e.preventDefault();
+      changeBlockType(pageId, blockId, 'paragraph');
+      focusBlock(blockId);
+      return true;
+    }
+
+    if (content.length > 1) {
       handleBackspaceKey(e, blockId, content, pageId, deleteBlock, focusBlock);
-      return;
+      return true;
     }
 
+    return false;
+  }, [pageId, changeBlockType, deleteBlock, focusBlock]);
+
+  const handleArrowNavigation = useCallback((
+    e: React.KeyboardEvent,
+    blockId: string,
+    content: Block[],
+  ): boolean => {
     if (e.key === 'ArrowUp') {
       if (handleArrowUp(blockId, content, focusBlock)) e.preventDefault();
-      return;
+      return true;
     }
 
     if (e.key === 'ArrowDown') {
       if (handleArrowDown(blockId, content, e.target as HTMLElement, focusBlock)) e.preventDefault();
+      return true;
+    }
+
+    return false;
+  }, [focusBlock]);
+
+  /** Handle key presses — Enter, Backspace, Arrow navigation. */
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, blockId: string, content: Block[]) => {
+    const block = content.find(b => b.id === blockId);
+    if (!block) return;
+    const blockIdx = content.findIndex(b => b.id === blockId);
+
+    if (handleParagraphSpaceShortcut(e, blockId, block)) {
+      return;
+    }
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      handleEnterKey(e, blockId, block.type, slashMenu, pageId, insertBlock, focusBlock);
+      return;
+    }
+
+    if (handleEmptyBackspace(e, blockId, block, blockIdx, content)) {
+      return;
+    }
+
+    if (handleArrowNavigation(e, blockId, content)) {
       return;
     }
 
     if (e.key === 'Escape' && slashMenu) {
       setSlashMenu(null);
     }
-  }, [pageId, slashMenu, insertBlock, deleteBlock, focusBlock]);
+  }, [
+    pageId,
+    slashMenu,
+    insertBlock,
+    focusBlock,
+    handleParagraphSpaceShortcut,
+    handleEmptyBackspace,
+    handleArrowNavigation,
+  ]);
 
   /** Stub createInlineDatabase for the playground (no real DB engine). */
   const createInlineDatabase = useCallback((_name?: string) => {

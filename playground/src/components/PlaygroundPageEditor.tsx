@@ -10,24 +10,26 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useMemo, useCallback } from 'react';
-import { Plus } from 'lucide-react';
+import React, { useMemo, useCallback } from "react";
+import { Plus } from "lucide-react";
 
-import { SlashCommandMenu }  from '@src/components/blocks/SlashCommandMenu';
-import type { Block, BlockType } from '@src/types/database';
+import { SlashCommandMenu } from "@src/components/blocks/SlashCommandMenu";
+import type { Block, BlockType } from "@src/types/database";
 
-import { usePageStore }              from '../store/usePageStore';
-import { usePlaygroundBlockEditor }  from '../hooks/usePlaygroundBlockEditor';
-import { BlockEditor }               from './BlockEditor';
-
+import { usePageStore } from "../store/usePageStore";
+import { usePlaygroundBlockEditor } from "../hooks/usePlaygroundBlockEditor";
+import { BlockEditor } from "./BlockEditor";
 
 interface PlaygroundPageEditorProps {
   pageId: string;
 }
 
 /** Editable block-based page editor for the playground. */
-export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ pageId }) => {
-  const page   = usePageStore(s => s.pageById(pageId));
+export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
+  pageId,
+}) => {
+  const page = usePageStore((s) => s.pageById(pageId));
+  const deleteBlock = usePageStore((s) => s.deleteBlock);
   const blocks = useMemo(() => page?.content ?? [], [page?.content]);
 
   const {
@@ -46,7 +48,7 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
     const map = new Map<string, number>();
     let counter = 0;
     for (const b of blocks) {
-      if (b.type === 'numbered_list') {
+      if (b.type === "numbered_list") {
         map.set(b.id, ++counter);
       } else {
         counter = 0;
@@ -54,7 +56,6 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
     }
     return map;
   }, [blocks]);
-
 
   if (blocks.length === 0) {
     return (
@@ -72,7 +73,7 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
 
   return (
     <div className="flex flex-col">
-      {blocks.map(block => (
+      {blocks.map((block) => (
         <EditableBlock
           key={block.id}
           block={block}
@@ -80,6 +81,7 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
           numberedIndex={numberedIndices.get(block.id) ?? 0}
           onChange={handleBlockChange}
           onKeyDown={handleKeyDown}
+          onDeleteBlock={(blockId: string) => deleteBlock(pageId, blockId)}
           registerRef={registerBlockRef}
         />
       ))}
@@ -90,7 +92,10 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({ page
         className="flex items-center gap-2 text-sm text-[var(--color-ink-faint)] hover:text-[var(--color-ink-muted)] py-2 px-1 mt-1 transition-colors group"
         onClick={() => handleAddBlock(blocks)}
       >
-        <Plus size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+        <Plus
+          size={14}
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+        />
         <span className="opacity-0 group-hover:opacity-100 transition-opacity">
           Add a block
         </span>
@@ -115,11 +120,18 @@ interface EditableBlockProps {
   numberedIndex: number;
   onChange: (blockId: string, text: string, blocks: Block[]) => void;
   onKeyDown: (e: React.KeyboardEvent, blockId: string, blocks: Block[]) => void;
+  onDeleteBlock: (blockId: string) => void;
   registerRef: (blockId: string, el: HTMLElement | null) => void;
 }
 
 const EditableBlock: React.FC<EditableBlockProps> = ({
-  block, blocks, numberedIndex, onChange, onKeyDown, registerRef,
+  block,
+  blocks,
+  numberedIndex,
+  onChange,
+  onKeyDown,
+  onDeleteBlock,
+  registerRef,
 }) => {
   const handleChange = useCallback(
     (text: string) => onChange(block.id, text, blocks),
@@ -143,6 +155,7 @@ const EditableBlock: React.FC<EditableBlockProps> = ({
         numberedIndex={numberedIndex}
         onChange={handleChange}
         onKeyDown={handleKey}
+        onDeleteCodeBlock={() => onDeleteBlock(block.id)}
       />
     </div>
   );
