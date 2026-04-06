@@ -155,17 +155,14 @@ const DraggablePlaygroundBlock: React.FC<DraggablePlaygroundBlockProps> = ({
     [block.id, setDraggedBlockId],
   );
 
-  const handleDragOver = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      if (!e.dataTransfer.types.includes(DND_TYPE)) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      const rect = e.currentTarget.getBoundingClientRect();
-      const midY = rect.top + rect.height / 2;
-      setDropPosition(e.clientY < midY ? "above" : "below");
-    },
-    [],
-  );
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    if (!e.dataTransfer.types.includes(DND_TYPE)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    setDropPosition(e.clientY < midY ? "above" : "below");
+  }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -216,7 +213,12 @@ const DraggablePlaygroundBlock: React.FC<DraggablePlaygroundBlockProps> = ({
         aria-label="Drag to reorder block"
         title="Drag to reorder"
       >
-        <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+        <svg
+          className="w-4 h-4"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          aria-hidden
+        >
           <circle cx="5.5" cy="3.5" r="1.5" />
           <circle cx="10.5" cy="3.5" r="1.5" />
           <circle cx="5.5" cy="8" r="1.5" />
