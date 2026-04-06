@@ -160,7 +160,7 @@
           "name": "Task ID",
           "type": "id",
           "prefix": "TASK-",
-          "autoIncrement": 32
+          "autoIncrement": 33
         },
         "prop-project": {
           "id": "prop-project",
@@ -19754,6 +19754,19 @@
       "content": [],
       "createdAt": "2026-04-06T08:35:26.393Z",
       "updatedAt": "2026-04-06T08:35:26.393Z",
+      "createdBy": "You",
+      "lastEditedBy": "You"
+    },
+    "0b47ed0e-28a3-47ba-9495-975adaedf8d2": {
+      "id": "0b47ed0e-28a3-47ba-9495-975adaedf8d2",
+      "databaseId": "db-tasks",
+      "properties": {
+        "prop-title": "",
+        "prop-task-id": "TASK-32"
+      },
+      "content": [],
+      "createdAt": "2026-04-06T08:47:18.942Z",
+      "updatedAt": "2026-04-06T08:47:18.942Z",
       "createdBy": "You",
       "lastEditedBy": "You"
     }

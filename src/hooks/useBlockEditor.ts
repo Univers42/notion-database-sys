@@ -121,6 +121,15 @@ export function useBlockEditor(pageId: string) {
       return;
     }
 
+    if (e.key === ' ' && block.type === 'paragraph' && /^#{1,6}$/.test(block.content)) {
+      e.preventDefault();
+      const level = block.content.length;
+      changeBlockType(pageId, blockId, `heading_${level}` as Block['type']);
+      updateBlock(pageId, blockId, { content: '' });
+      focusBlock(blockId);
+      return;
+    }
+
     if (e.key === ' ' && block.type === 'paragraph' && /^\d+\.$/.test(block.content)) {
       e.preventDefault();
       changeBlockType(pageId, blockId, 'numbered_list');
