@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@src': path.resolve(workspace, 'src'),
+        '@markdown': path.resolve(workspace, 'src/lib/markdown'),
       },
     },
     build: {

@@ -1,1 +1,1 @@
-export * from '@src/lib/markdown';
+export * from '@markdown';

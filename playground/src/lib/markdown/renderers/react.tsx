@@ -1,1 +1,1 @@
-export * from "@src/lib/markdown/renderers/react";
+export * from "@markdown/renderers/react";

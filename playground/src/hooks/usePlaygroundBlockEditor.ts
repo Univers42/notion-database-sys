@@ -12,7 +12,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { usePageStore } from '../store/usePageStore';
-import { detectBlockType } from '@src/lib/markdown';
+import { detectBlockType } from '@markdown';
 import { useSlashSelect, repositionCursor } from '@src/hooks/useSlashSelect';
 import { isHeadingType } from '@src/hooks/blockTypeGuards';
 import type { Block } from '@src/types/database';
