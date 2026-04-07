@@ -22,6 +22,32 @@ import { CALLOUT_COLORS } from "./PlaygroundPageEditorConstants";
 import { TodoBlockEditor } from "./TodoBlockEditor";
 import { ToggleBlockEditor } from "./ToggleBlockEditor";
 
+const LANGUAGES = [
+  "plaintext",
+  "javascript",
+  "typescript",
+  "python",
+  "rust",
+  "cpp",
+  "c",
+  "java",
+  "go",
+  "html",
+  "css",
+  "json",
+  "yaml",
+  "markdown",
+  "bash",
+  "sql",
+  "ruby",
+  "php",
+  "swift",
+  "kotlin",
+  "lua",
+  "toml",
+  "mermaid",
+];
+
 interface BlockEditorProps {
   pageId: string;
   block: Block;
@@ -39,7 +65,12 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
   onKeyDown,
   onDeleteCodeBlock,
 }) => {
+  const updateBlock = usePageStore((s) => s.updateBlock);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showLangPicker, setShowLangPicker] = useState(false);
+  const langPickerRef = useRef<HTMLDivElement | null>(null);
+  const [codeContextMenu, setCodeContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const codeContextMenuRef = useRef<HTMLDivElement | null>(null);
 
   const handleDeleteCodeBlock = () => {
     if (!onDeleteCodeBlock) return;
@@ -49,6 +80,69 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     }
     setShowDeleteConfirm(true);
   };
+
+  const handleLangSelect = useCallback((language: string) => {
+    updateBlock(pageId, block.id, { language });
+    setShowLangPicker(false);
+  }, [updateBlock, pageId, block.id]);
+
+  const handleCodeTextareaKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      const ta = e.currentTarget;
+      const { selectionStart, selectionEnd, value } = ta;
+      const indent = "    ";
+      const next = value.slice(0, selectionStart) + indent + value.slice(selectionEnd);
+      onChange(next);
+      requestAnimationFrame(() => {
+        ta.selectionStart = ta.selectionEnd = selectionStart + indent.length;
+      });
+      return;
+    }
+
+    onKeyDown(e);
+  }, [onChange, onKeyDown]);
+
+  const openCodeContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowLangPicker(false);
+    setCodeContextMenu({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  useEffect(() => {
+    if (!showLangPicker) return;
+
+    const handleOutside = (e: MouseEvent) => {
+      if (langPickerRef.current && !langPickerRef.current.contains(e.target as Node)) {
+        setShowLangPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [showLangPicker]);
+
+  useEffect(() => {
+    if (!codeContextMenu) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (codeContextMenuRef.current && !codeContextMenuRef.current.contains(e.target as Node)) {
+        setCodeContextMenu(null);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCodeContextMenu(null);
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [codeContextMenu]);
 
   switch (block.type) {
     case "heading_1":
@@ -182,29 +276,69 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
 
     case "code":
       return (
-        <div className="my-1 rounded-lg overflow-visible border border-[var(--color-line)] relative">
+        <div
+          className="my-1 rounded-lg overflow-visible border border-[var(--color-line)] relative"
+          onContextMenu={openCodeContextMenu}
+        >
           <div className="flex items-center justify-between px-3 py-1.5 bg-[var(--color-surface-secondary)] border-b border-[var(--color-line)]">
-            <span className="text-[11px] font-mono text-[var(--color-ink-muted)]">
-              {block.language || "plaintext"}
-            </span>
-            <button
-              type="button"
-              onClick={handleDeleteCodeBlock}
-              className="text-xs text-red-600 hover:text-red-700 px-1.5 py-0.5 rounded hover:bg-red-50 transition-colors"
-            >
-              Delete
-            </button>
+            <div ref={langPickerRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setShowLangPicker((v) => !v)}
+                className="text-[11px] font-mono text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] px-1.5 py-0.5 rounded hover:bg-[var(--color-surface-hover)] transition-colors"
+              >
+                {block.language || "plaintext"}
+              </button>
+              {showLangPicker && (
+                <div className="absolute top-full left-0 mt-1 bg-[var(--color-surface-primary)] border border-[var(--color-line)] rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto w-40">
+                  {LANGUAGES.map((language) => (
+                    <button
+                      key={language}
+                      type="button"
+                      onClick={() => handleLangSelect(language)}
+                      className={[
+                        "w-full text-left px-3 py-1.5 text-xs font-mono hover:bg-[var(--color-surface-hover)]",
+                        language === (block.language || "plaintext")
+                          ? "bg-[var(--color-surface-secondary)] text-[var(--color-ink)]"
+                          : "text-[var(--color-ink-muted)]",
+                      ].join(" ")}
+                    >
+                      {language}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="p-3 bg-[var(--color-surface-primary)]">
             <textarea
               value={block.content}
               onChange={(e) => onChange(e.target.value)}
-              onKeyDown={onKeyDown}
+              onKeyDown={handleCodeTextareaKeyDown}
               placeholder="Code…"
               spellCheck={false}
               className="w-full min-h-[120px] text-[13px] leading-relaxed font-mono text-[var(--color-ink)] whitespace-pre bg-transparent outline-none resize-y"
             />
           </div>
+          {codeContextMenu && createPortal(
+            <div
+              ref={codeContextMenuRef}
+              style={{ top: codeContextMenu.y, left: codeContextMenu.x }}
+              className="fixed z-[10000] min-w-[180px] bg-[var(--color-surface-primary)] border border-[var(--color-line)] rounded-lg shadow-lg py-1"
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setCodeContextMenu(null);
+                  handleDeleteCodeBlock();
+                }}
+                className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+              >
+                Delete code block
+              </button>
+            </div>,
+            document.body,
+          )}
           {showDeleteConfirm &&
             createPortal(
               <>
