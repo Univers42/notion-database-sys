@@ -14,6 +14,7 @@ import React, { useState } from "react";
 import { createPortal } from "react-dom";
 
 import { EditableContent } from "@src/components/blocks/EditableContent";
+import { DatabaseBlock } from "@src/components/DatabaseBlock";
 import type { Block } from "@src/types/database";
 
 import { CALLOUT_COLORS } from "./PlaygroundPageEditorConstants";
@@ -296,6 +297,16 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         <div className="py-2">
           <hr className="border-[var(--color-line)]" />
         </div>
+      );
+
+    case "database_inline":
+    case "database_full_page":
+      return (
+        <DatabaseBlock
+          databaseId={block.databaseId}
+          initialViewId={block.viewId}
+          mode="inline"
+        />
       );
 
     default:

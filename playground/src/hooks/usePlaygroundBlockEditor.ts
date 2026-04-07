@@ -15,6 +15,7 @@ import { usePageStore } from '../store/usePageStore';
 import { detectBlockType } from '@markdown';
 import { useSlashSelect, repositionCursor } from '@src/hooks/useSlashSelect';
 import { isHeadingType } from '@src/hooks/blockTypeGuards';
+import { useDatabaseStore } from '@src/store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '@src/types/database';
 import {
   handleArrowUp,
@@ -33,8 +34,8 @@ function isListType(type: Block['type']): type is 'bulleted_list' | 'numbered_li
 
 function isEffectivelyEmpty(text: string): boolean {
   return text
-    .replace(/\u00a0/g, ' ')
-    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replaceAll('\u00a0', ' ')
+    .replaceAll(/[\u200B-\u200D\uFEFF]/g, '')
     .trim() === '';
 }
 
@@ -329,9 +330,9 @@ export function usePlaygroundBlockEditor(pageId: string) {
     handleArrowNavigation,
   ]);
 
-  /** Stub createInlineDatabase for the playground (no real DB engine). */
-  const createInlineDatabase = useCallback((_name?: string) => {
-    return { databaseId: `local-db-${Date.now().toString(36)}`, viewId: `local-view-${Date.now().toString(36)}` };
+  /** Create a real inline database + default view in the shared DBMS store. */
+  const createInlineDatabase = useCallback((name?: string) => {
+    return useDatabaseStore.getState().createInlineDatabase(name);
   }, []);
 
   /** Handle slash-command selection. */

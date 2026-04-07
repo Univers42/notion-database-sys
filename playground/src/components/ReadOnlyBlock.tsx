@@ -13,6 +13,7 @@
 import React, { useState } from 'react';
 import type { Block } from '@src/types/database';
 import { ChevronRight } from 'lucide-react';
+import { DatabaseBlock } from '@src/components/DatabaseBlock';
 import { CalloutBlockReadOnly } from './CalloutBlockReadOnly';
 import { CodeBlockReadOnly } from './CodeBlockReadOnly';
 
@@ -110,6 +111,16 @@ export const ReadOnlyBlock: React.FC<BlockProps> = ({ block, index }) => {
         <div className="py-2">
           <hr className="border-[var(--color-line)]" />
         </div>
+      );
+
+    case 'database_inline':
+    case 'database_full_page':
+      return (
+        <DatabaseBlock
+          databaseId={block.databaseId}
+          initialViewId={block.viewId}
+          mode="inline"
+        />
       );
 
     case 'toggle':

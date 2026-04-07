@@ -21,12 +21,15 @@ export function SlashCommandMenu({ position, filter, onSelect, onClose }: Readon
   // Filter items by search query
   const filteredItems = useMemo(() => {
     if (!filter) return SLASH_ITEMS;
-    const q = filter.toLowerCase();
-    return SLASH_ITEMS.filter(item =>
-      item.label.toLowerCase().includes(q) ||
-      item.type.includes(q) ||
-      item.keywords?.some(k => k.includes(q))
-    );
+    const normalize = (value: string) => value.toLowerCase().replaceAll(/[_-]+/g, ' ').trim();
+    const terms = normalize(filter).split(/\s+/).filter(Boolean);
+
+    return SLASH_ITEMS.filter(item => {
+      const haystack = [item.label, item.type, ...(item.keywords ?? [])]
+        .map(normalize)
+        .join(' ');
+      return terms.every(term => haystack.includes(term));
+    });
   }, [filter]);
 
   // Group by section
