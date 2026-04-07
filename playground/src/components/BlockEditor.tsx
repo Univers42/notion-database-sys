@@ -82,7 +82,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       return (
         <EditableContent
           content={block.content}
-          className="text-lg font-semibold text-[var(--color-ink)] mt-4 mb-0.5 leading-snug"
+          className="text-base font-semibold text-[var(--color-ink)] mt-3 mb-0.5 leading-snug"
           placeholder="Heading 4"
           onChange={onChange}
           onKeyDown={onKeyDown}
@@ -93,7 +93,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       return (
         <EditableContent
           content={block.content}
-          className="text-lg font-semibold text-[var(--color-ink)] mt-4 mb-0.5 leading-snug"
+          className="text-sm font-semibold text-[var(--color-ink)] mt-2 mb-0.5 leading-snug"
           placeholder="Heading 5"
           onChange={onChange}
           onKeyDown={onKeyDown}
@@ -104,7 +104,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       return (
         <EditableContent
           content={block.content}
-          className="text-lg font-semibold text-[var(--color-ink)] mt-4 mb-0.5 leading-snug"
+          className="text-xs font-semibold text-[var(--color-ink-muted)] mt-2 mb-0.5 leading-snug tracking-wide"
           placeholder="Heading 6"
           onChange={onChange}
           onKeyDown={onKeyDown}
