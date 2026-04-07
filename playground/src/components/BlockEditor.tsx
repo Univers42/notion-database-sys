@@ -10,18 +10,20 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { EditableContent } from "@src/components/blocks/EditableContent";
 import { DatabaseBlock } from "@src/components/DatabaseBlock";
 import type { Block } from "@src/types/database";
 
+import { usePageStore } from "../store/usePageStore";
 import { CALLOUT_COLORS } from "./PlaygroundPageEditorConstants";
 import { TodoBlockEditor } from "./TodoBlockEditor";
 import { ToggleBlockEditor } from "./ToggleBlockEditor";
 
 interface BlockEditorProps {
+  pageId: string;
   block: Block;
   numberedIndex: number;
   onChange: (text: string) => void;
@@ -30,6 +32,7 @@ interface BlockEditorProps {
 }
 
 export const BlockEditor: React.FC<BlockEditorProps> = ({
+  pageId,
   block,
   numberedIndex,
   onChange,
@@ -299,6 +302,15 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         </div>
       );
 
+    case "table_block":
+      return (
+        <TableBlockEditor
+          block={block}
+          pageId={pageId}
+          onDeleteTable={onDeleteCodeBlock}
+        />
+      );
+
     case "database_inline":
     case "database_full_page":
       return (
@@ -320,4 +332,169 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         />
       );
   }
+};
+
+const TableBlockEditor: React.FC<{ block: Block; pageId: string; onDeleteTable?: () => void }> = ({
+  block,
+  pageId,
+  onDeleteTable,
+}) => {
+  const updateBlock = usePageStore((s) => s.updateBlock);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; row: number; col: number } | null>(null);
+  const contextMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const data = useMemo(
+    () => block.tableData || [
+      ["", "", ""],
+      ["", "", ""],
+      ["", "", ""],
+    ],
+    [block.tableData],
+  );
+
+  const handleCellChange = useCallback((row: number, col: number, value: string) => {
+    const next = data.map((r, ri) => (
+      ri === row ? r.map((c, ci) => (ci === col ? value : c)) : [...r]
+    ));
+    updateBlock(pageId, block.id, { tableData: next });
+  }, [data, updateBlock, pageId, block.id]);
+
+  const addRow = useCallback(() => {
+    const cols = data[0]?.length || 3;
+    updateBlock(pageId, block.id, { tableData: [...data, new Array(cols).fill("")] });
+  }, [data, updateBlock, pageId, block.id]);
+
+  const addCol = useCallback(() => {
+    updateBlock(pageId, block.id, { tableData: data.map((row) => [...row, ""]) });
+  }, [data, updateBlock, pageId, block.id]);
+
+  const removeRow = useCallback((rowIndex: number) => {
+    if (data.length <= 1) return;
+    updateBlock(pageId, block.id, {
+      tableData: data.filter((_, idx) => idx !== rowIndex),
+    });
+  }, [data, updateBlock, pageId, block.id]);
+
+  const removeCol = useCallback((colIndex: number) => {
+    const colCount = data[0]?.length ?? 0;
+    if (colCount <= 1) return;
+    updateBlock(pageId, block.id, {
+      tableData: data.map((row) => row.filter((_, idx) => idx !== colIndex)),
+    });
+  }, [data, updateBlock, pageId, block.id]);
+
+  const openContextMenu = useCallback((e: React.MouseEvent, row: number, col: number) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, row, col });
+  }, []);
+
+  useEffect(() => {
+    if (!contextMenu) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(null);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setContextMenu(null);
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [contextMenu]);
+
+  return (
+    <div className="my-2 border border-[var(--color-line)] rounded-lg overflow-hidden relative">
+      <div className="overflow-auto max-h-[26rem]">
+        <table className="w-max min-w-full text-sm">
+          <tbody>
+            {data.map((row, ri) => (
+              <tr key={ri} className={ri === 0 ? "bg-[var(--color-surface-secondary)] font-medium" : ""}>{/* NOSONAR - table rows identified by position */}
+                {row.map((cell, ci) => (
+                  <td
+                    key={ci} // NOSONAR - table cells identified by position
+                    className="border-b border-r border-[var(--color-line)] last:border-r-0 px-0 py-0 min-w-[120px] text-[var(--color-ink)]"
+                    onContextMenu={(e) => openContextMenu(e, ri, ci)}
+                  >
+                    <input
+                      type="text"
+                      value={cell}
+                      onChange={(e) => handleCellChange(ri, ci, e.target.value)}
+                      className="w-full bg-transparent px-3 py-1.5 outline-none focus:bg-[var(--color-surface-hover)]"
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex border-t border-[var(--color-line)]">
+        <button
+          type="button"
+          onClick={addRow}
+          className="flex-1 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-secondary)] py-1.5 transition-colors border-r border-[var(--color-line)]"
+        >
+          + Row
+        </button>
+        <button
+          type="button"
+          onClick={addCol}
+          className="flex-1 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-surface-secondary)] py-1.5 transition-colors"
+        >
+          + Column
+        </button>
+      </div>
+
+      {contextMenu && (
+        <div
+          ref={contextMenuRef}
+          className="fixed z-[10000] min-w-[180px] rounded-md border border-[var(--color-line)] bg-[var(--color-surface-primary)] shadow-lg py-1"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              removeRow(contextMenu.row);
+              setContextMenu(null);
+            }}
+            disabled={data.length <= 1}
+            className="w-full px-3 py-1.5 text-left text-sm text-[var(--color-ink)] hover:bg-[var(--color-surface-secondary)] disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Delete row
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              removeCol(contextMenu.col);
+              setContextMenu(null);
+            }}
+            disabled={(data[0]?.length ?? 0) <= 1}
+            className="w-full px-3 py-1.5 text-left text-sm text-[var(--color-ink)] hover:bg-[var(--color-surface-secondary)] disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Delete column
+          </button>
+          <div className="my-1 border-t border-[var(--color-line)]" />
+          <button
+            type="button"
+            onClick={() => {
+              onDeleteTable?.();
+              setContextMenu(null);
+            }}
+            disabled={!onDeleteTable}
+            className="w-full px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Delete table
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };

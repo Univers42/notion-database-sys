@@ -156,6 +156,7 @@ const BlockTree: React.FC<BlockTreeProps> = ({
               setDraggedBlockId={setDraggedBlockId}
             >
               <EditableBlock
+                pageId={pageId}
                 block={block}
                 blocks={blocks}
                 numberedIndex={numberedIndex}
@@ -309,6 +310,7 @@ const DraggablePlaygroundBlock: React.FC<DraggablePlaygroundBlockProps> = ({
 };
 
 interface EditableBlockProps {
+  pageId: string;
   block: Block;
   blocks: Block[];
   numberedIndex: number;
@@ -319,6 +321,7 @@ interface EditableBlockProps {
 }
 
 const EditableBlock: React.FC<EditableBlockProps> = ({
+  pageId,
   block,
   blocks,
   numberedIndex,
@@ -345,6 +348,7 @@ const EditableBlock: React.FC<EditableBlockProps> = ({
   return (
     <div data-block-id={block.id} ref={refCb}>
       <BlockEditor
+        pageId={pageId}
         block={block}
         numberedIndex={numberedIndex}
         onChange={handleChange}
