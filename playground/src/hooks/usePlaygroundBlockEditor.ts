@@ -228,7 +228,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
     content: Block[],
     isEmpty: boolean,
   ): boolean => {
-    if (e.key !== 'Backspace' || !isEmpty) return false;
+    if ((e.key !== 'Backspace' && e.key !== 'Delete') || !isEmpty) return false;
 
     if (isHeadingType(block.type)) {
       e.preventDefault();
@@ -298,6 +298,10 @@ export function usePlaygroundBlockEditor(pageId: string) {
     }
 
     if (handleEmptyListDelete(e, blockId, block, blockIdx, content, isEmpty)) {
+      return;
+    }
+
+    if (e.key === 'Enter' && block.type === 'code') {
       return;
     }
 

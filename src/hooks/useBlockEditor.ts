@@ -139,6 +139,10 @@ export function useBlockEditor(pageId: string) {
       return;
     }
 
+    if (e.key === 'Enter' && block.type === 'code') {
+      return;
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
       handleEnterKey(e, blockId, block.type, slashMenu, pageId, insertBlock, focusBlock);
       return;
@@ -164,7 +168,7 @@ export function useBlockEditor(pageId: string) {
       return;
     }
 
-    if (e.key === 'Backspace' && block.content === '') {
+    if ((e.key === 'Backspace' || e.key === 'Delete') && block.content === '') {
       handleBackspaceKey(e, blockId, content, pageId, deleteBlock, focusBlock);
       return;
     }

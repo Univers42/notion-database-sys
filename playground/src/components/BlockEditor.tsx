@@ -196,12 +196,13 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
             </button>
           </div>
           <div className="p-3 bg-[var(--color-surface-primary)]">
-            <EditableContent
-              content={block.content}
-              className="text-[13px] leading-relaxed font-mono text-[var(--color-ink)] whitespace-pre"
-              placeholder="Code…"
-              onChange={onChange}
+            <textarea
+              value={block.content}
+              onChange={(e) => onChange(e.target.value)}
               onKeyDown={onKeyDown}
+              placeholder="Code…"
+              spellCheck={false}
+              className="w-full min-h-[120px] text-[13px] leading-relaxed font-mono text-[var(--color-ink)] whitespace-pre bg-transparent outline-none resize-y"
             />
           </div>
           {showDeleteConfirm &&
