@@ -164,7 +164,7 @@ export function useBlockEditor(pageId: string) {
       return;
     }
 
-    if (e.key === 'Backspace' && block.content === '' && content.length > 1) {
+    if (e.key === 'Backspace' && block.content === '') {
       handleBackspaceKey(e, blockId, content, pageId, deleteBlock, focusBlock);
       return;
     }

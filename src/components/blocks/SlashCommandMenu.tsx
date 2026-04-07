@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import type { BlockType } from "../../types/database";
 import {
   SLASH_ITEMS,
   SECTION_LABELS,
@@ -12,7 +11,7 @@ import { cn } from "../../utils/cn";
 export interface SlashCommandMenuProps {
   position: { x: number; y: number };
   filter: string;
-  onSelect: (type: BlockType) => void;
+  onSelect: (item: SlashMenuItem) => void;
   onClose: () => void;
 }
 
@@ -69,7 +68,7 @@ export function SlashCommandMenu({
       } else if (e.key === "Enter") {
         e.preventDefault();
         if (filteredItems[selectedIndex]) {
-          onSelect(filteredItems[selectedIndex].type);
+          onSelect(filteredItems[selectedIndex]);
         }
       } else if (e.key === "Escape") {
         e.preventDefault();
@@ -168,7 +167,7 @@ export function SlashCommandMenu({
                   const idx = flatIndex++;
                   return (
                     <button
-                      key={item.type}
+                      key={`${item.type}-${item.label}`}
                       type="button"
                       data-slash-index={idx}
                       className={cn(
@@ -179,7 +178,7 @@ export function SlashCommandMenu({
                         }`,
                       )}
                       onMouseEnter={() => setSelectedIndex(idx)}
-                      onClick={() => onSelect(item.type)}
+                      onClick={() => onSelect(item)}
                     >
                       <div
                         className={cn(

@@ -10,29 +10,37 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
-import { useBlockEditor } from '../hooks/useBlockEditor';
-import { useUndoRedo } from '../hooks/useUndoRedo';
-import { usePasteHandler } from '../hooks/usePasteHandler';
-import { BlockRenderer } from './blocks/BlockRenderer';
-import { SlashCommandMenu } from './blocks/SlashCommandMenu';
-import { InlineToolbar } from './blocks/InlineToolbar';
-import { DraggableBlockWrapper, EmptyBlockPlaceholder } from './PageContentEditorHelpers';
-import { cn } from '../utils/cn';
+import React, { useState } from "react";
+import { Plus } from "lucide-react";
+import { useDatabaseStore } from "../store/dbms/hardcoded/useDatabaseStore";
+import { useBlockEditor } from "../hooks/useBlockEditor";
+import { useUndoRedo } from "../hooks/useUndoRedo";
+import { usePasteHandler } from "../hooks/usePasteHandler";
+import { BlockRenderer } from "./blocks/BlockRenderer";
+import { SlashCommandMenu } from "./blocks/SlashCommandMenu";
+import { InlineToolbar } from "./blocks/InlineToolbar";
+import {
+  DraggableBlockWrapper,
+  EmptyBlockPlaceholder,
+} from "./PageContentEditorHelpers";
+import { cn } from "../utils/cn";
 
 /** Block-based content editor for page modals with drag-and-drop, slash commands, and inline toolbar. */
 export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
-  const pages = useDatabaseStore(s => s.pages);
+  const pages = useDatabaseStore((s) => s.pages);
   const page = pages[pageId];
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
 
   const {
-    slashMenu, setSlashMenu,
-    handleBlockChange, handleKeyDown,
-    handleSlashSelect, handleAddBlock,
-    handleInitBlock, registerBlockRef, focusBlock,
+    slashMenu,
+    setSlashMenu,
+    handleBlockChange,
+    handleKeyDown,
+    handleSlashSelect,
+    handleAddBlock,
+    handleInitBlock,
+    registerBlockRef,
+    focusBlock,
   } = useBlockEditor(pageId);
 
   // Undo/redo — keyboard shortcuts handled internally
@@ -45,7 +53,10 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
   const content = page.content || [];
 
   return (
-    <div className={cn("flex flex-col gap-0.5 min-h-[200px]")} data-page-content-editor>
+    <div
+      className={cn("flex flex-col gap-0.5 min-h-[200px]")}
+      data-page-content-editor
+    >
       {content.length === 0 ? (
         <EmptyBlockPlaceholder onFocus={() => handleInitBlock(content)} />
       ) : (
@@ -59,7 +70,7 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
             draggedBlockId={draggedBlockId}
             onDraggedChange={setDraggedBlockId}
           >
-            <div ref={el => registerBlockRef(block.id, el)}>
+            <div ref={(el) => registerBlockRef(block.id, el)}>
               <BlockRenderer
                 block={block}
                 pageId={pageId}
@@ -75,10 +86,18 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
       {content.length > 0 && (
         <button
           onClick={() => handleAddBlock(content)}
-          className={cn("flex items-center gap-2 text-sm text-ink-disabled hover:text-hover-text-muted py-2 transition-colors group")}
+          className={cn(
+            "flex items-center gap-2 text-sm text-ink-disabled hover:text-hover-text-muted py-2 transition-colors group",
+          )}
         >
           <Plus className={cn("w-4 h-4")} />
-          <span className={cn("opacity-0 group-hover:opacity-100 transition-opacity")}>Add a block</span>
+          <span
+            className={cn(
+              "opacity-0 group-hover:opacity-100 transition-opacity",
+            )}
+          >
+            Add a block
+          </span>
         </button>
       )}
 
@@ -86,7 +105,9 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
         <SlashCommandMenu
           position={slashMenu.position}
           filter={slashMenu.filter}
-          onSelect={(type) => handleSlashSelect(type, content)}
+          onSelect={(item) =>
+            handleSlashSelect(item.type, content, item.calloutIcon)
+          }
           onClose={() => setSlashMenu(null)}
         />
       )}

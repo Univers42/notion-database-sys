@@ -38,7 +38,7 @@ interface SlashSelectDeps {
 export function useSlashSelect(deps: SlashSelectDeps) {
   const { pageId, slashMenu, setSlashMenu, updateBlock, changeBlockType, insertBlock, createInlineDatabase, focusBlock } = deps;
 
-  return useCallback((type: BlockType, content: Block[]) => {
+  return useCallback((type: BlockType, content: Block[], calloutIcon?: string) => {
     if (!slashMenu) return;
     const { blockId } = slashMenu;
     setSlashMenu(null);
@@ -61,6 +61,10 @@ export function useSlashSelect(deps: SlashSelectDeps) {
       updateBlock(pageId, blockId, { content: '' });
       changeBlockType(pageId, blockId, type);
       updateBlock(pageId, blockId, { tableData: [['', '', ''], ['', '', '']] });
+    } else if (type === 'callout') {
+      changeBlockType(pageId, blockId, type);
+      updateBlock(pageId, blockId, { color: calloutIcon || '💡' });
+      focusBlock(blockId);
     } else if (type === 'column') {
       changeBlockType(pageId, blockId, type);
       updateBlock(pageId, blockId, {

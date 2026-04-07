@@ -14,7 +14,7 @@ import React, { useMemo, useCallback, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { SlashCommandMenu } from "@src/components/blocks/SlashCommandMenu";
-import type { Block, BlockType } from "@src/types/database";
+import type { Block } from "@src/types/database";
 
 import { usePageStore } from "../store/usePageStore";
 import { usePlaygroundBlockEditor } from "../hooks/usePlaygroundBlockEditor";
@@ -95,7 +95,7 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
         <SlashCommandMenu
           position={slashMenu.position}
           filter={slashMenu.filter}
-          onSelect={(type: BlockType) => handleSlashSelect(type, blocks)}
+          onSelect={(item) => handleSlashSelect(item.type, blocks, item.calloutIcon)}
           onClose={() => setSlashMenu(null)}
         />
       )}

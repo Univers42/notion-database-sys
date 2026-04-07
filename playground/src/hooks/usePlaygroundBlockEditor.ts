@@ -251,7 +251,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
       return true;
     }
 
-    if (content.length > 1) {
+    if (content.length >= 1) {
       handleBackspaceKey(e, blockId, content, pageId, deleteBlock, focusBlock);
       return true;
     }

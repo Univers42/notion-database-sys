@@ -276,17 +276,18 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       const colors = CALLOUT_COLORS[icon] || {
         bg: "bg-[var(--color-surface-secondary)]",
         border: "border-[var(--color-line)]",
+        text: "text-[var(--color-ink)]",
       };
       return (
         <div
           className={`flex items-start gap-3 p-3 rounded-lg border my-0.5 ${colors.bg} ${colors.border}`}
         >
-          <span className="text-lg shrink-0">{icon}</span>
+          <span className={`text-lg shrink-0 ${colors.text}`}>{icon}</span>
           <div className="flex-1">
             <EditableContent
               content={block.content}
-              className="text-sm text-[var(--color-ink)] leading-relaxed py-0.5"
-              placeholder="Callout text…"
+              className={`text-sm ${colors.text} leading-relaxed py-0.5`}
+              placeholder="Input text…"
               onChange={onChange}
               onKeyDown={onKeyDown}
             />
