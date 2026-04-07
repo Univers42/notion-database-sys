@@ -20,7 +20,9 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./*"],
-      "@src/*": ["./src/*"]
+      "@src/*": ["./src/*"],
+      "@markdown": ["./src/lib/markdown/index.ts"],
+      "@markdown/*": ["./src/lib/markdown/*"]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
