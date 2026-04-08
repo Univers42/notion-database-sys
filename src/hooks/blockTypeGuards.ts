@@ -9,3 +9,21 @@ export function isHeadingType(type: Block['type']): type is
     || type === 'heading_5'
     || type === 'heading_6';
 }
+
+export function isTodoType(type: Block['type']): type is 'to_do' {
+  return type === 'to_do';
+}
+
+export function continuesWithSameTypeOnEnter(type: Block['type']): type is
+  'bulleted_list' | 'numbered_list' | 'to_do' {
+  return type === 'bulleted_list'
+    || type === 'numbered_list'
+    || type === 'to_do';
+}
+
+export function isEffectivelyEmpty(text: string): boolean {
+  return text
+    .replaceAll('\u00a0', ' ')
+    .replaceAll(/[\u200B-\u200D\uFEFF]/g, '')
+    .trim() === '';
+}

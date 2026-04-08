@@ -12,6 +12,7 @@
 
 import React from 'react';
 import type { Block } from '@src/types/database';
+import { continuesWithSameTypeOnEnter } from '@src/hooks/blockTypeGuards';
 
 export interface SlashMenuState {
   blockId: string;
@@ -76,9 +77,7 @@ export function handleEnterKey(
 ): void {
   if (slashMenu) return;
   e.preventDefault();
-  const nextType = blockType === 'bulleted_list' || blockType === 'numbered_list'
-    ? blockType
-    : 'paragraph';
+  const nextType = continuesWithSameTypeOnEnter(blockType) ? blockType : 'paragraph';
   const newBlock: Block = { id: crypto.randomUUID(), type: nextType, content: '' };
   insertBlock(pageId, blockId, newBlock);
   focusBlock(newBlock.id);

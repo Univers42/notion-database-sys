@@ -16,10 +16,10 @@ import { detectBlockType } from '../lib/markdown';
 import type { Block } from '../types/database';
 import { useSlashSelect, repositionCursor } from './useSlashSelect';
 import {
-  handleEnterKey, handleBackspaceKey, handleArrowUp, handleArrowDown,
+  handleEnterKey, handleBackspaceKey, handleArrowUp, handleArrowDown, handleEmptyTodoEnter,
 } from './blockEditorKeyHandlers';
 import type { SlashMenuState } from './blockEditorKeyHandlers';
-import { isHeadingType } from './blockTypeGuards';
+import { isHeadingType, isEffectivelyEmpty } from './blockTypeGuards';
 
 /**
  * Encapsulates block editing logic for the page content editor.
@@ -113,6 +113,8 @@ export function useBlockEditor(pageId: string) {
     const block = content.find(b => b.id === blockId);
     if (!block) return;
     const blockIdx = content.findIndex(b => b.id === blockId);
+    const liveText = (e.currentTarget as HTMLElement | null)?.textContent ?? block.content;
+    const empty = isEffectivelyEmpty(liveText);
 
     if (e.key === ' ' && block.type === 'paragraph' && block.content === '-') {
       e.preventDefault();
@@ -143,12 +145,16 @@ export function useBlockEditor(pageId: string) {
       return;
     }
 
+    if (handleEmptyTodoEnter(e, block, liveText, pageId, changeBlockType, updateBlock, focusBlock)) {
+      return;
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
       handleEnterKey(e, blockId, block.type, slashMenu, pageId, insertBlock, focusBlock);
       return;
     }
 
-    if (e.key === 'Backspace' && block.content === '' && isHeadingType(block.type)) {
+    if (e.key === 'Backspace' && empty && isHeadingType(block.type)) {
       e.preventDefault();
       changeBlockType(pageId, blockId, 'paragraph');
       updateBlock(pageId, blockId, { content: '' });
@@ -158,7 +164,7 @@ export function useBlockEditor(pageId: string) {
 
     if (
       e.key === 'Backspace'
-      && block.content === ''
+      && empty
       && (block.type === 'bulleted_list' || block.type === 'numbered_list')
       && blockIdx === 0
     ) {
@@ -168,7 +174,7 @@ export function useBlockEditor(pageId: string) {
       return;
     }
 
-    if ((e.key === 'Backspace' || e.key === 'Delete') && block.content === '') {
+    if ((e.key === 'Backspace' || e.key === 'Delete') && empty) {
       handleBackspaceKey(e, blockId, content, pageId, deleteBlock, focusBlock);
       return;
     }

@@ -14,7 +14,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { usePageStore } from '../store/usePageStore';
 import { detectBlockType } from '@markdown';
 import { useSlashSelect, repositionCursor } from '@src/hooks/useSlashSelect';
-import { isHeadingType } from '@src/hooks/blockTypeGuards';
+import { isHeadingType, isEffectivelyEmpty, isTodoType } from '@src/hooks/blockTypeGuards';
 import { useDatabaseStore } from '@src/store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '@src/types/database';
 import {
@@ -30,13 +30,6 @@ const NUMBERED_SHORTCUT_RE = /^\d+\.$/;
 
 function isListType(type: Block['type']): type is 'bulleted_list' | 'numbered_list' {
   return type === 'bulleted_list' || type === 'numbered_list';
-}
-
-function isEffectivelyEmpty(text: string): boolean {
-  return text
-    .replaceAll('\u00a0', ' ')
-    .replaceAll(/[\u200B-\u200D\uFEFF]/g, '')
-    .trim() === '';
 }
 
 /** Manages block editing, slash commands, and keyboard navigation for playground pages. */
@@ -193,6 +186,24 @@ export function usePlaygroundBlockEditor(pageId: string) {
     return true;
   }, [pageId, deleteBlock, focusBlock]);
 
+  const handleEmptyTodoEnter = useCallback((
+    e: React.KeyboardEvent,
+    blockId: string,
+    block: Block,
+    isEmpty: boolean,
+  ): boolean => {
+    if (e.key !== 'Enter' || e.shiftKey || !isTodoType(block.type) || !isEmpty) {
+      return false;
+    }
+
+    e.preventDefault();
+    changeBlockType(pageId, blockId, 'paragraph');
+    updateBlock(pageId, blockId, { content: '', checked: false });
+    focusBlock(blockId);
+
+    return true;
+  }, [pageId, changeBlockType, updateBlock, focusBlock]);
+
   const handleEmptyListDelete = useCallback((
     e: React.KeyboardEvent,
     blockId: string,
@@ -297,6 +308,10 @@ export function usePlaygroundBlockEditor(pageId: string) {
       return;
     }
 
+    if (handleEmptyTodoEnter(e, blockId, block, isEmpty)) {
+      return;
+    }
+
     if (handleEmptyListDelete(e, blockId, block, blockIdx, content, isEmpty)) {
       return;
     }
@@ -329,6 +344,7 @@ export function usePlaygroundBlockEditor(pageId: string) {
     handleListIndentation,
     handleParagraphSpaceShortcut,
     handleEmptyListEnter,
+    handleEmptyTodoEnter,
     handleEmptyListDelete,
     handleEmptyBackspace,
     handleArrowNavigation,

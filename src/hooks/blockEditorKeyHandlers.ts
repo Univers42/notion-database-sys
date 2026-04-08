@@ -12,6 +12,7 @@
 
 import React from 'react';
 import type { Block } from '../types/database';
+import { continuesWithSameTypeOnEnter, isEffectivelyEmpty, isTodoType } from './blockTypeGuards';
 
 export interface SlashMenuState {
   blockId: string;
@@ -26,12 +27,30 @@ export function handleEnterKey(
 ): void {
   if (slashMenu) return;
   e.preventDefault();
-  const nextType = blockType === 'bulleted_list' || blockType === 'numbered_list'
-    ? blockType
-    : 'paragraph';
+  const nextType = continuesWithSameTypeOnEnter(blockType) ? blockType : 'paragraph';
   const newBlock: Block = { id: crypto.randomUUID(), type: nextType, content: '' };
   insertBlock(pageId, blockId, newBlock);
   focusBlock(newBlock.id);
+}
+
+export function handleEmptyTodoEnter(
+  e: React.KeyboardEvent,
+  block: Block,
+  liveText: string,
+  pageId: string,
+  changeBlockType: (pid: string, bid: string, type: Block['type']) => void,
+  updateBlock: (pid: string, bid: string, updates: Partial<Block>) => void,
+  focusBlock: (id: string, end?: boolean) => void,
+): boolean {
+  if (e.key !== 'Enter' || e.shiftKey || !isTodoType(block.type) || !isEffectivelyEmpty(liveText)) {
+    return false;
+  }
+
+  e.preventDefault();
+  changeBlockType(pageId, block.id, 'paragraph');
+  updateBlock(pageId, block.id, { content: '', checked: false });
+  focusBlock(block.id);
+  return true;
 }
 
 export function handleBackspaceKey(
