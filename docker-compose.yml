@@ -1,5 +1,6 @@
 x-app-service: &app-service
   image: notion-database-sys/app:local
+  build: .
   working_dir: /app
   init: true
   restart: unless-stopped

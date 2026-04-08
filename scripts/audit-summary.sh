@@ -352,7 +352,7 @@ elif [ "$ERR_TYPE" -ne 0 ] || [ "$ERR_LINT" -ne 0 ] || [ "$ERR_SONAR" -ne 0 ]; t
 else
   echo -e "  ${Y}╭──────────────────────────────────────────────╮${RST}"
   echo -e "  ${Y}│                                              │${RST}"
-  echo -e "  ${Y}│   ▲  AUDIT PASSED WITH WARNINGS — REVIEW    │${RST}"
+  echo -e "  ${Y}│   ▲  AUDIT PASSED WITH WARNINGS — REVIEW     │${RST}"
   echo -e "  ${Y}│                                              │${RST}"
   echo -e "  ${Y}╰──────────────────────────────────────────────╯${RST}"
 fi
