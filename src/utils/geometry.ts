@@ -60,8 +60,8 @@ export const PANEL_WIDTH = {
 export function clampPanelPosition(
   top: number,
   left: number,
-  panelHeight = 400,
-  panelWidth = PANEL_WIDTH.NARROW,
+  panelHeight: number = 400,
+  panelWidth: number = PANEL_WIDTH.NARROW,
 ): { top: number; left: number } {
   return {
     top:  Math.min(top,  window.innerHeight - panelHeight),
@@ -79,8 +79,8 @@ export function clampPanelPosition(
  */
 export function positionBelowAnchor(
   anchorRect: DOMRect,
-  panelWidth = PANEL_WIDTH.NARROW,
-  gap = 4,
+  panelWidth: number = PANEL_WIDTH.NARROW,
+  gap: number = 4,
 ): { top: number; left: number } {
   return clampPanelPosition(anchorRect.bottom + gap, anchorRect.left, 400, panelWidth);
 }

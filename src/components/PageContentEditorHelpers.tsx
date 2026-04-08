@@ -100,7 +100,7 @@ export function DropIndicator({ position }: Readonly<{ position: DropPosition }>
 
 /** Wraps a block with drag-and-drop and drop-target behavior. */
 export function DraggableBlockWrapper({
-  block, content, pageId, focusBlock, draggedBlockId, onDraggedChange, children,
+  block, content, pageId, focusBlock, draggedBlockId, onDraggedChange, onContextMenu, children,
 }: Readonly<{
   block: Block;
   content: Block[];
@@ -108,6 +108,7 @@ export function DraggableBlockWrapper({
   focusBlock: (id: string) => void;
   draggedBlockId: string | null;
   onDraggedChange: (id: string | null) => void;
+  onContextMenu?: (e: React.MouseEvent, blockId: string) => void;
   children: React.ReactNode;
 }>) {
   const [dropPosition, setDropPosition] = useState<DropPosition>(null);
@@ -156,6 +157,7 @@ export function DraggableBlockWrapper({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onDragEnd={handleDragEnd}
+      onContextMenu={onContextMenu ? (e) => onContextMenu(e, block.id) : undefined}
     >
       <DropIndicator position={dropPosition} />
       <BlockHoverControls block={block} content={content} pageId={pageId} focusBlock={focusBlock} />

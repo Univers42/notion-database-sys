@@ -14,9 +14,11 @@ import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import { useDatabaseStore } from "../store/dbms/hardcoded/useDatabaseStore";
 import { useBlockEditor } from "../hooks/useBlockEditor";
+import { useBlockContextMenu } from "../hooks/useBlockContextMenu";
 import { useUndoRedo } from "../hooks/useUndoRedo";
 import { usePasteHandler } from "../hooks/usePasteHandler";
 import { BlockRenderer } from "./blocks/BlockRenderer";
+import { BlockContextMenu } from "./blocks/BlockContextMenu";
 import { SlashCommandMenu } from "./blocks/SlashCommandMenu";
 import { InlineToolbar } from "./blocks/InlineToolbar";
 import {
@@ -28,6 +30,7 @@ import { cn } from "../utils/cn";
 /** Block-based content editor for page modals with drag-and-drop, slash commands, and inline toolbar. */
 export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
   const pages = useDatabaseStore((s) => s.pages);
+  const updatePageContent = useDatabaseStore((s) => s.updatePageContent);
   const page = pages[pageId];
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
 
@@ -42,6 +45,18 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
     registerBlockRef,
     focusBlock,
   } = useBlockEditor(pageId);
+
+  const {
+    contextMenu,
+    contextMenuSections,
+    openContextMenu,
+    closeContextMenu,
+  } = useBlockContextMenu({
+    pageId,
+    content: page?.content || [],
+    updatePageContent,
+    focusBlock,
+  });
 
   // Undo/redo — keyboard shortcuts handled internally
   useUndoRedo(pageId);
@@ -69,6 +84,7 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
             focusBlock={focusBlock}
             draggedBlockId={draggedBlockId}
             onDraggedChange={setDraggedBlockId}
+            onContextMenu={openContextMenu}
           >
             <div ref={(el) => registerBlockRef(block.id, el)}>
               <BlockRenderer
@@ -113,6 +129,12 @@ export function PageContentEditor({ pageId }: Readonly<{ pageId: string }>) {
       )}
 
       <InlineToolbar />
+
+      <BlockContextMenu
+        menu={contextMenu}
+        sections={contextMenuSections}
+        onClose={closeContextMenu}
+      />
     </div>
   );
 }

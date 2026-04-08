@@ -14,6 +14,8 @@ import React, { useMemo, useCallback, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { SlashCommandMenu } from "@src/components/blocks/SlashCommandMenu";
+import { BlockContextMenu } from "@src/components/blocks/BlockContextMenu";
+import { useBlockContextMenu } from "@src/hooks/useBlockContextMenu";
 import type { Block } from "@src/types/database";
 
 import { usePageStore } from "../store/usePageStore";
@@ -32,6 +34,7 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
   pageId,
 }) => {
   const page = usePageStore((s) => s.pageById(pageId));
+  const updatePageContent = usePageStore((s) => s.updatePageContent);
   const deleteBlock = usePageStore((s) => s.deleteBlock);
   const moveBlock = usePageStore((s) => s.moveBlock);
   const blocks = useMemo(() => page?.content ?? [], [page?.content]);
@@ -46,7 +49,20 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
     handleAddBlock,
     handleInitBlock,
     registerBlockRef,
+    focusBlock,
   } = usePlaygroundBlockEditor(pageId);
+
+  const {
+    contextMenu,
+    contextMenuSections,
+    openContextMenu,
+    closeContextMenu,
+  } = useBlockContextMenu({
+    pageId,
+    content: blocks,
+    updatePageContent,
+    focusBlock,
+  });
 
   if (blocks.length === 0) {
     return (
@@ -75,6 +91,7 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
         onKeyDown={handleKeyDown}
         onDeleteBlock={(blockId: string) => deleteBlock(pageId, blockId)}
         registerRef={registerBlockRef}
+        onContextMenu={openContextMenu}
       />
 
       <button
@@ -99,6 +116,12 @@ export const PlaygroundPageEditor: React.FC<PlaygroundPageEditorProps> = ({
           onClose={() => setSlashMenu(null)}
         />
       )}
+
+      <BlockContextMenu
+        menu={contextMenu}
+        sections={contextMenuSections}
+        onClose={closeContextMenu}
+      />
     </div>
   );
 };
@@ -120,6 +143,7 @@ interface BlockTreeProps {
   onKeyDown: (e: React.KeyboardEvent, blockId: string, blocks: Block[]) => void;
   onDeleteBlock: (blockId: string) => void;
   registerRef: (blockId: string, el: HTMLElement | null) => void;
+  onContextMenu: (e: React.MouseEvent, blockId: string) => void;
 }
 
 const BlockTree: React.FC<BlockTreeProps> = ({
@@ -134,6 +158,7 @@ const BlockTree: React.FC<BlockTreeProps> = ({
   onKeyDown,
   onDeleteBlock,
   registerRef,
+  onContextMenu,
 }) => {
   let numberedCounter = 0;
 
@@ -164,6 +189,7 @@ const BlockTree: React.FC<BlockTreeProps> = ({
                 onKeyDown={onKeyDown}
                 onDeleteBlock={onDeleteBlock}
                 registerRef={registerRef}
+                onContextMenu={onContextMenu}
               />
             </DraggablePlaygroundBlock>
 
@@ -179,6 +205,7 @@ const BlockTree: React.FC<BlockTreeProps> = ({
                 onKeyDown={onKeyDown}
                 onDeleteBlock={onDeleteBlock}
                 registerRef={registerRef}
+                onContextMenu={onContextMenu}
               />
             )}
           </div>
@@ -318,6 +345,7 @@ interface EditableBlockProps {
   onKeyDown: (e: React.KeyboardEvent, blockId: string, blocks: Block[]) => void;
   onDeleteBlock: (blockId: string) => void;
   registerRef: (blockId: string, el: HTMLElement | null) => void;
+  onContextMenu: (e: React.MouseEvent, blockId: string) => void;
 }
 
 const EditableBlock: React.FC<EditableBlockProps> = ({
@@ -329,6 +357,7 @@ const EditableBlock: React.FC<EditableBlockProps> = ({
   onKeyDown,
   onDeleteBlock,
   registerRef,
+  onContextMenu,
 }) => {
   const handleChange = useCallback(
     (text: string) => onChange(block.id, text, blocks),
@@ -346,7 +375,11 @@ const EditableBlock: React.FC<EditableBlockProps> = ({
   );
 
   return (
-    <div data-block-id={block.id} ref={refCb}>
+    <div
+      data-block-id={block.id}
+      ref={refCb}
+      onContextMenu={(e) => onContextMenu(e, block.id)}
+    >
       <BlockEditor
         pageId={pageId}
         block={block}
