@@ -5,6 +5,8 @@ Full-stack Notion clone with 10+ database views, a block-based page editor, a Ru
 ## Quick start
 
 Primary workflow: `make` boots the full Dockerized stack for this repository.
+With Docker, Docker Compose, and Make available, you can start the project with
+`make` only. You do not need to launch the individual services manually.
 
 **Prerequisites for the main workflow**: Docker + Docker Compose plugin + GNU Make
 
@@ -13,7 +15,7 @@ Primary workflow: `make` boots the full Dockerized stack for this repository.
 git clone <repo-url> && cd notion-database-sys
 cp .env.example .env
 
-# Boot the full stack
+# Single command to boot the whole stack
 make
 ```
 
