@@ -2,7 +2,7 @@ SHELL := /bin/bash
 -include .env
 export
 
-.DEFAULT_GOAL := stack
+.DEFAULT_GOAL := help
 
 COMPOSE := docker compose
 APP_IMAGE := notion-database-sys/app:local
@@ -423,3 +423,8 @@ kill-ports: ## Kill any process occupying stack-related ports (3000, 3001, 4000,
 	status psql mongo-shell redis-cli seed seed-src ensure-api wait-api \
 	seed-playground seed-all install build-packages typecheck lint lint-fix \
 	audit wait-sonar sonar-up sonar-scan sonar-status ci clean fclean kill-ports
+
+.PHONY: update-submodules
+update-submodules: ## Update git submodules (if any)
+	@git submodule update --init --recursive --remote
+	@echo -e "$(GREEN)✔ Submodules updated$(RESET)"
