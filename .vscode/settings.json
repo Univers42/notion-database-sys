@@ -28,7 +28,7 @@
   // =========================================================
   // 2. SAVING & FILE FORMATTING RULES
   // =========================================================
-  "files.autoSave": "onFocusChange", // Saves automatically when you click away
+  "files.autoSave": "afterDelay", // Saves automatically when you click away
   "files.trimTrailingWhitespace": true, // Removes useless spaces at the end of lines
   "files.insertFinalNewline": true, // Ensures files end with an empty line (POSIX standard)
   "files.trimFinalNewlines": true, // Removes extra blank lines at the bottom
