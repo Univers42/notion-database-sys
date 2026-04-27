@@ -1,6 +1,3 @@
-[submodule "src/lib/libcpp"]
-	path = src/lib/libcpp
-        url = https://github.com/Univers42/libcpp.git
 [submodule "src/lib/engine"]
         path = src/lib/engine
         url = https://github.com/Univers42/formula-engine.git
