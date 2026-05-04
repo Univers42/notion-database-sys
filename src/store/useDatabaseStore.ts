@@ -19,8 +19,7 @@ import { createComputedSlice } from "./slices/computedSlice";
 import { writeHash } from "../hooks/useDbSource";
 import { getInitialSource } from "./dbmsStoreTypes";
 import type { ExtendedDatabaseState } from "./dbmsStoreTypes";
-import { createDbmsActions } from "./dbmsStoreActions";
-import { createDbmsPersistenceActions } from "./dbmsStoreActions";
+import { createDbmsActions, createDbmsPersistenceActions } from "./dbmsStoreActions";
 
 /** Zustand store composing domain slices with DBMS persistence. */
 export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({

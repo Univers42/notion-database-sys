@@ -21,8 +21,6 @@ import {
   handleDeleteQueryLog,
   handlePostOps,
   handlePatchState,
-} from "./routeHandlersAdmin";
-import {
   handlePutDatabase,
   handlePostView,
   handlePutView,
