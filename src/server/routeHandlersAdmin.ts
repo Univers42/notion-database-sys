@@ -314,11 +314,11 @@ export async function handlePutDatabase(
 
   // Update allowed metadata fields
   if (typeof body.name === "string")
-    (database as Record<string, unknown>).name = body.name;
+    database.name = body.name;
   if (typeof body.icon === "string")
-    (database as Record<string, unknown>).icon = body.icon;
+    database.icon = body.icon;
   if (typeof body.description === "string")
-    (database as Record<string, unknown>).description = body.description;
+    database.description = body.description;
 
   writeState(activeSource, state);
   res.writeHead(200);
@@ -346,7 +346,7 @@ export async function handlePostView(req: Req, res: Res): Promise<void> {
   // Create view with required fields
   const viewId = `v-${crypto.randomUUID().slice(0, 8)}`;
   const defaultVisibleProperties = Object.keys(
-    (database as Record<string, unknown>).properties as Record<string, unknown>,
+    database.properties as Record<string, unknown>,
   );
 
   const newView = {
@@ -391,24 +391,24 @@ export async function handlePutView(
 
   // Update allowed view fields
   if (typeof body.name === "string")
-    (view as Record<string, unknown>).name = body.name;
+    view.name = body.name;
   if (typeof body.type === "string")
-    (view as Record<string, unknown>).type = body.type;
+    view.type = body.type;
   if (Array.isArray(body.filters))
-    (view as Record<string, unknown>).filters = body.filters;
+    view.filters = body.filters;
   if (body.filterConjunction === "and" || body.filterConjunction === "or")
-    (view as Record<string, unknown>).filterConjunction =
+    view.filterConjunction =
       body.filterConjunction;
   if (Array.isArray(body.sorts))
-    (view as Record<string, unknown>).sorts = body.sorts;
-  if (body.grouping) (view as Record<string, unknown>).grouping = body.grouping;
+    view.sorts = body.sorts;
+  if (body.grouping) view.grouping = body.grouping;
   if (body.subGrouping)
-    (view as Record<string, unknown>).subGrouping = body.subGrouping;
+    view.subGrouping = body.subGrouping;
   if (Array.isArray(body.visibleProperties))
-    (view as Record<string, unknown>).visibleProperties =
+    view.visibleProperties =
       body.visibleProperties;
   if (body.settings && typeof body.settings === "object")
-    (view as Record<string, unknown>).settings = body.settings as Record<
+    view.settings = body.settings as Record<
       string,
       unknown
     >;
