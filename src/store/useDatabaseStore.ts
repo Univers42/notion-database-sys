@@ -10,16 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { create } from 'zustand';
-import { createDatabaseSlice } from './slices/databaseSlice';
-import { createPageSlice } from './slices/pageSlice';
-import { createViewSlice } from './slices/viewSlice';
-import { createSelectionSlice } from './slices/selectionSlice';
-import { createComputedSlice } from './slices/computedSlice';
-import { writeHash } from '../hooks/useDbSource';
-import { getInitialSource } from './dbmsStoreTypes';
-import type { ExtendedDatabaseState } from './dbmsStoreTypes';
-import { createDbmsActions } from './dbmsStoreActions';
+import { create } from "zustand";
+import { createDatabaseSlice } from "./slices/databaseSlice";
+import { createPageSlice } from "./slices/pageSlice";
+import { createViewSlice } from "./slices/viewSlice";
+import { createSelectionSlice } from "./slices/selectionSlice";
+import { createComputedSlice } from "./slices/computedSlice";
+import { writeHash } from "../hooks/useDbSource";
+import { getInitialSource } from "./dbmsStoreTypes";
+import type { ExtendedDatabaseState } from "./dbmsStoreTypes";
+import { createDbmsActions } from "./dbmsStoreActions";
+import { createDbmsPersistenceActions } from "./dbmsStoreActions";
 
 /** Zustand store composing domain slices with DBMS persistence. */
 export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
@@ -28,7 +29,7 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   views: {},
   activeViewId: null,
   openPageId: null,
-  searchQuery: '',
+  searchQuery: "",
 
   dbmsLoading: true,
   dbmsError: null,
@@ -41,17 +42,19 @@ export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
   ...createComputedSlice(set, get),
 
   ...createDbmsActions(set, get),
+  ...createDbmsPersistenceActions(set, get),
 }));
 
-useDatabaseStore.subscribe(
-  (state, prev) => {
-    if (state.activeViewId !== prev.activeViewId || state.activeDbmsSource !== prev.activeDbmsSource) {
-      writeHash(state.activeDbmsSource, state.activeViewId);
-    }
-  },
-);
+useDatabaseStore.subscribe((state, prev) => {
+  if (
+    state.activeViewId !== prev.activeViewId ||
+    state.activeDbmsSource !== prev.activeDbmsSource
+  ) {
+    writeHash(state.activeDbmsSource, state.activeViewId);
+  }
+});
 
-export type { ExtendedDatabaseState } from './dbmsStoreTypes';
+export type { ExtendedDatabaseState } from "./dbmsStoreTypes";
 
 // Re-export the state type for consumers
-export type { DatabaseState } from './dbms/hardcoded/storeTypes';
+export type { DatabaseState } from "./dbms/hardcoded/storeTypes";

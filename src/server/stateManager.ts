@@ -1,43 +1,57 @@
 /** @file stateManager.ts — State read/write, live-DB caching, source management. */
 
-import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
-import type { DbSourceType, NotionState, SchemaProp } from './dbmsTypes';
-import { SOURCE_DIR, STATE_FILE, FIELD_MAP_FILE } from './dbmsTypes';
-import { markOwnWrite } from './fileWatcher';
-import { atomicWriteSync } from './atomicWrite';
-import { logLifecycle } from './logger';
-import { normalizePageToOptionIds } from './optionConversion';
-import { pgLoadPages } from './db/pgLoader';
-import { mongoLoadPages } from './db/mongoLoader';
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import type { DbSourceType, NotionState, SchemaProp } from "./dbmsTypes";
+import { SOURCE_DIR, STATE_FILE, FIELD_MAP_FILE } from "./dbmsTypes";
+import { markOwnWrite } from "./fileWatcher";
+import { atomicWriteSync } from "./atomicWrite";
+import { logLifecycle } from "./logger";
+import { normalizePageToOptionIds } from "./optionConversion";
+import { pgLoadPages } from "./db/pgLoader";
+import { mongoLoadPages } from "./db/mongoLoader";
 
 /** Active source — persists across requests in the Vite process. */
-let activeSource: DbSourceType = (process.env.ACTIVE_DB_SOURCE as DbSourceType) ?? 'json';
+let activeSource: DbSourceType =
+  (process.env.ACTIVE_DB_SOURCE as DbSourceType) ?? "json";
 
 let liveCache: NotionState | null = null;
 let liveCacheSource: DbSourceType | null = null;
 
 /** Returns the currently active DBMS source type. */
-export function getActiveSource(): DbSourceType { return activeSource; }
+export function getActiveSource(): DbSourceType {
+  return activeSource;
+}
 
 /** Updates the active DBMS source type. */
-export function setActiveSource(src: DbSourceType): void { activeSource = src; }
+export function setActiveSource(src: DbSourceType): void {
+  activeSource = src;
+}
 
 /** Reject mutation requests from a stale source (race condition guard).
  *  Returns true if the request should be skipped. */
-export function isStaleSource(body: Record<string, unknown>, res: import('node:http').ServerResponse): boolean {
+export function isStaleSource(
+  body: Record<string, unknown>,
+  res: import("node:http").ServerResponse,
+): boolean {
   const reqSource = body._source as string | undefined;
   if (reqSource && reqSource !== activeSource) {
-    logLifecycle(`Stale request from '${reqSource}' (active: '${activeSource}') — skipped`);
+    logLifecycle(
+      `Stale request from '${reqSource}' (active: '${activeSource}') — skipped`,
+    );
     res.writeHead(409);
-    res.end(JSON.stringify({ ok: false, skipped: true, reason: 'source_mismatch' }));
+    res.end(
+      JSON.stringify({ ok: false, skipped: true, reason: "source_mismatch" }),
+    );
     return true;
   }
   return false;
 }
 
 /** Whether the source is backed by a live database container. */
-export function isLiveDbSource(src: DbSourceType): boolean { return src === 'postgresql' || src === 'mongodb'; }
+export function isLiveDbSource(src: DbSourceType): boolean {
+  return src === "postgresql" || src === "mongodb";
+}
 
 export function statePath(source: DbSourceType): string {
   return join(SOURCE_DIR[source], STATE_FILE);
@@ -52,7 +66,7 @@ export function readState(source: DbSourceType): NotionState {
   if (!existsSync(p)) {
     throw new Error(`State file not found for source "${source}": ${p}`);
   }
-  return JSON.parse(readFileSync(p, 'utf-8')) as NotionState;
+  return JSON.parse(readFileSync(p, "utf-8")) as NotionState;
 }
 
 export function writeState(source: DbSourceType, state: NotionState): void {
@@ -61,10 +75,46 @@ export function writeState(source: DbSourceType, state: NotionState): void {
   atomicWriteSync(p, JSON.stringify(state, null, 2));
 }
 
-export function readFieldMap(source: DbSourceType): Record<string, Record<string, string>> {
+export function readFieldMap(
+  source: DbSourceType,
+): Record<string, Record<string, string>> {
   const p = fieldMapPath(source);
   if (!existsSync(p)) return {};
-  return JSON.parse(readFileSync(p, 'utf-8'));
+  return JSON.parse(readFileSync(p, "utf-8"));
+}
+
+export function writeFieldMap(
+  source: DbSourceType,
+  map: Record<string, Record<string, string>>,
+): void {
+  const p = fieldMapPath(source);
+  markOwnWrite(p);
+  atomicWriteSync(p, JSON.stringify(map, null, 2));
+}
+
+export function setFieldMapEntry(
+  source: DbSourceType,
+  databaseId: string,
+  propId: string,
+  fieldName: string,
+): void {
+  const all = readFieldMap(source);
+  const dbMap = all[databaseId] ?? {};
+  dbMap[propId] = fieldName;
+  all[databaseId] = dbMap;
+  writeFieldMap(source, all);
+}
+
+export function removeFieldMapEntry(
+  source: DbSourceType,
+  databaseId: string,
+  propId: string,
+): void {
+  const all = readFieldMap(source);
+  const dbMap = all[databaseId] ?? {};
+  if (propId in dbMap) delete dbMap[propId];
+  all[databaseId] = dbMap;
+  writeFieldMap(source, all);
 }
 
 /** Merge a live page with its seed counterpart, preserving metadata. */
@@ -97,17 +147,24 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
   const fieldMaps = readFieldMap(source);
   let livePages: Record<string, Record<string, unknown>> | null = null;
 
-  if (source === 'postgresql') {
+  if (source === "postgresql") {
     livePages = await pgLoadPages(fieldMaps);
-  } else if (source === 'mongodb') {
+  } else if (source === "mongodb") {
     livePages = await mongoLoadPages(fieldMaps);
   }
 
   if (livePages) {
     for (const [pageId, livePage] of Object.entries(livePages)) {
-      const seedPage = seed.pages[pageId] as Record<string, unknown> | undefined;
+      const seedPage = seed.pages[pageId] as
+        | Record<string, unknown>
+        | undefined;
       const dbId = livePage.databaseId as string;
-      const dbSchema = (seed.databases[dbId] as { properties: Record<string, SchemaProp> } | undefined)?.properties ?? {};
+      const dbSchema =
+        (
+          seed.databases[dbId] as
+            | { properties: Record<string, SchemaProp> }
+            | undefined
+        )?.properties ?? {};
       mergeLivePage(livePage, seedPage, dbSchema);
       livePages[pageId] = livePage;
     }
@@ -117,7 +174,9 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
 }
 
 /** Get state for any source — uses in-memory cache for live DB sources. */
-export async function getEffectiveState(source: DbSourceType): Promise<NotionState> {
+export async function getEffectiveState(
+  source: DbSourceType,
+): Promise<NotionState> {
   if (!isLiveDbSource(source)) return readState(source);
   if (liveCache && liveCacheSource === source) return liveCache;
   const state = await loadLiveState(source);
@@ -133,8 +192,12 @@ export function invalidateLiveCache(): void {
 }
 
 /** Sync the live cache schema when operating in live-DB mode. */
-export function syncLiveCacheSchemas(body: Record<string, unknown>, source: DbSourceType): void {
+export function syncLiveCacheSchemas(
+  body: Record<string, unknown>,
+  source: DbSourceType,
+): void {
   if (!liveCache || liveCacheSource !== source) return;
-  if (body.databases) liveCache.databases = body.databases as Record<string, unknown>;
+  if (body.databases)
+    liveCache.databases = body.databases as Record<string, unknown>;
   if (body.views) liveCache.views = body.views as Record<string, unknown>;
 }
