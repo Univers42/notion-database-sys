@@ -6,12 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:24:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import type { Db } from 'mongodb';
+import { registerAuthHook } from './auth';
 import { getMongoDb } from './db/connections';
 import { registerPageRoutes } from './routes/pages';
 import { registerSchemaRoutes } from './routes/schema';
@@ -35,7 +36,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   app.addHook('onRequest', (request, reply, done) => {
     reply.header('Access-Control-Allow-Origin', process.env.CONTRACT_SERVER_CORS_ORIGIN || '*');
     reply.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    reply.header('Access-Control-Allow-Headers', 'Content-Type');
+    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Last-Event-ID');
     if (request.method === 'OPTIONS') {
       void reply.status(204).send();
       return;
@@ -64,6 +65,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   });
 
   await app.register(async (v1) => {
+    registerAuthHook(v1);
     await registerStateRoutes(v1);
     await registerPageRoutes(v1);
     await registerSchemaRoutes(v1);

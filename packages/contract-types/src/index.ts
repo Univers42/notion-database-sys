@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:48:24 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:24:16 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -433,9 +433,9 @@ export interface PageQuery {
 
 /** Realtime change event emitted by adapters and streamed over SSE. */
 export type ChangeEvent =
-  | { type: 'page-changed'; pageId: string; changes: Partial<Page['properties']> }
+  | { type: 'page-changed'; pageId: string; changes: Partial<Page['properties']>; databaseId?: string }
   | { type: 'page-inserted'; page: Page }
-  | { type: 'page-deleted'; pageId: string }
+  | { type: 'page-deleted'; pageId: string; databaseId?: string }
   | { type: 'schema-changed'; databaseId: string }
   | { type: 'state-replaced' };
 

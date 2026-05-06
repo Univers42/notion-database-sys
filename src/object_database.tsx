@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 17:45:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:36:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, {
   createContext,
   forwardRef,
+  Suspense,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -20,7 +21,6 @@ import React, {
   useState,
 } from 'react';
 import { format } from 'date-fns';
-import type { DbSourceType } from '../docker/services/dbms/types';
 import {
   DatabaseStoreProvider,
   createDatabaseStore,
@@ -30,10 +30,7 @@ import {
 } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { DatabaseBlock } from './components/DatabaseBlock';
-import { BlockHandle } from './components/ui/BlockHandle';
 import type { PanelSection } from './components/ui/ActionPanel';
-import { PageModal } from './components/PageModal';
 import {
   ArrowSquarePathIcon, EmojiFaceIcon, StarIcon, ComposeIcon,
   ArrowMergeUpIcon, LockIcon, ArrowExpandDiagonalIcon,
@@ -56,6 +53,18 @@ const SOURCE_COLORS: Record<string, string> = {
   postgresql: '#8b5cf6',
   adapter: '#64748b',
 };
+
+type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
+
+const LazyDatabaseBlock = React.lazy(() => import('./components/DatabaseBlock').then(module => ({
+  default: module.DatabaseBlock,
+})));
+const LazyBlockHandle = React.lazy(() => import('./components/ui/BlockHandle').then(module => ({
+  default: module.BlockHandle,
+})));
+const LazyPageModal = React.lazy(() => import('./components/PageModal').then(module => ({
+  default: module.PageModal,
+})));
 
 export const AdapterContext = createContext<ObjectDatabaseAdapter | null>(null);
 export const AdapterProvider = AdapterContext.Provider;
@@ -267,11 +276,13 @@ function ObjectDatabaseInner({
   if (mode === 'inline') {
     return (
       <ErrorBoundary>
-        <DatabaseBlock
-          mode="inline"
-          databaseId={databaseId}
-          initialViewId={initialView ?? undefined}
-        />
+        <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={false} />}>
+          <LazyDatabaseBlock
+            mode="inline"
+            databaseId={databaseId}
+            initialViewId={initialView ?? undefined}
+          />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -280,30 +291,34 @@ function ObjectDatabaseInner({
     <div className="flex h-screen w-screen bg-surface-primary overflow-hidden">
       <div className="flex-1 flex flex-col min-w-0">
         <ErrorBoundary>
-          <BlockHandle
-            className="flex-1 min-h-0"
-            panelProps={{
-              sections: blockPanelSections,
-              searchable: true,
-              searchPlaceholder: 'Search actions…',
-              width: 265,
-            }}
-          >
-            <DatabaseBlock
-              mode="full"
-              databaseId={databaseId}
-              initialViewId={initialView ?? undefined}
-            />
-          </BlockHandle>
+          <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={false} />}>
+            <LazyBlockHandle
+              className="flex-1 min-h-0"
+              panelProps={{
+                sections: blockPanelSections,
+                searchable: true,
+                searchPlaceholder: 'Search actions…',
+                width: 265,
+              }}
+            >
+              <LazyDatabaseBlock
+                mode="full"
+                databaseId={databaseId}
+                initialViewId={initialView ?? undefined}
+              />
+            </LazyBlockHandle>
+          </Suspense>
         </ErrorBoundary>
       </div>
 
       {openPageId && (
-        <PageModal
-          pageId={openPageId}
-          onClose={() => storeApi.getState().openPage(null)}
-          mode={view?.settings?.openPagesIn || 'side_peek'}
-        />
+        <Suspense fallback={null}>
+          <LazyPageModal
+            pageId={openPageId}
+            onClose={() => storeApi.getState().openPage(null)}
+            mode={view?.settings?.openPagesIn || 'side_peek'}
+          />
+        </Suspense>
       )}
     </div>
   );

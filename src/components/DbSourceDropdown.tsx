@@ -1,9 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Database, ChevronDown, Check, Loader2, AlertCircle } from 'lucide-react';
-import { useDbSource, DB_SOURCE_OPTIONS } from '../hooks/useDbSource.ts';
+import { useDbSource, DB_SOURCE_OPTIONS, type DbSourceType } from '../hooks/useDbSource';
 import { useDatabaseStore } from '../store/useDatabaseStore';
-import type { DbSourceType } from '../../docker/services/dbms/types.ts';
 import { cn } from '../utils/cn';
 
 /** Accent color per source — matches the CSS theme. */

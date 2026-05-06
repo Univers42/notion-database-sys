@@ -1,0 +1,1153 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   theme.css                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/02 14:40:25 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/04/02 17:03:34 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOTION-DATABASE-SYS — Design Token System
+   ═══════════════════════════════════════════════════════════════════════════
+   All colors are defined as CSS custom properties, scoped to data-theme.
+   Tailwind v4 @theme picks them up as utility classes automatically.
+   Usage: bg-surface-primary, text-ink, border-line, etc.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── LIGHT THEME (default) ──────────────────────────────────────────────── */
+:root,
+:root[data-theme="light"] {
+  /*
+   * AFTER: color-scheme tells the browser this scope is light-mode.
+   * Native UI elements (scrollbars, <input>, <select>, date pickers)
+   * automatically render in light style. Without this they can flash
+   * dark-styled controls even when the page is light.
+   *
+   * BEFORE: this line was absent — native controls ignored the theme.
+   */
+  color-scheme: light;
+
+  /* ── Surfaces ── */
+  --color-surface-primary:     #ffffff;
+  --color-surface-secondary:   #f9fafb;   /* gray-50 */
+  --color-surface-tertiary:    #f3f4f6;   /* gray-100 */
+  --color-surface-muted:       #e5e7eb;   /* gray-200 */
+  --color-surface-strong:      #d1d5db;   /* gray-300 */
+  --color-surface-inverse:     #111827;   /* gray-900 */
+  --color-surface-inverse-soft:#1f2937;   /* gray-800 */
+
+  /* ── Surface overlays / scrims ── */
+  --color-overlay:             rgba(255,255,255, 0.95);
+  --color-overlay-medium:      rgba(255,255,255, 0.80);
+  --color-overlay-light:       rgba(255,255,255, 0.60);
+  --color-scrim:               rgba(0,0,0, 0.50);
+  --color-scrim-medium:        rgba(0,0,0, 0.40);
+  --color-scrim-light:         rgba(0,0,0, 0.30);
+
+  /* ── Surface soft (translucent fills) ── */
+  --color-surface-secondary-soft:  rgba(249,250,251, 0.50);
+  --color-surface-secondary-soft2: rgba(249,250,251, 0.80);
+  --color-surface-secondary-soft3: rgba(249,250,251, 0.60);
+  --color-surface-secondary-soft4: rgba(249,250,251, 0.40);
+  --color-surface-secondary-soft5: rgba(249,250,251, 0.30);
+  --color-surface-tertiary-soft:   rgba(243,244,246, 0.70);
+  --color-surface-tertiary-soft2:  rgba(243,244,246, 0.80);
+  --color-surface-tertiary-soft3:  rgba(243,244,246, 0.60);
+  --color-surface-tertiary-soft4:  rgba(243,244,246, 0.50);
+  --color-surface-muted-soft:      rgba(229,231,235, 0.80);
+  --color-surface-muted-soft2:     rgba(229,231,235, 0.70);
+  --color-surface-muted-soft3:     rgba(229,231,235, 0.60);
+
+  /* ── Text ── */
+  --color-ink:                 #111827;   /* gray-900 */
+  --color-ink-strong:          #1f2937;   /* gray-800 */
+  --color-ink-body:            #374151;   /* gray-700 */
+  --color-ink-body-light:      #4b5563;   /* gray-600 */
+  --color-ink-secondary:       #6b7280;   /* gray-500 */
+  --color-ink-muted:           #9ca3af;   /* gray-400 */
+  --color-ink-disabled:        #d1d5db;   /* gray-300 */
+  --color-ink-faint:           #e5e7eb;   /* gray-200 */
+  --color-ink-inverse:         #ffffff;
+
+  /* ── Borders / Dividers ── */
+  --color-line:                #e5e7eb;   /* gray-200 */
+  --color-line-light:          #f3f4f6;   /* gray-100 */
+  --color-line-medium:         #d1d5db;   /* gray-300 */
+  --color-line-strong:         #9ca3af;   /* gray-400 */
+  --color-line-faint:          #f9fafb;   /* gray-50 */
+
+  /* ── Accent (Blue — brand & interactive) ── */
+  --color-accent:              #3b82f6;   /* blue-500 */
+  --color-accent-bold:         #2563eb;   /* blue-600 */
+  --color-accent-bolder:       #1d4ed8;   /* blue-700 */
+  --color-accent-soft:         #eff6ff;   /* blue-50 */
+  --color-accent-soft2:        rgba(239,246,255, 0.50);
+  --color-accent-soft3:        rgba(239,246,255, 0.60);
+  --color-accent-soft4:        rgba(239,246,255, 0.40);
+  --color-accent-soft5:        rgba(239,246,255, 0.30);
+  --color-accent-muted:        #dbeafe;   /* blue-100 */
+  --color-accent-muted2:       rgba(219,234,254, 0.60);
+  --color-accent-subtle:       #bfdbfe;   /* blue-200 */
+  --color-accent-subtle2:      rgba(191,219,254, 0.60);
+  --color-accent-moderate:     #93c5fd;   /* blue-300 */
+  --color-accent-vivid:        #60a5fa;   /* blue-400 */
+  --color-accent-text:         #1d4ed8;   /* blue-700 */
+  --color-accent-text-bold:    #1e40af;   /* blue-800 */
+  --color-accent-text-bolder:  #1e3a8a;   /* blue-900 */
+  --color-accent-text-light:   #2563eb;   /* blue-600 */
+  --color-accent-text-soft:    #3b82f6;   /* blue-500 */
+  --color-accent-text-faint:   #60a5fa;   /* blue-400 */
+  --color-accent-border:       #3b82f6;   /* blue-500 */
+  --color-accent-border-light: #60a5fa;   /* blue-400 */
+  --color-accent-border-soft:  #93c5fd;   /* blue-300 */
+  --color-accent-border-muted: #bfdbfe;   /* blue-200 */
+
+  /* ── Interactive states ── */
+  --color-hover-surface:       #f9fafb;   /* gray-50 */
+  --color-hover-surface2:      #f3f4f6;   /* gray-100 */
+  --color-hover-surface3:      #e5e7eb;   /* gray-200 */
+  --color-hover-surface-soft:  rgba(249,250,251, 0.50);
+  --color-hover-surface-soft2: rgba(243,244,246, 0.70);
+  --color-hover-surface-soft3: rgba(243,244,246, 0.60);
+  --color-hover-surface-soft4: rgba(243,244,246, 0.80);
+  --color-hover-surface-accent:rgba(239,246,255, 0.50);
+  --color-hover-surface-accent2:rgba(239,246,255, 0.60);
+  --color-hover-surface-accent3:rgba(239,246,255, 0.40);
+  --color-hover-surface-white: #ffffff;
+  --color-hover-surface-white-soft: rgba(255,255,255, 0.80);
+  --color-hover-surface-white-soft2: rgba(255,255,255, 0.60);
+  --color-hover-surface-white-soft3: rgba(255,255,255, 0.50);
+  --color-hover-surface-inverse: #1f2937;
+  --color-hover-text:          #4b5563;   /* gray-600 */
+  --color-hover-text-strong:   #374151;   /* gray-700 */
+  --color-hover-text-bolder:   #1f2937;   /* gray-800 */
+  --color-hover-text-boldest:  #111827;   /* gray-900 */
+  --color-hover-text-muted:    #6b7280;   /* gray-500 */
+  --color-hover-text-faint:    #9ca3af;   /* gray-400 */
+  --color-hover-border:        #d1d5db;   /* gray-300 */
+  --color-hover-border-strong: #9ca3af;   /* gray-400 */
+  --color-hover-border-accent: #bfdbfe;   /* blue-200 */
+  --color-hover-accent:        #2563eb;   /* blue-600 */
+  --color-hover-accent-bold:   #1d4ed8;   /* blue-700 */
+  --color-hover-accent-muted:  #dbeafe;   /* blue-100 */
+  --color-hover-accent-moderate: #93c5fd; /* blue-300 */
+  --color-hover-accent-soft:   #eff6ff;   /* blue-50 */
+  --color-hover-accent-text:   #2563eb;   /* blue-600 */
+  --color-hover-accent-text-bold: #1d4ed8;/* blue-700 */
+  --color-hover-accent-text-bolder: #1e3a8a; /* blue-900 */
+  --color-hover-accent-subtle: #3b82f6;   /* blue-500 */
+
+  /* ── Focus ── */
+  --color-focus-border:        #60a5fa;   /* blue-400 */
+  --color-focus-border-strong: #3b82f6;   /* blue-500 */
+  --color-focus-border-soft:   #93c5fd;   /* blue-300 */
+  --color-focus-ring:          rgba(96,165,250, 0.30); /* blue-400/30 */
+  --color-focus-ring-solid:    #60a5fa;   /* blue-400 */
+  --color-focus-ring-muted:    #bfdbfe;   /* blue-200 */
+  --color-focus-surface:       #f9fafb;   /* gray-50 */
+  --color-focus-surface-accent:#eff6ff;   /* blue-50 */
+  --color-focus-text:          #111827;   /* gray-900 */
+
+  /* ── Ring ── */
+  --color-ring-accent:         #60a5fa;
+  --color-ring-accent-strong:  #3b82f6;
+  --color-ring-accent-soft:    rgba(96,165,250, 0.30);
+  --color-ring-accent-muted:   #93c5fd;
+  --color-ring-accent-faint:   #bfdbfe;
+  --color-ring-neutral:        #e5e7eb;
+  --color-ring-success:        rgba(16,185,129, 0.80);
+  --color-ring-success-soft:   rgba(16,185,129, 0.50);
+
+  /* ── Danger / Destructive ── */
+  --color-danger-surface:      #fef2f2;   /* red-50 */
+  --color-danger-surface-soft: rgba(254,242,242, 0.50);
+  --color-danger-surface-muted:#fee2e2;   /* red-100 */
+  --color-danger-surface-medium:#fecaca;  /* red-200 */
+  --color-danger-surface-strong:#fca5a5;  /* red-300 */
+  --color-danger:              #ef4444;   /* red-500 */
+  --color-danger-vivid:        #f87171;   /* red-400 */
+  --color-danger-text:         #dc2626;   /* red-600 */
+  --color-danger-text-bold:    #b91c1c;   /* red-700 */
+  --color-danger-text-tag:     #991b1b;   /* red-800 */
+  --color-danger-text-soft:    #ef4444;   /* red-500 */
+  --color-danger-text-faint:   #f87171;   /* red-400 */
+  --color-danger-border:       #fecaca;   /* red-200 */
+  --color-hover-danger:        #fef2f2;   /* red-50 */
+  --color-hover-danger-text:   #ef4444;   /* red-500 */
+  --color-hover-danger-text-bold:#dc2626; /* red-600 */
+
+  /* ── Success / Green ── */
+  --color-success-surface:     #f0fdf4;   /* green-50 */
+  --color-success-surface-muted:#dcfce7;  /* green-100 */
+  --color-success-surface-medium:#bbf7d0; /* green-200 */
+  --color-success:             #22c55e;   /* green-500 */
+  --color-success-vivid:       #4ade80;   /* green-400 */
+  --color-success-text:        #16a34a;   /* green-600 */
+  --color-success-text-bold:   #15803d;   /* green-700 */
+  --color-success-text-tag:    #166534;   /* green-800 */
+  --color-success-text-faint:  #4ade80;   /* green-400 */
+  --color-success-border:      #bbf7d0;   /* green-200 */
+
+  /* ── Warning / Yellow ── */
+  --color-warning-surface:     #fefce8;   /* yellow-50 */
+  --color-warning-surface-muted:#fef9c3;  /* yellow-100 */
+  --color-warning-surface-medium:#fef08a; /* yellow-200 */
+  --color-warning:             #eab308;   /* yellow-500 */
+  --color-warning-text:        #ca8a04;   /* yellow-600 */
+  --color-warning-text-bold:   #a16207;   /* yellow-700 */
+  --color-warning-text-tag:    #854d0e;   /* yellow-800 */
+  --color-warning-border:      #fef08a;   /* yellow-200 */
+
+  /* ── Amber ── */
+  --color-amber-surface:       #fffbeb;   /* amber-50 */
+  --color-amber-surface-muted: #fef3c7;   /* amber-100 */
+  --color-amber:               #f59e0b;   /* amber-500 */
+  --color-amber-text:          #d97706;   /* amber-600 */
+  --color-amber-text-bold:     #b45309;   /* amber-700 */
+  --color-amber-text-tag:      #92400e;   /* amber-800 */
+  --color-amber-border:        #fde68a;   /* amber-200 */
+
+  /* ── Orange ── */
+  --color-orange-surface:      #fff7ed;   /* orange-50 */
+  --color-orange-surface-muted:#ffedd5;   /* orange-100 */
+  --color-orange:              #f97316;   /* orange-500 */
+  --color-orange-text:         #ea580c;   /* orange-600 */
+  --color-orange-text-bold:    #c2410c;   /* orange-700 */
+  --color-orange-text-tag:     #9a3412;   /* orange-800 */
+  --color-orange-border:       #fed7aa;   /* orange-200 */
+
+  /* ── Purple ── */
+  --color-purple-surface:      #faf5ff;   /* purple-50 */
+  --color-purple-surface-muted:#f3e8ff;   /* purple-100 */
+  --color-purple:              #a855f7;   /* purple-500 */
+  --color-purple-text:         #9333ea;   /* purple-600 */
+  --color-purple-text-bold:    #7e22ce;   /* purple-700 */
+  --color-purple-text-tag:     #6b21a8;   /* purple-800 */
+  --color-purple-border:       #e9d5ff;   /* purple-200 */
+
+  /* ── Violet ── */
+  --color-violet-surface-muted:#ede9fe;   /* violet-100 */
+  --color-violet:              #8b5cf6;   /* violet-500 */
+  --color-violet-vivid:        #a78bfa;   /* violet-400 */
+  --color-violet-bold:         #7c3aed;   /* violet-600 */
+  --color-violet-text-tag:     #5b21b6;   /* violet-800 */
+
+  /* ── Indigo ── */
+  --color-indigo-surface:      #eef2ff;   /* indigo-50 */
+  --color-indigo-surface-muted:#e0e7ff;   /* indigo-100 */
+  --color-indigo:              #6366f1;   /* indigo-500 */
+  --color-indigo-bold:         #4f46e5;   /* indigo-600 */
+  --color-indigo-text:         #4338ca;   /* indigo-600 */
+  --color-indigo-text-tag:     #3730a3;   /* indigo-800 */
+  --color-indigo-border:       #c7d2fe;   /* indigo-200 */
+
+  /* ── Pink ── */
+  --color-pink-surface:        #fdf2f8;   /* pink-50 */
+  --color-pink-surface-muted:  #fce7f3;   /* pink-100 */
+  --color-pink:                #ec4899;   /* pink-500 */
+  --color-pink-text:           #db2777;   /* pink-600 */
+  --color-pink-text-tag:       #9d174d;   /* pink-800 */
+
+  /* ── Cyan ── */
+  --color-cyan-surface:        #ecfeff;   /* cyan-50 */
+  --color-cyan-surface-muted:  #cffafe;   /* cyan-100 */
+  --color-cyan:                #06b6d4;   /* cyan-500 */
+  --color-cyan-text:           #0891b2;   /* cyan-600 */
+  --color-cyan-text-bold:      #0e7490;   /* cyan-700 */
+  --color-cyan-text-tag:       #155e75;   /* cyan-800 */
+
+  /* ── Rose ── */
+  --color-rose-surface-muted:  #ffe4e6;   /* rose-100 */
+  --color-rose:                #f43f5e;   /* rose-500 */
+  --color-rose-text-tag:       #9f1239;   /* rose-800 */
+
+  /* ── Emerald ── */
+  --color-emerald-surface:     rgba(236,253,245, 0.30);  /* emerald-50/30 */
+  --color-emerald-surface2:    rgba(236,253,245, 0.40);  /* emerald-50/40 */
+  --color-emerald-surface-muted:#d1fae5;  /* emerald-100 */
+  --color-emerald:             #10b981;   /* emerald-500 */
+  --color-emerald-text:        #059669;   /* emerald-600 */
+  --color-emerald-text-tag:    #065f46;   /* emerald-800 */
+
+  /* ── Teal ── */
+  --color-teal-surface-muted:  #ccfbf1;   /* teal-100 */
+  --color-teal:                #14b8a6;   /* teal-500 */
+  --color-teal-text-tag:       #115e59;   /* teal-800 */
+
+  /* ── Chart palette ── */
+  --color-chart-1:   #3b82f6;  /* blue-500 */
+  --color-chart-2:   #8b5cf6;  /* violet-500 */
+  --color-chart-3:   #ec4899;  /* pink-500 */
+  --color-chart-4:   #f59e0b;  /* amber-500 */
+  --color-chart-5:   #10b981;  /* emerald-500 */
+  --color-chart-6:   #06b6d4;  /* cyan-500 */
+  --color-chart-7:   #ef4444;  /* red-500 */
+  --color-chart-8:   #6366f1;  /* indigo-500 */
+  --color-chart-9:   #14b8a6;  /* teal-500 */
+  --color-chart-10:  #f97316;  /* orange-500 */
+
+  /* ── Chart axis / grid ── */
+  --color-chart-axis:          #374151;  /* gray-700 */
+  --color-chart-grid:          #e5e7eb;  /* gray-200 */
+  --color-chart-label:         #6b7280;  /* gray-500 */
+  --color-chart-tick:          #9ca3af;  /* gray-400 */
+  --color-chart-fill:          #f3f4f6;  /* gray-100 */
+
+  /* ── Progress ring palette ── */
+  --color-progress-high:       #22c55e;  /* ≥ 80% */
+  --color-progress-mid:        #3b82f6;  /* ≥ 50% */
+  --color-progress-low:        #f59e0b;  /* ≥ 25% */
+  --color-progress-critical:   #ef4444;  /* < 25% */
+
+  /* ── Gradients (from/to pairs) ── */
+  --color-gradient-accent-from:     #60a5fa;  /* blue-400 */
+  --color-gradient-accent-to:       #2563eb;  /* blue-600 */
+  --color-gradient-brand-from:      #3b82f6;  /* blue-500 */
+  --color-gradient-brand-to:        #9333ea;  /* purple-600 */
+  --color-gradient-violet-from:     #8b5cf6;  /* violet-500 */
+  --color-gradient-violet-to:       #4f46e5;  /* indigo-600 */
+  --color-gradient-violet2-from:    #a78bfa;  /* violet-400 */
+  --color-gradient-violet2-to:      #7c3aed;  /* violet-600 */
+  --color-gradient-purple-from:     #c084fc;  /* purple-400 */
+  --color-gradient-purple-to:       #3b82f6;  /* blue-500 */
+  --color-gradient-surface-from:    #f9fafb;  /* gray-50 */
+  --color-gradient-surface-to:      #ffffff;
+  --color-gradient-fade-from:       rgba(255,255,255, 0.80);
+  --color-gradient-fade-to:         transparent;
+  /* Semantic gradient pairs for cards */
+  --color-gradient-blue-from:       #dbeafe;  /* blue-100 */
+  --color-gradient-blue-to:         #eff6ff;  /* blue-50 */
+  --color-gradient-purple-card-from:#f3e8ff;  /* purple-100 */
+  --color-gradient-purple-card-to:  #faf5ff;  /* purple-50 */
+  --color-gradient-green-from:      #dcfce7;  /* green-100 */
+  --color-gradient-green-to:        #f0fdf4;  /* green-50 */
+  --color-gradient-orange-from:     #ffedd5;  /* orange-100 */
+  --color-gradient-orange-to:       #fff7ed;  /* orange-50 */
+  --color-gradient-pink-from:       #fce7f3;  /* pink-100 */
+  --color-gradient-pink-to:         #fdf2f8;  /* pink-50 */
+  --color-gradient-cyan-from:       #cffafe;  /* cyan-100 */
+  --color-gradient-cyan-to:         #ecfeff;  /* cyan-50 */
+
+  /* ── Shadows ── */
+  --shadow-color: 220 3% 15%;
+  --shadow-sm:    0 1px 2px 0 hsl(var(--shadow-color) / .05);
+  --shadow-base:  0 1px 3px 0 hsl(var(--shadow-color) / .1), 0 1px 2px -1px hsl(var(--shadow-color) / .1);
+  --shadow-md:    0 4px 6px -1px hsl(var(--shadow-color) / .1), 0 2px 4px -2px hsl(var(--shadow-color) / .1);
+  --shadow-lg:    0 10px 15px -3px hsl(var(--shadow-color) / .1), 0 4px 6px -4px hsl(var(--shadow-color) / .1);
+  --shadow-xl:    0 20px 25px -5px hsl(var(--shadow-color) / .1), 0 8px 10px -6px hsl(var(--shadow-color) / .1);
+  --shadow-2xl:   0 25px 50px -12px hsl(var(--shadow-color) / .25);
+
+  /* ── Fill (SVG) ── */
+  --color-fill-primary:        #111827;
+  --color-fill-secondary:      #9ca3af;
+  --color-fill-body:           #374151;
+
+  /* ── Inline RGB legacy ── */
+  --color-toggle-on:           rgb(37, 99, 235);
+  --color-toggle-shadow:       rgba(0,0,0, 0.12);
+  --color-outline-active:      rgb(59, 130, 246);
+  --color-outline-inactive:    rgb(229, 231, 235);
+  --color-inset-success:       rgba(16,185,129, 0.50);
+  --color-marker-shadow:       rgba(0,0,0, 0.35);
+
+  /* ── Placeholder ── */
+  --color-placeholder:         #9ca3af;   /* gray-400 */
+
+  /* ── Slate (used in analytics) ── */
+  --color-slate:               #94a3b8;   /* slate-400 */
+
+  /* ── Syntax highlighting tokens (light) ── */
+  --syntax-keyword:            #d73a49;   /* red-ish — if/else/return/function */
+  --syntax-string:             #032f62;   /* deep blue — string literals */
+  --syntax-number:             #005cc5;   /* blue — numeric literals */
+  --syntax-comment:            #6a737d;   /* gray — comments */
+  --syntax-function:           #6f42c1;   /* purple — function names */
+  --syntax-operator:           #d73a49;   /* red — +, -, =, etc. */
+  --syntax-punctuation:        #24292e;   /* dark gray — brackets, commas */
+  --syntax-type:               #22863a;   /* green — type names, classes */
+  --syntax-property:           #005cc5;   /* blue — object keys, attrs */
+  --syntax-tag:                #22863a;   /* green — HTML/XML tags */
+  --syntax-attribute:          #6f42c1;   /* purple — HTML attributes */
+  --syntax-variable:           #e36209;   /* orange — variables, params */
+  --syntax-constant:           #005cc5;   /* blue — true/false/null */
+  --syntax-regex:              #032f62;   /* dark blue — regex literals */
+  --syntax-decorator:          #e36209;   /* orange — @decorators */
+  --syntax-builtin:            #005cc5;   /* blue — built-in functions */
+}
+
+/* ─── DARK THEME ─────────────────────────────────────────────────────────── */
+:root[data-theme="dark"] {
+  /*
+   * AFTER: same as light — tells native controls to render dark.
+   * Without this, browser-native elements (scrollbars, inputs, etc.)
+   * stay light even when the page turns dark.
+   *
+   * BEFORE: this line was absent — native controls ignored the theme.
+   */
+  color-scheme: dark;
+
+  /* ── Surfaces ── */
+  --color-surface-primary:     #191919;
+  --color-surface-secondary:   #202020;
+  --color-surface-tertiary:    #2a2a2a;
+  --color-surface-muted:       #363636;
+  --color-surface-strong:      #454545;
+  --color-surface-inverse:     #f3f4f6;
+  --color-surface-inverse-soft:#e5e7eb;
+
+  /* ── Surface overlays / scrims ── */
+  --color-overlay:             rgba(25,25,25, 0.95);
+  --color-overlay-medium:      rgba(25,25,25, 0.85);
+  --color-overlay-light:       rgba(25,25,25, 0.70);
+  --color-scrim:               rgba(0,0,0, 0.70);
+  --color-scrim-medium:        rgba(0,0,0, 0.60);
+  --color-scrim-light:         rgba(0,0,0, 0.50);
+
+  /* ── Surface soft (translucent fills) ── */
+  --color-surface-secondary-soft:  rgba(32,32,32, 0.60);
+  --color-surface-secondary-soft2: rgba(32,32,32, 0.80);
+  --color-surface-secondary-soft3: rgba(32,32,32, 0.70);
+  --color-surface-secondary-soft4: rgba(32,32,32, 0.50);
+  --color-surface-secondary-soft5: rgba(32,32,32, 0.40);
+  --color-surface-tertiary-soft:   rgba(42,42,42, 0.70);
+  --color-surface-tertiary-soft2:  rgba(42,42,42, 0.80);
+  --color-surface-tertiary-soft3:  rgba(42,42,42, 0.60);
+  --color-surface-tertiary-soft4:  rgba(42,42,42, 0.50);
+  --color-surface-muted-soft:      rgba(54,54,54, 0.80);
+  --color-surface-muted-soft2:     rgba(54,54,54, 0.70);
+  --color-surface-muted-soft3:     rgba(54,54,54, 0.60);
+
+  /* ── Text ── */
+  --color-ink:                 #ececec;
+  --color-ink-strong:          #e0e0e0;
+  --color-ink-body:            #c0c0c0;
+  --color-ink-body-light:      #a8a8a8;
+  --color-ink-secondary:       #8a8a8a;
+  --color-ink-muted:           #666666;
+  --color-ink-disabled:        #4a4a4a;
+  --color-ink-faint:           #363636;
+  --color-ink-inverse:         #191919;
+
+  /* ── Borders / Dividers ── */
+  --color-line:                #363636;
+  --color-line-light:          #2a2a2a;
+  --color-line-medium:         #454545;
+  --color-line-strong:         #5a5a5a;
+  --color-line-faint:          #222222;
+
+  /* ── Accent (Blue) ── */
+  --color-accent:              #5b9cf6;
+  --color-accent-bold:         #4a8df0;
+  --color-accent-bolder:       #3b7ee6;
+  --color-accent-soft:         rgba(59,130,246, 0.12);
+  --color-accent-soft2:        rgba(59,130,246, 0.08);
+  --color-accent-soft3:        rgba(59,130,246, 0.10);
+  --color-accent-soft4:        rgba(59,130,246, 0.06);
+  --color-accent-soft5:        rgba(59,130,246, 0.04);
+  --color-accent-muted:        rgba(59,130,246, 0.20);
+  --color-accent-muted2:       rgba(59,130,246, 0.15);
+  --color-accent-subtle:       rgba(59,130,246, 0.25);
+  --color-accent-subtle2:      rgba(59,130,246, 0.18);
+  --color-accent-moderate:     rgba(59,130,246, 0.35);
+  --color-accent-vivid:        #6ba6f8;
+  --color-accent-text:         #7cb6fa;
+  --color-accent-text-bold:    #6ba6f8;
+  --color-accent-text-bolder:  #5b9cf6;
+  --color-accent-text-light:   #8bc2fc;
+  --color-accent-text-soft:    #5b9cf6;
+  --color-accent-text-faint:   #6ba6f8;
+  --color-accent-border:       #5b9cf6;
+  --color-accent-border-light: #6ba6f8;
+  --color-accent-border-soft:  rgba(59,130,246, 0.40);
+  --color-accent-border-muted: rgba(59,130,246, 0.25);
+
+  /* ── Interactive states ── */
+  --color-hover-surface:       #242424;
+  --color-hover-surface2:      #2e2e2e;
+  --color-hover-surface3:      #383838;
+  --color-hover-surface-soft:  rgba(255,255,255, 0.04);
+  --color-hover-surface-soft2: rgba(255,255,255, 0.07);
+  --color-hover-surface-soft3: rgba(255,255,255, 0.06);
+  --color-hover-surface-soft4: rgba(255,255,255, 0.08);
+  --color-hover-surface-accent:rgba(59,130,246, 0.10);
+  --color-hover-surface-accent2:rgba(59,130,246, 0.12);
+  --color-hover-surface-accent3:rgba(59,130,246, 0.08);
+  --color-hover-surface-white: #2a2a2a;
+  --color-hover-surface-white-soft: rgba(255,255,255, 0.06);
+  --color-hover-surface-white-soft2: rgba(255,255,255, 0.04);
+  --color-hover-surface-white-soft3: rgba(255,255,255, 0.03);
+  --color-hover-surface-inverse: #e5e7eb;
+  --color-hover-text:          #c0c0c0;
+  --color-hover-text-strong:   #d0d0d0;
+  --color-hover-text-bolder:   #e0e0e0;
+  --color-hover-text-boldest:  #ececec;
+  --color-hover-text-muted:    #8a8a8a;
+  --color-hover-text-faint:    #666666;
+  --color-hover-border:        #4a4a4a;
+  --color-hover-border-strong: #5a5a5a;
+  --color-hover-border-accent: rgba(59,130,246, 0.30);
+  --color-hover-accent:        #4a8df0;
+  --color-hover-accent-bold:   #3b7ee6;
+  --color-hover-accent-muted:  rgba(59,130,246, 0.25);
+  --color-hover-accent-moderate: rgba(59,130,246, 0.40);
+  --color-hover-accent-soft:   rgba(59,130,246, 0.12);
+  --color-hover-accent-text:   #8bc2fc;
+  --color-hover-accent-text-bold: #7cb6fa;
+  --color-hover-accent-text-bolder: #5b9cf6;
+  --color-hover-accent-subtle: #5b9cf6;
+
+  /* ── Focus ── */
+  --color-focus-border:        #5b9cf6;
+  --color-focus-border-strong: #4a8df0;
+  --color-focus-border-soft:   rgba(59,130,246, 0.40);
+  --color-focus-ring:          rgba(91,156,246, 0.25);
+  --color-focus-ring-solid:    #5b9cf6;
+  --color-focus-ring-muted:    rgba(59,130,246, 0.20);
+  --color-focus-surface:       #242424;
+  --color-focus-surface-accent:rgba(59,130,246, 0.12);
+  --color-focus-text:          #ececec;
+
+  /* ── Ring ── */
+  --color-ring-accent:         #5b9cf6;
+  --color-ring-accent-strong:  #4a8df0;
+  --color-ring-accent-soft:    rgba(91,156,246, 0.25);
+  --color-ring-accent-muted:   rgba(59,130,246, 0.35);
+  --color-ring-accent-faint:   rgba(59,130,246, 0.20);
+  --color-ring-neutral:        #363636;
+  --color-ring-success:        rgba(16,185,129, 0.60);
+  --color-ring-success-soft:   rgba(16,185,129, 0.35);
+
+  /* ── Danger / Red ── */
+  --color-danger-surface:      rgba(239,68,68, 0.10);
+  --color-danger-surface-soft: rgba(239,68,68, 0.06);
+  --color-danger-surface-muted:rgba(239,68,68, 0.15);
+  --color-danger-surface-medium:rgba(239,68,68, 0.20);
+  --color-danger-surface-strong:rgba(239,68,68, 0.28);
+  --color-danger:              #f87171;
+  --color-danger-vivid:        #ef4444;
+  --color-danger-text:         #f87171;
+  --color-danger-text-bold:    #fca5a5;
+  --color-danger-text-tag:     #fca5a5;
+  --color-danger-text-soft:    #f87171;
+  --color-danger-text-faint:   #ef4444;
+  --color-danger-border:       rgba(239,68,68, 0.25);
+  --color-hover-danger:        rgba(239,68,68, 0.12);
+  --color-hover-danger-text:   #f87171;
+  --color-hover-danger-text-bold:#fca5a5;
+
+  /* ── Success / Green ── */
+  --color-success-surface:     rgba(34,197,94, 0.08);
+  --color-success-surface-muted:rgba(34,197,94, 0.14);
+  --color-success-surface-medium:rgba(34,197,94, 0.20);
+  --color-success:             #4ade80;
+  --color-success-vivid:       #22c55e;
+  --color-success-text:        #4ade80;
+  --color-success-text-bold:   #86efac;
+  --color-success-text-tag:    #86efac;
+  --color-success-text-faint:  #22c55e;
+  --color-success-border:      rgba(34,197,94, 0.25);
+
+  /* ── Warning / Yellow ── */
+  --color-warning-surface:     rgba(234,179,8, 0.08);
+  --color-warning-surface-muted:rgba(234,179,8, 0.14);
+  --color-warning-surface-medium:rgba(234,179,8, 0.20);
+  --color-warning:             #facc15;
+  --color-warning-text:        #facc15;
+  --color-warning-text-bold:   #fde047;
+  --color-warning-text-tag:    #fde047;
+  --color-warning-border:      rgba(234,179,8, 0.25);
+
+  /* ── Amber ── */
+  --color-amber-surface:       rgba(245,158,11, 0.08);
+  --color-amber-surface-muted: rgba(245,158,11, 0.14);
+  --color-amber:               #fbbf24;
+  --color-amber-text:          #fbbf24;
+  --color-amber-text-bold:     #fcd34d;
+  --color-amber-text-tag:      #fcd34d;
+  --color-amber-border:        rgba(245,158,11, 0.25);
+
+  /* ── Orange ── */
+  --color-orange-surface:      rgba(249,115,22, 0.08);
+  --color-orange-surface-muted:rgba(249,115,22, 0.14);
+  --color-orange:              #fb923c;
+  --color-orange-text:         #fb923c;
+  --color-orange-text-bold:    #fdba74;
+  --color-orange-text-tag:     #fdba74;
+  --color-orange-border:       rgba(249,115,22, 0.25);
+
+  /* ── Purple ── */
+  --color-purple-surface:      rgba(168,85,247, 0.08);
+  --color-purple-surface-muted:rgba(168,85,247, 0.14);
+  --color-purple:              #c084fc;
+  --color-purple-text:         #c084fc;
+  --color-purple-text-bold:    #d8b4fe;
+  --color-purple-text-tag:     #d8b4fe;
+  --color-purple-border:       rgba(168,85,247, 0.25);
+
+  /* ── Violet ── */
+  --color-violet-surface-muted:rgba(139,92,246, 0.14);
+  --color-violet:              #a78bfa;
+  --color-violet-vivid:        #8b5cf6;
+  --color-violet-bold:         #a78bfa;
+  --color-violet-text-tag:     #c4b5fd;
+
+  /* ── Indigo ── */
+  --color-indigo-surface:      rgba(99,102,241, 0.08);
+  --color-indigo-surface-muted:rgba(99,102,241, 0.14);
+  --color-indigo:              #818cf8;
+  --color-indigo-bold:         #818cf8;
+  --color-indigo-text:         #818cf8;
+  --color-indigo-text-tag:     #a5b4fc;
+  --color-indigo-border:       rgba(99,102,241, 0.25);
+
+  /* ── Pink ── */
+  --color-pink-surface:        rgba(236,72,153, 0.08);
+  --color-pink-surface-muted:  rgba(236,72,153, 0.14);
+  --color-pink:                #f472b6;
+  --color-pink-text:           #f472b6;
+  --color-pink-text-tag:       #f9a8d4;
+
+  /* ── Cyan ── */
+  --color-cyan-surface:        rgba(6,182,212, 0.08);
+  --color-cyan-surface-muted:  rgba(6,182,212, 0.14);
+  --color-cyan:                #22d3ee;
+  --color-cyan-text:           #22d3ee;
+  --color-cyan-text-bold:      #67e8f9;
+  --color-cyan-text-tag:       #67e8f9;
+
+  /* ── Rose ── */
+  --color-rose-surface-muted:  rgba(244,63,94, 0.14);
+  --color-rose:                #fb7185;
+  --color-rose-text-tag:       #fda4af;
+
+  /* ── Emerald ── */
+  --color-emerald-surface:     rgba(16,185,129, 0.06);
+  --color-emerald-surface2:    rgba(16,185,129, 0.08);
+  --color-emerald-surface-muted:rgba(16,185,129, 0.14);
+  --color-emerald:             #34d399;
+  --color-emerald-text:        #34d399;
+  --color-emerald-text-tag:    #6ee7b7;
+
+  /* ── Teal ── */
+  --color-teal-surface-muted:  rgba(20,184,166, 0.14);
+  --color-teal:                #2dd4bf;
+  --color-teal-text-tag:       #5eead4;
+
+  /* ── Chart palette (slightly brighter for dark backgrounds) ── */
+  --color-chart-1:   #5b9cf6;
+  --color-chart-2:   #a78bfa;
+  --color-chart-3:   #f472b6;
+  --color-chart-4:   #fbbf24;
+  --color-chart-5:   #34d399;
+  --color-chart-6:   #22d3ee;
+  --color-chart-7:   #f87171;
+  --color-chart-8:   #818cf8;
+  --color-chart-9:   #2dd4bf;
+  --color-chart-10:  #fb923c;
+
+  /* ── Chart axis / grid ── */
+  --color-chart-axis:          #c0c0c0;
+  --color-chart-grid:          #363636;
+  --color-chart-label:         #8a8a8a;
+  --color-chart-tick:          #666666;
+  --color-chart-fill:          #2a2a2a;
+
+  /* ── Progress ring palette ── */
+  --color-progress-high:       #4ade80;
+  --color-progress-mid:        #5b9cf6;
+  --color-progress-low:        #fbbf24;
+  --color-progress-critical:   #f87171;
+
+  /* ── Gradients ── */
+  --color-gradient-accent-from:     #5b9cf6;
+  --color-gradient-accent-to:       #4a8df0;
+  --color-gradient-brand-from:      #5b9cf6;
+  --color-gradient-brand-to:        #c084fc;
+  --color-gradient-violet-from:     #a78bfa;
+  --color-gradient-violet-to:       #818cf8;
+  --color-gradient-violet2-from:    #8b5cf6;
+  --color-gradient-violet2-to:      #a78bfa;
+  --color-gradient-purple-from:     #c084fc;
+  --color-gradient-purple-to:       #5b9cf6;
+  --color-gradient-surface-from:    #202020;
+  --color-gradient-surface-to:      #191919;
+  --color-gradient-fade-from:       rgba(25,25,25, 0.80);
+  --color-gradient-fade-to:         transparent;
+  --color-gradient-blue-from:       rgba(59,130,246, 0.20);
+  --color-gradient-blue-to:         rgba(59,130,246, 0.08);
+  --color-gradient-purple-card-from:rgba(168,85,247, 0.20);
+  --color-gradient-purple-card-to:  rgba(168,85,247, 0.08);
+  --color-gradient-green-from:      rgba(34,197,94, 0.20);
+  --color-gradient-green-to:        rgba(34,197,94, 0.08);
+  --color-gradient-orange-from:     rgba(249,115,22, 0.20);
+  --color-gradient-orange-to:       rgba(249,115,22, 0.08);
+  --color-gradient-pink-from:       rgba(236,72,153, 0.20);
+  --color-gradient-pink-to:         rgba(236,72,153, 0.08);
+  --color-gradient-cyan-from:       rgba(6,182,212, 0.20);
+  --color-gradient-cyan-to:         rgba(6,182,212, 0.08);
+
+  /* ── Shadows (darker for dark theme) ── */
+  --shadow-color: 0 0% 0%;
+  --shadow-sm:    0 1px 2px 0 hsl(var(--shadow-color) / .2);
+  --shadow-base:  0 1px 3px 0 hsl(var(--shadow-color) / .3), 0 1px 2px -1px hsl(var(--shadow-color) / .3);
+  --shadow-md:    0 4px 6px -1px hsl(var(--shadow-color) / .3), 0 2px 4px -2px hsl(var(--shadow-color) / .3);
+  --shadow-lg:    0 10px 15px -3px hsl(var(--shadow-color) / .35), 0 4px 6px -4px hsl(var(--shadow-color) / .35);
+  --shadow-xl:    0 20px 25px -5px hsl(var(--shadow-color) / .35), 0 8px 10px -6px hsl(var(--shadow-color) / .35);
+  --shadow-2xl:   0 25px 50px -12px hsl(var(--shadow-color) / .5);
+
+  /* ── Fill (SVG) ── */
+  --color-fill-primary:        #ececec;
+  --color-fill-secondary:      #666666;
+  --color-fill-body:           #c0c0c0;
+
+  /* ── Inline RGB legacy ── */
+  --color-toggle-on:           rgb(91, 156, 246);
+  --color-toggle-shadow:       rgba(0,0,0, 0.30);
+  --color-outline-active:      rgb(91, 156, 246);
+  --color-outline-inactive:    rgb(54, 54, 54);
+  --color-inset-success:       rgba(16,185,129, 0.35);
+  --color-marker-shadow:       rgba(0,0,0, 0.50);
+
+  /* ── Placeholder ── */
+  --color-placeholder:         #666666;
+
+  /* ── Slate ── */
+  --color-slate:               #6b7280;
+
+  /* ── Syntax highlighting tokens (dark) ── */
+  --syntax-keyword:            #ff7b72;   /* salmon — if/else/return/function */
+  --syntax-string:             #a5d6ff;   /* light blue — string literals */
+  --syntax-number:             #79c0ff;   /* blue — numeric literals */
+  --syntax-comment:            #8b949e;   /* muted gray — comments */
+  --syntax-function:           #d2a8ff;   /* lavender — function names */
+  --syntax-operator:           #ff7b72;   /* salmon — +, -, =, etc. */
+  --syntax-punctuation:        #c9d1d9;   /* light gray — brackets, commas */
+  --syntax-type:               #7ee787;   /* green — type names, classes */
+  --syntax-property:           #79c0ff;   /* blue — object keys, attrs */
+  --syntax-tag:                #7ee787;   /* green — HTML/XML tags */
+  --syntax-attribute:          #d2a8ff;   /* lavender — HTML attributes */
+  --syntax-variable:           #ffa657;   /* orange — variables, params */
+  --syntax-constant:           #79c0ff;   /* blue — true/false/null */
+  --syntax-regex:              #a5d6ff;   /* light blue — regex literals */
+  --syntax-decorator:          #ffa657;   /* orange — @decorators */
+  --syntax-builtin:            #79c0ff;   /* blue — built-in functions */
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   DBMS SOURCE COLOR THEMES
+   Full theme overrides per source — surfaces, borders, text accents, hovers.
+   JSON  = Blue sky      CSV = Warm amber/sand   
+   Mongo = Forest green   PG = Deep violet
+═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── JSON (Blue Sky) — light ───────────────────────────────────────────────── */
+[data-dbms-source="json"][data-theme="light"] {
+  --color-surface-primary:     #f8faff;
+  --color-surface-secondary:   #eef3ff;
+  --color-surface-tertiary:    #e2ebff;
+  --color-surface-muted:       #d4dfef;
+  --color-surface-strong:      #b8c9e0;
+
+  --color-line:                #d4dfef;
+  --color-line-light:          #e2ebff;
+  --color-line-medium:         #b8c9e0;
+  --color-line-strong:         #8fa4c4;
+  --color-line-faint:          #eef3ff;
+
+  --color-accent:              #3b82f6;
+  --color-accent-bold:         #2563eb;
+  --color-accent-bolder:       #1d4ed8;
+  --color-accent-soft:         #eff6ff;
+  --color-accent-soft2:        rgba(239,246,255, 0.50);
+  --color-accent-muted:        #dbeafe;
+  --color-accent-subtle:       #bfdbfe;
+  --color-accent-moderate:     #93c5fd;
+  --color-accent-vivid:        #60a5fa;
+  --color-accent-text:         #1d4ed8;
+  --color-accent-text-bold:    #1e40af;
+  --color-accent-text-bolder:  #1e3a8a;
+  --color-accent-text-light:   #2563eb;
+  --color-accent-text-soft:    #3b82f6;
+  --color-accent-text-faint:   #60a5fa;
+  --color-accent-border:       #3b82f6;
+  --color-accent-border-light: #60a5fa;
+  --color-accent-border-soft:  #93c5fd;
+  --color-accent-border-muted: #bfdbfe;
+
+  --color-hover-surface:       #eef3ff;
+  --color-hover-surface2:      #e2ebff;
+  --color-hover-surface3:      #d4dfef;
+  --color-hover-surface-accent:rgba(59,130,246, 0.08);
+  --color-hover-accent:        #2563eb;
+  --color-hover-accent-bold:   #1d4ed8;
+
+  --color-focus-border:        #60a5fa;
+  --color-focus-ring:          rgba(96,165,250, 0.30);
+  --color-ring-accent:         #60a5fa;
+
+  --color-gradient-accent-from:#93c5fd;
+  --color-gradient-accent-to:  #3b82f6;
+  --color-gradient-surface-from:#eef3ff;
+  --color-gradient-surface-to: #f8faff;
+}
+
+/* ── JSON (Blue Sky) — dark ────────────────────────────────────────────────── */
+[data-dbms-source="json"][data-theme="dark"] {
+  --color-surface-primary:     #0e1525;
+  --color-surface-secondary:   #141c30;
+  --color-surface-tertiary:    #1a253d;
+  --color-surface-muted:       #243050;
+  --color-surface-strong:      #2e3d63;
+
+  --color-line:                #243050;
+  --color-line-light:          #1a253d;
+  --color-line-medium:         #2e3d63;
+  --color-line-strong:         #3e5080;
+  --color-line-faint:          #161e32;
+
+  --color-accent:              #5b9cf6;
+  --color-accent-bold:         #4a8df0;
+  --color-accent-bolder:       #3b7ee6;
+  --color-accent-soft:         rgba(59,130,246, 0.12);
+  --color-accent-muted:        rgba(59,130,246, 0.20);
+  --color-accent-subtle:       rgba(59,130,246, 0.25);
+  --color-accent-moderate:     rgba(59,130,246, 0.35);
+  --color-accent-vivid:        #6ba6f8;
+  --color-accent-text:         #7cb6fa;
+  --color-accent-text-bold:    #6ba6f8;
+  --color-accent-text-bolder:  #5b9cf6;
+  --color-accent-text-light:   #8bc2fc;
+  --color-accent-text-soft:    #5b9cf6;
+  --color-accent-text-faint:   #6ba6f8;
+  --color-accent-border:       #5b9cf6;
+  --color-accent-border-light: #6ba6f8;
+  --color-accent-border-soft:  rgba(59,130,246, 0.40);
+  --color-accent-border-muted: rgba(59,130,246, 0.25);
+
+  --color-hover-surface:       #1a253d;
+  --color-hover-surface2:      #1f2d48;
+  --color-hover-surface3:      #243050;
+  --color-hover-surface-accent:rgba(59,130,246, 0.10);
+  --color-hover-accent:        #4a8df0;
+  --color-hover-accent-bold:   #3b7ee6;
+
+  --color-focus-border:        #5b9cf6;
+  --color-focus-ring:          rgba(91,156,246, 0.25);
+  --color-ring-accent:         #5b9cf6;
+
+  --color-gradient-accent-from:#5b9cf6;
+  --color-gradient-accent-to:  #4a8df0;
+  --color-gradient-surface-from:#141c30;
+  --color-gradient-surface-to: #0e1525;
+}
+
+/* ── CSV (Warm Amber / Sand) — light ──────────────────────────────────────── */
+[data-dbms-source="csv"][data-theme="light"] {
+  --color-surface-primary:     #fffdf7;
+  --color-surface-secondary:   #fef8eb;
+  --color-surface-tertiary:    #fdf1d6;
+  --color-surface-muted:       #f5e6c0;
+  --color-surface-strong:      #e8d4a0;
+
+  --color-line:                #f5e6c0;
+  --color-line-light:          #fdf1d6;
+  --color-line-medium:         #e8d4a0;
+  --color-line-strong:         #c9b27c;
+  --color-line-faint:          #fef8eb;
+
+  --color-accent:              #d97706;
+  --color-accent-bold:         #b45309;
+  --color-accent-bolder:       #92400e;
+  --color-accent-soft:         #fffbeb;
+  --color-accent-soft2:        rgba(255,251,235, 0.50);
+  --color-accent-muted:        #fef3c7;
+  --color-accent-subtle:       #fde68a;
+  --color-accent-moderate:     #fcd34d;
+  --color-accent-vivid:        #fbbf24;
+  --color-accent-text:         #92400e;
+  --color-accent-text-bold:    #78350f;
+  --color-accent-text-bolder:  #713f12;
+  --color-accent-text-light:   #b45309;
+  --color-accent-text-soft:    #d97706;
+  --color-accent-text-faint:   #f59e0b;
+  --color-accent-border:       #d97706;
+  --color-accent-border-light: #f59e0b;
+  --color-accent-border-soft:  #fbbf24;
+  --color-accent-border-muted: #fde68a;
+
+  --color-hover-surface:       #fef8eb;
+  --color-hover-surface2:      #fdf1d6;
+  --color-hover-surface3:      #f5e6c0;
+  --color-hover-surface-accent:rgba(217,119,6, 0.08);
+  --color-hover-accent:        #b45309;
+  --color-hover-accent-bold:   #92400e;
+
+  --color-focus-border:        #f59e0b;
+  --color-focus-ring:          rgba(245,158,11, 0.30);
+  --color-ring-accent:         #f59e0b;
+
+  --color-gradient-accent-from:#fcd34d;
+  --color-gradient-accent-to:  #d97706;
+  --color-gradient-surface-from:#fef8eb;
+  --color-gradient-surface-to: #fffdf7;
+}
+
+/* ── CSV (Warm Amber / Sand) — dark ───────────────────────────────────────── */
+[data-dbms-source="csv"][data-theme="dark"] {
+  --color-surface-primary:     #1a1408;
+  --color-surface-secondary:   #231c0e;
+  --color-surface-tertiary:    #2e2514;
+  --color-surface-muted:       #3d321c;
+  --color-surface-strong:      #504326;
+
+  --color-line:                #3d321c;
+  --color-line-light:          #2e2514;
+  --color-line-medium:         #504326;
+  --color-line-strong:         #665830;
+  --color-line-faint:          #261e10;
+
+  --color-accent:              #fbbf24;
+  --color-accent-bold:         #f59e0b;
+  --color-accent-bolder:       #d97706;
+  --color-accent-soft:         rgba(245,158,11, 0.12);
+  --color-accent-muted:        rgba(245,158,11, 0.20);
+  --color-accent-subtle:       rgba(245,158,11, 0.25);
+  --color-accent-moderate:     rgba(245,158,11, 0.35);
+  --color-accent-vivid:        #fcd34d;
+  --color-accent-text:         #fcd34d;
+  --color-accent-text-bold:    #fbbf24;
+  --color-accent-text-bolder:  #f59e0b;
+  --color-accent-text-light:   #fde68a;
+  --color-accent-text-soft:    #fbbf24;
+  --color-accent-text-faint:   #fcd34d;
+  --color-accent-border:       #fbbf24;
+  --color-accent-border-light: #fcd34d;
+  --color-accent-border-soft:  rgba(245,158,11, 0.40);
+  --color-accent-border-muted: rgba(245,158,11, 0.25);
+
+  --color-hover-surface:       #2e2514;
+  --color-hover-surface2:      #362c18;
+  --color-hover-surface3:      #3d321c;
+  --color-hover-surface-accent:rgba(245,158,11, 0.10);
+  --color-hover-accent:        #f59e0b;
+  --color-hover-accent-bold:   #d97706;
+
+  --color-focus-border:        #fbbf24;
+  --color-focus-ring:          rgba(251,191,36, 0.25);
+  --color-ring-accent:         #fbbf24;
+
+  --color-gradient-accent-from:#fbbf24;
+  --color-gradient-accent-to:  #f59e0b;
+  --color-gradient-surface-from:#231c0e;
+  --color-gradient-surface-to: #1a1408;
+}
+
+/* ── MongoDB (Forest Green) — light ───────────────────────────────────────── */
+[data-dbms-source="mongodb"][data-theme="light"] {
+  --color-surface-primary:     #f5fdf8;
+  --color-surface-secondary:   #e8f9ee;
+  --color-surface-tertiary:    #d4f3df;
+  --color-surface-muted:       #bee8ce;
+  --color-surface-strong:      #9ed8b4;
+
+  --color-line:                #bee8ce;
+  --color-line-light:          #d4f3df;
+  --color-line-medium:         #9ed8b4;
+  --color-line-strong:         #6fc090;
+  --color-line-faint:          #e8f9ee;
+
+  --color-accent:              #16a34a;
+  --color-accent-bold:         #15803d;
+  --color-accent-bolder:       #166534;
+  --color-accent-soft:         #f0fdf4;
+  --color-accent-soft2:        rgba(240,253,244, 0.50);
+  --color-accent-muted:        #dcfce7;
+  --color-accent-subtle:       #bbf7d0;
+  --color-accent-moderate:     #86efac;
+  --color-accent-vivid:        #4ade80;
+  --color-accent-text:         #166534;
+  --color-accent-text-bold:    #14532d;
+  --color-accent-text-bolder:  #052e16;
+  --color-accent-text-light:   #15803d;
+  --color-accent-text-soft:    #16a34a;
+  --color-accent-text-faint:   #22c55e;
+  --color-accent-border:       #16a34a;
+  --color-accent-border-light: #22c55e;
+  --color-accent-border-soft:  #4ade80;
+  --color-accent-border-muted: #86efac;
+
+  --color-hover-surface:       #e8f9ee;
+  --color-hover-surface2:      #d4f3df;
+  --color-hover-surface3:      #bee8ce;
+  --color-hover-surface-accent:rgba(22,163,74, 0.08);
+  --color-hover-accent:        #15803d;
+  --color-hover-accent-bold:   #166534;
+
+  --color-focus-border:        #22c55e;
+  --color-focus-ring:          rgba(34,197,94, 0.30);
+  --color-ring-accent:         #22c55e;
+
+  --color-gradient-accent-from:#86efac;
+  --color-gradient-accent-to:  #16a34a;
+  --color-gradient-surface-from:#e8f9ee;
+  --color-gradient-surface-to: #f5fdf8;
+
+  --color-success:             #16a34a;
+  --color-success-text:        #166534;
+}
+
+/* ── MongoDB (Forest Green) — dark ────────────────────────────────────────── */
+[data-dbms-source="mongodb"][data-theme="dark"] {
+  --color-surface-primary:     #091a10;
+  --color-surface-secondary:   #0e2316;
+  --color-surface-tertiary:    #142e1e;
+  --color-surface-muted:       #1e3d2a;
+  --color-surface-strong:      #2a5038;
+
+  --color-line:                #1e3d2a;
+  --color-line-light:          #142e1e;
+  --color-line-medium:         #2a5038;
+  --color-line-strong:         #376548;
+  --color-line-faint:          #112618;
+
+  --color-accent:              #4ade80;
+  --color-accent-bold:         #22c55e;
+  --color-accent-bolder:       #16a34a;
+  --color-accent-soft:         rgba(34,197,94, 0.12);
+  --color-accent-muted:        rgba(34,197,94, 0.20);
+  --color-accent-subtle:       rgba(34,197,94, 0.25);
+  --color-accent-moderate:     rgba(34,197,94, 0.35);
+  --color-accent-vivid:        #86efac;
+  --color-accent-text:         #86efac;
+  --color-accent-text-bold:    #4ade80;
+  --color-accent-text-bolder:  #22c55e;
+  --color-accent-text-light:   #bbf7d0;
+  --color-accent-text-soft:    #4ade80;
+  --color-accent-text-faint:   #86efac;
+  --color-accent-border:       #4ade80;
+  --color-accent-border-light: #86efac;
+  --color-accent-border-soft:  rgba(34,197,94, 0.40);
+  --color-accent-border-muted: rgba(34,197,94, 0.25);
+
+  --color-hover-surface:       #142e1e;
+  --color-hover-surface2:      #193623;
+  --color-hover-surface3:      #1e3d2a;
+  --color-hover-surface-accent:rgba(34,197,94, 0.10);
+  --color-hover-accent:        #22c55e;
+  --color-hover-accent-bold:   #16a34a;
+
+  --color-focus-border:        #4ade80;
+  --color-focus-ring:          rgba(74,222,128, 0.25);
+  --color-ring-accent:         #4ade80;
+
+  --color-gradient-accent-from:#4ade80;
+  --color-gradient-accent-to:  #22c55e;
+  --color-gradient-surface-from:#0e2316;
+  --color-gradient-surface-to: #091a10;
+}
+
+/* ── PostgreSQL (Deep Violet) — light ──────────────────────────────────────── */
+[data-dbms-source="postgresql"][data-theme="light"] {
+  --color-surface-primary:     #faf7ff;
+  --color-surface-secondary:   #f1ecff;
+  --color-surface-tertiary:    #e7deff;
+  --color-surface-muted:       #d9ccf7;
+  --color-surface-strong:      #c4b2ed;
+
+  --color-line:                #d9ccf7;
+  --color-line-light:          #e7deff;
+  --color-line-medium:         #c4b2ed;
+  --color-line-strong:         #a38fda;
+  --color-line-faint:          #f1ecff;
+
+  --color-accent:              #7c3aed;
+  --color-accent-bold:         #6d28d9;
+  --color-accent-bolder:       #5b21b6;
+  --color-accent-soft:         #f5f3ff;
+  --color-accent-soft2:        rgba(245,243,255, 0.50);
+  --color-accent-muted:        #ede9fe;
+  --color-accent-subtle:       #ddd6fe;
+  --color-accent-moderate:     #c4b5fd;
+  --color-accent-vivid:        #a78bfa;
+  --color-accent-text:         #5b21b6;
+  --color-accent-text-bold:    #4c1d95;
+  --color-accent-text-bolder:  #3b0764;
+  --color-accent-text-light:   #6d28d9;
+  --color-accent-text-soft:    #7c3aed;
+  --color-accent-text-faint:   #8b5cf6;
+  --color-accent-border:       #7c3aed;
+  --color-accent-border-light: #8b5cf6;
+  --color-accent-border-soft:  #a78bfa;
+  --color-accent-border-muted: #c4b5fd;
+
+  --color-hover-surface:       #f1ecff;
+  --color-hover-surface2:      #e7deff;
+  --color-hover-surface3:      #d9ccf7;
+  --color-hover-surface-accent:rgba(124,58,237, 0.08);
+  --color-hover-accent:        #6d28d9;
+  --color-hover-accent-bold:   #5b21b6;
+
+  --color-focus-border:        #8b5cf6;
+  --color-focus-ring:          rgba(139,92,246, 0.30);
+  --color-ring-accent:         #8b5cf6;
+
+  --color-gradient-accent-from:#c4b5fd;
+  --color-gradient-accent-to:  #7c3aed;
+  --color-gradient-surface-from:#f1ecff;
+  --color-gradient-surface-to: #faf7ff;
+}
+
+/* ── PostgreSQL (Deep Violet) — dark ───────────────────────────────────────── */
+[data-dbms-source="postgresql"][data-theme="dark"] {
+  --color-surface-primary:     #120e1e;
+  --color-surface-secondary:   #1a1429;
+  --color-surface-tertiary:    #231c38;
+  --color-surface-muted:       #30264a;
+  --color-surface-strong:      #3e3260;
+
+  --color-line:                #30264a;
+  --color-line-light:          #231c38;
+  --color-line-medium:         #3e3260;
+  --color-line-strong:         #503f7a;
+  --color-line-faint:          #1e1730;
+
+  --color-accent:              #a78bfa;
+  --color-accent-bold:         #8b5cf6;
+  --color-accent-bolder:       #7c3aed;
+  --color-accent-soft:         rgba(139,92,246, 0.12);
+  --color-accent-muted:        rgba(139,92,246, 0.20);
+  --color-accent-subtle:       rgba(139,92,246, 0.25);
+  --color-accent-moderate:     rgba(139,92,246, 0.35);
+  --color-accent-vivid:        #c4b5fd;
+  --color-accent-text:         #c4b5fd;
+  --color-accent-text-bold:    #a78bfa;
+  --color-accent-text-bolder:  #8b5cf6;
+  --color-accent-text-light:   #ddd6fe;
+  --color-accent-text-soft:    #a78bfa;
+  --color-accent-text-faint:   #c4b5fd;
+  --color-accent-border:       #a78bfa;
+  --color-accent-border-light: #c4b5fd;
+  --color-accent-border-soft:  rgba(139,92,246, 0.40);
+  --color-accent-border-muted: rgba(139,92,246, 0.25);
+
+  --color-hover-surface:       #231c38;
+  --color-hover-surface2:      #2a2240;
+  --color-hover-surface3:      #30264a;
+  --color-hover-surface-accent:rgba(139,92,246, 0.10);
+  --color-hover-accent:        #8b5cf6;
+  --color-hover-accent-bold:   #7c3aed;
+
+  --color-focus-border:        #a78bfa;
+  --color-focus-ring:          rgba(167,139,250, 0.25);
+  --color-ring-accent:         #a78bfa;
+
+  --color-gradient-accent-from:#a78bfa;
+  --color-gradient-accent-to:  #8b5cf6;
+  --color-gradient-surface-from:#1a1429;
+  --color-gradient-surface-to: #120e1e;
+}

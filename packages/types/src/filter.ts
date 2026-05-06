@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:04 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:07:05 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 /** Leaf operators */
-export type FilterOperator =
+export type DomainFilterOperator =
   | 'equals'
   | 'not_equals'
   | 'contains'
@@ -38,7 +38,7 @@ export interface FilterCondition {
   type: 'condition';
   id: string;
   propertyId: string;
-  operator: FilterOperator;
+  operator: DomainFilterOperator;
   value: unknown;
 }
 
@@ -57,16 +57,16 @@ export type FilterNode = FilterCondition | FilterGroup;
  * Legacy flat filter — kept for backward compatibility with existing frontend.
  * New code should use FilterNode (AST).
  */
-export interface Filter {
+export interface DomainFilter {
   id: string;
   propertyId: string;
-  operator: FilterOperator;
+  operator: DomainFilterOperator;
   value: unknown;
 }
 
 // ─── Sort ────────────────────────────────────────────────────────────────────
 
-export interface Sort {
+export interface DomainSort {
   id: string;
   propertyId: string;
   direction: 'asc' | 'desc';
@@ -74,12 +74,12 @@ export interface Sort {
 
 // ─── Grouping ────────────────────────────────────────────────────────────────
 
-export interface Grouping {
+export interface DomainGrouping {
   propertyId: string;
   hiddenGroups?: string[];
   sort?: 'alphabetical' | 'manual';
 }
 
-export interface SubGrouping {
+export interface DomainSubGrouping {
   propertyId: string;
 }

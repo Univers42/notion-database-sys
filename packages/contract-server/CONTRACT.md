@@ -14,7 +14,30 @@ All contract endpoints live under `/v1`.
 
 ## Auth
 
-No authentication exists in this version. Run the service only on a trusted development network.
+All `/v1/*` contract endpoints require a token when the service runs with `CONTRACT_SERVER_AUTH=required`:
+
+```http
+Authorization: Bearer <token>
+```
+
+The reference contract-server verifies HS256 JWTs with `CONTRACT_SERVER_JWT_SECRET`. Production deployments may replace that validation with RS256 or another verifier as long as the wire format stays `Authorization: Bearer <token>`.
+
+Minimum token claims:
+
+```json
+{
+  "sub": "subject-id",
+  "iat": 1778080000,
+  "exp": 1778083600,
+  "scope": { "databases": ["db-tasks"] }
+}
+```
+
+Use `scope.databases: ["*"]` for unrestricted access. Scoped tokens only see allowed databases. `findPages` for a denied database returns an empty array rather than leaking database existence.
+
+When `CONTRACT_SERVER_AUTH=disabled`, auth is bypassed for local development only.
+
+Browser `EventSource` cannot send `Authorization` headers. `/v1/subscribe` therefore also accepts `?token=<jwt>` as an SSE-only workaround. Tokens in URLs can leak to browser history, proxies, and logs; prefer an EventSource implementation with header support when possible.
 
 ## Versioning
 
@@ -26,6 +49,12 @@ Errors are JSON:
 
 ```json
 { "error": "Page p1 not found", "code": "OPTIONAL_CODE" }
+```
+
+Auth failures return 401:
+
+```json
+{ "error": "Token expired", "code": "AUTH_EXPIRED" }
 ```
 
 Validation errors use Fastify's standard 4xx status. Unexpected errors return 500.
@@ -100,6 +129,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/loadState \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{}'
 ```
@@ -122,6 +152,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/findPages \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"databaseId":"db-tasks","limit":5}'
 ```
@@ -142,6 +173,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/getPage \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"id":"task-1"}'
 ```
@@ -173,6 +205,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/insertPage \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"databaseId":"db-tasks","page":{"databaseId":"db-tasks","properties":{"prop-title":"New task"},"content":[],"createdAt":"2026-05-06T00:00:00.000Z","updatedAt":"2026-05-06T00:00:00.000Z","createdBy":"Contract Server","lastEditedBy":"Contract Server"}}'
 ```
@@ -193,6 +226,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/patchPage \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"id":"task-1","changes":{"prop-status":"Done"}}'
 ```
@@ -217,6 +251,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/deletePage \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"id":"task-1"}'
 ```
@@ -243,6 +278,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/addProperty \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"databaseId":"db-tasks","property":{"id":"prop-new","name":"New","type":"text"}}'
 ```
@@ -267,6 +303,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/removeProperty \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"databaseId":"db-tasks","propertyId":"prop-new"}'
 ```
@@ -291,6 +328,7 @@ Example:
 
 ```bash
 curl -X POST http://localhost:4100/v1/changePropertyType \
+  -H 'Authorization: Bearer <token>' \
   -H 'Content-Type: application/json' \
   -d '{"databaseId":"db-tasks","propertyId":"prop-new","newType":"number"}'
 ```
@@ -301,25 +339,25 @@ curl -X POST http://localhost:4100/v1/changePropertyType \
 
 Content-Type: `text/event-stream`
 
-Streams `ChangeEvent` JSON objects, one per SSE message. The client receives all events from the entire service — no per-database filtering in this version.
+Streams `ChangeEvent` JSON objects, one per SSE message. The server filters events through the token's `scope.databases`. `state-replaced` events have no database id and are delivered to every authenticated subscriber.
 
 Example:
 
 ```bash
-curl -N http://localhost:4100/v1/subscribe
+curl -N -H 'Authorization: Bearer <token>' http://localhost:4100/v1/subscribe
 ```
 
 Event payloads:
 
 ```json
-{ "type": "page-changed", "pageId": "task-1", "changes": { "prop-status": "Done" } }
+{ "type": "page-changed", "pageId": "task-1", "databaseId": "db-tasks", "changes": { "prop-status": "Done" } }
 ```
 
-Reconnection: the browser's `EventSource` auto-reconnects on network errors. Events that occurred during the disconnect are NOT replayed. Clients should call `loadState()` on reconnect to resync. `RemoteAdapter` handles this automatically by emitting a synthetic `state-replaced` event after detecting reconnect.
+Reconnection: each SSE message includes an `id: ${processStartMs}-${counter}` field. Browsers send `Last-Event-ID` on reconnect; the server replays buffered events newer than that id. If the cursor is too old or from a prior process start, the server sends `state-replaced`.
 
 Keep-alive: the server sends a `: ping\n\n` comment every 15 seconds to prevent proxy timeouts.
 
-Backpressure: the server uses an unbounded `EventEmitter`. A slow client cannot block other clients because each has its own response stream, but a slow client can accumulate buffered events in the TCP send buffer until the OS rejects writes. Future versions will add per-client backpressure handling.
+Backpressure: if a client's response stream stays backed up for 5 seconds, the server closes that connection. The client reconnects and catches up via replay or receives `state-replaced` if the gap is too large.
 
 ## DocFilter operators
 

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ export interface PageLike {
   [key: string]: unknown;
 }
 
-export interface NotionState {
+export interface FileWatcherState {
   databases: Record<string, unknown>;
   pages: Record<string, PageLike>;
   views: Record<string, unknown>;

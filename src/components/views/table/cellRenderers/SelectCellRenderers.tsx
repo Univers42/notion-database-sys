@@ -13,7 +13,7 @@
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import { SelectEditor, MultiSelectEditor } from '../SelectEditors';
-import { StatusCellEditor } from '../../../cellEditors';
+import { StatusCellEditor } from '../../../cellEditors/index';
 import { cn } from '../../../../utils/cn';
 
 /** Renders a single-select cell with a portal-based dropdown editor. */

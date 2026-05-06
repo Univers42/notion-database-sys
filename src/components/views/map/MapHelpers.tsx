@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { MapPin, Plus, FileText, Layers } from 'lucide-react';
-import L from 'leaflet';
+import type * as Leaflet from 'leaflet';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { cn } from '../../../utils/cn';
 
@@ -39,8 +39,8 @@ export const MARKER_COLORS: Record<string, string> = {
 };
 
 /** Creates a Leaflet divIcon with a colored circular marker and pin SVG. */
-export function makeColorIcon(color: string) {
-  return L.divIcon({
+export function makeColorIcon(leaflet: Pick<typeof Leaflet, 'divIcon'>, color: string): Leaflet.DivIcon {
+  return leaflet.divIcon({
     className: '',
     html: `<div style="
       width:28px;height:28px;border-radius:50%;background:${color};

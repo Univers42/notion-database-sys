@@ -9,10 +9,21 @@ Phase 1 extracts a structural component shell around the existing app. The curre
 - `RemoteAdapter` speaks the locked ObjectDatabase adapter contract over HTTP to any contract-compliant `/v1/*` service.
 
 ```tsx
-<ObjectDatabase adapter={new RemoteAdapter('https://my-backend.example.com')} />
+<ObjectDatabase adapter={new RemoteAdapter({ baseUrl: 'https://my-backend.example.com', token })} />
 ```
 
 `RemoteAdapter` implements `subscribe` with SSE. When `<ObjectDatabase />` mounts with a `RemoteAdapter`, it automatically listens to `/v1/subscribe`; remote page events patch local state, schema events reload state, and reconnects trigger a synthetic `state-replaced` resync.
+
+For authenticated contract servers, pass either a token string or an async token getter:
+
+```tsx
+const adapter = new RemoteAdapter({
+  baseUrl: 'https://my-backend.example.com',
+  token: async () => getFreshAccessToken(),
+});
+```
+
+HTTP requests use `Authorization: Bearer <token>`. Browser SSE connections pass the token as `/v1/subscribe?token=<jwt>` because native `EventSource` cannot set headers; prefer an EventSource implementation with header support when available.
 
 ## Current dev workflow
 

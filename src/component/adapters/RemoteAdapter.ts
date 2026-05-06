@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:24:16 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,16 @@ type OkResponse = {
   ok: true;
 };
 
+/** Token value or async token getter used by RemoteAdapter authentication. */
+export type RemoteAdapterToken = string | (() => Promise<string>);
+
+/** RemoteAdapter constructor options. */
+export type RemoteAdapterOptions = {
+  baseUrl: string;
+  token?: RemoteAdapterToken;
+  fetch?: typeof globalThis.fetch;
+};
+
 /**
  * Speaks the ObjectDatabaseAdapter contract over HTTP to a /v1/* contract-server.
  * Backend-agnostic — the service decides whether Mongo, Postgres, or Trino is behind it.
@@ -37,11 +47,28 @@ type OkResponse = {
  * Realtime subscribe uses the contract-server's SSE endpoint at /v1/subscribe.
  */
 export class RemoteAdapter implements ObjectDatabaseAdapter {
+  private readonly baseUrl: string;
+
+  private readonly fetch: typeof globalThis.fetch;
+
+  private readonly token?: RemoteAdapterToken;
+
+  private lastSeenEventId: string | null = null;
+
   /** Creates a remote adapter targeting a contract-compliant HTTP service. */
   constructor(
-    private readonly baseUrl: string,
-    private readonly fetch: typeof globalThis.fetch = globalThis.fetch,
-  ) { }
+    options: RemoteAdapterOptions | string,
+    legacyFetch: typeof globalThis.fetch = globalThis.fetch,
+  ) {
+    if (typeof options === 'string') {
+      this.baseUrl = options;
+      this.fetch = legacyFetch;
+      return;
+    }
+    this.baseUrl = options.baseUrl;
+    this.fetch = options.fetch ?? globalThis.fetch;
+    this.token = options.token;
+  }
 
   /** Loads the complete contract state from /v1/loadState. */
   async loadState(): Promise<NotionState> {
@@ -95,44 +122,53 @@ export class RemoteAdapter implements ObjectDatabaseAdapter {
   /** Subscribes to every ChangeEvent streamed by the remote contract service. */
   subscribe(callback: (event: ChangeEvent) => void): () => void {
     const endpointPath = '/v1/subscribe';
-    const url = `${this.baseUrl.replace(/\/+$/, '')}${endpointPath}`;
     const EventSourceCtor = globalThis.EventSource;
     if (!EventSourceCtor) {
       throw new AdapterError('EventSource is not available in this runtime', 0, endpointPath, 'EVENTSOURCE_UNAVAILABLE');
     }
 
-    let firstOpen = true;
-    const source = new EventSourceCtor(url);
+    let closed = false;
+    let source: EventSource | null = null;
 
-    source.addEventListener('open', () => {
-      if (!firstOpen) callback({ type: 'state-replaced' });
-      firstOpen = false;
-    });
+    void this.resolveToken().then((token) => {
+      if (closed) return;
+      source = new EventSourceCtor(this.subscribeUrl(endpointPath, token));
 
-    source.addEventListener('message', (event: MessageEvent<string>) => {
-      try {
-        callback(JSON.parse(event.data) as ChangeEvent);
-      } catch {
-        // Ignore malformed events so a single bad payload cannot crash the host.
-      }
-    });
+      source.addEventListener('open', () => {
+        // EventSource automatically sends Last-Event-ID on reconnect.
+        // The server either replays missed events or emits state-replaced on gaps.
+      });
 
-    source.addEventListener('error', () => {
-      // EventSource auto-reconnects; the next post-initial open emits state-replaced.
-    });
+      source.addEventListener('message', (event: MessageEvent<string>) => {
+        try {
+          this.lastSeenEventId = event.lastEventId || this.lastSeenEventId;
+          callback(JSON.parse(event.data) as ChangeEvent);
+        } catch {
+          // Ignore malformed events so a single bad payload cannot crash the host.
+        }
+      });
 
-    return () => source.close();
+      source.addEventListener('error', () => {
+        // EventSource auto-reconnects; the server decides whether replay or state-replaced is needed.
+      });
+    }).catch(() => undefined);
+
+    return () => {
+      closed = true;
+      source?.close();
+    };
   }
 
-  private async request<T>(path: string, body: unknown): Promise<T> {
+  private async request<T>(path: string, body: unknown, retry = true): Promise<T> {
     const endpointPath = `/v1/${path.replace(/^\/+/, '')}`;
     const url = `${this.baseUrl.replace(/\/+$/, '')}${endpointPath}`;
     let response: Response;
+    const token = await this.resolveToken();
 
     try {
       response = await this.fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.jsonHeaders(token),
         body: JSON.stringify(body),
       });
     } catch (error) {
@@ -140,6 +176,9 @@ export class RemoteAdapter implements ObjectDatabaseAdapter {
     }
 
     const payload = await parseJsonResponse(response, endpointPath);
+    if (response.status === 401 && retry && typeof this.token === 'function') {
+      return this.request<T>(path, body, false);
+    }
     if (!response.ok) {
       const errorPayload = isErrorPayload(payload) ? payload : {};
       throw new AdapterError(
@@ -151,6 +190,24 @@ export class RemoteAdapter implements ObjectDatabaseAdapter {
     }
 
     return payload as T;
+  }
+
+  private async resolveToken(): Promise<string | undefined> {
+    if (!this.token) return undefined;
+    if (typeof this.token === 'string') return this.token;
+    return this.token();
+  }
+
+  private jsonHeaders(token: string | undefined): HeadersInit {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return headers;
+  }
+
+  private subscribeUrl(endpointPath: string, token: string | undefined): string {
+    const url = new URL(`${this.baseUrl.replace(/\/+$/, '')}${endpointPath}`);
+    if (token) url.searchParams.set('token', token);
+    return url.toString();
   }
 }
 

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:32:35 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:24:11 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,8 @@ const crmAdapter = new InMemoryAdapter(createCrmState());
 export function TwoObjectDatabaseInstancesSmoke() {
   const [taskEvents, setTaskEvents] = useState(0);
   const [remoteUrl, setRemoteUrl] = useState('http://localhost:4100');
-  const remoteAdapterOne = useMemo(() => new RemoteAdapter(remoteUrl), [remoteUrl]);
-  const remoteAdapterTwo = useMemo(() => new RemoteAdapter(remoteUrl), [remoteUrl]);
+  const remoteAdapterOne = useMemo(() => new RemoteAdapter({ baseUrl: remoteUrl }), [remoteUrl]);
+  const remoteAdapterTwo = useMemo(() => new RemoteAdapter({ baseUrl: remoteUrl }), [remoteUrl]);
 
   useEffect(() => tasksAdapter.subscribe((event) => {
     if (event.type === 'page-changed') setTaskEvents(count => count + 1);

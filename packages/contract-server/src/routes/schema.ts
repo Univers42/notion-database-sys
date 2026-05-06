@@ -6,12 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:24:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
 import { PROPERTY_TYPES, type PropertyType, type SchemaProperty } from '@notion-db/contract-types';
+import { assertDatabaseAccess, type AuthenticatedUser } from '../auth';
 import { emitChange } from '../events/emitter';
 import type { MetaState, OkResponse } from '../serverTypes';
 import { loadMeta } from './pageStorage';
@@ -39,7 +40,7 @@ export async function registerSchemaRoutes(app: FastifyInstance): Promise<void> 
       },
     },
   }, async (request): Promise<OkResponse> => {
-    await addProperty(app, request.body.databaseId, request.body.property);
+    await addProperty(app, request.body.databaseId, request.body.property, request.user);
     return { ok: true };
   });
 
@@ -53,7 +54,7 @@ export async function registerSchemaRoutes(app: FastifyInstance): Promise<void> 
       },
     },
   }, async (request): Promise<OkResponse> => {
-    await removeProperty(app, request.body.databaseId, request.body.propertyId);
+    await removeProperty(app, request.body.databaseId, request.body.propertyId, request.user);
     return { ok: true };
   });
 
@@ -71,13 +72,19 @@ export async function registerSchemaRoutes(app: FastifyInstance): Promise<void> 
       },
     },
   }, async (request): Promise<OkResponse> => {
-    await changePropertyType(app, request.body.databaseId, request.body.propertyId, request.body.newType);
+    await changePropertyType(app, request.body.databaseId, request.body.propertyId, request.body.newType, request.user);
     return { ok: true };
   });
 }
 
 /** Adds one schema property to the _meta collection. */
-export async function addProperty(app: FastifyInstance, databaseId: string, property: SchemaProperty): Promise<void> {
+export async function addProperty(
+  app: FastifyInstance,
+  databaseId: string,
+  property: SchemaProperty,
+  user?: AuthenticatedUser,
+): Promise<void> {
+  assertDatabaseAccess(user, databaseId);
   const meta = await loadMeta(app.mongo);
   const database = meta.databases[databaseId];
   if (!database) throw new Error(`Unknown databaseId: ${databaseId}`);
@@ -95,7 +102,13 @@ export async function addProperty(app: FastifyInstance, databaseId: string, prop
 }
 
 /** Removes one schema property from the _meta collection. */
-export async function removeProperty(app: FastifyInstance, databaseId: string, propertyId: string): Promise<void> {
+export async function removeProperty(
+  app: FastifyInstance,
+  databaseId: string,
+  propertyId: string,
+  user?: AuthenticatedUser,
+): Promise<void> {
+  assertDatabaseAccess(user, databaseId);
   await loadMeta(app.mongo);
   await app.mongo.collection<MetaState>('_meta').updateOne(
     { _id: 'notion-state' },
@@ -113,7 +126,9 @@ export async function changePropertyType(
   databaseId: string,
   propertyId: string,
   newType: PropertyType,
+  user?: AuthenticatedUser,
 ): Promise<void> {
+  assertDatabaseAccess(user, databaseId);
   await loadMeta(app.mongo);
   await app.mongo.collection<MetaState>('_meta').updateOne(
     { _id: 'notion-state' },

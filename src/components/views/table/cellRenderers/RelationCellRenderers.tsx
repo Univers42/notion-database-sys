@@ -13,7 +13,7 @@
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import type { PropertyValue } from '../../../../types/database';
-import { RelationCellEditor } from '../../../cellEditors';
+import { RelationCellEditor } from '../../../cellEditors/index';
 import { ArrowUpRight, Sigma } from 'lucide-react';
 import { cn } from '../../../../utils/cn';
 import { safeString } from '../../../../utils/safeString';

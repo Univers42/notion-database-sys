@@ -11,7 +11,8 @@
 /* ************************************************************************** */
 
 import { create } from 'zustand';
-import type { DbSourceType } from '../../docker/services/dbms/types.ts';
+
+export type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
 
 const VALID_SOURCES = new Set<string>(['json', 'csv', 'mongodb', 'postgresql']);
 

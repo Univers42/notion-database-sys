@@ -1,0 +1,58 @@
+{
+  "name": "@notion-db/object-database",
+  "version": "0.1.0",
+  "description": "Embeddable Notion-style object database React component.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./theme.css": "./theme.css"
+  },
+  "files": [
+    "dist",
+    "theme.css",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": [
+    "./theme.css"
+  ],
+  "scripts": {
+    "build": "pnpm run copy:theme && tsup && node scripts/write-dts-map.mjs",
+    "copy:theme": "cp ../../src/theme.css ./theme.css",
+    "test:consumer": "pnpm run build && tsc --project __test_consumer__/tsconfig.json && node __test_consumer__/dist/render.js",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@notion-db/contract-types": "workspace:*"
+  },
+  "peerDependencies": {
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-slot": "^1.2.4",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "katex": "^0.16.44",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.546.0",
+    "mermaid": "^11.13.0",
+    "motion": "^12.23.24",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.0 || ^3.0.0",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.1.14",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tsup": "^8.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2"
+  }
+}

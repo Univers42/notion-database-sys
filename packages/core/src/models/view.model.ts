@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:05:34 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:05:35 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { Schema, model, type Document } from 'mongoose';
-import type { ViewConfig } from '@notion-db/types';
+import type { DomainViewConfig } from '@notion-db/types';
 
-export type ViewConfigDocument = Omit<ViewConfig, '_id'> & Document;
+export type ViewConfigDocument = Omit<DomainViewConfig, '_id'> & Document;
 
 const _filterConditionSchema = new Schema({
   type: { type: String, enum: ['condition'], required: true },

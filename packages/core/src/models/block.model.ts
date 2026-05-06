@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:04:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:04:44 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 // Tree structure via parentBlockId. Ordering via fractional index string.
 
 import { Schema, model, type Document } from 'mongoose';
-import type { Block } from '@notion-db/types';
+import type { DomainBlock } from '@notion-db/types';
 
-export type BlockDocument = Omit<Block, '_id'> & Document;
+export type BlockDocument = Omit<DomainBlock, '_id'> & Document;
 
 const blockSchema = new Schema({
   pageId: { type: Schema.Types.ObjectId, required: true, ref: 'Page', index: true },

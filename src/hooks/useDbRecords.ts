@@ -13,8 +13,7 @@
 import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/useDatabaseStore';
 import type { ExtendedDatabaseState } from '../store/useDatabaseStore';
-import { useDbSource } from './useDbSource.ts';
-import type { DbSourceType } from '../../docker/services/dbms/types.ts';
+import { useDbSource, type DbSourceType } from './useDbSource';
 
 interface UseDbRecordsResult {
   /** The active database source. */

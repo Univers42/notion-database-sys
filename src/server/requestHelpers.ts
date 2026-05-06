@@ -1,7 +1,7 @@
 /** @file requestHelpers.ts — Request body parsing & shared extraction helpers. */
 
 import type { Connect } from 'vite';
-import type { DbSourceType, SchemaProp, PageLike, NotionState } from './dbmsTypes';
+import type { DbSourceType, SchemaProp, PageLike, DbmsNotionState } from './dbmsTypes';
 import { isLiveDbSource, readState } from './stateManager';
 import { convertValueToDisplay } from './optionConversion';
 import { resolveFlatId } from './flatFileSync';
@@ -62,7 +62,7 @@ export function resolveOpsDeleteId(
 
 /** Apply database/page/view patches to a state object. */
 export function applyStatePatch(
-  body: Record<string, unknown>, state: NotionState, includePages: boolean,
+  body: Record<string, unknown>, state: DbmsNotionState, includePages: boolean,
 ): void {
   if (body.databases) state.databases = body.databases as Record<string, unknown>;
   if (includePages && body.pages) state.pages = body.pages as Record<string, unknown>;

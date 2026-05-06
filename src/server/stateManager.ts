@@ -2,7 +2,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { DbSourceType, NotionState, SchemaProp } from './dbmsTypes';
+import type { DbSourceType, DbmsNotionState, SchemaProp } from './dbmsTypes';
 import { SOURCE_DIR, STATE_FILE, FIELD_MAP_FILE } from './dbmsTypes';
 import { markOwnWrite } from './fileWatcher';
 import { atomicWriteSync } from './atomicWrite';
@@ -14,7 +14,7 @@ import { mongoLoadPages } from './db/mongoLoader';
 /** Active source — persists across requests in the Vite process. */
 let activeSource: DbSourceType = (process.env.ACTIVE_DB_SOURCE as DbSourceType) ?? 'json';
 
-let liveCache: NotionState | null = null;
+let liveCache: DbmsNotionState | null = null;
 let liveCacheSource: DbSourceType | null = null;
 
 /** Returns the currently active DBMS source type. */
@@ -47,15 +47,15 @@ export function fieldMapPath(source: DbSourceType): string {
   return join(SOURCE_DIR[source], FIELD_MAP_FILE);
 }
 
-export function readState(source: DbSourceType): NotionState {
+export function readState(source: DbSourceType): DbmsNotionState {
   const p = statePath(source);
   if (!existsSync(p)) {
     throw new Error(`State file not found for source "${source}": ${p}`);
   }
-  return JSON.parse(readFileSync(p, 'utf-8')) as NotionState;
+  return JSON.parse(readFileSync(p, 'utf-8')) as DbmsNotionState;
 }
 
-export function writeState(source: DbSourceType, state: NotionState): void {
+export function writeState(source: DbSourceType, state: DbmsNotionState): void {
   const p = statePath(source);
   markOwnWrite(p);
   atomicWriteSync(p, JSON.stringify(state, null, 2));
@@ -92,7 +92,7 @@ export function mergeLivePage(
 
 /** Load pages from the live DB, merging with the seed state for schemas/views.
  *  Falls back to seed state if the container is unreachable. */
-async function loadLiveState(source: DbSourceType): Promise<NotionState> {
+async function loadLiveState(source: DbSourceType): Promise<DbmsNotionState> {
   const seed = readState(source);
   const fieldMaps = readFieldMap(source);
   let livePages: Record<string, Record<string, unknown>> | null = null;
@@ -117,7 +117,7 @@ async function loadLiveState(source: DbSourceType): Promise<NotionState> {
 }
 
 /** Get state for any source — uses in-memory cache for live DB sources. */
-export async function getEffectiveState(source: DbSourceType): Promise<NotionState> {
+export async function getEffectiveState(source: DbSourceType): Promise<DbmsNotionState> {
   if (!isLiveDbSource(source)) return readState(source);
   if (liveCache && liveCacheSource === source) return liveCache;
   const state = await loadLiveState(source);

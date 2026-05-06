@@ -6,11 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:07:32 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:06 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-export type PropertyType =
+/** Domain property type literals for persisted workspace models. */
+export type DomainPropertyType =
   | 'title'
   | 'text'
   | 'number'
@@ -39,20 +40,23 @@ export type PropertyType =
   | 'due_date'
   | 'custom';
 
-export interface SelectOption {
+/** Domain select/status option metadata. */
+export interface DomainSelectOption {
   id: string;
   value: string;
   color: string;
 }
 
-export interface StatusGroup {
+/** Domain status group metadata. */
+export interface DomainStatusGroup {
   id: string;
   label: string;
   color: string;
   optionIds: string[];
 }
 
-export interface FileAttachment {
+/** Domain file attachment metadata. */
+export interface DomainFileAttachment {
   id: string;
   name: string;
   url: string;
@@ -60,23 +64,27 @@ export interface FileAttachment {
   size?: number;
 }
 
-export interface ButtonConfig {
+/** Domain button property behavior configuration. */
+export interface DomainButtonConfig {
   label: string;
   action: 'open_url' | 'copy' | 'notify';
   url?: string;
 }
 
-export interface PlaceValue {
+/** Domain place property value. */
+export interface DomainPlaceValue {
   address: string;
   lat?: number;
   lng?: number;
 }
 
-export interface FormulaConfig {
+/** Domain formula expression configuration. */
+export interface DomainFormulaConfig {
   expression: string;
 }
 
-export type RollupFunction =
+/** Domain rollup aggregation function literals. */
+export type DomainRollupFunction =
   | 'show_original'
   | 'show_unique'
   | 'count_all'
@@ -94,23 +102,27 @@ export type RollupFunction =
   | 'range'
   | 'count';
 
-export type RollupDisplayAs = 'number' | 'bar' | 'ring';
+/** Domain rollup display mode literals. */
+export type DomainRollupDisplayAs = 'number' | 'bar' | 'ring';
 
-export interface RollupConfig {
+/** Domain rollup property configuration. */
+export interface DomainRollupConfig {
   relationPropertyId: string;
   targetPropertyId: string;
-  function: RollupFunction;
-  displayAs?: RollupDisplayAs;
+  function: DomainRollupFunction;
+  displayAs?: DomainRollupDisplayAs;
 }
 
-export interface RelationConfig {
+/** Domain relation property configuration. */
+export interface DomainRelationConfig {
   databaseId: string;
   type: 'one_way' | 'two_way';
   reversePropertyId?: string;
   limit?: number;
 }
 
-export interface CustomFieldConfig {
+/** Domain custom field configuration. */
+export interface DomainCustomFieldConfig {
   dataType: 'string' | 'integer' | 'float' | 'boolean' | 'timestamp' | 'json';
   defaultValue?: unknown;
   precision?: number;

@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 
 export type DbSourceType = 'json' | 'csv' | 'mongodb' | 'postgresql';
 
-export interface NotionState {
+export interface DbmsNotionState {
   databases: Record<string, unknown>;
   pages: Record<string, unknown>;
   views: Record<string, unknown>;

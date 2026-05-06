@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { readFileSync } from 'node:fs';
 import { safeString } from '../utils/safeString';
-import type { Changeset, NotionState, PageLike } from './fileWatcher.types';
+import type { Changeset, FileWatcherState, PageLike } from './fileWatcher.types';
 
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
@@ -52,7 +52,7 @@ function invertMap(fmap: Record<string, string>): Record<string, string> {
 
 /** Find a page matching a flat record ID within a specific database. */
 function findPageByFlatId(
-  state: NotionState, dbId: string, flatId: string,
+  state: FileWatcherState, dbId: string, flatId: string,
   fieldMap: Record<string, string>,
 ): PageLike | undefined {
   return Object.values(state.pages).find((p) => {
@@ -86,7 +86,7 @@ function applyFlatChanges(
 
 /** Read flat JSON records and merge back into the state pages. */
 export function syncJsonToState(
-  filePath: string, dbId: string, state: NotionState,
+  filePath: string, dbId: string, state: FileWatcherState,
   fieldMap: Record<string, string>,
 ): Changeset {
   const inv = invertMap(fieldMap);
@@ -117,7 +117,7 @@ function coerceCsvValue(flatValue: string, currentVal: unknown): unknown {
 
 /** Read flat CSV records and merge back into the state pages. */
 export function syncCsvToState(
-  filePath: string, dbId: string, state: NotionState,
+  filePath: string, dbId: string, state: FileWatcherState,
   fieldMap: Record<string, string>,
 ): Changeset {
   const inv = invertMap(fieldMap);

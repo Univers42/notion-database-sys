@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:05:01 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:05:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:01 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { Schema, model, type Document } from 'mongoose';
-import type { Page } from '@notion-db/types';
+import type { DomainPage } from '@notion-db/types';
 
-export type PageDocument = Omit<Page, '_id'> & Document;
+export type PageDocument = Omit<DomainPage, '_id'> & Document;
 
 const pageSchema = new Schema({
   workspaceId: { type: Schema.Types.ObjectId, required: true, ref: 'Workspace', index: true },

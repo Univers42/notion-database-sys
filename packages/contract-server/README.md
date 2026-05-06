@@ -17,6 +17,8 @@ Default URL: `http://localhost:4100`.
 ```dotenv
 CONTRACT_SERVER_HOST=0.0.0.0
 CONTRACT_SERVER_PORT=4100
+CONTRACT_SERVER_AUTH=disabled
+CONTRACT_SERVER_JWT_SECRET=dev-contract-secret
 MONGO_USER=notion_user
 MONGO_PASSWORD=notion_pass
 MONGO_HOST=localhost
@@ -25,6 +27,20 @@ MONGO_DB=notion_db
 ```
 
 `MONGO_URI` can override the individual Mongo variables.
+
+## Authentication
+
+Local development defaults to `CONTRACT_SERVER_AUTH=disabled`, so `/v1/*` behaves like the reference implementation.
+
+Set `CONTRACT_SERVER_AUTH=required` and `CONTRACT_SERVER_JWT_SECRET=<shared-secret>` to require `Authorization: Bearer <token>` on every `/v1/*` request. The reference implementation verifies HS256 JWTs with claims:
+
+```json
+{ "sub": "user-id", "iat": 1778080000, "exp": 1778083600, "scope": { "databases": ["db-tasks"] } }
+```
+
+Use `scope.databases: ["*"]` for unrestricted access. Scoped tokens only see allowed databases; `findPages` for a denied database returns an empty array.
+
+Browser `EventSource` cannot send custom headers, so `RemoteAdapter` passes the token to `/v1/subscribe?token=<jwt>`. URLs can appear in proxy/server logs; prefer an EventSource implementation with header support where available.
 
 ## Seeding
 
@@ -53,5 +69,7 @@ curl http://localhost:4100/health
 curl -X POST http://localhost:4100/v1/loadState -H 'Content-Type: application/json' -d '{}'
 curl -X POST http://localhost:4100/v1/findPages -H 'Content-Type: application/json' -d '{"databaseId":"db-tasks","limit":5}'
 ```
+
+When `CONTRACT_SERVER_AUTH=required`, add `-H 'Authorization: Bearer <token>'` to each `/v1/*` request.
 
 See [CONTRACT.md](CONTRACT.md) for the wire format.

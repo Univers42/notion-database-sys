@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:52 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:00:59 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 
 import type { Timestamps, SoftDeletable } from './common.js';
 
-export type BlockType =
+/** Domain block type literals for persisted block documents. */
+export type DomainBlockType =
   | 'paragraph'
   | 'heading_1'
   | 'heading_2'
@@ -58,12 +59,12 @@ export type BlockType =
  * Parent reference via `pageId` + `parentBlockId` enables tree traversal.
  * `order` is a fractional index (e.g. "a0", "a1") for efficient reordering.
  */
-export interface Block extends Timestamps, SoftDeletable {
+export interface DomainBlock extends Timestamps, SoftDeletable {
   _id: string;
   pageId: string;
   workspaceId: string;
   parentBlockId?: string;
-  type: BlockType;
+  type: DomainBlockType;
   content: string;
   order: string;
 

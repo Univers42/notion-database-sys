@@ -13,32 +13,20 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import type * as Leaflet from 'leaflet';
 import { MARKER_COLORS, makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar, type MappablePage } from './MapHelpers';
 import { cn } from '../../../utils/cn';
 
-// Fix default marker icon issue in bundlers
-const defaultIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-L.Marker.prototype.options.icon = defaultIcon;
-
 /** Renders a Leaflet-based map view with markers for geolocated database pages. */
 export function MapView() {
+  const [leaflet, setLeaflet] = React.useState<typeof Leaflet | null>(null);
   const activeViewId = useActiveViewId();
   const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.LayerGroup | null>(null);
+  const mapRef = useRef<Leaflet.Map | null>(null);
+  const markersRef = useRef<Leaflet.LayerGroup | null>(null);
 
   const pages = useMemo(() => view ? getPagesForView(view.id) : [], [view, getPagesForView]);
   const settings = view?.settings || {};
@@ -68,11 +56,30 @@ export function MapView() {
       .filter(Boolean) as MappablePage[];
   }, [pages, placePropId, categoryProp]);
 
+  useEffect(() => {
+    let cancelled = false;
+    import('leaflet').then((mod) => {
+      if (cancelled) return;
+      const defaultIcon = mod.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      });
+      mod.Marker.prototype.options.icon = defaultIcon;
+      setLeaflet(mod);
+    }).catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
+
   // Init map
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (!leaflet || !mapContainerRef.current || mapRef.current) return;
 
-    const map = L.map(mapContainerRef.current, {
+    const map = leaflet.map(mapContainerRef.current, {
       center: [30, 0],
       zoom: 2,
       zoomControl: false,
@@ -80,19 +87,19 @@ export function MapView() {
     });
 
     // OpenStreetMap tiles — free, global, performant
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(map);
 
     // Zoom control top-right
-    L.control.zoom({ position: 'topright' }).addTo(map);
+    leaflet.control.zoom({ position: 'topright' }).addTo(map);
 
     // Small attribution bottom-right
-    L.control.attribution({ position: 'bottomright', prefix: false })
+    leaflet.control.attribution({ position: 'bottomright', prefix: false })
       .addAttribution('© <a href="https://www.openstreetmap.org/copyright">OSM</a>')
       .addTo(map);
 
-    markersRef.current = L.layerGroup().addTo(map);
+    markersRef.current = leaflet.layerGroup().addTo(map);
     mapRef.current = map;
 
     return () => {
@@ -100,13 +107,13 @@ export function MapView() {
       mapRef.current = null;
       markersRef.current = null;
     };
-  }, []);
+  }, [leaflet]);
 
   // Update markers
   useEffect(() => {
     const map = mapRef.current;
     const markers = markersRef.current;
-    if (!map || !markers) return;
+    if (!leaflet || !map || !markers) return;
 
     markers.clearLayers();
 
@@ -115,9 +122,9 @@ export function MapView() {
     mappablePages.forEach(({ page, lat, lng, address, color }) => {
       const title = getPageTitle(page);
       const markerColor = color ? MARKER_COLORS[color] || 'var(--color-chart-1)' : 'var(--color-chart-1)';
-      const icon = makeColorIcon(markerColor);
+      const icon = makeColorIcon(leaflet, markerColor);
 
-      const marker = L.marker([lat, lng], { icon }).addTo(markers);
+      const marker = leaflet.marker([lat, lng], { icon }).addTo(markers);
 
       marker.bindPopup(`
         <div style="min-width:180px;font-family:system-ui,sans-serif;">
@@ -132,9 +139,9 @@ export function MapView() {
     });
 
     // Fit bounds
-    const bounds = L.latLngBounds(mappablePages.map(p => [p.lat, p.lng] as [number, number]));
+    const bounds = leaflet.latLngBounds(mappablePages.map(p => [p.lat, p.lng] as [number, number]));
     map.fitBounds(bounds, { padding: [50, 50], maxZoom: 6 });
-  }, [mappablePages, getPageTitle]);
+  }, [leaflet, mappablePages, getPageTitle]);
 
   // Bridge for popup click → store
   useEffect(() => {

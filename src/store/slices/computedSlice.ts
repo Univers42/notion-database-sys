@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 16:01:56 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:36:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Page } from '../../types/database';
-import { evalFormula, isWasmReady } from '../../lib/engine/bridge';
+import { FORMULA_ENGINE_UNAVAILABLE, evalFormula, isWasmReady } from '../../lib/engine/bridge';
 import { getCachedFormula, setCachedFormula } from '../../lib/formula/formulaCache';
 import { evaluateFilter } from '../../lib/filter/evaluateFilter';
 import { compareValues } from '../../lib/filter/compareValues';
@@ -139,7 +139,8 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
             }
           }
         } catch { /* WASM failed */ }
-        return '';
+        setCachedFormula(expression, page.id, page.updatedAt, FORMULA_ENGINE_UNAVAILABLE);
+        return FORMULA_ENGINE_UNAVAILABLE;
       } catch {
         setCachedFormula(expression, page.id, page.updatedAt, '#ERROR');
         return '#ERROR';

@@ -16,7 +16,7 @@ import { useActiveViewId } from '../hooks/useDatabaseScope';
 import { ViewSettingsPanel } from './ViewSettingsPanel';
 import { CURSORS } from './ui/cursors';
 import { ChevronDown } from 'lucide-react';
-import { Dropdown } from './topBar';
+import { Dropdown } from './topBar/index';
 import { ViewTabsRow } from './topBar/ViewTabsRow';
 import { FilterSortPanels } from './topBar/FilterSortPanels';
 import { TopBarActions } from './topBar/TopBarActions';

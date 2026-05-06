@@ -6,14 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:01 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Timestamps } from './common.js';
-import type { FilterNode, Filter, Sort, Grouping, SubGrouping } from './filter.js';
+import type { FilterNode, DomainFilter, DomainSort, DomainGrouping, DomainSubGrouping } from './filter.js';
 
-export type ViewType =
+/** Domain view type literals for persisted view documents. */
+export type DomainViewType =
   | 'table'
   | 'board'
   | 'calendar'
@@ -24,7 +25,8 @@ export type ViewType =
   | 'feed'
   | 'map'
   | 'dashboard';
-export interface DashboardWidget {
+/** Domain dashboard widget configuration. */
+export interface DomainDashboardWidget {
   id: string;
   type: 'stat' | 'chart' | 'table' | 'list';
   title: string;
@@ -35,7 +37,8 @@ export interface DashboardWidget {
   height: 1 | 2;
 }
 
-export interface ViewSettings {
+/** Domain view display and behavior settings. */
+export interface DomainViewSettings {
   icon?: string;
   showTitle?: boolean;
   showPageIcon?: boolean;
@@ -103,7 +106,7 @@ export interface ViewSettings {
   mapBy?: string;
 
   // Dashboard
-  widgets?: DashboardWidget[];
+  widgets?: DomainDashboardWidget[];
   formulaAnalytics?: boolean;
   relationAnalytics?: boolean;
 }
@@ -115,26 +118,26 @@ export interface FieldConfig {
   order: number;
 }
 
-export interface ViewConfig extends Timestamps {
+export interface DomainViewConfig extends Timestamps {
   _id: string;
   databaseId: string;
   workspaceId: string;
   createdBy: string;
   name: string;
-  type: ViewType;
+  type: DomainViewType;
 
   /** AST-based filter tree — new canonical filter format */
   filterTree?: FilterNode;
   /** Legacy flat filters — kept for backward compatibility */
-  filters: Filter[];
+  filters: DomainFilter[];
   filterConjunction: 'and' | 'or';
 
-  sorts: Sort[];
-  grouping?: Grouping;
-  subGrouping?: SubGrouping;
+  sorts: DomainSort[];
+  grouping?: DomainGrouping;
+  subGrouping?: DomainSubGrouping;
   visibleProperties: string[];
   fieldConfigs?: FieldConfig[];
-  settings: ViewSettings;
+  settings: DomainViewSettings;
 }
 
 export interface UserViewOverride extends Timestamps {
@@ -146,13 +149,13 @@ export interface UserViewOverride extends Timestamps {
   /** Only the fields the user has customized — merged on top of base view */
   overrides: {
     filterTree?: FilterNode;
-    filters?: Filter[];
+    filters?: DomainFilter[];
     filterConjunction?: 'and' | 'or';
-    sorts?: Sort[];
-    grouping?: Grouping;
-    subGrouping?: SubGrouping;
+    sorts?: DomainSort[];
+    grouping?: DomainGrouping;
+    subGrouping?: DomainSubGrouping;
     visibleProperties?: string[];
     fieldConfigs?: FieldConfig[];
-    settings?: Partial<ViewSettings>;
+    settings?: Partial<DomainViewSettings>;
   };
 }

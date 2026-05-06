@@ -20,20 +20,21 @@ const STORAGE_KEY = 'ndb-theme';
 /** Read the OS-level color preference */
 function getSystemTheme(): ResolvedTheme {
   if (globalThis.window === undefined) return 'light';
-  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return globalThis.window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 /** Read persisted preference from localStorage (defaults to 'system') */
 function getStoredPreference(): ThemePreference {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = globalThis.localStorage?.getItem(STORAGE_KEY);
     if (raw === 'light' || raw === 'dark' || raw === 'system') return raw;
   } catch { /* SSR / privacy */ }
   return 'system';
 }
 
 function applyTheme(resolved: ResolvedTheme): void {
-  const el = document.documentElement;
+  if (globalThis.document === undefined) return;
+  const el = globalThis.document.documentElement;
   if (el.dataset.theme === resolved) return;
   el.dataset.theme = resolved;
 }
@@ -58,7 +59,7 @@ export const useThemeStore = create<ThemeState>((set, get) => {
 
     setTheme: (pref) => {
       const next = pref === 'system' ? getSystemTheme() : pref;
-      localStorage.setItem(STORAGE_KEY, pref);
+      try { globalThis.localStorage?.setItem(STORAGE_KEY, pref); } catch { /* SSR / privacy */ }
       applyTheme(next);
       set({ preference: pref, resolved: next });
     },
@@ -74,7 +75,7 @@ export const useThemeStore = create<ThemeState>((set, get) => {
 
 
 if (globalThis.window !== undefined) {
-  globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  globalThis.window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const { preference } = useThemeStore.getState();
     if (preference === 'system') {
       const resolved = getSystemTheme();

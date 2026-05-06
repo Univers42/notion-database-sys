@@ -14,8 +14,8 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import type { SchemaProperty, Page } from '../types/database';
-import { FORMULA_FUNCTIONS, FUNCTION_CATEGORIES } from './formulaEditor';
-import type { FunctionDef } from './formulaEditor';
+import { FORMULA_FUNCTIONS, FUNCTION_CATEGORIES } from './formulaEditor/index';
+import type { FunctionDef } from './formulaEditor/index';
 
 const TYPE_LABEL_MAP: Record<string, string> = {
   number: 'Number',

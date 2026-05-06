@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 03:46:49 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:05 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { ViteDevServer } from 'vite';
 import { watch, readFileSync, existsSync, type FSWatcher } from 'node:fs';
 import { join, basename, extname } from 'node:path';
-import type { DbSourceType, Changeset, NotionState } from './fileWatcher.types';
+import type { DbSourceType, Changeset, FileWatcherState } from './fileWatcher.types';
 import { SOURCE_DIR, FILE_TO_DB, STATE_FILE, FIELD_MAP_FILE } from './fileWatcher.constants';
 import { markOwnWrite, isOwnWrite } from './fileWatcher.guard';
 import { syncJsonToState, syncCsvToState } from './fileWatcher.sync';
@@ -97,7 +97,7 @@ function handleFileChange(
     // 1) Read current state
     const stateFilePath = join(SOURCE_DIR[source], STATE_FILE);
     if (!existsSync(stateFilePath)) return;
-    const state: NotionState = JSON.parse(readFileSync(stateFilePath, 'utf-8'));
+    const state: FileWatcherState = JSON.parse(readFileSync(stateFilePath, 'utf-8'));
 
     // 2) Read field map
     const mapPath = join(SOURCE_DIR[source], FIELD_MAP_FILE);

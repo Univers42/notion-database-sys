@@ -1,0 +1,49 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": false,
+    "baseUrl": "../..",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "jsx": "react-jsx",
+    "noEmit": false,
+    "outDir": "dist",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@src/*": [
+        "./src/*"
+      ],
+      "@markdown": [
+        "./src/lib/markdown/index.ts"
+      ],
+      "@markdown/*": [
+        "./src/lib/markdown/*"
+      ]
+    },
+    "rootDirs": [
+      "src",
+      "../../src"
+    ],
+    "types": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../src/**/*.ts",
+    "../../src/**/*.tsx"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "../../src/App.tsx",
+    "../../src/main.tsx",
+    "../../src/vite.config.ts",
+    "../../src/server/**",
+    "../../src/lib/engine/pkg/**"
+  ]
+}

@@ -16,7 +16,7 @@ import type { PropertyType, SchemaProperty } from '../types/database';
 import { FormulaEditorPanel } from './FormulaEditorPanel';
 import { RelationEditorPanel } from './RelationEditorPanel';
 import { RollupEditorPanel } from './RollupEditorPanel';
-import { ActionButton, PropertyIconButton, IdFormatConfig, TYPE_OPTIONS, getPropIcon } from './propertyConfig';
+import { ActionButton, PropertyIconButton, IdFormatConfig, TYPE_OPTIONS, getPropIcon } from './propertyConfig/index';
 import {
   ArrowUp, ArrowDown, Filter, Group, EyeOff, PanelLeftClose,
   PanelRightClose, Trash2, ChevronRight, Sigma, GitBranch, ExternalLink

@@ -30,9 +30,9 @@ import {
   EditChartScreen, ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen,
   YAxisWhatScreen, YAxisGroupByScreen, YAxisRangeScreen, YAxisReferenceLineScreen,
   ColorPaletteScreen, MoreStyleScreen,
-} from './viewSettings';
+} from './viewSettings/index';
 import { renderPropertyScreen } from './viewSettings/PropertyScreens';
-import type { PanelScreen, ChartScreensProps } from './viewSettings';
+import type { PanelScreen, ChartScreensProps } from './viewSettings/index';
 import { cn } from '../utils/cn';
 
 const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> = {

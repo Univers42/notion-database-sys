@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:05:55 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { BlockModel } from '../models/block.model.js';
-import type { Block, BlockType } from '@notion-db/types';
+import type { DomainBlock, DomainBlockType } from '@notion-db/types';
 
 export class BlockService {
   /**
@@ -21,7 +21,7 @@ export class BlockService {
     pageId: string;
     workspaceId: string;
     parentBlockId?: string;
-    type: BlockType;
+    type: DomainBlockType;
     content?: string;
     order: string;
   }): Promise<unknown> {
@@ -59,7 +59,7 @@ export class BlockService {
   /**
    * Update a block's content and/or type-specific fields.
    */
-  async update(blockId: string, data: Partial<Block>): Promise<unknown> {
+  async update(blockId: string, data: Partial<DomainBlock>): Promise<unknown> {
     const { _id, _pageId, _workspaceId, ...updateData } = data as Record<string, unknown>;
     return BlockModel.findByIdAndUpdate(blockId, { $set: updateData }, { new: true }).lean();
   }

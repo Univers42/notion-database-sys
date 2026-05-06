@@ -13,7 +13,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { X, HelpCircle, Send, Bug, Sigma } from 'lucide-react';
-import { getReturnTypeBadge } from './formulaEditor';
+import { getReturnTypeBadge } from './formulaEditor/index';
 import { Sidebar } from './formulaEditor/Sidebar';
 import { DocPanel } from './formulaEditor/DocPanel';
 import { useFormulaEditorPanel } from './useFormulaEditorPanel';

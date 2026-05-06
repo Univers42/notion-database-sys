@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:07:23 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Timestamps, SoftDeletable } from './common.js';
-import type { Block } from './block.js';
+import type { DomainBlock } from './block.js';
 
 /**
  * Page document — stored in the `pages` collection.
@@ -19,7 +19,7 @@ import type { Block } from './block.js';
  * `content` is kept for backward compatibility with the frontend but new
  * blocks should be stored in the `blocks` collection with `pageId` references.
  */
-export interface Page extends Timestamps, SoftDeletable {
+export interface DomainPage extends Timestamps, SoftDeletable {
   _id: string;
   workspaceId: string;
   databaseId?: string;
@@ -30,7 +30,7 @@ export interface Page extends Timestamps, SoftDeletable {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: Record<string, any>;
   /** @deprecated Use blocks collection instead — kept for migration compat */
-  content?: Block[];
+  content?: DomainBlock[];
   createdBy: string;
   lastEditedBy: string;
 }
@@ -38,7 +38,7 @@ export interface Page extends Timestamps, SoftDeletable {
 /**
  * PageTemplate — reusable template for new pages within a database
  */
-export interface PageTemplate {
+export interface DomainPageTemplate {
   _id: string;
   databaseId: string;
   workspaceId: string;
@@ -46,6 +46,6 @@ export interface PageTemplate {
   icon?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultProperties: Record<string, any>;
-  defaultContent: Block[];
+  defaultContent: DomainBlock[];
   createdAt: string;
 }

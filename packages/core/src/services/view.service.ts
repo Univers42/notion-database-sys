@@ -6,19 +6,19 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:12 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 19:01:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { ViewConfigModel } from '../models/view.model.js';
 import { UserViewOverrideModel } from '../models/userViewOverride.model.js';
-import type { ViewConfig, UserViewOverride } from '@notion-db/types';
+import type { DomainViewConfig, UserViewOverride } from '@notion-db/types';
 
 export class ViewService {
   /**
    * Create a new shared view for a database.
    */
-  async create(data: Omit<ViewConfig, '_id' | 'createdAt' | 'updatedAt'>): Promise<unknown> {
+  async create(data: Omit<DomainViewConfig, '_id' | 'createdAt' | 'updatedAt'>): Promise<unknown> {
     const view = await ViewConfigModel.create(data);
     return view.toObject();
   }
@@ -42,7 +42,7 @@ export class ViewService {
     if (!base) throw new Error(`View ${viewId} not found`);
     if (!override) return base;
 
-    return this.mergeOverride(base as unknown as ViewConfig, override as unknown as UserViewOverride);
+    return this.mergeOverride(base as unknown as DomainViewConfig, override as unknown as UserViewOverride);
   }
 
   /**
@@ -72,7 +72,7 @@ export class ViewService {
    * Merge user overrides on top of the base view.
    * Strategy: shallow merge at each field level. Override replaces base.
    */
-  private mergeOverride(base: ViewConfig, override: UserViewOverride): ViewConfig {
+  private mergeOverride(base: DomainViewConfig, override: UserViewOverride): DomainViewConfig {
     const merged = { ...base } as Record<string, unknown>;
     const ov = override.overrides;
 
@@ -86,6 +86,6 @@ export class ViewService {
     if (ov.fieldConfigs !== undefined) merged.fieldConfigs = ov.fieldConfigs;
     if (ov.settings !== undefined) merged.settings = { ...base.settings, ...ov.settings };
 
-    return merged as unknown as ViewConfig;
+    return merged as unknown as DomainViewConfig;
   }
 }
