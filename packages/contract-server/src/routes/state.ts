@@ -38,7 +38,7 @@ export async function loadState(app: FastifyInstance, user?: AuthenticatedUser):
     const fieldMap = meta.fieldMaps[databaseId] ?? {};
     const docs = await db.collection(collectionName).find({}).toArray();
     for (const doc of docs) {
-      const page = documentToPage(databaseId, doc, fieldMap);
+      const page = documentToPage(databaseId, doc, fieldMap, meta.databases[databaseId]);
       pages[page.id] = page;
     }
   }

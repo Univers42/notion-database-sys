@@ -116,11 +116,11 @@ export async function findPages(app: FastifyInstance, query: PageQuery, user?: A
     if (!meta.databases[databaseId]) continue;
     const collection = collectionForDatabase(db, databaseId);
     const fieldMap = meta.fieldMaps[databaseId] ?? {};
-    const mongoFilter = compileDocFilter(query.filter, fieldMap) as Filter<Document>;
+    const mongoFilter = compileDocFilter(query.filter, fieldMap);
     const cursor = collection.find(mongoFilter).sort(compileSort(query.sort, fieldMap));
     if (query.limit !== undefined && query.databaseId) cursor.limit(query.limit);
     const docs = await cursor.toArray();
-    for (const doc of docs) pages.push(documentToPage(databaseId, doc, fieldMap));
+    for (const doc of docs) pages.push(documentToPage(databaseId, doc, fieldMap, meta.databases[databaseId]));
   }
 
   return query.limit === undefined ? pages : pages.slice(0, query.limit);
@@ -134,7 +134,12 @@ export async function getPage(app: FastifyInstance, id: string, user?: Authentic
   if (!location) return null;
   if (!canAccessDatabase(user, location.databaseId)) return null;
   const doc = await location.collection.findOne({ _id: id } as unknown as Filter<Document>);
-  return doc ? documentToPage(location.databaseId, doc, meta.fieldMaps[location.databaseId] ?? {}) : null;
+  return doc ? documentToPage(
+    location.databaseId,
+    doc,
+    meta.fieldMaps[location.databaseId] ?? {},
+    meta.databases[location.databaseId],
+  ) : null;
 }
 
 /** Inserts one page into the collection mapped by databaseId. */
@@ -181,7 +186,7 @@ export async function patchPage(
   const updated = await location.collection.findOne({ _id: id } as unknown as Filter<Document>);
   if (!updated) throw new Error(`Page ${id} not found after patch`);
   emitChange({ type: 'page-changed', pageId: id, databaseId: location.databaseId, changes });
-  return documentToPage(location.databaseId, updated, fieldMap);
+  return documentToPage(location.databaseId, updated, fieldMap, meta.databases[location.databaseId]);
 }
 
 /** Deletes one page by id. */

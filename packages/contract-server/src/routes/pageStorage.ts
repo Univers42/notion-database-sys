@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import type { Collection, Db, Document, Filter, WithId } from 'mongodb';
-import type { Block, Page } from '@notion-db/contract-types';
+import type { Block, DatabaseSchema, Page, SchemaProperty } from '@notion-db/contract-types';
 import { DB_TO_TABLE, resolveTableName } from '../db/connections';
 import type { MetaState } from '../serverTypes';
 
@@ -42,9 +42,10 @@ export function documentToPage(
   databaseId: string,
   doc: WithId<Document> | Document,
   fieldMap: Record<string, string> = {},
+  schema?: DatabaseSchema,
 ): Page {
   if (doc.properties && typeof doc.properties === 'object') {
-    return normalizePageDocument(databaseId, doc);
+    return normalizePageProperties(normalizePageDocument(databaseId, doc), schema);
   }
 
   const reverseMap: Record<string, string> = {};
@@ -60,7 +61,7 @@ export function documentToPage(
   }
 
   const now = new Date().toISOString();
-  return {
+  return normalizePageProperties({
     id: String(doc._id ?? doc.id),
     databaseId,
     icon: typeof doc.icon === 'string' ? doc.icon : undefined,
@@ -73,7 +74,38 @@ export function documentToPage(
     lastEditedBy: String(doc.last_edited_by ?? doc.lastEditedBy ?? 'System'),
     archived: typeof doc.archived === 'boolean' ? doc.archived : undefined,
     parentPageId: typeof doc.parentPageId === 'string' ? doc.parentPageId : undefined,
-  };
+  }, schema);
+}
+
+/** Converts human-readable seed labels into schema option ids expected by the UI. */
+function normalizePageProperties(page: Page, schema?: DatabaseSchema): Page {
+  if (!schema) return page;
+
+  const properties = { ...page.properties };
+  for (const [propertyId, value] of Object.entries(properties)) {
+    const property = schema.properties[propertyId];
+    if (!property) continue;
+    properties[propertyId] = normalizePropertyValue(value, property);
+  }
+
+  return { ...page, properties };
+}
+
+function normalizePropertyValue(value: unknown, property: SchemaProperty): unknown {
+  if (value == null) return value;
+  if (property.type === 'select' || property.type === 'status') {
+    return normalizeOptionId(value, property);
+  }
+  if (property.type === 'multi_select' && Array.isArray(value)) {
+    return value.map((item) => normalizeOptionId(item, property));
+  }
+  return value;
+}
+
+function normalizeOptionId(value: unknown, property: SchemaProperty): unknown {
+  if (typeof value !== 'string') return value;
+  if (property.options?.some((option) => option.id === value)) return value;
+  return property.options?.find((option) => option.value.toLowerCase() === value.toLowerCase())?.id ?? value;
 }
 
 /** Maps a contract Page to a MongoDB document. */

@@ -104,7 +104,7 @@
     "proj-lead": "lead",
     "proj-tasks": "tasks",
     "proj-client": "client",
-    "proj-content": "content",
+    "proj-content": "content_items",
     "proj-equipment": "equipment",
     "proj-subprojects": "sub_projects",
     "proj-task-count": "task_count",
