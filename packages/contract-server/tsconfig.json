@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false,
+    "lib": [
+      "ES2022"
+    ],
+    "jsx": "preserve",
+    "allowImportingTsExtensions": false
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

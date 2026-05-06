@@ -28,7 +28,7 @@ services:
       - -c
       - hba_file=/etc/postgresql/pg_hba.conf
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}"]
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-notion_user} -d $${POSTGRES_DB:-notion_db}" ]
       interval: 3s
       timeout: 2s
       retries: 5
@@ -49,9 +49,9 @@ services:
       - mongo_data:/data/db
       - ./src/store/dbms/mongodb:/seed:ro
       - ./docker/services/mongodb/tools/init-collections.js:/docker-entrypoint-initdb.d/01-init-collections.js:ro
-    command: ["mongod", "--bind_ip_all", "--quiet"]
+    command: [ "mongod", "--bind_ip_all", "--quiet" ]
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')" ]
       interval: 3s
       timeout: 2s
       retries: 5
@@ -66,9 +66,9 @@ services:
     volumes:
       - redis_data:/data
       - ./docker/services/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 3s
       timeout: 2s
       retries: 5
@@ -91,7 +91,7 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - ./docker/services/sonarqube/conf/sonar.properties:/opt/sonarqube/conf/sonar.properties:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9000/api/system/status | grep -q UP"]
+      test: [ "CMD-SHELL", "curl -sf http://localhost:9000/api/system/status | grep -q UP" ]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -119,15 +119,36 @@ services:
       MONGO_URI: mongodb://${MONGO_USER:-notion_user}:${MONGO_PASSWORD:-notion_pass}@mongodb:27017/${PLAYGROUND_MONGO_DB:-notion_playground_db}?authSource=admin
     ports:
       - "${API_PORT:-4000}:4000"
-    command: ["node", "packages/api/dist/index.js"]
+    command: [ "node", "packages/api/dist/index.js" ]
     healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://127.0.0.1:4000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
-        ]
+      test: [ "CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 8s
+
+  contract-server:
+    <<: *app-service
+    container_name: notion_contract_server
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CONTRACT_SERVER_HOST: 0.0.0.0
+      CONTRACT_SERVER_PORT: ${CONTRACT_SERVER_PORT:-4100}
+      MONGO_USER: ${MONGO_USER:-notion_user}
+      MONGO_PASSWORD: ${MONGO_PASSWORD:-notion_pass}
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_DB: ${MONGO_DB:-notion_db}
+      MONGO_URI: mongodb://${MONGO_USER:-notion_user}:${MONGO_PASSWORD:-notion_pass}@mongodb:27017/${MONGO_DB:-notion_db}?authSource=admin
+    ports:
+      - "${CONTRACT_SERVER_PORT:-4100}:4100"
+    command: [ "pnpm", "--filter", "@notion-db/contract-server", "dev" ]
+    healthcheck:
+      test: [ "CMD", "node", "-e", "fetch('http://127.0.0.1:4100/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" ]
       interval: 5s
       timeout: 3s
       retries: 12
@@ -168,13 +189,7 @@ services:
         [ -f src/lib/engine/pkg/formula_engine.js ] || cp -r /wasm-cache/pkg src/lib/engine/
         exec pnpm exec vite --config src/vite.config.ts --host 0.0.0.0 --port 3000
     healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
-        ]
+      test: [ "CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" ]
       interval: 5s
       timeout: 3s
       retries: 12
@@ -201,13 +216,7 @@ services:
         [ -f src/lib/engine/pkg/formula_engine.js ] || cp -r /wasm-cache/pkg src/lib/engine/
         exec pnpm exec vite --config playground/vite.config.ts --host 0.0.0.0 --port 3001
     healthcheck:
-      test:
-        [
-          "CMD",
-          "node",
-          "-e",
-          "fetch('http://127.0.0.1:3001').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
-        ]
+      test: [ "CMD", "node", "-e", "fetch('http://127.0.0.1:3001').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" ]
       interval: 5s
       timeout: 3s
       retries: 12

@@ -10,7 +10,9 @@ APP_IMAGE_STAMP := .make/app-image.id
 DB_SERVICES := postgres mongodb
 SONAR_SERVICES := redis sonarqube
 APP_SERVICES := api src playground
+CONTRACT_SERVICES := contract-server
 API_URL := http://localhost:$${API_PORT:-4000}
+CONTRACT_URL := http://localhost:$${CONTRACT_SERVER_PORT:-4100}
 SRC_URL := http://localhost:$${SRC_PORT:-3000}
 PLAYGROUND_URL := http://localhost:$${PLAYGROUND_PORT:-3001}
 POSTGRES_HOST_URL := localhost:$${POSTGRES_PORT:-5432}
@@ -125,6 +127,12 @@ check-app-ports: ## Check API + src + playground host ports unless already owned
 	check_port playground notion_playground $${PLAYGROUND_PORT:-3001}; \
 	echo -e "$(GREEN)✔ App service ports look good$(RESET)"
 
+check-contract-ports: ## Check contract server host port unless already owned by this stack
+	@set -e; \
+	$(CHECK_PORT_HELPERS) \
+	check_port contract-server notion_contract_server $${CONTRACT_SERVER_PORT:-4100}; \
+	echo -e "$(GREEN)✔ Contract server port looks good$(RESET)"
+
 check-sonar-ports: ## Check Redis + SonarQube host ports unless already owned by this stack
 	@set -e; \
 	$(CHECK_PORT_HELPERS) \
@@ -221,6 +229,10 @@ up-app: check-docker check-compose check-app-ports build-app ## Start src, api, 
 	fi
 	@echo -e "$(GREEN)✔ App services up$(RESET)"
 
+up-contract: check-docker check-compose check-contract-ports build-app ## Start the opt-in contract server service
+	$(COMPOSE) up -d --remove-orphans $(CONTRACT_SERVICES)
+	@echo -e "$(GREEN)✔ Contract server up$(RESET)"
+
 down: ## Stop all containers
 	@$(COMPOSE) down
 	@echo -e "$(GREEN)✔ Containers down$(RESET)"
@@ -246,6 +258,7 @@ show-endpoints: ## Print the effective localhost URLs and ports for the current 
 	@echo -e "  Main app:      $(LBLUE)$(SRC_URL)$(RESET)"
 	@echo -e "  Playground:    $(LBLUE)$(PLAYGROUND_URL)$(RESET)"
 	@echo -e "  API health:    $(LBLUE)$(API_URL)/health$(RESET)"
+	@echo -e "  Contract API:  $(LBLUE)$(CONTRACT_URL)/health$(RESET)"
 	@echo -e "  SonarQube:     $(LBLUE)$(SONAR_URL)$(RESET)"
 	@echo -e "  PostgreSQL TCP:$(LBLUE)$(POSTGRES_HOST_URL)$(RESET)"
 	@echo -e "  MongoDB TCP:   $(LBLUE)$(MONGO_HOST_URL)$(RESET)"
@@ -308,10 +321,19 @@ wait-api: ## Wait until the API health endpoint responds
 	@echo -e "$(CYAN)Waiting for API…$(RESET)"
 	@until curl -sf $(API_URL)/health > /dev/null 2>&1; do sleep 0.5; done
 
+wait-contract: ## Wait until the contract server health endpoint responds
+	@echo -e "$(CYAN)Waiting for contract server…$(RESET)"
+	@until curl -sf $(CONTRACT_URL)/health > /dev/null 2>&1; do sleep 0.5; done
+
 seed-playground: preflight ensure-api ## Seed playground users/workspaces (idempotent)
 	@echo -e "$(CYAN)Seeding playground data…$(RESET)"
 	@$(COMPOSE) exec -T api node scripts/seed-playground.mjs
 	@echo -e "$(GREEN)✔ Playground seeded$(RESET)"
+
+seed-contract: preflight up-db build-app ## Seed contract server metadata collection (idempotent)
+	@echo -e "$(CYAN)Seeding contract server metadata…$(RESET)"
+	@$(COMPOSE) run --rm contract-server pnpm --filter @notion-db/contract-server seed
+	@echo -e "$(GREEN)✔ Contract server metadata seeded$(RESET)"
 
 seed-all: seed-src seed-playground ## Seed src live DBs and playground data
 
@@ -416,12 +438,12 @@ kill-ports: ## Kill any process occupying stack-related ports (3000, 3001, 4000,
 	@echo -e "$(GREEN)✔ Ports freed$(RESET)"
 
 .PHONY: help preflight check-docker check-compose check-db-ports check-app-ports \
-	check-sonar-ports check-ports stack check-app-image-cache ensure-submodules \
+	check-contract-ports check-sonar-ports check-ports stack check-app-image-cache ensure-submodules \
 	build build-app pull \
-	ensure-db-images ensure-sonar-images ensure-stock-images up up-db up-sonar up-app \
+	ensure-db-images ensure-sonar-images ensure-stock-images up up-db up-sonar up-app up-contract \
 	down restart logs stack-status doctor app-image-status show-endpoints db-reset db-status \
-	status psql mongo-shell redis-cli seed seed-src ensure-api wait-api \
-	seed-playground seed-all install build-packages typecheck lint lint-fix \
+	status psql mongo-shell redis-cli seed seed-src ensure-api wait-api wait-contract \
+	seed-playground seed-contract seed-all install build-packages typecheck lint lint-fix \
 	audit wait-sonar sonar-up sonar-scan sonar-status ci clean fclean kill-ports
 
 .PHONY: update-submodules
