@@ -11,6 +11,9 @@ importers:
       '@google/genai':
         specifier: ^1.29.0
         version: 1.47.0
+      '@notion-db/contract-types':
+        specifier: workspace:*
+        version: link:packages/contract-types
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.16
         version: 2.1.16(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -41,6 +44,9 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.3.1
+      eventsource:
+        specifier: ^4.1.0
+        version: 4.1.0
       express:
         specifier: ^4.21.2
         version: 4.22.1
@@ -187,6 +193,9 @@ importers:
 
   packages/contract-server:
     dependencies:
+      '@notion-db/contract-types':
+        specifier: workspace:*
+        version: link:../contract-types
       dotenv:
         specifier: ^17.2.3
         version: 17.3.1
@@ -203,6 +212,12 @@ importers:
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
+      typescript:
+        specifier: ~5.8.2
+        version: 5.8.3
+
+  packages/contract-types:
+    devDependencies:
       typescript:
         specifier: ~5.8.2
         version: 5.8.3
@@ -2207,6 +2222,14 @@ packages:
   etag@1.8.1:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
+
+  eventsource-parser@3.0.8:
+    resolution: {integrity: sha512-70QWGkr4snxr0OXLRWsFLeRBIRPuQOvt4s8QYjmUlmlkyTZkRqS7EDVRZtzU3TiyDbXSzaOeF0XUKy8PchzukQ==}
+    engines: {node: '>=18.0.0'}
+
+  eventsource@4.1.0:
+    resolution: {integrity: sha512-2GuF51iuHX6A9xdTccMTsNb7VO0lHZihApxhvQzJB5A03DvHDd2FQepodbMaztPBmBcE/ox7o2gqaxGhYB9LhQ==}
+    engines: {node: '>=20.0.0'}
 
   express@4.22.1:
     resolution: {integrity: sha512-F2X8g9P1X7uCPZMA3MVf9wcTqlyNp7IhH5qPCI0izhaOIYXaW9L535tGA3qmjRzpH+bZczqq7hVKxTR4NWnu+g==}
@@ -5508,6 +5531,12 @@ snapshots:
   esutils@2.0.3: {}
 
   etag@1.8.1: {}
+
+  eventsource-parser@3.0.8: {}
+
+  eventsource@4.1.0:
+    dependencies:
+      eventsource-parser: 3.0.8
 
   express@4.22.1:
     dependencies:

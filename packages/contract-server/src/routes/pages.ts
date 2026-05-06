@@ -6,16 +6,18 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:13:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import crypto from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import type { Document, Filter } from 'mongodb';
+import type { Page, PageQuery } from '@notion-db/contract-types';
 import { DB_TO_TABLE } from '../db/connections';
+import { emitChange } from '../events/emitter';
 import { compileDocFilter, compileSort } from '../filters/docFilter';
-import type { OkResponse, Page, PageQuery } from '../types';
+import type { OkResponse } from '../serverTypes';
 import {
   changesToSet,
   collectionForDatabase,
@@ -150,6 +152,7 @@ export async function insertPage(app: FastifyInstance, databaseId: string, page:
   };
   const fieldMap = meta.fieldMaps[databaseId] ?? {};
   await collectionForDatabase(db, databaseId).insertOne(pageToDocument(inserted, fieldMap));
+  emitChange({ type: 'page-inserted', page: inserted });
   return inserted;
 }
 
@@ -163,6 +166,7 @@ export async function patchPage(app: FastifyInstance, id: string, changes: Parti
   await location.collection.updateOne({ _id: id } as unknown as Filter<Document>, { $set: changesToSet(changes, fieldMap) });
   const updated = await location.collection.findOne({ _id: id } as unknown as Filter<Document>);
   if (!updated) throw new Error(`Page ${id} not found after patch`);
+  emitChange({ type: 'page-changed', pageId: id, changes });
   return documentToPage(location.databaseId, updated, fieldMap);
 }
 
@@ -170,5 +174,8 @@ export async function patchPage(app: FastifyInstance, id: string, changes: Parti
 export async function deletePage(app: FastifyInstance, id: string): Promise<void> {
   const db = app.mongo;
   const location = await findPageLocation(db, id);
-  if (location) await location.collection.deleteOne({ _id: id } as unknown as Filter<Document>);
+  if (location) {
+    await location.collection.deleteOne({ _id: id } as unknown as Filter<Document>);
+    emitChange({ type: 'page-deleted', pageId: id });
+  }
 }

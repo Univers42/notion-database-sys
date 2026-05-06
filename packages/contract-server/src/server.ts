@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:13:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import { getMongoDb } from './db/connections';
 import { registerPageRoutes } from './routes/pages';
 import { registerSchemaRoutes } from './routes/schema';
 import { registerStateRoutes } from './routes/state';
+import { registerSubscribeRoutes } from './routes/subscribe';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -29,6 +30,17 @@ export async function buildServer(): Promise<FastifyInstance> {
     logger: {
       level: process.env.LOG_LEVEL || 'info',
     },
+  });
+
+  app.addHook('onRequest', (request, reply, done) => {
+    reply.header('Access-Control-Allow-Origin', process.env.CONTRACT_SERVER_CORS_ORIGIN || '*');
+    reply.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    reply.header('Access-Control-Allow-Headers', 'Content-Type');
+    if (request.method === 'OPTIONS') {
+      void reply.status(204).send();
+      return;
+    }
+    done();
   });
 
   const mongo = await getMongoDb();
@@ -55,6 +67,7 @@ export async function buildServer(): Promise<FastifyInstance> {
     await registerStateRoutes(v1);
     await registerPageRoutes(v1);
     await registerSchemaRoutes(v1);
+    await registerSubscribeRoutes(v1);
   }, { prefix: '/v1' });
 
   return app;

@@ -36,6 +36,16 @@ pnpm --filter @notion-db/contract-server seed
 
 This writes database schemas, views, and field maps. It does not import page seed files; use the existing Mongo seed flow for collection documents.
 
+## Subscribe
+
+The service exposes realtime changes over server-sent events:
+
+```bash
+curl -N http://localhost:4100/v1/subscribe
+```
+
+The connection stays open until the client closes it. Trigger a page or schema mutation from another terminal to see `ChangeEvent` JSON messages stream through the SSE connection.
+
 ## Verify
 
 ```bash

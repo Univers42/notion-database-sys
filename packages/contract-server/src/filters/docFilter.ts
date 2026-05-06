@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import type { Document, Filter, Sort } from 'mongodb';
-import type { DocFilter, PageQuery } from '../types';
+import type { DocFilter, PageQuery } from '@notion-db/contract-types';
 
 /** Compiles a DocFilter into a MongoDB filter. */
 export function compileDocFilter(

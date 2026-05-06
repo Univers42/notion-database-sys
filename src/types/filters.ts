@@ -6,54 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:19:59 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:58:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:25 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-export type FilterOperator =
-  | 'equals'
-  | 'not_equals'
-  | 'contains'
-  | 'not_contains'
-  | 'starts_with'
-  | 'ends_with'
-  | 'is_empty'
-  | 'is_not_empty'
-  | 'greater_than'
-  | 'less_than'
-  | 'greater_than_or_equal'
-  | 'less_than_or_equal'
-  | 'is_before'
-  | 'is_after'
-  | 'is_on_or_before'
-  | 'is_on_or_after'
-  | 'is_between'
-  | 'is_relative_to_today'
-  | 'is_checked'
-  | 'is_not_checked';
-
-/** Represents a single filter condition on a property. */
-export interface Filter {
-  id: string;
-  propertyId: string;
-  operator: FilterOperator;
-  value: unknown;
-}
-
-
-export interface Sort {
-  id: string;
-  propertyId: string;
-  direction: 'asc' | 'desc';
-}
-
-
-export interface Grouping {
-  propertyId: string;
-  hiddenGroups?: string[];
-  sort?: 'alphabetical' | 'manual';
-}
-
-export interface SubGrouping {
-  propertyId: string;
-}
+export type {
+  Filter,
+  FilterOperator,
+  Grouping,
+  Sort,
+  SubGrouping,
+} from '@notion-db/contract-types';

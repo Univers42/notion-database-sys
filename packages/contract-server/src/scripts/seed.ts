@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:13:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,9 @@ import 'dotenv/config';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { NotionState } from '@notion-db/contract-types';
 import { closeMongo, getMongoDb } from '../db/connections';
-import type { MetaState, NotionState } from '../types';
+import type { MetaState } from '../serverTypes';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '../../../..');

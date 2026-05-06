@@ -335,6 +335,9 @@ seed-contract: preflight up-db build-app ## Seed contract server metadata collec
 	@$(COMPOSE) run --rm contract-server pnpm --filter @notion-db/contract-server seed
 	@echo -e "$(GREEN)✔ Contract server metadata seeded$(RESET)"
 
+smoke-contract: ## Smoke-test the contract-server via RemoteAdapter
+	@pnpm tsx scripts/smoke-remote-adapter.ts
+
 seed-all: seed-src seed-playground ## Seed src live DBs and playground data
 
 install: ## Install all local workspace dependencies with pnpm
@@ -443,7 +446,7 @@ kill-ports: ## Kill any process occupying stack-related ports (3000, 3001, 4000,
 	ensure-db-images ensure-sonar-images ensure-stock-images up up-db up-sonar up-app up-contract \
 	down restart logs stack-status doctor app-image-status show-endpoints db-reset db-status \
 	status psql mongo-shell redis-cli seed seed-src ensure-api wait-api wait-contract \
-	seed-playground seed-contract seed-all install build-packages typecheck lint lint-fix \
+	seed-playground seed-contract smoke-contract seed-all install build-packages typecheck lint lint-fix \
 	audit wait-sonar sonar-up sonar-scan sonar-status ci clean fclean kill-ports
 
 .PHONY: update-submodules

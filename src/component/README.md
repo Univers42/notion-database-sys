@@ -2,6 +2,18 @@
 
 Phase 1 extracts a structural component shell around the existing app. The current dev workflow still uses the Vite `/api/dbms/*` middleware through `HttpAdapter`.
 
+## Adapters provided
+
+- `HttpAdapter` maps the contract onto the existing Vite `/api/dbms/*` development middleware.
+- `InMemoryAdapter` stores the full state in browser memory for embedded demos and isolated smoke checks.
+- `RemoteAdapter` speaks the locked ObjectDatabase adapter contract over HTTP to any contract-compliant `/v1/*` service.
+
+```tsx
+<ObjectDatabase adapter={new RemoteAdapter('https://my-backend.example.com')} />
+```
+
+`RemoteAdapter` implements `subscribe` with SSE. When `<ObjectDatabase />` mounts with a `RemoteAdapter`, it automatically listens to `/v1/subscribe`; remote page events patch local state, schema events reload state, and reconnects trigger a synthetic `state-replaced` resync.
+
 ## Current dev workflow
 
 ```tsx

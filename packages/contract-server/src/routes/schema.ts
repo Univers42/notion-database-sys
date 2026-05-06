@@ -6,15 +6,26 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:13:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
-import type { MetaState, OkResponse, PropertyType, SchemaProperty } from '../types';
+import { PROPERTY_TYPES, type PropertyType, type SchemaProperty } from '@notion-db/contract-types';
+import { emitChange } from '../events/emitter';
+import type { MetaState, OkResponse } from '../serverTypes';
 import { loadMeta } from './pageStorage';
 
-const ANY_OBJECT = { type: 'object', additionalProperties: true } as const;
+const SCHEMA_PROPERTY_SCHEMA = {
+  type: 'object',
+  required: ['id', 'name', 'type'],
+  additionalProperties: true,
+  properties: {
+    id: { type: 'string' },
+    name: { type: 'string' },
+    type: { type: 'string', enum: [...PROPERTY_TYPES] },
+  },
+} as const;
 
 /** Registers schema mutation contract routes. */
 export async function registerSchemaRoutes(app: FastifyInstance): Promise<void> {
@@ -24,7 +35,7 @@ export async function registerSchemaRoutes(app: FastifyInstance): Promise<void> 
         type: 'object',
         required: ['databaseId', 'property'],
         additionalProperties: false,
-        properties: { databaseId: { type: 'string' }, property: ANY_OBJECT },
+        properties: { databaseId: { type: 'string' }, property: SCHEMA_PROPERTY_SCHEMA },
       },
     },
   }, async (request): Promise<OkResponse> => {
@@ -55,7 +66,7 @@ export async function registerSchemaRoutes(app: FastifyInstance): Promise<void> 
         properties: {
           databaseId: { type: 'string' },
           propertyId: { type: 'string' },
-          newType: { type: 'string' },
+          newType: { type: 'string', enum: [...PROPERTY_TYPES] },
         },
       },
     },
@@ -80,6 +91,7 @@ export async function addProperty(app: FastifyInstance, databaseId: string, prop
       },
     },
   );
+  emitChange({ type: 'schema-changed', databaseId });
 }
 
 /** Removes one schema property from the _meta collection. */
@@ -92,6 +104,7 @@ export async function removeProperty(app: FastifyInstance, databaseId: string, p
       $set: { updatedAt: new Date().toISOString() },
     },
   );
+  emitChange({ type: 'schema-changed', databaseId });
 }
 
 /** Changes one schema property type in the _meta collection. */
@@ -111,4 +124,5 @@ export async function changePropertyType(
       },
     },
   );
+  emitChange({ type: 'schema-changed', databaseId });
 }

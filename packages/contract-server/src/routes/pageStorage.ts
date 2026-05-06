@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:13:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Collection, Db, Document, Filter, WithId } from 'mongodb';
+import type { Block, Page } from '@notion-db/contract-types';
 import { DB_TO_TABLE, resolveTableName } from '../db/connections';
-import type { MetaState, Page } from '../types';
+import type { MetaState } from '../serverTypes';
 
 const META_FIELDS = new Set([
   '_id', 'id', 'databaseId', 'properties', 'content', 'icon', 'cover', 'archived', 'parentPageId',
@@ -65,7 +66,7 @@ export function documentToPage(
     icon: typeof doc.icon === 'string' ? doc.icon : undefined,
     cover: typeof doc.cover === 'string' ? doc.cover : undefined,
     properties,
-    content: Array.isArray(doc.content) ? doc.content : [],
+    content: Array.isArray(doc.content) ? doc.content as Block[] : [],
     createdAt: String(coerceValue(doc.created_at ?? doc.createdAt ?? now)),
     updatedAt: String(coerceValue(doc.updated_at ?? doc.updatedAt ?? now)),
     createdBy: String(doc.created_by ?? doc.createdBy ?? 'System'),
@@ -126,7 +127,7 @@ function normalizePageDocument(databaseId: string, doc: Document): Page {
     icon: typeof doc.icon === 'string' ? doc.icon : undefined,
     cover: typeof doc.cover === 'string' ? doc.cover : undefined,
     properties: { ...(doc.properties as Record<string, unknown>) },
-    content: Array.isArray(doc.content) ? doc.content : [],
+    content: Array.isArray(doc.content) ? doc.content as Block[] : [],
     createdAt: String(coerceValue(doc.createdAt ?? doc.created_at ?? now)),
     updatedAt: String(coerceValue(doc.updatedAt ?? doc.updated_at ?? now)),
     createdBy: String(doc.createdBy ?? doc.created_by ?? 'System'),

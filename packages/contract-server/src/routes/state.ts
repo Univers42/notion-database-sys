@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:13:14 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
+import type { NotionState, Page } from '@notion-db/contract-types';
 import { DB_TO_TABLE } from '../db/connections';
-import type { NotionState, Page } from '../types';
 import { documentToPage, loadMeta } from './pageStorage';
 
 /** Registers state bootstrap contract routes. */

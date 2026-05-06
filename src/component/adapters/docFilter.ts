@@ -6,12 +6,11 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 17:45:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Page } from '../../types/database';
-import type { DocFilter, PageQuery } from '../types';
+import type { DocFilter, Page, PageQuery } from '../types';
 
 /** Applies a document-shaped query to an in-memory page list. */
 export function applyPageQuery(pages: Page[], query: PageQuery = {}): Page[] {

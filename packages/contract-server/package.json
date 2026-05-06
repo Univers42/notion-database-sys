@@ -12,6 +12,7 @@
     "seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
+    "@notion-db/contract-types": "workspace:*",
     "dotenv": "^17.2.3",
     "fastify": "^5.3.3",
     "mongodb": "^7.1.1"

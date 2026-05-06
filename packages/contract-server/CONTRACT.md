@@ -295,6 +295,32 @@ curl -X POST http://localhost:4100/v1/changePropertyType \
   -d '{"databaseId":"db-tasks","propertyId":"prop-new","newType":"number"}'
 ```
 
+## Subscribe
+
+`GET /v1/subscribe`
+
+Content-Type: `text/event-stream`
+
+Streams `ChangeEvent` JSON objects, one per SSE message. The client receives all events from the entire service — no per-database filtering in this version.
+
+Example:
+
+```bash
+curl -N http://localhost:4100/v1/subscribe
+```
+
+Event payloads:
+
+```json
+{ "type": "page-changed", "pageId": "task-1", "changes": { "prop-status": "Done" } }
+```
+
+Reconnection: the browser's `EventSource` auto-reconnects on network errors. Events that occurred during the disconnect are NOT replayed. Clients should call `loadState()` on reconnect to resync. `RemoteAdapter` handles this automatically by emitting a synthetic `state-replaced` event after detecting reconnect.
+
+Keep-alive: the server sends a `: ping\n\n` comment every 15 seconds to prevent proxy timeouts.
+
+Backpressure: the server uses an unbounded `EventEmitter`. A slow client cannot block other clients because each has its own response stream, but a slow client can accumulate buffered events in the TCP send buffer until the OS rejects writes. Future versions will add per-client backpressure handling.
+
 ## DocFilter operators
 
 | Operator | Mongo equivalent | Meaning |

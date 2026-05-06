@@ -22,6 +22,7 @@ RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.json eslint.config.js ./
 COPY packages/api/package.json packages/api/package.json
 COPY packages/contract-server/package.json packages/contract-server/package.json
+COPY packages/contract-types/package.json packages/contract-types/package.json
 COPY packages/core/package.json packages/core/package.json
 COPY packages/types/package.json packages/types/package.json
 
