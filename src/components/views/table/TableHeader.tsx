@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:30:36 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { SchemaProperty, PropertyType } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { PropIcon, ADD_PROPERTY_TYPES } from '../../../constants/propertyIcons';
@@ -48,7 +48,8 @@ export function TableHeader({
   viewId, databaseId, searchQuery, setSearchQuery,
   filteredVisible, filteredHidden, onHeaderClick,
 }: Readonly<TableHeaderProps>) {
-  const { addProperty, togglePropertyVisibility, hideAllProperties } = useDatabaseStore.getState();
+  const storeApi = useStoreApi();
+  const { addProperty, togglePropertyVisibility, hideAllProperties } = storeApi.getState();
 
   return (
     <thead className={cn("sticky top-0 z-20")}>
@@ -65,12 +66,12 @@ export function TableHeader({
             onDragOver={e => e.preventDefault()}
             onDrop={() => {
               if (dragColId && dragColId !== prop.id) {
-                const newOrder = [...useDatabaseStore.getState().views[viewId].visibleProperties];
+                const newOrder = [...storeApi.getState().views[viewId].visibleProperties];
                 const fromIdx = newOrder.indexOf(dragColId);
                 const toIdx = newOrder.indexOf(prop.id);
                 newOrder.splice(fromIdx, 1);
                 newOrder.splice(toIdx, 0, dragColId);
-                useDatabaseStore.getState().reorderProperties(viewId, newOrder);
+                storeApi.getState().reorderProperties(viewId, newOrder);
               }
               setDragColId(null);
             }}>
@@ -84,7 +85,7 @@ export function TableHeader({
               <ChevronDown className={cn("w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-ink-muted shrink-0")} />
             </button>
             <div // NOSONAR - custom resize separator
-              role="separator" tabIndex={0} aria-label="Resize column" className={cn(`absolute top-0 right-0 w-1 h-full hover:bg-hover-accent-subtle transition-colors ${resizingCol === prop.id ? 'bg-accent' : ''}`)} // NOSONAR - resize separator needs tabIndex 
+              role="separator" tabIndex={0} aria-label="Resize column" className={cn(`absolute top-0 right-0 w-1 h-full hover:bg-hover-accent-subtle transition-colors ${resizingCol === prop.id ? 'bg-accent' : ''}`)} // NOSONAR - resize separator needs tabIndex
               style={{ cursor: CURSORS.colResize }}
               onMouseDown={e => handleResizeStart(e, prop.id)} />
           </th>

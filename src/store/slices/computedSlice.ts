@@ -6,22 +6,16 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:42:38 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:01:56 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { Page } from '../../types/database';
-import { initFormulaEngine, evalFormula, isWasmReady } from '../../lib/engine/bridge';
+import { evalFormula, isWasmReady } from '../../lib/engine/bridge';
 import { getCachedFormula, setCachedFormula } from '../../lib/formula/formulaCache';
 import { evaluateFilter } from '../../lib/filter/evaluateFilter';
 import { compareValues } from '../../lib/filter/compareValues';
 import { searchPage, buildGroups, formatFormulaResult, computeRollup } from './storeHelpers';
-
-try {
-  await initFormulaEngine();
-} catch {
-  // silently ignore formula engine init failure
-}
 
 let pagesForViewCache: {
   pagesRef: Record<string, unknown> | null;

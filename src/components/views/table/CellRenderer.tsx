@@ -6,12 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:45 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:14:05 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
+import type { DatabaseStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import {
   renderTitleOrText,
   renderNumber,
@@ -52,6 +53,7 @@ export interface CellRendererProps {
   onFormulaEdit: (propId: string) => void;
   onPropertyConfig: (prop: SchemaProperty, position: { top: number; left: number }) => void;
   tableRef: React.RefObject<HTMLDivElement | null>;
+  storeApi: DatabaseStoreApi;
 }
 
 /** Dispatches cell rendering based on property type. */

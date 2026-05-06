@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:51 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:28:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { addDays, startOfWeek, eachDayOfInterval, isToday as isTodayFn } from 'date-fns';
 import { Plus } from 'lucide-react';
@@ -36,6 +36,7 @@ export function TimelineView() {
     views, databases, getPagesForView, updatePageProperty,
     openPage, addPage, getPageTitle,
   } = useDatabaseStore();
+  const storeApi = useStoreApi();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
@@ -66,7 +67,7 @@ export function TimelineView() {
 
   const handleZoom = (level: ZoomLevel) => {
     if (!view) return;
-    useDatabaseStore.getState().updateViewSettings(view.id, { zoomLevel: level });
+    storeApi.getState().updateViewSettings(view.id, { zoomLevel: level });
   };
   const navStep = Math.max(7, Math.floor(config.daysToShow / 3));
 

@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:10 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:16:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useEffect, useCallback } from 'react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import { parseMarkdownToBlocks } from '../lib/markdown';
 
 /** Returns true if the text contains enough markdown-like patterns to warrant parsing. */
@@ -51,6 +51,7 @@ function looksLikeMarkdown(text: string): boolean {
  * @param pageId - The page to insert pasted blocks into.
  */
 export function usePasteHandler(pageId: string) {
+  const storeApi = useStoreApi();
   const handlePaste = useCallback((e: ClipboardEvent) => {
     const target = e.target as HTMLElement;
     // Only intercept in our block editor
@@ -66,7 +67,7 @@ export function usePasteHandler(pageId: string) {
     const blocks = parseMarkdownToBlocks(text);
     if (blocks.length === 0) return;
 
-    const { pages, insertBlock, updatePageContent } = useDatabaseStore.getState();
+    const { pages, insertBlock, updatePageContent } = storeApi.getState();
     const page = pages[pageId];
     if (!page) return;
 
@@ -87,7 +88,7 @@ export function usePasteHandler(pageId: string) {
       // No focused block — append to end
       updatePageContent(pageId, [...content, ...blocks]);
     }
-  }, [pageId]);
+  }, [pageId, storeApi]);
 
   useEffect(() => {
     document.addEventListener('paste', handlePaste);

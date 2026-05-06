@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:10 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty, Filter, DatabaseSchema, ViewConfig } from '../../types/database';
 import { getOperatorsForType, FilterPropertyPicker, FilterBar, AdvancedFilterGrid } from '../FilterComponents';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
@@ -50,7 +50,7 @@ export function FilterSortPanels({
   showSortPanel, filters, database, view, filterBtnRef, slots,
 }: Readonly<FilterSortPanelsProps & { slots?: Partial<FilterSortPanelsSlots> }>) {
   const advancedFilterRef = useRef<HTMLDivElement>(null);
-  const store = useDatabaseStore.getState();
+  const store = useStoreApi().getState();
 
   useOutsideClick(advancedFilterRef, showAdvancedFilter, () => setShowAdvancedFilter(false));
 

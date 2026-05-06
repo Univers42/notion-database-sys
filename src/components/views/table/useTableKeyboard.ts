@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:59 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:28:30 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:45:58 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useCallback } from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi, type DatabaseStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
 
 const CLEAR_VALUE_BY_TYPE: Record<string, unknown> = {
@@ -42,11 +42,12 @@ function handleEditingKeys(
 function handleDeleteKey(
   focusedCell: { pageId: string; propId: string },
   database: DatabaseSchema,
+  storeApi: DatabaseStoreApi,
 ): void {
   const prop = database.properties[focusedCell.propId];
   if (prop && !READ_ONLY_TYPES.has(prop.type)) {
     const clearVal = CLEAR_VALUE_BY_TYPE[prop.type] ?? '';
-    useDatabaseStore.getState().updatePageProperty(focusedCell.pageId, focusedCell.propId, clearVal);
+    storeApi.getState().updatePageProperty(focusedCell.pageId, focusedCell.propId, clearVal);
   }
 }
 
@@ -69,9 +70,9 @@ function handleNavigationKey(
   visibleProps: SchemaProperty[],
 ): boolean {
   switch (key) {
-    case 'ArrowUp':    if (pi > 0) setFocusedCell({ pageId: displayedPages[pi - 1].id, propId: focusedCell.propId }); return true;
-    case 'ArrowDown':  if (pi < displayedPages.length - 1) setFocusedCell({ pageId: displayedPages[pi + 1].id, propId: focusedCell.propId }); return true;
-    case 'ArrowLeft':  if (ci > 0) setFocusedCell({ pageId: focusedCell.pageId, propId: visibleProps[ci - 1].id }); return true;
+    case 'ArrowUp': if (pi > 0) setFocusedCell({ pageId: displayedPages[pi - 1].id, propId: focusedCell.propId }); return true;
+    case 'ArrowDown': if (pi < displayedPages.length - 1) setFocusedCell({ pageId: displayedPages[pi + 1].id, propId: focusedCell.propId }); return true;
+    case 'ArrowLeft': if (ci > 0) setFocusedCell({ pageId: focusedCell.pageId, propId: visibleProps[ci - 1].id }); return true;
     case 'ArrowRight': if (ci < visibleProps.length - 1) setFocusedCell({ pageId: focusedCell.pageId, propId: visibleProps[ci + 1].id }); return true;
     default: return false;
   }
@@ -80,6 +81,7 @@ function handleNavigationKey(
 /** Handles keyboard navigation (arrows, Tab) and cell editing shortcuts (Enter, Delete). */
 export function useTableKeyboard(deps: KeyboardDeps) {
   const { focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef } = deps;
+  const storeApi = useStoreApi();
 
   return useCallback((e: React.KeyboardEvent) => {
     if (!focusedCell || !database) return;
@@ -98,7 +100,7 @@ export function useTableKeyboard(deps: KeyboardDeps) {
 
     switch (e.key) {
       case 'Enter':
-        if (e.shiftKey) useDatabaseStore.getState().addPage(database.id);
+        if (e.shiftKey) storeApi.getState().addPage(database.id);
         else setEditingCell(focusedCell);
         e.preventDefault();
         break;
@@ -110,8 +112,8 @@ export function useTableKeyboard(deps: KeyboardDeps) {
       }
       case 'Delete':
       case 'Backspace':
-        handleDeleteKey(focusedCell, database);
+        handleDeleteKey(focusedCell, database, storeApi);
         break;
     }
-  }, [focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef]);
+  }, [focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef, storeApi]);
 }

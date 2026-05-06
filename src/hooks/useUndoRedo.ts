@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:21 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '../types/database';
 
 const MAX_HISTORY = 100;
@@ -37,10 +37,11 @@ export function useUndoRedo(pageId: string) {
   const isProgrammatic = useRef(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastSnapshotRef = useRef<string>('');
+  const storeApi = useStoreApi();
 
   /** Take a snapshot of the current page content. */
   const snapshot = useCallback(() => {
-    const page = useDatabaseStore.getState().pages[pageId];
+    const page = storeApi.getState().pages[pageId];
     if (!page?.content) return;
 
     const serialized = JSON.stringify(page.content);
@@ -61,14 +62,14 @@ export function useUndoRedo(pageId: string) {
     if (!isProgrammatic.current) {
       redoStack.current = [];
     }
-  }, [pageId]);
+  }, [pageId, storeApi]);
 
   /** Subscribe to store changes and auto-snapshot with debounce. */
   useEffect(() => {
     // Take initial snapshot
     snapshot();
 
-    const unsub = useDatabaseStore.subscribe((state, prev) => {
+    const unsub = storeApi.subscribe((state, prev) => {
       if (isProgrammatic.current) return;
       const currPage = state.pages[pageId];
       const prevPage = prev.pages[pageId];
@@ -85,13 +86,13 @@ export function useUndoRedo(pageId: string) {
       unsub();
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [pageId, snapshot]);
+  }, [pageId, snapshot, storeApi]);
 
   /** Undo: pop from undoStack, push current to redoStack, restore. */
   const undo = useCallback(() => {
     if (undoStack.current.length <= 1) return; // Need at least one entry to go back
 
-    const page = useDatabaseStore.getState().pages[pageId];
+    const page = storeApi.getState().pages[pageId];
     if (!page) return;
 
     // Save current state to redo stack
@@ -107,10 +108,10 @@ export function useUndoRedo(pageId: string) {
     if (!prev) return;
 
     isProgrammatic.current = true;
-    useDatabaseStore.getState().updatePageContent(pageId, prev.content);
+    storeApi.getState().updatePageContent(pageId, prev.content);
     lastSnapshotRef.current = JSON.stringify(prev.content);
     isProgrammatic.current = false;
-  }, [pageId]);
+  }, [pageId, storeApi]);
 
   /** Redo: pop from redoStack, push current to undoStack, restore. */
   const redo = useCallback(() => {
@@ -124,10 +125,10 @@ export function useUndoRedo(pageId: string) {
       content: structuredClone(entry.content),
       timestamp: Date.now(),
     });
-    useDatabaseStore.getState().updatePageContent(pageId, entry.content);
+    storeApi.getState().updatePageContent(pageId, entry.content);
     lastSnapshotRef.current = JSON.stringify(entry.content);
     isProgrammatic.current = false;
-  }, [pageId]);
+  }, [pageId, storeApi]);
 
   /** Global keyboard shortcut handler. */
   useEffect(() => {

@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:40:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:10 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useCallback } from 'react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import { detectBlockType } from '../lib/markdown';
 import type { Block } from '../types/database';
 import { useSlashSelect, repositionCursor } from './useSlashSelect';
@@ -31,6 +31,7 @@ import { isHeadingType } from './blockTypeGuards';
  * @param pageId - The page whose blocks are being edited.
  */
 export function useBlockEditor(pageId: string) {
+  const storeApi = useStoreApi();
   const {
     updatePageContent,
     insertBlock,
@@ -38,7 +39,7 @@ export function useBlockEditor(pageId: string) {
     changeBlockType,
     updateBlock,
     createInlineDatabase,
-  } = useDatabaseStore.getState();
+  } = storeApi.getState();
 
   const [slashMenu, setSlashMenu] = useState<SlashMenuState | null>(null);
   const blockRefs = useRef<Map<string, HTMLElement>>(new Map());

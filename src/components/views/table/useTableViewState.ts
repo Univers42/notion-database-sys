@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 00:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { SchemaProperty, PropertyValue } from '../../../types/database';
 import { READ_ONLY_TYPES } from '../../../constants/propertyIcons';
@@ -26,8 +26,9 @@ export function useTableViewState() {
   const databases = useDatabaseStore(s => s.databases);
   const _pages = useDatabaseStore(s => s.pages);
   const _searchQuery = useDatabaseStore(s => s.searchQuery);
+  const storeApi = useStoreApi();
   const { getPagesForView, addPage, openPage, deletePage,
-    getGroupedPages, duplicatePage } = useDatabaseStore.getState();
+    getGroupedPages, duplicatePage } = storeApi.getState();
 
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
@@ -77,16 +78,16 @@ export function useTableViewState() {
   const handleCellClick = useCallback((pageId: string, propId: string, type: string, currentValue: PropertyValue) => {
     setFocusedCell({ pageId, propId });
     if (type === 'checkbox') {
-      useDatabaseStore.getState().updatePageProperty(pageId, propId, !currentValue);
+      storeApi.getState().updatePageProperty(pageId, propId, !currentValue);
     } else if (!READ_ONLY_TYPES.has(type)) {
       setEditingCell({ pageId, propId });
     }
-  }, []);
+  }, [storeApi]);
   const handleUpdateProperty = useCallback((pageId: string, propId: string, value: PropertyValue) => {
-    useDatabaseStore.getState().updatePageProperty(pageId, propId, value);
-  }, []);
+    storeApi.getState().updatePageProperty(pageId, propId, value);
+  }, [storeApi]);
   const handleStopEditing = useCallback(() => { setEditingCell(null); }, []);
-  const handleOpenPage = useCallback((pageId: string) => { useDatabaseStore.getState().openPage(pageId); }, []);
+  const handleOpenPage = useCallback((pageId: string) => { storeApi.getState().openPage(pageId); }, [storeApi]);
   const handleFormulaEdit = useCallback((propId: string) => { setFormulaEditor({ propId }); }, []);
   const handleRowMenu = useCallback((pageId: string, x: number, y: number) => { setRowMenu({ pageId, x, y }); }, []);
   const handlePropertyConfig = useCallback((prop: SchemaProperty, position: { top: number; left: number }) => { setConfigPanel({ prop, position }); }, []);

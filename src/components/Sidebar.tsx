@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:43 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import {
   Database, ChevronDown, ChevronRight, Plus,
   Table, Kanban, Calendar, Clock, List, LayoutGrid, BarChart3, Rss, Map, LayoutDashboard
@@ -61,7 +61,7 @@ export function Sidebar({ slots = {} }: Readonly<{ slots?: Partial<SidebarSlots>
   const databases = useDatabaseStore(s => s.databases);
   const views = useDatabaseStore(s => s.views);
   const activeViewId = useDatabaseStore(s => s.activeViewId);
-  const { setActiveView, addView } = useDatabaseStore.getState();
+  const { setActiveView, addView } = useStoreApi().getState();
   const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({});
 
   const dbList = Object.values(databases);

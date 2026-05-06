@@ -6,14 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useCallback } from 'react';
 import { X, Copy, Trash2, ChevronRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { PropertyRow } from '../PropertyRow';
 import { PageContentEditor } from '../PageContentEditor';
 import type { Page, DatabaseSchema, SchemaProperty } from '../../types/database';
@@ -51,7 +51,7 @@ export function ModalHeaderBar({ database, title, pageId, onClose }: Readonly<{
   pageId: string;
   onClose: () => void;
 }>) {
-  const { deletePage, duplicatePage } = useDatabaseStore.getState();
+  const { deletePage, duplicatePage } = useStoreApi().getState();
   return (
     <div className={cn("flex items-center justify-between px-6 py-4 border-b border-line shrink-0")}>
       <div className={cn("flex items-center gap-2 text-sm text-ink-muted")}>
@@ -72,7 +72,7 @@ export function PageInnerContent({ page, database, pageId, hPad }: Readonly<{
   pageId: string;
   hPad: string;
 }>) {
-  const { updatePageProperty } = useDatabaseStore.getState();
+  const { updatePageProperty } = useStoreApi().getState();
   const titleValue = (page.properties[database.titlePropertyId] as string) || '';
   const [localTitle, setLocalTitle] = useState(titleValue);
   const commitTitle = useCallback(() => {

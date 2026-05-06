@@ -6,11 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 17:25:43 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import { create } from 'zustand';
+import { createContext, useContext } from 'react';
+import { useStore } from 'zustand';
+import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createDatabaseSlice } from './slices/databaseSlice';
 import { createPageSlice } from './slices/pageSlice';
 import { createViewSlice } from './slices/viewSlice';
@@ -21,35 +23,63 @@ import { getInitialSource } from './dbmsStoreTypes';
 import type { ExtendedDatabaseState } from './dbmsStoreTypes';
 import { createDbmsActions } from './dbmsStoreActions';
 
-/** Zustand store composing domain slices with DBMS persistence. */
-export const useDatabaseStore = create<ExtendedDatabaseState>((set, get) => ({
-  databases: {},
-  pages: {},
-  views: {},
-  activeViewId: null,
-  openPageId: null,
-  searchQuery: '',
+export type DatabaseStoreApi = StoreApi<ExtendedDatabaseState>;
 
-  dbmsLoading: true,
-  dbmsError: null,
-  activeDbmsSource: getInitialSource(),
+/** Creates a fresh database store instance with all domain and DBMS slices. */
+export function createDatabaseStore(): DatabaseStoreApi {
+  const store = createStore<ExtendedDatabaseState>()((set, get) => ({
+    databases: {},
+    pages: {},
+    views: {},
+    activeViewId: null,
+    openPageId: null,
+    searchQuery: '',
 
-  ...createDatabaseSlice(set, get),
-  ...createPageSlice(set, get),
-  ...createViewSlice(set, get),
-  ...createSelectionSlice(set),
-  ...createComputedSlice(set, get),
+    dbmsLoading: true,
+    dbmsError: null,
+    activeDbmsSource: getInitialSource(),
 
-  ...createDbmsActions(set, get),
-}));
+    ...createDatabaseSlice(set, get),
+    ...createPageSlice(set, get),
+    ...createViewSlice(set, get),
+    ...createSelectionSlice(set),
+    ...createComputedSlice(set, get),
 
-useDatabaseStore.subscribe(
-  (state, prev) => {
+    ...createDbmsActions(set, get),
+  }));
+
+  store.subscribe((state, prev) => {
     if (state.activeViewId !== prev.activeViewId || state.activeDbmsSource !== prev.activeDbmsSource) {
       writeHash(state.activeDbmsSource, state.activeViewId);
     }
-  },
-);
+  });
+
+  return store;
+}
+
+const StoreContext = createContext<DatabaseStoreApi | null>(null);
+
+export const DatabaseStoreProvider = StoreContext.Provider;
+
+/** Returns the database store API for the current ObjectDatabase instance. */
+export function useStoreApi(): DatabaseStoreApi {
+  const store = useContext(StoreContext);
+  if (!store) {
+    throw new Error(
+      'useStoreApi must be used within <ObjectDatabase>. '
+      + 'See src/component/README.md for embedding instructions.',
+    );
+  }
+  return store;
+}
+
+export function useDatabaseStore(): ExtendedDatabaseState;
+export function useDatabaseStore<T>(selector: (state: ExtendedDatabaseState) => T): T;
+export function useDatabaseStore<T>(selector?: (state: ExtendedDatabaseState) => T): T | ExtendedDatabaseState {
+  const store = useStoreApi();
+  if (selector) return useStore(store, selector);
+  return useStore(store, (state) => state);
+}
 
 export type { ExtendedDatabaseState } from './dbmsStoreTypes';
 

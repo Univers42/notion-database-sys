@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ import { usePageStore } from '../store/usePageStore';
 import { detectBlockType } from '@markdown';
 import { useSlashSelect, repositionCursor } from '@src/hooks/useSlashSelect';
 import { isHeadingType } from '@src/hooks/blockTypeGuards';
-import { useDatabaseStore } from '@src/store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '@src/store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '@src/types/database';
 import {
   handleArrowUp,
@@ -41,6 +41,7 @@ function isEffectivelyEmpty(text: string): boolean {
 
 /** Manages block editing, slash commands, and keyboard navigation for playground pages. */
 export function usePlaygroundBlockEditor(pageId: string) {
+  const dbStoreApi = useStoreApi();
   const {
     updatePageContent,
     insertBlock,
@@ -336,8 +337,8 @@ export function usePlaygroundBlockEditor(pageId: string) {
 
   /** Create a real inline database + default view in the shared DBMS store. */
   const createInlineDatabase = useCallback((name?: string) => {
-    return useDatabaseStore.getState().createInlineDatabase(name);
-  }, []);
+    return dbStoreApi.getState().createInlineDatabase(name);
+  }, [dbStoreApi]);
 
   /** Handle slash-command selection. */
   const handleSlashSelect = useSlashSelect({

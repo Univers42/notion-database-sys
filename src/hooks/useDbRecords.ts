@@ -6,12 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:32:15 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:45:58 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/useDatabaseStore';
+import type { ExtendedDatabaseState } from '../store/useDatabaseStore';
 import { useDbSource } from './useDbSource.ts';
 import type { DbSourceType } from '../../docker/services/dbms/types.ts';
 
@@ -19,11 +20,11 @@ interface UseDbRecordsResult {
   /** The active database source. */
   source: DbSourceType;
   /** All pages from the store (currently hardcoded). */
-  pages: ReturnType<typeof useDatabaseStore.getState>['pages'];
+  pages: ExtendedDatabaseState['pages'];
   /** All databases from the store. */
-  databases: ReturnType<typeof useDatabaseStore.getState>['databases'];
+  databases: ExtendedDatabaseState['databases'];
   /** All views from the store. */
-  views: ReturnType<typeof useDatabaseStore.getState>['views'];
+  views: ExtendedDatabaseState['views'];
   /** Whether data is loading (for future async sources). */
   loading: boolean;
   /** Last error message if any. */

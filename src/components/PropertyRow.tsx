@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:36 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import { PropIcon } from '../constants/propertyIcons';
 import type { SchemaProperty, DatabaseSchema, Page } from '../types/database';
 import {
@@ -27,7 +27,7 @@ export function PropertyRow({ prop, page, pageId, database: _database }: Readonl
   pageId: string;
   database: DatabaseSchema;
 }>) {
-  const { updatePageProperty } = useDatabaseStore.getState();
+  const { updatePageProperty } = useStoreApi().getState();
   const val = page.properties[prop.id];
   const update = (v: unknown) => updatePageProperty(pageId, prop.id, v);
 

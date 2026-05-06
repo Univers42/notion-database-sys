@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { cn } from '../../../utils/cn';
 
 /** Props for the memoized table row component. */
@@ -69,6 +70,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
     onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
   } = props;
 
+  const storeApi = useStoreApi();
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
 
   return (
@@ -89,7 +91,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         const cellProps: CellRendererProps = {
           prop, page, value, isEditing, wrapContent, databaseId,
           onUpdate: onUpdateProperty, onStopEditing, onOpenPage,
-          onFormulaEdit, onPropertyConfig, tableRef,
+          onFormulaEdit, onPropertyConfig, tableRef, storeApi,
         };
 
         let cellCursor: string | undefined;

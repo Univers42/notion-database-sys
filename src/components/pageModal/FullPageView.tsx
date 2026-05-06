@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:30 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../store/dbms/hardcoded/useDatabaseStore';
 import { ActionButtons, PageInnerContent } from './PageInnerContent';
 import type { Page, DatabaseSchema } from '../../types/database';
 import { cn } from '../../utils/cn';
@@ -27,7 +27,7 @@ export function FullPageView({ page, database, pageId, onClose }: Readonly<{
   pageId: string;
   onClose: () => void;
 }>) {
-  const { deletePage, duplicatePage } = useDatabaseStore.getState();
+  const { deletePage, duplicatePage } = useStoreApi().getState();
   const title = (page.properties[database.titlePropertyId] as string) || 'Untitled';
   const [contentWidth, setContentWidth] = useState<ContentWidth>('default');
   const fullPageMaxW = contentWidth === 'full' ? 'none' : `${CONTENT_WIDTHS[contentWidth]}px`;

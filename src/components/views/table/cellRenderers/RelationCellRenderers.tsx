@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import type { CellRendererProps } from '../CellRenderer';
 import type { PropertyValue } from '../../../../types/database';
 import { RelationCellEditor } from '../../../cellEditors';
@@ -41,7 +40,7 @@ function toStringArray(value: PropertyValue): string[] {
 /** Renders a formula cell with computed value and click-to-edit. */
 export function renderFormula(p: CellRendererProps): React.ReactNode {
   const { prop, page, databaseId, onFormulaEdit } = p;
-  const resolveFormula = useDatabaseStore.getState().resolveFormula;
+  const resolveFormula = p.storeApi.getState().resolveFormula;
   const formulaResult = prop.formulaConfig
     ? resolveFormula(databaseId, page, prop.formulaConfig.expression)
     : '#N/A';
@@ -70,7 +69,7 @@ export function renderFormula(p: CellRendererProps): React.ReactNode {
 /** Renders a rollup cell, dispatching to array, bar, or ring display modes. */
 export function renderRollup(p: CellRendererProps): React.ReactNode {
   const { prop, page, databaseId, wrapContent } = p;
-  const resolveRollup = useDatabaseStore.getState().resolveRollup;
+  const resolveRollup = p.storeApi.getState().resolveRollup;
   const rollupResult = resolveRollup(databaseId, page, prop.id);
   const displayAs = prop.rollupConfig?.displayAs || 'number';
 
@@ -143,13 +142,14 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
     );
   }
   if (relatedIds.length === 0) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
-  const storePages = useDatabaseStore.getState().pages;
+  const store = p.storeApi.getState();
+  const storePages = store.pages;
   return (
     <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
       {relatedIds.map(rid => {
         const relPage = storePages[rid];
         if (!relPage) return null;
-        const relDb = useDatabaseStore.getState().databases[relPage.databaseId];
+        const relDb = store.databases[relPage.databaseId];
         const titlePropId = relDb?.titlePropertyId;
         const title = titlePropId ? relPage.properties[titlePropId] : relPage.id;
         return (

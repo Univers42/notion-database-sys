@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState } from 'react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import {
   EyeIcon, FilterIcon, SortIcon, ConditionalColorIcon,
@@ -55,6 +55,7 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     views, databases, updateViewSettings, updateView,
     togglePropertyVisibility, setGrouping, updateProperty,
   } = useDatabaseStore();
+  const storeApi = useStoreApi();
 
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
@@ -124,7 +125,7 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
           onSelect={propId => {
             const prop = database.properties[propId];
             const ops = getOperatorsForType(prop?.type || 'text');
-            useDatabaseStore.getState().addFilter(view.id, { propertyId: propId, operator: ops[0].value, value: '' });
+            storeApi.getState().addFilter(view.id, { propertyId: propId, operator: ops[0].value, value: '' });
             setScreen('filter');
           }}
           onClose={() => setScreen('filter')} title="Add filter"

@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:58 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:32:15 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useDatabaseStore } from './store/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
 import type { DbSourceType } from '../docker/services/dbms/types';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -42,7 +42,8 @@ function App() {
   const databases = useDatabaseStore(s => s.databases);
   const dbmsLoading = useDatabaseStore(s => s.dbmsLoading);
   const dbmsError = useDatabaseStore(s => s.dbmsError);
-  const { openPage, loadFromSource } = useDatabaseStore.getState();
+  const storeApi = useStoreApi();
+  const { openPage, loadFromSource } = storeApi.getState();
   const activeSource = useDbSource(s => s.activeSource);
   const setActiveSource = useDbSource(s => s.setActiveSource);
   const view = activeViewId ? views[activeViewId] : null;
@@ -53,7 +54,7 @@ function App() {
   useEffect(() => {
     loadFromSource(activeSource).then(() => {
       // Sync useDbSource with whatever the database store settled on
-      const storeSource = useDatabaseStore.getState().activeDbmsSource;
+      const storeSource = storeApi.getState().activeDbmsSource;
       if (storeSource !== activeSource) {
         setActiveSource(storeSource as DbSourceType);
       }

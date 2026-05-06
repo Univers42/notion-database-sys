@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 23:30:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:30:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useRef, useCallback } from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { findDateProperties, type BarGeometry } from './TimelineViewHelpers';
 import type { SchemaProperty } from '../../../types/database';
 import type { DragKind, DragState } from './timelineTypes';
@@ -31,6 +31,7 @@ export function useTimelineDrag({
   const [dragState, setDragState] = useState<DragState | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef<number | null>(null);
+  const storeApi = useStoreApi();
 
   const getDayFromMouse = useCallback(
     (clientX: number): number => {
@@ -42,26 +43,26 @@ export function useTimelineDrag({
 
   const findEndProp = useCallback((): SchemaProperty | null => {
     if (!dbId) return null;
-    const freshDb = useDatabaseStore.getState().databases[dbId];
+    const freshDb = storeApi.getState().databases[dbId];
     if (!freshDb) return null;
     const { endProp } = findDateProperties(freshDb.properties);
     if (endProp) return endProp;
     return Object.values(freshDb.properties).find(
       p => p.name === 'End Date' && (p.type === 'date' || p.type === 'due_date'),
     ) ?? null;
-  }, [dbId]);
+  }, [dbId, storeApi]);
 
   const ensureEndProp = useCallback((): SchemaProperty | null => {
     if (!dbId) return null;
     const existing = findEndProp();
     if (existing) return existing;
-    useDatabaseStore.getState().addProperty(dbId, 'End Date', 'date');
-    const updatedDb = useDatabaseStore.getState().databases[dbId];
+    storeApi.getState().addProperty(dbId, 'End Date', 'date');
+    const updatedDb = storeApi.getState().databases[dbId];
     if (!updatedDb) return null;
     return Object.values(updatedDb.properties).find(
       p => p.name === 'End Date' && (p.type === 'date' || p.type === 'due_date'),
     ) ?? null;
-  }, [dbId, findEndProp]);
+  }, [dbId, findEndProp, storeApi]);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, pageId: string, kind: DragKind, bar: BarGeometry) => {

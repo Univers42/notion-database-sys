@@ -6,13 +6,13 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:26 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import type { Block } from '../types/database';
 import { cn } from '../utils/cn';
 
@@ -26,7 +26,7 @@ export function BlockHoverControls({ block, content, pageId, focusBlock }: Reado
   pageId: string;
   focusBlock: (id: string) => void;
 }>) {
-  const { insertBlock, updatePageContent } = useDatabaseStore.getState();
+  const { insertBlock, updatePageContent } = useStoreApi().getState();
 
   const handleInsertBefore = () => {
     const newBlock: Block = { id: crypto.randomUUID(), type: 'paragraph', content: '' };

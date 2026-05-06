@@ -6,12 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:57 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:02 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 
 /** Tracks the current fill-drag operation state. */
 export interface FillDragState {
@@ -23,6 +23,7 @@ export interface FillDragState {
 /** Manages fill-handle drag interactions for copying cell values across rows. */
 export function useFillDrag(activeViewId: string | null) {
   const [fillDrag, setFillDrag] = useState<FillDragState | null>(null);
+  const storeApi = useStoreApi();
 
   const handleFillMove = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -40,7 +41,7 @@ export function useFillDrag(activeViewId: string | null) {
       return;
     }
     const { sourcePropId, sourceRowIdx, currentRowIdx } = drag;
-    const store = useDatabaseStore.getState();
+    const store = storeApi.getState();
     const v = activeViewId ? store.views[activeViewId] : null;
     if (v) {
       const allPages = store.getPagesForView(v.id);
@@ -54,7 +55,7 @@ export function useFillDrag(activeViewId: string | null) {
       }
     }
     setFillDrag(null);
-  }, [activeViewId, fillDrag]);
+  }, [activeViewId, fillDrag, storeApi]);
 
   useEffect(() => {
     if (fillDrag) {
