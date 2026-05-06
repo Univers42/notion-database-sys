@@ -10,6 +10,7 @@
   "scripts": {
     "dev:src": "vite --config src/vite.config.ts",
     "dev:playground": "vite --config playground/vite.config.ts",
+    "dev:parent-app": "pnpm --filter parent-app dev",
     "dev:api": "node scripts/dev-api.mjs",
     "seed:playground": "node scripts/seed-playground.mjs",
     "build": "turbo run build",

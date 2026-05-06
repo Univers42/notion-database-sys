@@ -1,0 +1,40 @@
+{
+  "name": "parent-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "predev": "pnpm --filter @notion-db/object-database build",
+    "dev": "vite --host 0.0.0.0 --port 3002",
+    "prebuild": "pnpm --filter @notion-db/object-database build",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3002"
+  },
+  "dependencies": {
+    "@notion-db/object-database": "workspace:*",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-slot": "^1.2.4",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "katex": "^0.16.44",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.546.0",
+    "mermaid": "^11.13.0",
+    "motion": "^12.23.24",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^3.8.1",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.1.14",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.0.4",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

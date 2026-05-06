@@ -63,11 +63,38 @@ pnpm dev:api          # Fastify API on :4000
 pnpm dev:playground   # Playground UI on :3001
 ```
 
+## Using ObjectDatabase in your project
+
+The embeddable database component ships from `@notion-db/object-database`. The reference integration lives in [examples/parent-app](examples/parent-app) and is the recommended starting point for external projects.
+
+The parent app demonstrates:
+
+- installing the built package and all required peer dependencies
+- importing `@notion-db/object-database/theme.css`
+- rendering one full-page `<ObjectDatabase mode="page" />`
+- rendering one inline `<ObjectDatabase mode="inline" />` inside host-app content
+- sharing one `RemoteAdapter` between both instances
+- receiving mutation updates through contract-server SSE
+- switching themes from the host app with `data-theme`
+
+Quick local run:
+
+```bash
+pnpm install
+make up-db
+pnpm --filter @notion-db/contract-server seed
+CONTRACT_SERVER_AUTH=disabled pnpm --filter @notion-db/contract-server dev
+pnpm dev:parent-app     # http://localhost:3002
+```
+
+See [examples/parent-app/README.md](examples/parent-app/README.md) for the full setup, verification steps, and common gotchas before copying it into a separate repository.
+
 ## Project structure
 
 | Directory | What it is |
 |---|---|
 | `src/` | Main frontend React app (Vite) — full Notion DBMS clone |
+| `examples/parent-app/` | Reference external React app consuming `@notion-db/object-database` |
 | `playground/` | Multi-user sandbox app, connects to the Fastify API |
 | `packages/api/` | Fastify REST API — auth (JWT), CRUD, WebSocket real-time sync |
 | `packages/core/` | Shared MongoDB models (Mongoose), services, ABAC permissions |
