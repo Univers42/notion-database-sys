@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 23:57:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 00:51:16 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, {
   createContext,
   forwardRef,
+  useRef,
   Suspense,
   useCallback,
   useEffect,
@@ -41,6 +42,7 @@ import { cn } from './utils/cn';
 import { HttpAdapter } from './component/adapters/HttpAdapter';
 import type {
   ChangeEvent,
+  NotionState,
   ObjectDatabaseAdapter,
   ObjectDatabaseInstance,
   ObjectDatabaseProps,
@@ -73,6 +75,14 @@ type ObjectDatabaseWithStoreProps = ObjectDatabaseProps & {
   forwardedRef: React.ForwardedRef<ObjectDatabaseInstance>;
 };
 
+type ObjectDatabaseInnerProps = Required<Pick<ObjectDatabaseProps, 'mode'>> & {
+  databaseId?: string;
+  adapter: ObjectDatabaseAdapter;
+  initialView?: string | null;
+  onPageOpen?: (pageId: string | null) => void;
+  renderPage?: ObjectDatabaseProps['renderPage'];
+};
+
 /** Embeddable root component for the full Notion database experience. */
 export const ObjectDatabase = forwardRef<ObjectDatabaseInstance, ObjectDatabaseProps>(
   function ObjectDatabase(props, ref) {
@@ -93,6 +103,7 @@ function ObjectDatabaseWithStore({
   theme,
   initialView,
   onPageOpen,
+  renderPage,
   className,
   forwardedRef,
 }: Readonly<ObjectDatabaseWithStoreProps>) {
@@ -124,6 +135,7 @@ function ObjectDatabaseWithStore({
           adapter={resolvedAdapter}
           initialView={initialView}
           onPageOpen={onPageOpen}
+          renderPage={renderPage}
         />
       </div>
     </AdapterProvider>
@@ -136,12 +148,8 @@ function ObjectDatabaseInner({
   adapter,
   initialView,
   onPageOpen,
-}: Readonly<Required<Pick<ObjectDatabaseProps, 'mode'>> & {
-  databaseId?: string;
-  adapter: ObjectDatabaseAdapter;
-  initialView?: string | null;
-  onPageOpen?: (pageId: string | null) => void;
-}>) {
+  renderPage,
+}: Readonly<ObjectDatabaseInnerProps>) {
   const [formulaReady, setFormulaReady] = useState(false);
   const activeViewId = useDatabaseStore(s => s.activeViewId);
   const views = useDatabaseStore(s => s.views);
@@ -155,11 +163,13 @@ function ObjectDatabaseInner({
   const setActiveSource = useDbSource(s => s.setActiveSource);
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+  const lastSelectionKeyRef = useRef<string | null>(null);
+  const selectionKey = `${databaseId ?? ''}:${initialView ?? ''}`;
   const reloadFromAdapter = useCallback(
     async () => {
-      await loadAdapterState(storeApi, adapter, { silent: true });
+      await loadAdapterState(storeApi, adapter, { silent: true, databaseId, initialView });
     },
-    [adapter, storeApi],
+    [adapter, databaseId, initialView, storeApi],
   );
 
   useEffect(() => {
@@ -182,7 +192,7 @@ function ObjectDatabaseInner({
   useEffect(() => {
     let cancelled = false;
 
-    loadAdapterState(storeApi, adapter).then((storeSource) => {
+    loadAdapterState(storeApi, adapter, { databaseId, initialView }).then((storeSource) => {
       if (!cancelled && storeSource && storeSource !== activeSource) {
         setActiveSource(storeSource as DbSourceType);
       }
@@ -191,17 +201,15 @@ function ObjectDatabaseInner({
     return () => {
       cancelled = true;
     };
-  }, [adapter, activeSource, setActiveSource, storeApi]);
+  }, [adapter, activeSource, databaseId, initialView, setActiveSource, storeApi]);
 
   useEffect(() => {
-    if (initialView && views[initialView] && activeViewId !== initialView) {
-      setActiveView(initialView);
-      return;
-    }
-    if (!databaseId) return;
-    const nextView = Object.values(views).find(v => v.databaseId === databaseId);
-    if (nextView && activeViewId !== nextView.id) setActiveView(nextView.id);
-  }, [activeViewId, databaseId, initialView, setActiveView, views]);
+    if (lastSelectionKeyRef.current === selectionKey || Object.keys(views).length === 0) return;
+    const nextView = resolveInitialView(views, databaseId, initialView);
+    if (!nextView) return;
+    lastSelectionKeyRef.current = selectionKey;
+    if (activeViewId !== nextView.id) setActiveView(nextView.id);
+  }, [activeViewId, databaseId, initialView, selectionKey, setActiveView, views]);
 
   useEffect(() => {
     onPageOpen?.(openPageId);
@@ -273,17 +281,35 @@ function ObjectDatabaseInner({
     );
   }
 
+  let openPageSurface: React.ReactNode = null;
+  if (openPageId && renderPage) {
+    openPageSurface = renderPage(openPageId, storeApi.getState(), () => storeApi.getState().openPage(null));
+  } else if (openPageId) {
+    openPageSurface = (
+      <Suspense fallback={null}>
+        <LazyPageModal
+          pageId={openPageId}
+          onClose={() => storeApi.getState().openPage(null)}
+          mode={view?.settings?.openPagesIn || 'side_peek'}
+        />
+      </Suspense>
+    );
+  }
+
   if (mode === 'inline') {
     return (
-      <ErrorBoundary>
-        <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={false} />}>
-          <LazyDatabaseBlock
-            mode="inline"
-            databaseId={databaseId}
-            initialViewId={initialView ?? undefined}
-          />
-        </Suspense>
-      </ErrorBoundary>
+      <>
+        <ErrorBoundary>
+          <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={false} />}>
+            <LazyDatabaseBlock
+              mode="inline"
+              databaseId={databaseId}
+              initialViewId={initialView ?? undefined}
+            />
+          </Suspense>
+        </ErrorBoundary>
+        {openPageSurface}
+      </>
     );
   }
 
@@ -311,15 +337,7 @@ function ObjectDatabaseInner({
         </ErrorBoundary>
       </div>
 
-      {openPageId && (
-        <Suspense fallback={null}>
-          <LazyPageModal
-            pageId={openPageId}
-            onClose={() => storeApi.getState().openPage(null)}
-            mode={view?.settings?.openPagesIn || 'side_peek'}
-          />
-        </Suspense>
-      )}
+      {openPageSurface}
     </div>
   );
 }
@@ -407,22 +425,20 @@ function useDevFileChangeSubscription(adapter: ObjectDatabaseAdapter, onReload: 
 async function loadAdapterState(
   storeApi: DatabaseStoreApi,
   adapter: ObjectDatabaseAdapter,
-  opts: { silent?: boolean } = {},
+  opts: { silent?: boolean; databaseId?: string; initialView?: string | null } = {},
 ): Promise<string | null> {
   if (!opts.silent) storeApi.setState({ dbmsLoading: true, dbmsError: null });
   try {
     const loaded = await adapter.loadState();
     const current = storeApi.getState();
-    const firstViewId = Object.keys(loaded.views)[0] ?? null;
-    const activeViewId = current.activeViewId && loaded.views[current.activeViewId]
-      ? current.activeViewId
-      : firstViewId;
+    const state = withRequestedDatabase(loaded, opts.databaseId, opts.initialView);
+    const activeViewId = chooseActiveViewId(state, current.activeViewId, opts.databaseId, opts.initialView);
     const source = current.activeDbmsSource || 'adapter';
 
     storeApi.setState({
-      databases: loaded.databases,
-      pages: loaded.pages,
-      views: loaded.views,
+      databases: state.databases,
+      pages: state.pages,
+      views: state.views,
       activeViewId,
       activeDbmsSource: source,
       dbmsLoading: false,
@@ -441,6 +457,111 @@ async function loadAdapterState(
 async function initFormulaEngineOnce(): Promise<void> {
   const { initFormulaEngine } = await import('./lib/engine/bridge');
   await initFormulaEngine();
+}
+
+function resolveInitialView(
+  views: NotionState['views'],
+  databaseId?: string,
+  initialView?: string | null,
+) {
+  if (initialView && views[initialView]) return views[initialView];
+  if (!databaseId) return null;
+  return Object.values(views).find(v => v.databaseId === databaseId) ?? null;
+}
+
+function chooseActiveViewId(
+  state: NotionState,
+  currentViewId: string | null,
+  databaseId?: string,
+  initialView?: string | null,
+): string | null {
+  if (initialView && state.views[initialView]) return initialView;
+  if (databaseId) {
+    if (currentViewId && state.views[currentViewId]?.databaseId === databaseId) return currentViewId;
+    return Object.values(state.views).find(v => v.databaseId === databaseId)?.id ?? null;
+  }
+  return currentViewId && state.views[currentViewId]
+    ? currentViewId
+    : Object.keys(state.views)[0] ?? null;
+}
+
+function withRequestedDatabase(
+  loaded: NotionState,
+  databaseId?: string,
+  initialView?: string | null,
+): NotionState {
+  if (!databaseId || loaded.databases[databaseId]) return loaded;
+  const emptyState = createEmptyDatabaseState(databaseId, initialView);
+  return {
+    databases: { ...loaded.databases, ...emptyState.databases },
+    pages: loaded.pages,
+    views: { ...loaded.views, ...emptyState.views },
+  };
+}
+
+function createEmptyDatabaseState(databaseId: string, initialView?: string | null): NotionState {
+  const titlePropertyId = `${databaseId}-title`;
+  const statusPropertyId = `${databaseId}-status`;
+  const datePropertyId = `${databaseId}-date`;
+  const tableViewId = initialView || `${databaseId}-table`;
+
+  return {
+    databases: {
+      [databaseId]: {
+        id: databaseId,
+        name: 'Untitled database',
+        icon: '📋',
+        titlePropertyId,
+        properties: {
+          [titlePropertyId]: { id: titlePropertyId, name: 'Name', type: 'title' },
+          [statusPropertyId]: {
+            id: statusPropertyId,
+            name: 'Status',
+            type: 'status',
+            options: [
+              { id: 'not-started', value: 'Not started', color: 'gray' },
+              { id: 'in-progress', value: 'In progress', color: 'blue' },
+              { id: 'done', value: 'Done', color: 'green' },
+            ],
+          },
+          [datePropertyId]: { id: datePropertyId, name: 'Date', type: 'date' },
+        },
+      },
+    },
+    pages: {},
+    views: {
+      [tableViewId]: createEmptyView(tableViewId, databaseId, 'Table', 'table', [titlePropertyId, statusPropertyId, datePropertyId]),
+      [`${databaseId}-board`]: {
+        ...createEmptyView(`${databaseId}-board`, databaseId, 'Board', 'board', [titlePropertyId, statusPropertyId, datePropertyId]),
+        grouping: { propertyId: statusPropertyId },
+      },
+      [`${databaseId}-timeline`]: {
+        ...createEmptyView(`${databaseId}-timeline`, databaseId, 'Timeline', 'timeline', [titlePropertyId, statusPropertyId, datePropertyId]),
+        settings: { showTimelineBy: datePropertyId },
+      },
+      [`${databaseId}-list`]: createEmptyView(`${databaseId}-list`, databaseId, 'List', 'list', [titlePropertyId, statusPropertyId, datePropertyId]),
+    },
+  };
+}
+
+function createEmptyView(
+  id: string,
+  databaseId: string,
+  name: string,
+  type: NotionState['views'][string]['type'],
+  visibleProperties: string[],
+): NotionState['views'][string] {
+  return {
+    id,
+    databaseId,
+    name,
+    type,
+    filters: [],
+    filterConjunction: 'and',
+    sorts: [],
+    visibleProperties,
+    settings: {},
+  };
 }
 
 export default ObjectDatabase;

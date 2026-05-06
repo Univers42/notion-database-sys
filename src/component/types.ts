@@ -6,11 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 18:48:28 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 00:51:16 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { ObjectDatabaseAdapter } from '@notion-db/contract-types';
+import type React from 'react';
 export {
   AdapterError,
 } from '@notion-db/contract-types';
@@ -33,6 +34,13 @@ export type {
 } from '@notion-db/contract-types';
 import type { ExtendedDatabaseState } from '../store/useDatabaseStore';
 
+/** Host-rendered replacement for the built-in ObjectDatabase page peek/modal. */
+export type ObjectDatabasePageRenderer = (
+  pageId: string,
+  state: ExtendedDatabaseState,
+  onClose: () => void,
+) => React.ReactNode;
+
 /** Props accepted by the embeddable ObjectDatabase root component. */
 export interface ObjectDatabaseProps {
   mode?: 'page' | 'inline';
@@ -41,6 +49,7 @@ export interface ObjectDatabaseProps {
   theme?: 'light' | 'dark' | (string & {});
   initialView?: string | null;
   onPageOpen?: (pageId: string | null) => void;
+  renderPage?: ObjectDatabasePageRenderer;
   className?: string;
 }
 

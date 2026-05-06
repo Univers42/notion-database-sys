@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 00:51:17 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ export function TopBarActions({
           <input ref={searchRef} type="text" placeholder="Search..." value={localSearchValue}
             onChange={e => { const v = e.target.value; setLocalSearchValue(v); clearTimeout(searchDebounceRef.current); searchDebounceRef.current = setTimeout(() => onSearchQueryChange(v), 200); }}
             onKeyDown={e => { if (e.key === 'Escape') { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); } }}
-            className={cn("bg-transparent text-sm w-40 outline-none placeholder:text-placeholder")} />
+            className={cn("bg-transparent text-sm text-ink w-40 outline-none placeholder:text-placeholder")} />
           <button onClick={() => { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); }} className={cn("p-0.5 hover:bg-hover-surface3 rounded")}>
             <X className={cn("w-3 h-3 text-ink-muted")} />
           </button>
