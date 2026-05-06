@@ -19,7 +19,7 @@ pnpm add @radix-ui/react-dropdown-menu @radix-ui/react-popover @radix-ui/react-s
 
 ```tsx
 import { ObjectDatabase, InMemoryAdapter } from '@notion-db/object-database';
-import '@notion-db/object-database/theme.css';
+import '@notion-db/object-database/styles.css';
 
 export function DatabaseEmbed() {
   return <ObjectDatabase mode="inline" adapter={new InMemoryAdapter()} />;
@@ -32,7 +32,9 @@ The package externalizes React, ReactDOM, Zustand, Lucide, Radix primitives, cha
 
 ## CSS
 
-Import `@notion-db/object-database/theme.css` once at app startup. It provides the CSS custom properties used by the component.
+Import `@notion-db/object-database/styles.css` once at app startup. It provides the full ObjectDatabase stylesheet: Tailwind v4 setup, theme tokens, and the package source scan needed to generate utilities such as `bg-surface-primary`, `text-ink-muted`, and `border-line`.
+
+`@notion-db/object-database/theme.css` remains available as a backwards-compatible alias to the full stylesheet. `@notion-db/object-database/tokens.css` contains only the CSS custom properties and is not enough by itself to render the component correctly.
 
 The component uses Tailwind utility classes. Consumers must include Tailwind in their application build and ensure generated CSS covers the component classes.
 

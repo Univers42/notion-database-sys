@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 19:24:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 23:31:25 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,20 +22,20 @@ export interface AuthScope {
 /** Minimum token claims accepted by the reference auth implementation. */
 export interface AuthClaims {
   sub: string;
+  email?: string;
   iat: number;
   exp: number;
   scope: AuthScope;
 }
 
 /** Authenticated user metadata attached to Fastify requests. */
-export interface AuthenticatedUser extends AuthClaims {
+export interface AuthenticatedUser {
+  sub: string;
+  email: string;
+  iat?: number;
+  exp?: number;
+  scope?: AuthScope;
   authDisabled?: boolean;
-}
-
-declare module 'fastify' {
-  interface FastifyRequest {
-    user?: AuthenticatedUser;
-  }
 }
 
 /** Registers /v1 authentication enforcement on a Fastify instance. */
@@ -72,14 +72,15 @@ export function registerAuthHook(app: FastifyInstance): void {
 /** Returns true when the user can access the requested database id. */
 export function canAccessDatabase(user: AuthenticatedUser | undefined, databaseId: string): boolean {
   if (!user) return true;
-  const databases = user.scope.databases;
+  const databases = user.scope?.databases ?? ['*'];
   return databases.includes('*') || databases.includes(databaseId);
 }
 
 /** Filters database ids down to the ids visible to the current user. */
 export function filterDatabaseIds(user: AuthenticatedUser | undefined, databaseIds: string[]): string[] {
-  if (!user || user.scope.databases.includes('*')) return databaseIds;
-  return databaseIds.filter(databaseId => user.scope.databases.includes(databaseId));
+  const allowedDatabases = user?.scope?.databases;
+  if (!allowedDatabases || allowedDatabases.includes('*')) return databaseIds;
+  return databaseIds.filter(databaseId => allowedDatabases.includes(databaseId));
 }
 
 /** Throws a 403 error if the current user cannot access the database id. */
@@ -132,7 +133,10 @@ function verifyHs256Token(token: string, secret: string): AuthenticatedUser {
 
   const claims = decodeJson<Partial<AuthClaims>>(encodedPayload, 'AUTH_INVALID');
   validateClaims(claims);
-  return claims;
+  return {
+    ...claims,
+    email: claims.email ?? `${claims.sub}@contract.local`,
+  };
 }
 
 function validateClaims(claims: Partial<AuthClaims>): asserts claims is AuthClaims {
@@ -190,6 +194,7 @@ function createDevBypassUser(): AuthenticatedUser {
   const nowSeconds = Math.floor(Date.now() / 1000);
   return {
     sub: 'dev-bypass',
+    email: 'dev-bypass@contract.local',
     iat: nowSeconds,
     exp: nowSeconds + 31_536_000,
     scope: { databases: ['*'] },

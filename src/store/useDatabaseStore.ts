@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 17:45:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 23:31:25 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,12 +73,11 @@ export function useStoreApi(): DatabaseStoreApi {
   return store;
 }
 
-export function useDatabaseStore(): ExtendedDatabaseState;
-export function useDatabaseStore<T>(selector: (state: ExtendedDatabaseState) => T): T;
-export function useDatabaseStore<T>(selector?: (state: ExtendedDatabaseState) => T): T | ExtendedDatabaseState {
+export function useDatabaseStore<T = ExtendedDatabaseState>(
+  selector: (state: ExtendedDatabaseState) => T = (state) => state as T,
+): T {
   const store = useStoreApi();
-  if (selector) return useStore(store, selector);
-  return useStore(store, (state) => state);
+  return useStore(store, selector);
 }
 
 export type { ExtendedDatabaseState } from './dbmsStoreTypes';

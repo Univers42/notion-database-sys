@@ -10,20 +10,26 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./theme.css": "./theme.css"
+    "./styles.css": "./styles.css",
+    "./theme.css": "./theme.css",
+    "./tokens.css": "./tokens.css"
   },
   "files": [
     "dist",
+    "styles.css",
     "theme.css",
+    "tokens.css",
     "README.md",
     "CHANGELOG.md"
   ],
   "sideEffects": [
-    "./theme.css"
+    "./styles.css",
+    "./theme.css",
+    "./tokens.css"
   ],
   "scripts": {
-    "build": "pnpm run copy:theme && tsup && node scripts/write-dts-map.mjs",
-    "copy:theme": "cp ../../src/theme.css ./theme.css",
+    "build": "tsup && pnpm run copy:styles && node scripts/write-dts-map.mjs",
+    "copy:styles": "node scripts/copy-styles.mjs",
     "test:consumer": "pnpm run build && tsc --project __test_consumer__/tsconfig.json && node __test_consumer__/dist/render.js",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },

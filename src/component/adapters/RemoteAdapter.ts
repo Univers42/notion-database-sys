@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 19:24:16 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 20:25:39 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,11 @@ export class RemoteAdapter implements ObjectDatabaseAdapter {
   ) {
     if (typeof options === 'string') {
       this.baseUrl = options;
-      this.fetch = legacyFetch;
+      this.fetch = bindFetch(legacyFetch);
       return;
     }
     this.baseUrl = options.baseUrl;
-    this.fetch = options.fetch ?? globalThis.fetch;
+    this.fetch = bindFetch(options.fetch ?? globalThis.fetch);
     this.token = options.token;
   }
 
@@ -228,4 +228,8 @@ function isErrorPayload(value: unknown): value is ErrorPayload {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function bindFetch(fetchImpl: typeof globalThis.fetch): typeof globalThis.fetch {
+  return fetchImpl.bind(globalThis);
 }

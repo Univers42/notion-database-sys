@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 20:16:43 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 20:29:23 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,9 @@ export default defineConfig({
   clean: true,
   minify: false,
   treeshake: true,
+  define: {
+    __OBJECT_DATABASE_DISABLE_WASM__: 'true',
+  },
   dts: {
     entry: 'src/index.ts',
     resolve: true,

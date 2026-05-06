@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/06 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 20:16:41 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/06 23:57:40 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,7 +288,7 @@ function ObjectDatabaseInner({
   }
 
   return (
-    <div className="flex h-screen w-screen bg-surface-primary overflow-hidden">
+    <div className="flex h-full w-full min-w-0 bg-surface-primary overflow-hidden">
       <div className="flex-1 flex flex-col min-w-0">
         <ErrorBoundary>
           <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={false} />}>
@@ -330,7 +330,7 @@ function ObjectDatabaseLoading({
 }: Readonly<{ source: string; formulaPending: boolean }>) {
   const accentColor = SOURCE_COLORS[source] ?? '#3b82f6';
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-surface-primary">
+    <div className="flex h-full w-full min-h-80 items-center justify-center bg-surface-primary">
       <div className="flex flex-col items-center gap-4">
         <div
           className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent"
@@ -354,7 +354,7 @@ function ObjectDatabaseError({
   onRetry,
 }: Readonly<{ source: string; message: string; onRetry: () => void | Promise<void> }>) {
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-surface-primary">
+    <div className="flex h-full w-full min-h-80 items-center justify-center bg-surface-primary">
       <div className="flex flex-col items-center gap-3 max-w-md text-center">
         <div className="text-4xl">⚠️</div>
         <p className="text-sm font-medium text-ink-strong">
@@ -439,9 +439,8 @@ async function loadAdapterState(
 }
 
 async function initFormulaEngineOnce(): Promise<void> {
-  const bridgePath = './lib/engine/bridge';
-  const bridge = await import(bridgePath) as { initFormulaEngine?: () => Promise<void> | void };
-  await bridge.initFormulaEngine?.();
+  const { initFormulaEngine } = await import('./lib/engine/bridge');
+  await initFormulaEngine();
 }
 
 export default ObjectDatabase;
