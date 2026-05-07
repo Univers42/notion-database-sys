@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:05:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 20:22:03 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,15 @@ import { SessionModel } from '../models/session.model.js';
 
 /** 30 days in milliseconds */
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+function documentId(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object' && 'toHexString' in value) {
+    const toHexString = (value as { toHexString?: () => string }).toHexString;
+    return typeof toHexString === 'function' ? toHexString.call(value) : '';
+  }
+  return '';
+}
 
 export interface TokenPair {
   accessToken: string;
@@ -41,7 +50,51 @@ export class AuthService {
       passwordHash: password, // pre-save hook will hash this
     });
 
-    return { _id: user._id.toString(), email: user.email, name: user.name };
+    return { _id: documentId(user._id), email: user.email, name: user.name };
+  }
+
+  async ensureExternalUser(input: {
+    provider: string;
+    subject: string;
+    email: string;
+    name: string;
+  }) {
+    const externalMatch = await UserModel.findOne({
+      externalProvider: input.provider,
+      externalSubject: input.subject,
+    });
+    if (externalMatch) {
+      await UserModel.updateOne(
+        { _id: externalMatch._id },
+        { email: input.email, name: input.name, lastLoginAt: new Date() },
+      );
+      return { _id: documentId(externalMatch._id), email: input.email, name: input.name };
+    }
+
+    const emailMatch = await UserModel.findOne({ email: input.email });
+    if (emailMatch) {
+      await UserModel.updateOne(
+        { _id: emailMatch._id },
+        {
+          externalProvider: input.provider,
+          externalSubject: input.subject,
+          name: input.name,
+          lastLoginAt: new Date(),
+        },
+      );
+      return { _id: documentId(emailMatch._id), email: emailMatch.email, name: input.name };
+    }
+
+    const user = await UserModel.create({
+      email: input.email,
+      name: input.name,
+      externalProvider: input.provider,
+      externalSubject: input.subject,
+      passwordHash: crypto.randomBytes(48).toString('hex'),
+      lastLoginAt: new Date(),
+    });
+
+    return { _id: documentId(user._id), email: user.email, name: user.name };
   }
 
   /**
@@ -55,7 +108,7 @@ export class AuthService {
     if (!valid) throw new Error('Invalid credentials');
 
     await UserModel.updateOne({ _id: user._id }, { lastLoginAt: new Date() });
-    return user._id.toString();
+    return documentId(user._id);
   }
 
   /**

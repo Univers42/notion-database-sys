@@ -6,16 +6,17 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:03:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 03:57:24 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 20:22:04 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
-import { WorkspaceService, isValidObjectId } from '@notion-db/core';
+import { AbacEngine, WorkspaceService, isValidObjectId } from '@notion-db/core';
 import type { WorkspaceRole } from '@notion-db/types';
 
 export async function workspaceRoutes(app: FastifyInstance) {
   const svc = new WorkspaceService();
+  const abac = new AbacEngine();
 
   // All workspace routes require authentication
   app.addHook('preHandler', app.authenticate);
@@ -40,6 +41,9 @@ export async function workspaceRoutes(app: FastifyInstance) {
     }
     const ws = await svc.getById(request.params.id);
     if (!ws) return reply.code(404).send({ error: 'Workspace not found' });
+    if (!await svc.hasAccess(request.params.id, request.user.sub)) {
+      return reply.code(404).send({ error: 'Workspace not found' });
+    }
     return ws;
   });
 
@@ -47,6 +51,9 @@ export async function workspaceRoutes(app: FastifyInstance) {
   app.get<{ Params: { id: string } }>('/:id/members', async (request, reply) => {
     if (!isValidObjectId(request.params.id)) {
       return reply.code(400).send({ error: 'Invalid workspace ID' });
+    }
+    if (!await svc.hasAccess(request.params.id, request.user.sub)) {
+      return reply.code(404).send({ error: 'Workspace not found' });
     }
     return svc.listMembers(request.params.id);
   });
@@ -58,6 +65,9 @@ export async function workspaceRoutes(app: FastifyInstance) {
   }>('/:id/members', async (request, reply) => {
     if (!isValidObjectId(request.params.id)) {
       return reply.code(400).send({ error: 'Invalid workspace ID' });
+    }
+    if (!await abac.check(request.user.sub, request.params.id, request.params.id, 'workspace', 'full_access')) {
+      return reply.code(403).send({ error: 'Forbidden' });
     }
     const { userId, role } = request.body;
     await svc.addMember(request.params.id, userId, (role ?? 'member') as WorkspaceRole, request.user.sub);
@@ -72,6 +82,9 @@ export async function workspaceRoutes(app: FastifyInstance) {
     if (!isValidObjectId(request.params.id) || !isValidObjectId(request.params.userId)) {
       return reply.code(400).send({ error: 'Invalid ID' });
     }
+    if (!await abac.check(request.user.sub, request.params.id, request.params.id, 'workspace', 'full_access')) {
+      return reply.code(403).send({ error: 'Forbidden' });
+    }
     await svc.updateMemberRole(request.params.id, request.params.userId, request.body.role as WorkspaceRole);
     return { ok: true };
   });
@@ -82,6 +95,9 @@ export async function workspaceRoutes(app: FastifyInstance) {
   }>('/:id/members/:userId', async (request, reply) => {
     if (!isValidObjectId(request.params.id) || !isValidObjectId(request.params.userId)) {
       return reply.code(400).send({ error: 'Invalid ID' });
+    }
+    if (!await abac.check(request.user.sub, request.params.id, request.params.id, 'workspace', 'full_access')) {
+      return reply.code(403).send({ error: 'Forbidden' });
     }
     await svc.removeMember(request.params.id, request.params.userId);
     return { ok: true };

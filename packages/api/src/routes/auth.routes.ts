@@ -6,18 +6,43 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:03:03 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:03:08 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 20:22:04 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import type { FastifyInstance } from 'fastify';
-import { AuthService } from '@notion-db/core';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { AuthService, WorkspaceService } from '@notion-db/core';
+
+const BRIDGE_CLOCK_SKEW_MS = 5 * 60 * 1000;
+
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
+  const entries = Object.keys(value).sort((left, right) => left.localeCompare(right)).map((key) => {
+    const record = value as Record<string, unknown>;
+    return JSON.stringify(key) + ':' + stableStringify(record[key]);
+  });
+  return '{' + entries.join(',') + '}';
+}
+
+function verifyBridgeSignature(secret: string, timestamp: string, signature: string, body: unknown): boolean {
+  const issuedAt = Number(timestamp);
+  if (!Number.isFinite(issuedAt) || Math.abs(Date.now() - issuedAt) > BRIDGE_CLOCK_SKEW_MS) return false;
+  const expected = createHmac('sha256', secret)
+    .update(`${timestamp}.${stableStringify(body)}`)
+    .digest('hex');
+  const actualBuffer = Buffer.from(signature, 'hex');
+  const expectedBuffer = Buffer.from(expected, 'hex');
+  return actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer);
+}
 
 export async function authRoutes(app: FastifyInstance) {
   const authService = new AuthService(
     process.env.JWT_SECRET ?? 'dev-secret-change-in-production',
     process.env.JWT_EXPIRES_IN ?? '15m',
   );
+  const workspaceService = new WorkspaceService();
 
   // POST /api/auth/register
   app.post<{
@@ -57,6 +82,41 @@ export async function authRoutes(app: FastifyInstance) {
     } catch (err: unknown) {
       reply.code(401).send({ error: (err as Error).message });
     }
+  });
+
+  app.post<{
+    Body: { provider: string; subject: string; email: string; name?: string };
+  }>('/bridge/session', async (request, reply) => {
+    const secret = process.env.OSIONOS_BRIDGE_SHARED_SECRET ?? process.env.JWT_SECRET ?? '';
+    const timestamp = String(request.headers['x-prismatica-bridge-timestamp'] ?? '');
+    const signature = String(request.headers['x-prismatica-bridge-signature'] ?? '');
+    if (!secret || !verifyBridgeSignature(secret, timestamp, signature, request.body)) {
+      return reply.code(401).send({ error: 'Unauthorized bridge request' });
+    }
+
+    const provider = String(request.body.provider ?? '').trim();
+    const subject = String(request.body.subject ?? '').trim();
+    const email = String(request.body.email ?? '').trim().toLowerCase();
+    const name = String(request.body.name ?? email.split('@')[0] ?? 'Workspace owner').trim();
+    if (provider !== 'prismatica' || !subject || !/^\S+@\S+\.\S+$/.test(email)) {
+      return reply.code(422).send({ error: 'Invalid bridge identity' });
+    }
+
+    const user = await authService.ensureExternalUser({ provider, subject, email, name });
+    await workspaceService.ensurePersonalWorkspace(user._id, user.name);
+    const workspaces = await workspaceService.listForUser(user._id);
+    const accessToken = app.jwt.sign({ sub: user._id, email: user.email });
+    const refreshToken = await authService.createSession(user._id, {
+      userAgent: request.headers['user-agent'],
+      ip: request.ip,
+    });
+
+    return reply.send({
+      accessToken,
+      refreshToken,
+      user: { id: user._id, email: user.email, name: user.name },
+      workspaces,
+    });
   });
 
   // POST /api/auth/refresh

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:06:21 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 20:22:04 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,20 @@ export class WorkspaceService {
     return workspace.toObject();
   }
 
+  async ensurePersonalWorkspace(ownerId: string, name: string): Promise<unknown> {
+    const existing = await WorkspaceModel.findOne({ ownerId }).lean();
+    if (existing) {
+      await WorkspaceMemberModel.updateOne(
+        { workspaceId: existing._id, userId: ownerId },
+        { $setOnInsert: { role: 'owner', joinedAt: new Date() } },
+        { upsert: true },
+      );
+      return existing;
+    }
+
+    return this.create(`${name}'s workspace`, ownerId);
+  }
+
   /**
    * Get workspace by ID.
    */
@@ -48,6 +62,14 @@ export class WorkspaceService {
       .lean();
     const ids = memberships.map((m) => m.workspaceId);
     return WorkspaceModel.find({ _id: { $in: ids } }).lean();
+  }
+
+  async getMembership(workspaceId: string, userId: string) {
+    return WorkspaceMemberModel.findOne({ workspaceId, userId }).lean();
+  }
+
+  async hasAccess(workspaceId: string, userId: string): Promise<boolean> {
+    return Boolean(await this.getMembership(workspaceId, userId));
   }
 
   /**

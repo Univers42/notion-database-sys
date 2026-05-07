@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:05:09 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 15:05:10 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/07 20:22:02 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ const userSchema = new Schema({
   },
   name: { type: String, required: true, trim: true, maxlength: 100 },
   avatar: String,
+  externalProvider: { type: String, trim: true },
+  externalSubject: { type: String, trim: true },
   passwordHash: { type: String, required: true, select: false },
   preferences: { type: preferencesSchema, default: () => ({}) },
   lastLoginAt: Date,
@@ -53,5 +55,6 @@ userSchema.methods.comparePassword = async function (candidate: string): Promise
 };
 
 userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ externalProvider: 1, externalSubject: 1 }, { unique: true, sparse: true });
 
 export const UserModel = model<UserDocument>('User', userSchema);
