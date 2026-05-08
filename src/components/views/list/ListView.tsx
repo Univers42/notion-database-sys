@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 23:14:06 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/08 04:43:11 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,29 +83,43 @@ export function ListView() {
   const renderPageRow = (page: Page) => {
     const title = getPageTitle(page);
     const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
+    const openThisPage = () => openPage(page.id);
 
     return (
-      <button type="button" key={page.id} onClick={() => openPage(page.id)}
-        className={cn("flex items-center justify-between py-2 px-3 hover:bg-hover-surface rounded-lg cursor-pointer group transition-colors text-left w-full")}>
-        <div className={cn("flex items-center gap-2.5 overflow-hidden min-w-0")}>
-          {showPageIcon && (
-            page.icon
-              ? <span className={cn("text-base shrink-0")}>{page.icon}</span>
-              : <FileText className={cn("w-4 h-4 text-ink-muted shrink-0")} />
-          )}
-          <span className={cn("font-medium text-ink truncate")}>{title || <span className={cn("text-ink-muted")}>Untitled</span>}</span>
-        </div>
+      <div
+        key={page.id}
+        className={cn("flex items-center justify-between rounded-lg hover:bg-hover-surface group transition-colors text-left w-full")}
+      >
+        <button
+          type="button"
+          onClick={openThisPage}
+          className={cn("flex min-w-0 flex-1 items-center justify-between py-2 pl-3 pr-2 text-left focus:outline-none focus:ring-2 focus:ring-accent/30")}
+        >
+          <span className={cn("flex items-center gap-2.5 overflow-hidden min-w-0")}>
+            {showPageIcon && (
+              page.icon
+                ? <span className={cn("text-base shrink-0")}>{page.icon}</span>
+                : <FileText className={cn("w-4 h-4 text-ink-muted shrink-0")} />
+            )}
+            <span className={cn("font-medium text-ink truncate")}>{title || <span className={cn("text-ink-muted")}>Untitled</span>}</span>
+          </span>
 
-        <div className={cn("flex items-center gap-3 shrink-0 ml-4")}>
-          {visibleProps.filter(p => p.id !== database.titlePropertyId).map(prop =>
-            renderListPropertyTag(prop, page.properties[prop.id])
-          )}
+          <span className={cn("flex items-center gap-3 shrink-0 ml-4")}>
+            {visibleProps.filter(p => p.id !== database.titlePropertyId).map(prop =>
+              renderListPropertyTag(prop, page.properties[prop.id])
+            )}
+          </span>
+        </button>
 
-          <button className={cn("p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity rounded hover:bg-hover-surface2")}>
-            <MoreHorizontal className={cn("w-4 h-4")} />
-          </button>
-        </div>
-      </button>
+        <button
+          type="button"
+          className={cn("mr-2 p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity rounded hover:bg-hover-surface2")}
+          onClick={(event) => event.stopPropagation()}
+          aria-label={`Open actions for ${title || 'Untitled'}`}
+        >
+          <MoreHorizontal className={cn("w-4 h-4")} />
+        </button>
+      </div>
     );
   };
 
