@@ -19,6 +19,9 @@ export type {
   ObjectDatabaseAdapter,
   ObjectDatabaseInstance,
   ObjectDatabaseProps,
+  Page,
   PageQuery,
+  PropertyType,
+  SchemaProperty,
 } from './types';
 export { HttpAdapter, InMemoryAdapter, RemoteAdapter } from './adapters';

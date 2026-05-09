@@ -164,11 +164,11 @@ export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGro
           {page.icon && <span className={cn("mr-1")}>{page.icon}</span>}
           {title || <span className={cn("text-ink-muted")}>Untitled</span>}
         </div>
-        <button
-          className={cn("shrink-0 flex items-center gap-0.5 text-[9px] font-medium text-accent-text-soft bg-accent-soft hover:bg-hover-accent-muted px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity")}
-          onClick={(e) => { e.stopPropagation(); openPage(page.id); }}>
+        <span
+          className={cn("shrink-0 flex items-center gap-0.5 text-[9px] font-medium text-accent-text-soft bg-accent-soft px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity")}
+          aria-hidden="true">
           <ArrowUpRight className={cn("w-2.5 h-2.5")} /> Open
-        </button>
+        </span>
       </div>
       {cardPreview !== 'page_properties' && (
         <div className={cn("flex flex-col gap-1.5 mt-2")}>

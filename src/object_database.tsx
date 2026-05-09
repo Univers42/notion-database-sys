@@ -81,6 +81,11 @@ type ObjectDatabaseInnerProps = Required<Pick<ObjectDatabaseProps, 'mode'>> & {
   initialView?: string | null;
   onPageOpen?: (pageId: string | null) => void;
   renderPage?: ObjectDatabaseProps['renderPage'];
+  chrome?: ObjectDatabaseProps['chrome'];
+};
+
+type PersistableAdapter = ObjectDatabaseAdapter & {
+  persistState?: (state: NotionState, previousState?: NotionState) => void;
 };
 
 /** Embeddable root component for the full Notion database experience. */
@@ -105,6 +110,7 @@ function ObjectDatabaseWithStore({
   onPageOpen,
   renderPage,
   className,
+  chrome = 'full',
   forwardedRef,
 }: Readonly<ObjectDatabaseWithStoreProps>) {
   const resolvedAdapter = useMemo<ObjectDatabaseAdapter>(
@@ -136,6 +142,7 @@ function ObjectDatabaseWithStore({
           initialView={initialView}
           onPageOpen={onPageOpen}
           renderPage={renderPage}
+          chrome={chrome}
         />
       </div>
     </AdapterProvider>
@@ -149,6 +156,7 @@ function ObjectDatabaseInner({
   initialView,
   onPageOpen,
   renderPage,
+  chrome = 'full',
 }: Readonly<ObjectDatabaseInnerProps>) {
   const [formulaReady, setFormulaReady] = useState(false);
   const activeViewId = useDatabaseStore(s => s.activeViewId);
@@ -216,6 +224,7 @@ function ObjectDatabaseInner({
   }, [onPageOpen, openPageId]);
 
   useDevFileChangeSubscription(adapter, reloadFromAdapter);
+  useAdapterStatePersistence(adapter, storeApi);
 
   const [lockViews, setLockViews] = useState(false);
   const blockPanelSections: PanelSection[] = useMemo(() => {
@@ -305,6 +314,7 @@ function ObjectDatabaseInner({
               mode="inline"
               databaseId={databaseId}
               initialViewId={initialView ?? undefined}
+              chrome={chrome}
             />
           </Suspense>
         </ErrorBoundary>
@@ -331,6 +341,7 @@ function ObjectDatabaseInner({
                 mode="full"
                 databaseId={databaseId}
                 initialViewId={initialView ?? undefined}
+                chrome={chrome}
               />
             </LazyBlockHandle>
           </Suspense>
@@ -422,6 +433,31 @@ function useDevFileChangeSubscription(adapter: ObjectDatabaseAdapter, onReload: 
   }, [adapter, handleChange]);
 }
 
+function useAdapterStatePersistence(adapter: ObjectDatabaseAdapter, storeApi: DatabaseStoreApi): void {
+  useEffect(() => {
+    const persistState = (adapter as PersistableAdapter).persistState;
+    if (!persistState) return undefined;
+
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const unsubscribe = storeApi.subscribe((state, previous) => {
+      if (state.activeDbmsSource !== 'adapter') return;
+      if (state.databases === previous.databases && state.pages === previous.pages && state.views === previous.views) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        persistState(
+          { databases: state.databases, pages: state.pages, views: state.views },
+          { databases: previous.databases, pages: previous.pages, views: previous.views },
+        );
+      }, 150);
+    });
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      unsubscribe();
+    };
+  }, [adapter, storeApi]);
+}
+
 async function loadAdapterState(
   storeApi: DatabaseStoreApi,
   adapter: ObjectDatabaseAdapter,
@@ -433,7 +469,7 @@ async function loadAdapterState(
     const current = storeApi.getState();
     const state = withRequestedDatabase(loaded, opts.databaseId, opts.initialView);
     const activeViewId = chooseActiveViewId(state, current.activeViewId, opts.databaseId, opts.initialView);
-    const source = current.activeDbmsSource || 'adapter';
+    const source = 'adapter';
 
     storeApi.setState({
       databases: state.databases,

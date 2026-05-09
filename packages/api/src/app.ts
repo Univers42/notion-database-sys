@@ -6,13 +6,14 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:03:59 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/09 15:08:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
+import multipart from '@fastify/multipart';
 import websocket from '@fastify/websocket';
 import { connectDatabase, syncIndexes } from '@notion-db/core';
 import { authRoutes } from './routes/auth.routes.js';
@@ -21,6 +22,7 @@ import { pageRoutes } from './routes/page.routes.js';
 import { blockRoutes } from './routes/block.routes.js';
 import { viewRoutes } from './routes/view.routes.js';
 import { wsRoutes } from './routes/ws.routes.js';
+import { settingsRoutes } from './routes/settings/index.js';
 import { authHook } from './hooks/auth.hook.js';
 
 export async function buildApp() {
@@ -46,6 +48,7 @@ export async function buildApp() {
   });
 
   await app.register(websocket);
+  await app.register(multipart);
 
   // ── Auth hook (runs before all protected routes) ───────────────────────────
   app.decorate('authenticate', authHook);
@@ -60,6 +63,7 @@ export async function buildApp() {
 
   // ── Routes ─────────────────────────────────────────────────────────────────
   await app.register(authRoutes, { prefix: '/api/auth' });
+  await app.register(settingsRoutes, { prefix: '/api' });
   await app.register(workspaceRoutes, { prefix: '/api/workspaces' });
   await app.register(pageRoutes, { prefix: '/api/pages' });
   await app.register(blockRoutes, { prefix: '/api/blocks' });

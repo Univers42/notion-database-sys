@@ -25,10 +25,11 @@ import { cn } from '../utils/cn';
 /** Props for {@link TopBar}. */
 export interface TopBarProps {
   onViewChange?: (viewId: string) => void;
+  variant?: 'full' | 'single-view';
 }
 
 /** Renders the database header with view tabs, search, filter/sort controls, and settings. */
-export function TopBar({ onViewChange }: TopBarProps = {}) {
+export function TopBar({ onViewChange, variant = 'full' }: TopBarProps = {}) {
   const activeViewId = useActiveViewId();
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
@@ -72,51 +73,62 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
 
   const handleTitleDoubleClick = () => { setTitleValue(database.name); setIsEditingTitle(true); };
   const commitTitle = () => { if (titleValue.trim()) { renameDatabase(database.id, titleValue.trim()); } setIsEditingTitle(false); };
+  const isSingleView = variant === 'single-view';
 
   return (
     <>
       <div className={cn("bg-surface-primary border-b border-line flex flex-col group/header")}>
         {/* ─── Top row: Editable title + action buttons ─── */}
         <div className={cn("flex items-center justify-between px-4 py-2")}>
-          <div className={cn("flex items-center gap-1.5 min-w-0")}>
-            <div className={cn("relative")}>
-              <button onClick={() => setShowDbSwitcher(!showDbSwitcher)}
-                className={cn("flex items-center gap-1.5 px-1.5 py-1 rounded-lg hover:bg-hover-surface2 transition-colors")}>
-                {database.icon && <span className={cn("text-lg")}>{database.icon}</span>}
-                <ChevronDown className={cn("w-3 h-3 text-ink-muted")} />
-              </button>
-              {showDbSwitcher && (
-                <Dropdown onClose={() => setShowDbSwitcher(false)}>
-                  <div className={cn("py-1")}>
-                    <div className={cn("px-3 py-1.5 text-[10px] font-semibold text-ink-muted uppercase tracking-wider")}>Databases</div>
-                    {Object.values(databases).map(db => (
-                      <button key={db.id} onClick={() => {
-                        const firstView = Object.values(views).find(v => v.databaseId === db.id);
-                        if (firstView) setActiveView(firstView.id);
-                        setShowDbSwitcher(false);
-                      }}
-                        className={cn(`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-hover-surface transition-colors ${db.id === database.id ? 'bg-accent-soft text-accent-text' : 'text-ink-body'}`)}>
-                        {db.icon && <span>{db.icon}</span>}
-                        <span className={cn("font-medium")}>{db.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </Dropdown>
+          {isSingleView ? (
+            <div className={cn("flex min-w-0 items-center gap-2")}> 
+              {database.icon && <span className={cn("text-base")}>{database.icon}</span>}
+              <div className={cn("min-w-0")}> 
+                <div className={cn("truncate text-sm font-semibold text-ink")}>{view.name}</div>
+                <div className={cn("truncate text-[11px] text-ink-muted")}>{database.name} · {view.type}</div>
+              </div>
+            </div>
+          ) : (
+            <div className={cn("flex items-center gap-1.5 min-w-0")}>
+              <div className={cn("relative")}>
+                <button onClick={() => setShowDbSwitcher(!showDbSwitcher)}
+                  className={cn("flex items-center gap-1.5 px-1.5 py-1 rounded-lg hover:bg-hover-surface2 transition-colors")}>
+                  {database.icon && <span className={cn("text-lg")}>{database.icon}</span>}
+                  <ChevronDown className={cn("w-3 h-3 text-ink-muted")} />
+                </button>
+                {showDbSwitcher && (
+                  <Dropdown onClose={() => setShowDbSwitcher(false)}>
+                    <div className={cn("py-1")}>
+                      <div className={cn("px-3 py-1.5 text-[10px] font-semibold text-ink-muted uppercase tracking-wider")}>Databases</div>
+                      {Object.values(databases).map(db => (
+                        <button key={db.id} onClick={() => {
+                          const firstView = Object.values(views).find(v => v.databaseId === db.id);
+                          if (firstView) setActiveView(firstView.id);
+                          setShowDbSwitcher(false);
+                        }}
+                          className={cn(`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-hover-surface transition-colors ${db.id === database.id ? 'bg-accent-soft text-accent-text' : 'text-ink-body'}`)}>
+                          {db.icon && <span>{db.icon}</span>}
+                          <span className={cn("font-medium")}>{db.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </Dropdown>
+                )}
+              </div>
+              {isEditingTitle ? (
+                <input ref={titleRef} value={titleValue} onChange={e => setTitleValue(e.target.value)}
+                  onBlur={commitTitle}
+                  onKeyDown={e => { if (e.key === 'Enter') { commitTitle(); } if (e.key === 'Escape') { setIsEditingTitle(false); } }}
+                  className={cn("text-lg font-bold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]")} />
+              ) : (
+                <h1 style={{ cursor: CURSORS.text }}
+                  className={cn("text-lg font-bold text-ink truncate hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors")}
+                  onDoubleClick={handleTitleDoubleClick} title="Double-click to rename">
+                  {database.name}
+                </h1>
               )}
             </div>
-            {isEditingTitle ? (
-              <input ref={titleRef} value={titleValue} onChange={e => setTitleValue(e.target.value)}
-                onBlur={commitTitle}
-                onKeyDown={e => { if (e.key === 'Enter') { commitTitle(); } if (e.key === 'Escape') { setIsEditingTitle(false); } }}
-                className={cn("text-lg font-bold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]")} />
-            ) : (
-              <h1 style={{ cursor: CURSORS.text }}
-                className={cn("text-lg font-bold text-ink truncate hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors")}
-                onDoubleClick={handleTitleDoubleClick} title="Double-click to rename">
-                {database.name}
-              </h1>
-            )}
-          </div>
+          )}
 
           {/* Right: Action buttons */}
           <TopBarActions
@@ -136,10 +148,12 @@ export function TopBar({ onViewChange }: TopBarProps = {}) {
           />
         </div>
 
-        <ViewTabsRow dbViews={dbViews} activeViewId={activeViewId ?? ''} view={view} database={database}
-          setActiveView={setActiveView} addView={addView} updateView={updateView}
-          duplicateView={duplicateView} deleteView={deleteView}
-          onEditTitle={handleTitleDoubleClick} onEditLayout={() => setShowViewSettings(true)} />
+        {isSingleView ? null : (
+          <ViewTabsRow dbViews={dbViews} activeViewId={activeViewId ?? ''} view={view} database={database}
+            setActiveView={setActiveView} addView={addView} updateView={updateView}
+            duplicateView={duplicateView} deleteView={deleteView}
+            onEditTitle={handleTitleDoubleClick} onEditLayout={() => setShowViewSettings(true)} />
+        )}
 
         <FilterSortPanels showFilterPanel={showFilterPanel} showFilterPropertyPicker={showFilterPropertyPicker}
           setShowFilterPropertyPicker={setShowFilterPropertyPicker}

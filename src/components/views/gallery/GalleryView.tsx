@@ -80,10 +80,10 @@ export function GalleryView() {
             }
             return <Image className={cn("w-8 h-8 text-ink-disabled")} />;
           })()}
-          <button className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
-            onClick={(e) => { e.stopPropagation(); }}>
+          <span className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
+            aria-hidden="true">
             <MoreHorizontal className={cn("w-4 h-4")} />
-          </button>
+          </span>
         </div>
       );
     }
@@ -147,11 +147,11 @@ export function GalleryView() {
                 <div className={cn("flex items-center gap-1.5 mb-1.5")}>
                   {showPageIcon && page.icon && <span className={cn("text-sm")}>{page.icon}</span>}
                   <span className={cn(`font-semibold text-sm text-ink ${wrapContent ? 'break-words' : 'truncate'} flex-1 min-w-0`)}>{title || <span className={cn("text-ink-muted")}>Untitled</span>}</span>
-                  <button
-                    className={cn("shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft hover:bg-hover-accent-muted px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity")}
-                    onClick={(e) => { e.stopPropagation(); openPage(page.id); }}>
+                  <span
+                    className={cn("shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity")}
+                    aria-hidden="true">
                     <ArrowUpRight className={cn("w-3 h-3")} /> Open
-                  </button>
+                  </span>
                 </div>
                 {/* Only show property rows when preview is NOT page_properties (avoid duplication) */}
                 {cardPreview !== 'page_properties' && nonTitleProps.length > 0 && (

@@ -26,6 +26,8 @@ export interface DatabaseBlockProps {
   initialViewId?: string;
   /** full = main app, fills screen. inline = embedded in page content. */
   mode?: "full" | "inline";
+  /** full = database surface, single-view = one view with view actions but no database switcher/tabs. */
+  chrome?: "full" | "single-view";
 }
 
 /** Renders a complete database experience (TopBar + view body) in full-page or inline mode. */
@@ -33,6 +35,7 @@ export function DatabaseBlock({
   databaseId,
   initialViewId,
   mode = "full",
+  chrome = "full",
 }: Readonly<DatabaseBlockProps>) {
   const views = useDatabaseStore((s) => s.views);
   const databases = useDatabaseStore((s) => s.databases);
@@ -106,6 +109,7 @@ export function DatabaseBlock({
   }
 
   const handleViewChange = mode === "inline" ? setLocalViewId : undefined;
+  const singleViewChrome = chrome === "single-view";
 
   if (mode === "inline") {
     return (
@@ -113,13 +117,14 @@ export function DatabaseBlock({
         <div
           className={cn(
             "my-3 border border-line rounded-xl overflow-hidden bg-surface-primary shadow-sm",
+            singleViewChrome && "osionos-object-database-single-view",
           )}
         >
-          <TopBar onViewChange={handleViewChange} />
+          <TopBar onViewChange={handleViewChange} variant={chrome} />
           <div className={cn("max-h-[500px] overflow-auto")}>
             <DatabaseView viewId={resolvedViewId ?? undefined} compact />
           </div>
-          <InlineFooter databaseId={database.id} />
+          {singleViewChrome ? null : <InlineFooter databaseId={database.id} />}
         </div>
       </DatabaseScopeProvider>
     );
@@ -128,7 +133,7 @@ export function DatabaseBlock({
   // Full-page mode — identical to current App layout
   return (
     <div className={cn("flex-1 flex flex-col min-h-0")}>
-      <TopBar />
+      <TopBar variant={chrome} />
       <DatabaseView />
     </div>
   );

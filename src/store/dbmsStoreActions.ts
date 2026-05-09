@@ -46,6 +46,7 @@ export function createDbmsActions(set: SetState, get: GetState) {
     },
 
     persistPageProperty: (pageId: string, propertyId: string, value: unknown) => {
+      if (get().activeDbmsSource === 'adapter') return;
       const key = `${pageId}::${propertyId}`;
       const prev = persistTimers.get(key);
       if (prev) clearTimeout(prev);
@@ -114,10 +115,10 @@ export function createDbmsActions(set: SetState, get: GetState) {
       const sliceActions = createPageSlice(set, get);
       const pageId = sliceActions.addPage(databaseId, properties);
       // Persist full state immediately (includes new page + autoIncrement)
-      flushState(get);
+      if (get().activeDbmsSource !== 'adapter') flushState(get);
       // Dispatch ops (query generation only — fire-and-forget)
       const page = get().pages[pageId];
-      if (page) {
+      if (page && get().activeDbmsSource !== 'adapter') {
         dispatchOps('insert', { databaseId, pageId, properties: page.properties }, get().activeDbmsSource);
       }
       return pageId;
@@ -128,8 +129,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
       const sliceActions = createPageSlice(set, get);
       sliceActions.deletePage(pageId);
       // Persist full state immediately (page removed from state)
-      flushState(get);
-      if (page) {
+      if (get().activeDbmsSource !== 'adapter') flushState(get);
+      if (page && get().activeDbmsSource !== 'adapter') {
         dispatchOps('delete', {
           databaseId: page.databaseId,
           pageId,
@@ -140,8 +141,10 @@ export function createDbmsActions(set: SetState, get: GetState) {
     addProperty: (databaseId: string, name: string, type: string) => {
       const sliceActions = createDatabaseSlice(set, get);
       sliceActions.addProperty(databaseId, name, type as never);
-      flushState(get);
-      dispatchOps('addColumn', { databaseId, columnName: name, propType: type }, get().activeDbmsSource);
+      if (get().activeDbmsSource !== 'adapter') {
+        flushState(get);
+        dispatchOps('addColumn', { databaseId, columnName: name, propType: type }, get().activeDbmsSource);
+      }
     },
 
     deleteProperty: (databaseId: string, propertyId: string) => {
@@ -149,8 +152,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
       const propName = db?.properties[propertyId]?.name;
       const sliceActions = createDatabaseSlice(set, get);
       sliceActions.deleteProperty(databaseId, propertyId);
-      flushState(get);
-      if (propName) {
+      if (get().activeDbmsSource !== 'adapter') flushState(get);
+      if (propName && get().activeDbmsSource !== 'adapter') {
         dispatchOps('dropColumn', { databaseId, columnName: propName }, get().activeDbmsSource);
       }
     },
@@ -159,8 +162,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
       const oldProp = get().databases[databaseId]?.properties[propertyId];
       const sliceActions = createDatabaseSlice(set, get);
       sliceActions.updateProperty(databaseId, propertyId, updates as never);
-      flushState(get);
-      if (updates.type && oldProp && oldProp.type !== updates.type) {
+      if (get().activeDbmsSource !== 'adapter') flushState(get);
+      if (updates.type && oldProp && oldProp.type !== updates.type && get().activeDbmsSource !== 'adapter') {
         const fieldName = oldProp.name.toLowerCase().replaceAll(/\s+/g, '_');
         dispatchOps('changeType', {
           databaseId, columnName: fieldName,

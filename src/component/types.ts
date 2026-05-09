@@ -51,6 +51,7 @@ export interface ObjectDatabaseProps {
   onPageOpen?: (pageId: string | null) => void;
   renderPage?: ObjectDatabasePageRenderer;
   className?: string;
+  chrome?: 'full' | 'single-view';
 }
 
 /** Imperative handle exposed by ObjectDatabase refs. */

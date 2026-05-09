@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/04 15:03:31 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/07 20:22:04 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/05/09 15:08:26 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,17 +47,6 @@ export async function workspaceRoutes(app: FastifyInstance) {
     return ws;
   });
 
-  // GET /api/workspaces/:id/members
-  app.get<{ Params: { id: string } }>('/:id/members', async (request, reply) => {
-    if (!isValidObjectId(request.params.id)) {
-      return reply.code(400).send({ error: 'Invalid workspace ID' });
-    }
-    if (!await svc.hasAccess(request.params.id, request.user.sub)) {
-      return reply.code(404).send({ error: 'Workspace not found' });
-    }
-    return svc.listMembers(request.params.id);
-  });
-
   // POST /api/workspaces/:id/members — invite
   app.post<{
     Params: { id: string };
@@ -74,32 +63,4 @@ export async function workspaceRoutes(app: FastifyInstance) {
     reply.code(201).send({ ok: true });
   });
 
-  // PATCH /api/workspaces/:id/members/:userId
-  app.patch<{
-    Params: { id: string; userId: string };
-    Body: { role: string };
-  }>('/:id/members/:userId', async (request, reply) => {
-    if (!isValidObjectId(request.params.id) || !isValidObjectId(request.params.userId)) {
-      return reply.code(400).send({ error: 'Invalid ID' });
-    }
-    if (!await abac.check(request.user.sub, request.params.id, request.params.id, 'workspace', 'full_access')) {
-      return reply.code(403).send({ error: 'Forbidden' });
-    }
-    await svc.updateMemberRole(request.params.id, request.params.userId, request.body.role as WorkspaceRole);
-    return { ok: true };
-  });
-
-  // DELETE /api/workspaces/:id/members/:userId
-  app.delete<{
-    Params: { id: string; userId: string };
-  }>('/:id/members/:userId', async (request, reply) => {
-    if (!isValidObjectId(request.params.id) || !isValidObjectId(request.params.userId)) {
-      return reply.code(400).send({ error: 'Invalid ID' });
-    }
-    if (!await abac.check(request.user.sub, request.params.id, request.params.id, 'workspace', 'full_access')) {
-      return reply.code(403).send({ error: 'Forbidden' });
-    }
-    await svc.removeMember(request.params.id, request.params.userId);
-    return { ok: true };
-  });
 }
