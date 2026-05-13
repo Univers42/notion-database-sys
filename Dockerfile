@@ -27,7 +27,7 @@ COPY packages/core/package.json packages/core/package.json
 COPY packages/types/package.json packages/types/package.json
 
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile --prefer-offline
 
 COPY packages ./packages
 
