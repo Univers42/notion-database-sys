@@ -5,7 +5,7 @@
 # Dependencies are installed once and cached in a named volume.
 # Source code is bind-mounted at runtime for instant HMR.
 
-FROM node:22-alpine
+FROM public.ecr.aws/docker/library/node:22-alpine
 
 # Build essentials for native Node addons (cmake-js, bcrypt, etc.)
 RUN apk add --no-cache python3 make g++ cmake git bash
