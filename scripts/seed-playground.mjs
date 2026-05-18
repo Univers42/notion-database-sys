@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -10,7 +11,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#!/usr/bin/env node
 // ── scripts/seed-playground.mjs ──────────────────────────────────────────────
 // Idempotent seed: registers 3 playground users (if they don't exist), creates
 // a private workspace for each, then creates a shared workspace owned by admin
