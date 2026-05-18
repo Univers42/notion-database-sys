@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokenizerRulesExt.ts                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/18 21:19:17 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/05/18 21:19:17 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Syntax tokenizer — extended language rules (set A)
 import type { Rule } from './tokenizerRules';
 import { kw, MULTI_LINE_COMMENT, HASH_COMMENT, DOUBLE_QUOTED_STRING, SINGLE_QUOTED_STRING, BACKTICK_STRING, NUMBER_LITERAL, cFamilyComments, cFamilyStrings, cFamilyTail } from './tokenizerRules';
