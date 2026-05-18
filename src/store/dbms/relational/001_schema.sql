@@ -1,3 +1,15 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    001_schema.sql                                     :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/05/18 21:19:17 by dlesieur          #+#    #+#              #
+#    Updated: 2026/05/18 21:19:17 by dlesieur         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 -- 001_schema.sql — PostgreSQL schema for DBMS seed data
 -- Run via: psql -U notion_user -d notion_db -f 001_schema.sql
 

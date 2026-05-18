@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   routeHandlersCrud.ts                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/18 21:19:17 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/05/18 21:19:17 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 /** @file routeHandlersCrud.ts — Page / record CRUD route handlers. */
 
 import type { Req, Res, SchemaProp, PageLike } from './dbmsTypes';

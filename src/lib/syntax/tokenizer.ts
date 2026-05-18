@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokenizer.ts                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/18 21:19:17 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/05/18 21:19:17 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // Syntax tokenizer — engine and language map
 import type { Token, TokenType, Rule } from './tokenizerRules';
 export type { Token, TokenType } from './tokenizerRules';
