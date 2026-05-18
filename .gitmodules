@@ -1,6 +1,6 @@
 [submodule "src/lib/engine"]
         path = src/lib/engine
-        url = https://github.com/Univers42/formula-engine.git
+        url = git@github.com:Univers42/formula-engine.git
 [submodule "vendor/scripts"]
         path = vendor/scripts
-        url = https://github.com/Univers42/scripts.git
+        url = git@github.com:Univers42/scripts.git
