@@ -2,3 +2,8 @@ packages:
   - "packages/*"
   - "apps/*"
   - "examples/parent-app"
+
+# react-doctor/require-pnpm-hardening — delay installs of brand-new releases
+# by 7 days (10080 minutes) so the npm community has time to catch and
+# unpublish malware uploads. Mirrors the .npmrc minimum-release-age value.
+minimumReleaseAge: 10080
