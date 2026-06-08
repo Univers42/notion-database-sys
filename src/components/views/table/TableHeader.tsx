@@ -85,7 +85,10 @@ export function TableHeader({
               <ChevronDown className={cn("w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-ink-muted shrink-0")} />
             </button>
             <div // NOSONAR - custom resize separator
-              role="separator" tabIndex={0} aria-label="Resize column" className={cn(`absolute top-0 right-0 w-1 h-full hover:bg-hover-accent-subtle transition-colors ${resizingCol === prop.id ? 'bg-accent' : ''}`)} // NOSONAR - resize separator needs tabIndex
+              role="separator" tabIndex={0} aria-label="Resize column"
+              aria-orientation="vertical" aria-valuemin={60} aria-valuemax={600}
+              aria-valuenow={Math.min(600, Math.max(60, Math.round(getColWidth(prop.id))))}
+              className={cn(`absolute top-0 right-0 w-1 h-full hover:bg-hover-accent-subtle transition-colors ${resizingCol === prop.id ? 'bg-accent' : ''}`)} // NOSONAR - resize separator needs tabIndex
               style={{ cursor: CURSORS.colResize }}
               onMouseDown={e => handleResizeStart(e, prop.id)} />
           </th>
@@ -93,7 +96,7 @@ export function TableHeader({
         <th className={cn("w-10 px-2 py-2 border-line text-center bg-surface-secondary")}>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <button className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><Plus className={cn("w-4 h-4")} /></button>
+              <button aria-label="Add property" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><Plus className={cn("w-4 h-4")} /></button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content className={cn("w-48 bg-surface-primary rounded-lg p-1 shadow-xl border border-line text-sm z-50")}>
@@ -111,7 +114,7 @@ export function TableHeader({
         <th className={cn("w-10 px-2 py-2 text-center bg-surface-secondary")}>
           <Popover.Root>
             <Popover.Trigger asChild>
-              <button className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><MoreHorizontal className={cn("w-4 h-4")} /></button>
+              <button aria-label="Column options" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><MoreHorizontal className={cn("w-4 h-4")} /></button>
             </Popover.Trigger>
             <Popover.Portal>
               <Popover.Content align="end" className={cn("w-64 bg-surface-primary rounded-lg shadow-xl border border-line p-2 text-sm z-50")}>
@@ -134,7 +137,7 @@ export function TableHeader({
                             <PropIcon type={p.type} className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
                             <span className={cn("truncate text-ink-body")}>{p.name}</span>
                           </div>
-                          <button onClick={() => togglePropertyVisibility(viewId, p.id)} className={cn("shrink-0 ml-2")}>
+                          <button aria-label={`Hide ${p.name}`} onClick={() => togglePropertyVisibility(viewId, p.id)} className={cn("shrink-0 ml-2")}>
                             <Eye className={cn("w-4 h-4 text-accent-text-soft hover:text-hover-accent-text-bold")} />
                           </button>
                         </div>
@@ -151,7 +154,7 @@ export function TableHeader({
                             <PropIcon type={p.type} className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
                             <span className={cn("truncate text-ink-body")}>{p.name}</span>
                           </div>
-                          <button onClick={() => togglePropertyVisibility(viewId, p.id)} className={cn("shrink-0 ml-2")}>
+                          <button aria-label={`Show ${p.name}`} onClick={() => togglePropertyVisibility(viewId, p.id)} className={cn("shrink-0 ml-2")}>
                             <EyeOff className={cn("w-4 h-4 text-ink-muted hover:text-hover-text-strong")} />
                           </button>
                         </div>

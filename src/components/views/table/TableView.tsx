@@ -56,7 +56,7 @@ export function TableView() {
   };
 
   return (
-    <div className={cn("flex-1 overflow-auto bg-surface-primary outline-none")} role="grid" tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
+    <div className={cn("flex-1 overflow-auto bg-surface-primary outline-none")} tabIndex={0} onKeyDown={handleKeyDown} ref={tableRef}>
       <div className={cn("inline-block min-w-full")}>
         <table className={cn("min-w-full text-left border-collapse")}>
           <TableHeader

@@ -128,7 +128,7 @@ export function ViewTabsRow({
 
         <div className={cn("flex items-center gap-0.5 shrink-0", slots?.actionsWrap)}>
           <div className={cn("relative")} ref={addViewRef}>
-            <button onClick={() => { setShowAddView(!showAddView); setShowViewDots(false); }}
+            <button onClick={() => { setShowAddView(!showAddView); setShowViewDots(false); }} aria-label="Add view"
               className={cn(`flex items-center gap-1 px-2 py-1.5 text-sm rounded-lg transition-all ${showAddView
                 ? 'text-ink-body-light bg-surface-tertiary opacity-100'
                 : 'text-ink-muted hover:text-hover-text hover:bg-hover-surface opacity-0 group-hover/header:opacity-100'}`, slots?.addButton)}>

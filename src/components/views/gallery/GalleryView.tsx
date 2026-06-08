@@ -95,7 +95,7 @@ export function GalleryView() {
         <div className={cn(`${coverHeight} ${coverColor} relative p-3 overflow-hidden`)}>
           <p className={cn("text-xs text-ink-secondary leading-relaxed line-clamp-5")}>{textContent || 'No content'}</p>
           <div className={cn("absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gradient-fade-from to-transparent")} />
-          <button className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
+          <button aria-label="Card options" className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
             onClick={(e) => { e.stopPropagation(); }}>
             <MoreHorizontal className={cn("w-4 h-4")} />
           </button>
@@ -118,7 +118,7 @@ export function GalleryView() {
               </div>
             );
           })}
-          <button className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
+          <button aria-label="Card options" className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
             onClick={(e) => { e.stopPropagation(); }}>
             <MoreHorizontal className={cn("w-4 h-4")} />
           </button>

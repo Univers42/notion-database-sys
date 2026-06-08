@@ -57,6 +57,10 @@ export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _
       role="separator"
       tabIndex={0} // NOSONAR - resize separator needs tabIndex for keyboard access
       aria-label="Resize column"
+      aria-orientation="vertical"
+      aria-valuemin={60}
+      aria-valuemax={600}
+      aria-valuenow={200}
       className={cn(`w-1 shrink-0 cursor-col-resize rounded-full transition-colors self-stretch ${
         dragging ? 'bg-accent' : 'bg-transparent hover:bg-line-medium'
       }`)}

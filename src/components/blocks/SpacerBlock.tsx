@@ -53,6 +53,10 @@ export function SpacerBlock({ block, pageId }: Readonly<{ block: { id: string; s
         role="separator"
         tabIndex={0} // NOSONAR - resize separator needs tabIndex for keyboard access
         aria-label="Resize spacer"
+        aria-orientation="horizontal"
+        aria-valuemin={8}
+        aria-valuemax={400}
+        aria-valuenow={Math.min(400, Math.max(8, Math.round(height)))}
         className={cn(`absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-1 rounded-full cursor-row-resize transition-colors ${
           dragging
             ? 'bg-accent'

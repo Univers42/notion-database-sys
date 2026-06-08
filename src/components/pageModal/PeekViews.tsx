@@ -18,16 +18,21 @@ import { cn } from '../../utils/cn';
 const MIN_WIDTH = 400;
 const MAX_WIDTH_RATIO = 0.92;
 
-function ResizeHandle({ side = 'left', isResizing, onMouseDown }: Readonly<{
+function ResizeHandle({ side = 'left', isResizing, onMouseDown, panelWidth }: Readonly<{
   side?: 'left' | 'right';
   isResizing: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
+  panelWidth: number;
 }>) {
   return (
     <div // NOSONAR - custom resize separator requires non-semantic element
       role="separator"
       tabIndex={0} // NOSONAR - resize separator needs tabIndex for keyboard access
       aria-label={`Resize ${side} edge`}
+      aria-orientation="vertical"
+      aria-valuemin={MIN_WIDTH}
+      aria-valuemax={2000}
+      aria-valuenow={Math.max(MIN_WIDTH, Math.min(2000, Math.round(panelWidth)))}
       onMouseDown={onMouseDown}
       className={cn(`absolute top-0 ${side === 'left' ? '-left-1' : '-right-1'} w-2 h-full cursor-col-resize z-10 group`)}
     >
@@ -57,7 +62,7 @@ export function SidePeekView({ page, database, pageId, onClose, panelWidth, isRe
         onClick={e => e.stopPropagation()}
         onKeyDown={e => e.stopPropagation()}
       >
-        <ResizeHandle side="left" isResizing={isResizing} onMouseDown={startResize} />
+        <ResizeHandle side="left" isResizing={isResizing} onMouseDown={startResize} panelWidth={panelWidth} />
         <ModalHeaderBar database={database} title={title} pageId={pageId} onClose={onClose} />
         <PageInnerContent page={page} database={database} pageId={pageId} hPad="px-12" />
       </dialog>
@@ -86,8 +91,8 @@ export function CenterPeekView({ page, database, pageId, onClose, panelWidth, is
         onClick={e => e.stopPropagation()}
         onKeyDown={e => e.stopPropagation()}
       >
-        <ResizeHandle side="left" isResizing={isResizing} onMouseDown={startResize} />
-        <ResizeHandle side="right" isResizing={isResizing} onMouseDown={startResize} />
+        <ResizeHandle side="left" isResizing={isResizing} onMouseDown={startResize} panelWidth={panelWidth} />
+        <ResizeHandle side="right" isResizing={isResizing} onMouseDown={startResize} panelWidth={panelWidth} />
         <ModalHeaderBar database={database} title={title} pageId={pageId} onClose={onClose} />
         <PageInnerContent page={page} database={database} pageId={pageId} hPad="px-12" />
       </dialog>

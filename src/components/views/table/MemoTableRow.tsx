@@ -120,7 +120,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
       })}
 
       <td className={cn("border-b border-line px-1")}>
-        <button className={cn("p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2")}
+        <button aria-label="Row options" className={cn("p-1 min-h-[24px] min-w-[24px] text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2")}
           onClick={e => { const r = e.currentTarget.getBoundingClientRect(); onRowMenu(page.id, r.left, r.bottom); }}>
           <MoreHorizontal className={cn("w-3.5 h-3.5")} />
         </button>

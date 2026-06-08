@@ -97,7 +97,7 @@ export function ViewDotsMenu({
 
   return (
     <div className={cn("relative")} ref={containerRef}>
-      <button onClick={onToggle}
+      <button onClick={onToggle} aria-label="More options"
         className={cn(`flex items-center px-1.5 py-1.5 text-sm rounded-lg transition-all
           ${show
             ? 'bg-surface-tertiary text-ink-body-light opacity-100'

@@ -92,21 +92,21 @@ export function TopBarActions({
             onChange={e => { const v = e.target.value; setLocalSearchValue(v); clearTimeout(searchDebounceRef.current); searchDebounceRef.current = setTimeout(() => onSearchQueryChange(v), 200); }}
             onKeyDown={e => { if (e.key === 'Escape') { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); } }}
             className={cn("bg-transparent text-sm text-ink w-40 outline-none placeholder:text-placeholder")} />
-          <button onClick={() => { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); }} className={cn("p-0.5 hover:bg-hover-surface3 rounded")}>
+          <button aria-label="Clear search" onClick={() => { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); }} className={cn("p-0.5 hover:bg-hover-surface3 rounded")}>
             <X className={cn("w-3 h-3 text-ink-muted")} />
           </button>
         </div>
       ) : (
-        <button onClick={() => setShowSearch(true)} className={cn("p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors")} title="Search">
+        <button onClick={() => setShowSearch(true)} aria-label="Search" className={cn("p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors")} title="Search">
           <Search className={cn("w-4 h-4")} />
         </button>
       )}
 
-      <button onClick={() => setIsFullSize(!isFullSize)}
+      <button onClick={() => setIsFullSize(!isFullSize)} aria-label="Full-size"
         className={cn(`p-2 rounded-lg transition-colors ${isFullSize ? 'bg-surface-tertiary text-ink-body' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)} title="Full-size">
         <Maximize2 className={cn("w-4 h-4")} />
       </button>
-      <button onClick={() => setShowViewSettings(!showViewSettings)}
+      <button onClick={() => setShowViewSettings(!showViewSettings)} aria-label="View settings"
         className={cn(`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${showViewSettings ? 'bg-surface-tertiary' : ''}`)}>
         <Settings2 className={cn("w-4 h-4")} />
       </button>
