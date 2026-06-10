@@ -62,6 +62,7 @@ export function DashboardSplitter({ direction, onResizeStart, onResize, onResize
     <div
       ref={ref}
       role="separator"
+      data-dashboard-splitter={direction}
       aria-orientation={direction === 'col' ? 'vertical' : 'horizontal'}
       onPointerDown={onPointerDown}
       className={[

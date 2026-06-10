@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, LabelList, ReferenceLine,
@@ -53,6 +53,17 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
   const grid = settings.showGridLines !== false;
   const refLine = settings.showReferenceLine && settings.referenceLineValue != null;
 
+  // Per-Bar clicks give the exact stacked segment; the chart-level handler is
+  // the fallback (recharts item events have proven flaky across versions).
+  const barHandled = useRef(false);
+  const chartClick = (state: unknown) => {
+    if (barHandled.current) { barHandled.current = false; return; }
+    const s = state as { activeTooltipIndex?: number | string } | null;
+    const idx = Number(s?.activeTooltipIndex);
+    if (Number.isNaN(idx) || !result.series.length) return;
+    onSliceClick({ categoryIndex: idx, seriesKey: result.series[0].key });
+  };
+
   const categoryAxis = (
     <XAxis dataKey="label" type="category" tick={{ fontSize: 11 }} interval="preserveStartEnd"
       label={settings.xAxisTitle ? { value: settings.xAxisTitle, position: 'insideBottom', offset: -4, fontSize: 11 } : undefined} />
@@ -65,7 +76,8 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={rows} layout={horizontal ? 'vertical' : 'horizontal'}
-        margin={{ top: 12, right: 16, bottom: 8, left: 8 }}>
+        margin={{ top: 12, right: 16, bottom: 8, left: 8 }}
+        onClick={chartClick} style={{ cursor: 'pointer' }}>
         {grid && <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-grid, #e5e5e5)"
           horizontal={!horizontal} vertical={horizontal} />}
         {horizontal
@@ -89,7 +101,10 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
               stackId={single ? undefined : 'stack'}
               fill={single ? undefined : (s.color || colorAt(settings.colorPalette, si))}
               radius={barRadius} isAnimationActive={false} maxBarSize={64}
-              onClick={(_, index) => onSliceClick({ categoryIndex: index, seriesKey: s.key })}
+              onClick={(_, index) => {
+                barHandled.current = true;
+                onSliceClick({ categoryIndex: index, seriesKey: s.key });
+              }}
               cursor="pointer">
               {single && rows.map((_, i) => (
                 <Cell key={result.categories[i].key} fill={categoryFill(result, settings, i)} />
