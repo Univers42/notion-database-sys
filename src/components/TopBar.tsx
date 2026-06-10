@@ -62,6 +62,8 @@ export function TopBar({ onViewChange, variant = 'full' }: TopBarProps = {}) {
   const filterBtnRef = useRef<HTMLButtonElement>(null);
 
   const dbViews = database ? Object.values(views).filter(v => v.databaseId === database.id) : [];
+  const rowCount = useDatabaseStore(s =>
+    database ? Object.values(s.pages).reduce((n, p) => n + (p.databaseId === database.id ? 1 : 0), 0) : 0);
 
   useEffect(() => { if (showSearch && searchRef.current) searchRef.current.focus(); }, [showSearch]);
   useEffect(() => { if (isEditingTitle && titleRef.current) { titleRef.current.focus(); titleRef.current.select(); } }, [isEditingTitle]);
@@ -74,18 +76,26 @@ export function TopBar({ onViewChange, variant = 'full' }: TopBarProps = {}) {
   const handleTitleDoubleClick = () => { setTitleValue(database.name); setIsEditingTitle(true); };
   const commitTitle = () => { if (titleValue.trim()) { renameDatabase(database.id, titleValue.trim()); } setIsEditingTitle(false); };
   const isSingleView = variant === 'single-view';
+  // Embed hosts fade the toolbar in/out; while any panel/dialog is open the
+  // reveal must persist even if the pointer leaves (panels render in portals,
+  // so :focus-within alone cannot keep them visible).
+  const panelsOpen = showSearch || showFilterPanel || showSortPanel || showViewSettings
+    || showExtraActions || showFilterPropertyPicker || showAdvancedFilter || showDbSwitcher;
 
   return (
     <>
-      <div className={cn("bg-surface-primary border-b border-line flex flex-col group/header")}>
+      <div
+        className={cn("odb-topbar bg-surface-primary border-b border-line flex flex-col group/header")}
+        data-panels-open={panelsOpen || undefined}
+      >
         {/* ─── Top row: Editable title + action buttons ─── */}
         <div className={cn("flex items-center justify-between px-4 py-2")}>
           {isSingleView ? (
             <div className={cn("flex min-w-0 items-center gap-2")}> 
               {database.icon && <span className={cn("text-base")}>{database.icon}</span>}
-              <div className={cn("min-w-0")}> 
+              <div className={cn("min-w-0")}>
                 <div className={cn("truncate text-sm font-semibold text-ink")}>{view.name}</div>
-                <div className={cn("truncate text-[11px] text-ink-muted")}>{database.name} · {view.type}</div>
+                <div className={cn("truncate text-[11px] text-ink-muted")}>{database.name} · {rowCount} {rowCount === 1 ? 'row' : 'rows'}</div>
               </div>
             </div>
           ) : (
@@ -132,6 +142,7 @@ export function TopBar({ onViewChange, variant = 'full' }: TopBarProps = {}) {
 
           {/* Right: Action buttons */}
           <TopBarActions
+            variant={variant}
             filterBtnRef={filterBtnRef} filters={filters} sorts={sorts}
             showFilterPropertyPicker={showFilterPropertyPicker} setShowFilterPropertyPicker={setShowFilterPropertyPicker}
             showFilterPanel={showFilterPanel} setShowFilterPanel={setShowFilterPanel}

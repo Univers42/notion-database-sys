@@ -23,6 +23,9 @@ import type { Filter as FilterType, Sort } from '../../types/database';
 
 /** Props for {@link TopBarActions}. */
 export interface TopBarActionsProps {
+  /** 'single-view' = embedded in a host page: hide the developer chrome
+   *  (data-source switcher, theme toggle) — the HOST owns those concerns. */
+  variant?: 'full' | 'single-view';
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
   filters: FilterType[];
   sorts: Sort[];
@@ -51,6 +54,7 @@ export interface TopBarActionsProps {
 
 /** Right-side action buttons: filter, sort, search, settings, new page. */
 export function TopBarActions({
+  variant = 'full',
   filterBtnRef, filters, sorts,
   showFilterPropertyPicker, setShowFilterPropertyPicker,
   showFilterPanel, setShowFilterPanel, setShowAdvancedFilter,
@@ -63,7 +67,7 @@ export function TopBarActions({
   onNewPage,
 }: Readonly<TopBarActionsProps>) {
   return (
-    <div className={cn("flex items-center gap-0.5 shrink-0")}>
+    <div className={cn("odb-topbar-actions flex items-center gap-0.5 shrink-0")}>
       <button ref={filterBtnRef}
         onClick={() => {
           if (filters.length === 0) { setShowFilterPropertyPicker(!showFilterPropertyPicker); setShowFilterPanel(false); setShowAdvancedFilter(false); }
@@ -111,8 +115,12 @@ export function TopBarActions({
         <Settings2 className={cn("w-4 h-4")} />
       </button>
       <ExtraActionsMenu show={showExtraActions} onToggle={() => setShowExtraActions(!showExtraActions)} onClose={() => setShowExtraActions(false)} />
-      <DbSourceDropdown />
-      <ThemeToggle />
+      {variant !== 'single-view' && (
+        <>
+          <DbSourceDropdown />
+          <ThemeToggle />
+        </>
+      )}
       <div className={cn("w-px h-5 bg-surface-muted mx-1")} />
       <button onClick={onNewPage}
         className={cn("flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm")}>

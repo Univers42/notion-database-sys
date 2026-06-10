@@ -57,9 +57,12 @@ export function FilterSortPanels({
   return (
     <>
       {(showFilterPanel || filters.length > 0) && filters.length > 0 && (
-        <FilterBar filters={filters} properties={database.properties}
-          conjunction={view.filterConjunction || 'and'} viewId={view.id}
-          onOpenAdvanced={() => setShowAdvancedFilter(true)} />
+        // odb-filter-bar: embed hosts fade this persistent bar with the toolbar.
+        <div className="odb-filter-bar">
+          <FilterBar filters={filters} properties={database.properties}
+            conjunction={view.filterConjunction || 'and'} viewId={view.id}
+            onOpenAdvanced={() => setShowAdvancedFilter(true)} />
+        </div>
       )}
       {showFilterPropertyPicker && filterBtnRef.current && createPortal(
         <div className={cn("fixed z-[9999]")}

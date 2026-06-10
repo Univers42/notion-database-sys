@@ -34,10 +34,10 @@
   color-scheme: light;
 
   /* ── Surfaces ── */
-  --color-surface-primary:     #ffffff;
-  --color-surface-secondary:   #f9fafb;   /* gray-50 */
-  --color-surface-tertiary:    #f3f4f6;   /* gray-100 */
-  --color-surface-muted:       #e5e7eb;   /* gray-200 */
+  --color-surface-primary:     var(--osio-bg-page, #ffffff);
+  --color-surface-secondary:   var(--osio-bg-subtle, #f9fafb);   /* gray-50 */
+  --color-surface-tertiary:    var(--osio-bg-muted, #f3f4f6);   /* gray-100 */
+  --color-surface-muted:       var(--osio-bg-hover, #e5e7eb);   /* gray-200 */
   --color-surface-strong:      #d1d5db;   /* gray-300 */
   --color-surface-inverse:     #111827;   /* gray-900 */
   --color-surface-inverse-soft:#1f2937;   /* gray-800 */
@@ -65,101 +65,101 @@
   --color-surface-muted-soft3:     rgba(229,231,235, 0.60);
 
   /* ── Text ── */
-  --color-ink:                 #111827;   /* gray-900 */
-  --color-ink-strong:          #1f2937;   /* gray-800 */
-  --color-ink-body:            #374151;   /* gray-700 */
-  --color-ink-body-light:      #4b5563;   /* gray-600 */
-  --color-ink-secondary:       #6b7280;   /* gray-500 */
-  --color-ink-muted:           #9ca3af;   /* gray-400 */
+  --color-ink:                 var(--osio-fg-default, #111827);   /* gray-900 */
+  --color-ink-strong:          var(--osio-fg-strong, #1f2937);   /* gray-800 */
+  --color-ink-body:            var(--osio-fg-default, #374151);   /* gray-700 */
+  --color-ink-body-light:      var(--osio-fg-muted, #4b5563);   /* gray-600 */
+  --color-ink-secondary:       var(--osio-fg-muted, #6b7280);   /* gray-500 */
+  --color-ink-muted:           var(--osio-fg-muted, #6b7280);   /* gray-500 — a11y: 4.83:1 on #fff (was #9ca3af 2.54:1) */
   --color-ink-disabled:        #d1d5db;   /* gray-300 */
   --color-ink-faint:           #e5e7eb;   /* gray-200 */
-  --color-ink-inverse:         #ffffff;
+  --color-ink-inverse:         var(--osio-fg-inverse, #ffffff);
 
   /* ── Borders / Dividers ── */
-  --color-line:                #e5e7eb;   /* gray-200 */
-  --color-line-light:          #f3f4f6;   /* gray-100 */
+  --color-line:                var(--osio-db-line, #e5e7eb);   /* gray-200 */
+  --color-line-light:          var(--osio-db-line-soft, #f3f4f6);   /* gray-100 */
   --color-line-medium:         #d1d5db;   /* gray-300 */
-  --color-line-strong:         #9ca3af;   /* gray-400 */
-  --color-line-faint:          #f9fafb;   /* gray-50 */
+  --color-line-strong:         var(--osio-border-default, #9ca3af);   /* gray-400 */
+  --color-line-faint:          var(--osio-db-line-soft, #f9fafb);   /* gray-50 */
 
   /* ── Accent (Blue — brand & interactive) ── */
-  --color-accent:              #3b82f6;   /* blue-500 */
-  --color-accent-bold:         #2563eb;   /* blue-600 */
-  --color-accent-bolder:       #1d4ed8;   /* blue-700 */
-  --color-accent-soft:         #eff6ff;   /* blue-50 */
-  --color-accent-soft2:        rgba(239,246,255, 0.50);
-  --color-accent-soft3:        rgba(239,246,255, 0.60);
-  --color-accent-soft4:        rgba(239,246,255, 0.40);
-  --color-accent-soft5:        rgba(239,246,255, 0.30);
-  --color-accent-muted:        #dbeafe;   /* blue-100 */
-  --color-accent-muted2:       rgba(219,234,254, 0.60);
-  --color-accent-subtle:       #bfdbfe;   /* blue-200 */
-  --color-accent-subtle2:      rgba(191,219,254, 0.60);
-  --color-accent-moderate:     #93c5fd;   /* blue-300 */
-  --color-accent-vivid:        #60a5fa;   /* blue-400 */
-  --color-accent-text:         #1d4ed8;   /* blue-700 */
-  --color-accent-text-bold:    #1e40af;   /* blue-800 */
-  --color-accent-text-bolder:  #1e3a8a;   /* blue-900 */
-  --color-accent-text-light:   #2563eb;   /* blue-600 */
-  --color-accent-text-soft:    #3b82f6;   /* blue-500 */
-  --color-accent-text-faint:   #60a5fa;   /* blue-400 */
-  --color-accent-border:       #3b82f6;   /* blue-500 */
-  --color-accent-border-light: #60a5fa;   /* blue-400 */
-  --color-accent-border-soft:  #93c5fd;   /* blue-300 */
-  --color-accent-border-muted: #bfdbfe;   /* blue-200 */
+  --color-accent:              var(--osio-accent, #2563eb);   /* blue-600 — a11y: white text 5.17:1 (was #3b82f6 3.68:1) */
+  --color-accent-bold:         var(--osio-accent-hover, #1d4ed8);   /* blue-700 — keep hover darker than base */
+  --color-accent-bolder:       var(--osio-accent-hover, #1d4ed8);   /* blue-700 */
+  --color-accent-soft:         color-mix(in srgb, var(--osio-accent, #2563eb) 10%, transparent);   /* blue-50 */
+  --color-accent-soft2:        color-mix(in srgb, var(--osio-accent, #2563eb) 8%, transparent);
+  --color-accent-soft3:        color-mix(in srgb, var(--osio-accent, #2563eb) 8%, transparent);
+  --color-accent-soft4:        color-mix(in srgb, var(--osio-accent, #2563eb) 6%, transparent);
+  --color-accent-soft5:        color-mix(in srgb, var(--osio-accent, #2563eb) 5%, transparent);
+  --color-accent-muted:        color-mix(in srgb, var(--osio-accent, #2563eb) 16%, transparent);   /* blue-100 */
+  --color-accent-muted2:       color-mix(in srgb, var(--osio-accent, #2563eb) 14%, transparent);
+  --color-accent-subtle:       color-mix(in srgb, var(--osio-accent, #2563eb) 28%, transparent);   /* blue-200 */
+  --color-accent-subtle2:      color-mix(in srgb, var(--osio-accent, #2563eb) 24%, transparent);
+  --color-accent-moderate:     color-mix(in srgb, var(--osio-accent, #2563eb) 42%, transparent);   /* blue-300 */
+  --color-accent-vivid:        color-mix(in srgb, var(--osio-accent, #2563eb) 60%, transparent);   /* blue-400 */
+  --color-accent-text:         var(--osio-accent, #1d4ed8);   /* blue-700 */
+  --color-accent-text-bold:    var(--osio-accent-hover, #1e40af);   /* blue-800 */
+  --color-accent-text-bolder:  var(--osio-accent-hover, #1e3a8a);   /* blue-900 */
+  --color-accent-text-light:   var(--osio-accent, #2563eb);   /* blue-600 */
+  --color-accent-text-soft:    color-mix(in srgb, var(--osio-accent, #2563eb) 85%, transparent);   /* blue-500 */
+  --color-accent-text-faint:   color-mix(in srgb, var(--osio-accent, #2563eb) 65%, transparent);   /* blue-400 */
+  --color-accent-border:       var(--osio-accent, #3b82f6);   /* blue-500 */
+  --color-accent-border-light: color-mix(in srgb, var(--osio-accent, #2563eb) 70%, transparent);   /* blue-400 */
+  --color-accent-border-soft:  color-mix(in srgb, var(--osio-accent, #2563eb) 45%, transparent);   /* blue-300 */
+  --color-accent-border-muted: color-mix(in srgb, var(--osio-accent, #2563eb) 28%, transparent);   /* blue-200 */
 
   /* ── Interactive states ── */
-  --color-hover-surface:       #f9fafb;   /* gray-50 */
-  --color-hover-surface2:      #f3f4f6;   /* gray-100 */
-  --color-hover-surface3:      #e5e7eb;   /* gray-200 */
+  --color-hover-surface:       var(--osio-bg-subtle, #f9fafb);   /* gray-50 */
+  --color-hover-surface2:      var(--osio-bg-hover, #f3f4f6);   /* gray-100 */
+  --color-hover-surface3:      var(--osio-bg-muted, #e5e7eb);   /* gray-200 */
   --color-hover-surface-soft:  rgba(249,250,251, 0.50);
   --color-hover-surface-soft2: rgba(243,244,246, 0.70);
   --color-hover-surface-soft3: rgba(243,244,246, 0.60);
   --color-hover-surface-soft4: rgba(243,244,246, 0.80);
-  --color-hover-surface-accent:rgba(239,246,255, 0.50);
-  --color-hover-surface-accent2:rgba(239,246,255, 0.60);
-  --color-hover-surface-accent3:rgba(239,246,255, 0.40);
+  --color-hover-surface-accent:color-mix(in srgb, var(--osio-accent, #2563eb) 8%, transparent);
+  --color-hover-surface-accent2:color-mix(in srgb, var(--osio-accent, #2563eb) 12%, transparent);
+  --color-hover-surface-accent3:color-mix(in srgb, var(--osio-accent, #2563eb) 6%, transparent);
   --color-hover-surface-white: #ffffff;
   --color-hover-surface-white-soft: rgba(255,255,255, 0.80);
   --color-hover-surface-white-soft2: rgba(255,255,255, 0.60);
   --color-hover-surface-white-soft3: rgba(255,255,255, 0.50);
   --color-hover-surface-inverse: #1f2937;
-  --color-hover-text:          #4b5563;   /* gray-600 */
-  --color-hover-text-strong:   #374151;   /* gray-700 */
-  --color-hover-text-bolder:   #1f2937;   /* gray-800 */
-  --color-hover-text-boldest:  #111827;   /* gray-900 */
-  --color-hover-text-muted:    #6b7280;   /* gray-500 */
+  --color-hover-text:          var(--osio-fg-muted, #4b5563);   /* gray-600 */
+  --color-hover-text-strong:   var(--osio-fg-default, #374151);   /* gray-700 */
+  --color-hover-text-bolder:   var(--osio-fg-strong, #1f2937);   /* gray-800 */
+  --color-hover-text-boldest:  var(--osio-fg-strong, #111827);   /* gray-900 */
+  --color-hover-text-muted:    var(--osio-fg-muted, #6b7280);   /* gray-500 */
   --color-hover-text-faint:    #9ca3af;   /* gray-400 */
   --color-hover-border:        #d1d5db;   /* gray-300 */
   --color-hover-border-strong: #9ca3af;   /* gray-400 */
-  --color-hover-border-accent: #bfdbfe;   /* blue-200 */
-  --color-hover-accent:        #2563eb;   /* blue-600 */
-  --color-hover-accent-bold:   #1d4ed8;   /* blue-700 */
-  --color-hover-accent-muted:  #dbeafe;   /* blue-100 */
-  --color-hover-accent-moderate: #93c5fd; /* blue-300 */
-  --color-hover-accent-soft:   #eff6ff;   /* blue-50 */
-  --color-hover-accent-text:   #2563eb;   /* blue-600 */
-  --color-hover-accent-text-bold: #1d4ed8;/* blue-700 */
-  --color-hover-accent-text-bolder: #1e3a8a; /* blue-900 */
-  --color-hover-accent-subtle: #3b82f6;   /* blue-500 */
+  --color-hover-border-accent: color-mix(in srgb, var(--osio-accent, #2563eb) 28%, transparent);   /* blue-200 */
+  --color-hover-accent:        var(--osio-accent, #2563eb);   /* blue-600 */
+  --color-hover-accent-bold:   var(--osio-accent-hover, #1d4ed8);   /* blue-700 */
+  --color-hover-accent-muted:  color-mix(in srgb, var(--osio-accent, #2563eb) 16%, transparent);   /* blue-100 */
+  --color-hover-accent-moderate: color-mix(in srgb, var(--osio-accent, #2563eb) 42%, transparent); /* blue-300 */
+  --color-hover-accent-soft:   color-mix(in srgb, var(--osio-accent, #2563eb) 10%, transparent);   /* blue-50 */
+  --color-hover-accent-text:   var(--osio-accent, #2563eb);   /* blue-600 */
+  --color-hover-accent-text-bold: var(--osio-accent-hover, #1d4ed8);/* blue-700 */
+  --color-hover-accent-text-bolder: var(--osio-accent-hover, #1e3a8a); /* blue-900 */
+  --color-hover-accent-subtle: color-mix(in srgb, var(--osio-accent, #2563eb) 85%, transparent);   /* blue-500 */
 
   /* ── Focus ── */
-  --color-focus-border:        #60a5fa;   /* blue-400 */
-  --color-focus-border-strong: #3b82f6;   /* blue-500 */
-  --color-focus-border-soft:   #93c5fd;   /* blue-300 */
-  --color-focus-ring:          rgba(96,165,250, 0.30); /* blue-400/30 */
-  --color-focus-ring-solid:    #60a5fa;   /* blue-400 */
-  --color-focus-ring-muted:    #bfdbfe;   /* blue-200 */
-  --color-focus-surface:       #f9fafb;   /* gray-50 */
-  --color-focus-surface-accent:#eff6ff;   /* blue-50 */
-  --color-focus-text:          #111827;   /* gray-900 */
+  --color-focus-border:        color-mix(in srgb, var(--osio-accent, #2563eb) 70%, transparent);   /* blue-400 */
+  --color-focus-border-strong: var(--osio-accent, #3b82f6);   /* blue-500 */
+  --color-focus-border-soft:   color-mix(in srgb, var(--osio-accent, #2563eb) 45%, transparent);   /* blue-300 */
+  --color-focus-ring:          color-mix(in srgb, var(--osio-accent, #2563eb) 30%, transparent); /* blue-400/30 */
+  --color-focus-ring-solid:    color-mix(in srgb, var(--osio-accent, #2563eb) 70%, transparent);   /* blue-400 */
+  --color-focus-ring-muted:    color-mix(in srgb, var(--osio-accent, #2563eb) 28%, transparent);   /* blue-200 */
+  --color-focus-surface:       var(--osio-bg-subtle, #f9fafb);   /* gray-50 */
+  --color-focus-surface-accent:color-mix(in srgb, var(--osio-accent, #2563eb) 10%, transparent);   /* blue-50 */
+  --color-focus-text:          var(--osio-fg-default, #111827);   /* gray-900 */
 
   /* ── Ring ── */
-  --color-ring-accent:         #60a5fa;
-  --color-ring-accent-strong:  #3b82f6;
-  --color-ring-accent-soft:    rgba(96,165,250, 0.30);
-  --color-ring-accent-muted:   #93c5fd;
-  --color-ring-accent-faint:   #bfdbfe;
+  --color-ring-accent:         color-mix(in srgb, var(--osio-accent, #2563eb) 70%, transparent);
+  --color-ring-accent-strong:  var(--osio-accent, #3b82f6);
+  --color-ring-accent-soft:    color-mix(in srgb, var(--osio-accent, #2563eb) 30%, transparent);
+  --color-ring-accent-muted:   color-mix(in srgb, var(--osio-accent, #2563eb) 45%, transparent);
+  --color-ring-accent-faint:   color-mix(in srgb, var(--osio-accent, #2563eb) 28%, transparent);
   --color-ring-neutral:        #e5e7eb;
   --color-ring-success:        rgba(16,185,129, 0.80);
   --color-ring-success-soft:   rgba(16,185,129, 0.50);
@@ -170,7 +170,7 @@
   --color-danger-surface-muted:#fee2e2;   /* red-100 */
   --color-danger-surface-medium:#fecaca;  /* red-200 */
   --color-danger-surface-strong:#fca5a5;  /* red-300 */
-  --color-danger:              #ef4444;   /* red-500 */
+  --color-danger:              var(--osio-danger, #ef4444);   /* red-500 */
   --color-danger-vivid:        #f87171;   /* red-400 */
   --color-danger-text:         #dc2626;   /* red-600 */
   --color-danger-text-bold:    #b91c1c;   /* red-700 */
@@ -186,7 +186,7 @@
   --color-success-surface:     #f0fdf4;   /* green-50 */
   --color-success-surface-muted:#dcfce7;  /* green-100 */
   --color-success-surface-medium:#bbf7d0; /* green-200 */
-  --color-success:             #22c55e;   /* green-500 */
+  --color-success:             var(--osio-success, #22c55e);   /* green-500 */
   --color-success-vivid:       #4ade80;   /* green-400 */
   --color-success-text:        #16a34a;   /* green-600 */
   --color-success-text-bold:   #15803d;   /* green-700 */
@@ -383,6 +383,9 @@
 
 /* ─── DARK THEME ─────────────────────────────────────────────────────────── */
 :root[data-theme="dark"],
+[data-theme="dark"] .notion-object-database, /* inherit the HOST app's theme: the
+   wrapper-level light re-declaration above otherwise wins by custom-property
+   proximity, leaving embeds light inside dark host pages */
 .notion-object-database[data-theme="dark"] {
   /*
    * AFTER: same as light — tells native controls to render dark.
@@ -394,10 +397,10 @@
   color-scheme: dark;
 
   /* ── Surfaces ── */
-  --color-surface-primary:     #191919;
-  --color-surface-secondary:   #202020;
-  --color-surface-tertiary:    #2a2a2a;
-  --color-surface-muted:       #363636;
+  --color-surface-primary:     var(--osio-bg-page, #191919);
+  --color-surface-secondary:   var(--osio-bg-subtle, #202020);
+  --color-surface-tertiary:    var(--osio-bg-muted, #2a2a2a);
+  --color-surface-muted:       var(--osio-bg-hover, #363636);
   --color-surface-strong:      #454545;
   --color-surface-inverse:     #f3f4f6;
   --color-surface-inverse-soft:#e5e7eb;
@@ -425,101 +428,101 @@
   --color-surface-muted-soft3:     rgba(54,54,54, 0.60);
 
   /* ── Text ── */
-  --color-ink:                 #ececec;
-  --color-ink-strong:          #e0e0e0;
-  --color-ink-body:            #c0c0c0;
-  --color-ink-body-light:      #a8a8a8;
-  --color-ink-secondary:       #8a8a8a;
-  --color-ink-muted:           #666666;
+  --color-ink:                 var(--osio-fg-default, #ececec);
+  --color-ink-strong:          var(--osio-fg-strong, #e0e0e0);
+  --color-ink-body:            var(--osio-fg-default, #c0c0c0);
+  --color-ink-body-light:      var(--osio-fg-muted, #a8a8a8);
+  --color-ink-secondary:       var(--osio-fg-muted, #8a8a8a);
+  --color-ink-muted:           var(--osio-fg-muted, #8a8a8a);   /* a11y: 5.09:1 on #191919 (was #666666 3.06:1) */
   --color-ink-disabled:        #4a4a4a;
   --color-ink-faint:           #363636;
-  --color-ink-inverse:         #191919;
+  --color-ink-inverse:         var(--osio-fg-inverse, #191919);
 
   /* ── Borders / Dividers ── */
-  --color-line:                #363636;
-  --color-line-light:          #2a2a2a;
+  --color-line:                var(--osio-db-line, #363636);
+  --color-line-light:          var(--osio-db-line-soft, #2a2a2a);
   --color-line-medium:         #454545;
-  --color-line-strong:         #5a5a5a;
-  --color-line-faint:          #222222;
+  --color-line-strong:         var(--osio-border-default, #5a5a5a);
+  --color-line-faint:          var(--osio-db-line-soft, #222222);
 
   /* ── Accent (Blue) ── */
-  --color-accent:              #5b9cf6;
-  --color-accent-bold:         #4a8df0;
-  --color-accent-bolder:       #3b7ee6;
-  --color-accent-soft:         rgba(59,130,246, 0.12);
-  --color-accent-soft2:        rgba(59,130,246, 0.08);
-  --color-accent-soft3:        rgba(59,130,246, 0.10);
-  --color-accent-soft4:        rgba(59,130,246, 0.06);
-  --color-accent-soft5:        rgba(59,130,246, 0.04);
-  --color-accent-muted:        rgba(59,130,246, 0.20);
-  --color-accent-muted2:       rgba(59,130,246, 0.15);
-  --color-accent-subtle:       rgba(59,130,246, 0.25);
-  --color-accent-subtle2:      rgba(59,130,246, 0.18);
-  --color-accent-moderate:     rgba(59,130,246, 0.35);
-  --color-accent-vivid:        #6ba6f8;
-  --color-accent-text:         #7cb6fa;
-  --color-accent-text-bold:    #6ba6f8;
-  --color-accent-text-bolder:  #5b9cf6;
-  --color-accent-text-light:   #8bc2fc;
-  --color-accent-text-soft:    #5b9cf6;
-  --color-accent-text-faint:   #6ba6f8;
-  --color-accent-border:       #5b9cf6;
-  --color-accent-border-light: #6ba6f8;
-  --color-accent-border-soft:  rgba(59,130,246, 0.40);
-  --color-accent-border-muted: rgba(59,130,246, 0.25);
+  --color-accent:              var(--osio-accent, #5b9cf6);
+  --color-accent-bold:         var(--osio-accent-hover, #4a8df0);
+  --color-accent-bolder:       var(--osio-accent-hover, #3b7ee6);
+  --color-accent-soft:         color-mix(in srgb, var(--osio-accent, #5b9cf6) 10%, transparent);
+  --color-accent-soft2:        color-mix(in srgb, var(--osio-accent, #5b9cf6) 8%, transparent);
+  --color-accent-soft3:        color-mix(in srgb, var(--osio-accent, #5b9cf6) 8%, transparent);
+  --color-accent-soft4:        color-mix(in srgb, var(--osio-accent, #5b9cf6) 6%, transparent);
+  --color-accent-soft5:        color-mix(in srgb, var(--osio-accent, #5b9cf6) 5%, transparent);
+  --color-accent-muted:        color-mix(in srgb, var(--osio-accent, #5b9cf6) 16%, transparent);
+  --color-accent-muted2:       color-mix(in srgb, var(--osio-accent, #5b9cf6) 14%, transparent);
+  --color-accent-subtle:       color-mix(in srgb, var(--osio-accent, #5b9cf6) 28%, transparent);
+  --color-accent-subtle2:      color-mix(in srgb, var(--osio-accent, #5b9cf6) 24%, transparent);
+  --color-accent-moderate:     color-mix(in srgb, var(--osio-accent, #5b9cf6) 42%, transparent);
+  --color-accent-vivid:        color-mix(in srgb, var(--osio-accent, #5b9cf6) 60%, transparent);
+  --color-accent-text:         var(--osio-accent, #7cb6fa);
+  --color-accent-text-bold:    var(--osio-accent-hover, #6ba6f8);
+  --color-accent-text-bolder:  var(--osio-accent-hover, #5b9cf6);
+  --color-accent-text-light:   var(--osio-accent, #8bc2fc);
+  --color-accent-text-soft:    color-mix(in srgb, var(--osio-accent, #5b9cf6) 85%, transparent);
+  --color-accent-text-faint:   color-mix(in srgb, var(--osio-accent, #5b9cf6) 65%, transparent);
+  --color-accent-border:       var(--osio-accent, #5b9cf6);
+  --color-accent-border-light: color-mix(in srgb, var(--osio-accent, #5b9cf6) 70%, transparent);
+  --color-accent-border-soft:  color-mix(in srgb, var(--osio-accent, #5b9cf6) 45%, transparent);
+  --color-accent-border-muted: color-mix(in srgb, var(--osio-accent, #5b9cf6) 28%, transparent);
 
   /* ── Interactive states ── */
-  --color-hover-surface:       #242424;
-  --color-hover-surface2:      #2e2e2e;
-  --color-hover-surface3:      #383838;
+  --color-hover-surface:       var(--osio-bg-subtle, #242424);
+  --color-hover-surface2:      var(--osio-bg-hover, #2e2e2e);
+  --color-hover-surface3:      var(--osio-bg-muted, #383838);
   --color-hover-surface-soft:  rgba(255,255,255, 0.04);
   --color-hover-surface-soft2: rgba(255,255,255, 0.07);
   --color-hover-surface-soft3: rgba(255,255,255, 0.06);
   --color-hover-surface-soft4: rgba(255,255,255, 0.08);
-  --color-hover-surface-accent:rgba(59,130,246, 0.10);
-  --color-hover-surface-accent2:rgba(59,130,246, 0.12);
-  --color-hover-surface-accent3:rgba(59,130,246, 0.08);
+  --color-hover-surface-accent:color-mix(in srgb, var(--osio-accent, #5b9cf6) 8%, transparent);
+  --color-hover-surface-accent2:color-mix(in srgb, var(--osio-accent, #5b9cf6) 12%, transparent);
+  --color-hover-surface-accent3:color-mix(in srgb, var(--osio-accent, #5b9cf6) 6%, transparent);
   --color-hover-surface-white: #2a2a2a;
   --color-hover-surface-white-soft: rgba(255,255,255, 0.06);
   --color-hover-surface-white-soft2: rgba(255,255,255, 0.04);
   --color-hover-surface-white-soft3: rgba(255,255,255, 0.03);
   --color-hover-surface-inverse: #e5e7eb;
-  --color-hover-text:          #c0c0c0;
-  --color-hover-text-strong:   #d0d0d0;
-  --color-hover-text-bolder:   #e0e0e0;
-  --color-hover-text-boldest:  #ececec;
-  --color-hover-text-muted:    #8a8a8a;
+  --color-hover-text:          var(--osio-fg-muted, #c0c0c0);
+  --color-hover-text-strong:   var(--osio-fg-default, #d0d0d0);
+  --color-hover-text-bolder:   var(--osio-fg-strong, #e0e0e0);
+  --color-hover-text-boldest:  var(--osio-fg-strong, #ececec);
+  --color-hover-text-muted:    var(--osio-fg-muted, #8a8a8a);
   --color-hover-text-faint:    #666666;
   --color-hover-border:        #4a4a4a;
   --color-hover-border-strong: #5a5a5a;
-  --color-hover-border-accent: rgba(59,130,246, 0.30);
-  --color-hover-accent:        #4a8df0;
-  --color-hover-accent-bold:   #3b7ee6;
-  --color-hover-accent-muted:  rgba(59,130,246, 0.25);
-  --color-hover-accent-moderate: rgba(59,130,246, 0.40);
-  --color-hover-accent-soft:   rgba(59,130,246, 0.12);
-  --color-hover-accent-text:   #8bc2fc;
-  --color-hover-accent-text-bold: #7cb6fa;
-  --color-hover-accent-text-bolder: #5b9cf6;
-  --color-hover-accent-subtle: #5b9cf6;
+  --color-hover-border-accent: color-mix(in srgb, var(--osio-accent, #5b9cf6) 28%, transparent);
+  --color-hover-accent:        var(--osio-accent, #4a8df0);
+  --color-hover-accent-bold:   var(--osio-accent-hover, #3b7ee6);
+  --color-hover-accent-muted:  color-mix(in srgb, var(--osio-accent, #5b9cf6) 16%, transparent);
+  --color-hover-accent-moderate: color-mix(in srgb, var(--osio-accent, #5b9cf6) 42%, transparent);
+  --color-hover-accent-soft:   color-mix(in srgb, var(--osio-accent, #5b9cf6) 10%, transparent);
+  --color-hover-accent-text:   var(--osio-accent, #8bc2fc);
+  --color-hover-accent-text-bold: var(--osio-accent-hover, #7cb6fa);
+  --color-hover-accent-text-bolder: var(--osio-accent-hover, #5b9cf6);
+  --color-hover-accent-subtle: color-mix(in srgb, var(--osio-accent, #5b9cf6) 85%, transparent);
 
   /* ── Focus ── */
-  --color-focus-border:        #5b9cf6;
-  --color-focus-border-strong: #4a8df0;
-  --color-focus-border-soft:   rgba(59,130,246, 0.40);
-  --color-focus-ring:          rgba(91,156,246, 0.25);
-  --color-focus-ring-solid:    #5b9cf6;
-  --color-focus-ring-muted:    rgba(59,130,246, 0.20);
-  --color-focus-surface:       #242424;
-  --color-focus-surface-accent:rgba(59,130,246, 0.12);
-  --color-focus-text:          #ececec;
+  --color-focus-border:        color-mix(in srgb, var(--osio-accent, #5b9cf6) 70%, transparent);
+  --color-focus-border-strong: var(--osio-accent, #4a8df0);
+  --color-focus-border-soft:   color-mix(in srgb, var(--osio-accent, #5b9cf6) 45%, transparent);
+  --color-focus-ring:          color-mix(in srgb, var(--osio-accent, #5b9cf6) 30%, transparent);
+  --color-focus-ring-solid:    color-mix(in srgb, var(--osio-accent, #5b9cf6) 70%, transparent);
+  --color-focus-ring-muted:    color-mix(in srgb, var(--osio-accent, #5b9cf6) 28%, transparent);
+  --color-focus-surface:       var(--osio-bg-subtle, #242424);
+  --color-focus-surface-accent:color-mix(in srgb, var(--osio-accent, #5b9cf6) 10%, transparent);
+  --color-focus-text:          var(--osio-fg-default, #ececec);
 
   /* ── Ring ── */
-  --color-ring-accent:         #5b9cf6;
-  --color-ring-accent-strong:  #4a8df0;
-  --color-ring-accent-soft:    rgba(91,156,246, 0.25);
-  --color-ring-accent-muted:   rgba(59,130,246, 0.35);
-  --color-ring-accent-faint:   rgba(59,130,246, 0.20);
+  --color-ring-accent:         color-mix(in srgb, var(--osio-accent, #5b9cf6) 70%, transparent);
+  --color-ring-accent-strong:  var(--osio-accent, #4a8df0);
+  --color-ring-accent-soft:    color-mix(in srgb, var(--osio-accent, #5b9cf6) 30%, transparent);
+  --color-ring-accent-muted:   color-mix(in srgb, var(--osio-accent, #5b9cf6) 45%, transparent);
+  --color-ring-accent-faint:   color-mix(in srgb, var(--osio-accent, #5b9cf6) 28%, transparent);
   --color-ring-neutral:        #363636;
   --color-ring-success:        rgba(16,185,129, 0.60);
   --color-ring-success-soft:   rgba(16,185,129, 0.35);
@@ -530,7 +533,7 @@
   --color-danger-surface-muted:rgba(239,68,68, 0.15);
   --color-danger-surface-medium:rgba(239,68,68, 0.20);
   --color-danger-surface-strong:rgba(239,68,68, 0.28);
-  --color-danger:              #f87171;
+  --color-danger:              var(--osio-danger, #f87171);
   --color-danger-vivid:        #ef4444;
   --color-danger-text:         #f87171;
   --color-danger-text-bold:    #fca5a5;
@@ -546,7 +549,7 @@
   --color-success-surface:     rgba(34,197,94, 0.08);
   --color-success-surface-muted:rgba(34,197,94, 0.14);
   --color-success-surface-medium:rgba(34,197,94, 0.20);
-  --color-success:             #4ade80;
+  --color-success:             var(--osio-success, #4ade80);
   --color-success-vivid:       #22c55e;
   --color-success-text:        #4ade80;
   --color-success-text-bold:   #86efac;
@@ -762,8 +765,8 @@
   --color-line-strong:         #8fa4c4;
   --color-line-faint:          #eef3ff;
 
-  --color-accent:              #3b82f6;
-  --color-accent-bold:         #2563eb;
+  --color-accent:              #2563eb;   /* blue-600 — a11y: white text 5.17:1 */
+  --color-accent-bold:         #1d4ed8;   /* blue-700 — keep hover darker */
   --color-accent-bolder:       #1d4ed8;
   --color-accent-soft:         #eff6ff;
   --color-accent-soft2:        rgba(239,246,255, 0.50);
@@ -863,8 +866,8 @@
   --color-line-strong:         #c9b27c;
   --color-line-faint:          #fef8eb;
 
-  --color-accent:              #d97706;
-  --color-accent-bold:         #b45309;
+  --color-accent:              #b45309;   /* amber-700 — a11y: white text 5.02:1 */
+  --color-accent-bold:         #92400e;   /* amber-800 — keep hover darker */
   --color-accent-bolder:       #92400e;
   --color-accent-soft:         #fffbeb;
   --color-accent-soft2:        rgba(255,251,235, 0.50);
@@ -964,8 +967,8 @@
   --color-line-strong:         #6fc090;
   --color-line-faint:          #e8f9ee;
 
-  --color-accent:              #16a34a;
-  --color-accent-bold:         #15803d;
+  --color-accent:              #15803d;   /* green-700 — a11y: white text 5.02:1 */
+  --color-accent-bold:         #166534;   /* green-800 — keep hover darker */
   --color-accent-bolder:       #166534;
   --color-accent-soft:         #f0fdf4;
   --color-accent-soft2:        rgba(240,253,244, 0.50);
