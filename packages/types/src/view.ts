@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import type { Timestamps } from './common.js';
-import type { FilterNode, DomainFilter, DomainSort, DomainGrouping, DomainSubGrouping } from './filter.js';
+import type { FilterNode, DomainFilter, DomainFilterOperator, DomainSort, DomainGrouping, DomainSubGrouping } from './filter.js';
 
 /** Domain view type literals for persisted view documents. */
 export type DomainViewType =
@@ -35,6 +35,30 @@ export interface DomainDashboardWidget {
   chartStyle?: 'bar' | 'donut' | 'horizontal_bar' | 'stacked_bar' | 'area' | 'progress' | 'number_grid' | 'multi_line';
   width: 1 | 2 | 3 | 4;
   height: 1 | 2;
+}
+
+/** Domain dashboard widget referencing an existing database view (Notion model). */
+export interface DomainDashboardViewWidget {
+  id: string;
+  viewId: string;
+  title?: string;
+}
+
+/** One dashboard row: up to 4 widgets, widths are fractions summing to 1. */
+export interface DomainDashboardRow {
+  id: string;
+  widgetIds: string[];
+  widths: number[];
+  height: number;
+}
+
+/** Simple global filter applied across dashboard widgets (matched by name+type). */
+export interface DomainDashboardGlobalFilter {
+  id: string;
+  propertyName: string;
+  propertyType: string;
+  operator: DomainFilterOperator;
+  value: unknown;
 }
 
 /** Domain view display and behavior settings. */
@@ -81,11 +105,20 @@ export interface DomainViewSettings {
   xAxisOmitZero?: boolean;
   xAxisTitle?: string;
   yAxisProperty?: string;
-  yAxisAggregation?: 'count' | 'sum' | 'average';
+  yAxisAggregation?: 'count' | 'sum' | 'average' | 'min' | 'max' | 'median';
   yAxisGroupBy?: string;
   yAxisRange?: 'auto' | '0-100' | '0-1000' | 'custom';
+  yAxisRangeMin?: number;
+  yAxisRangeMax?: number;
   yAxisTitle?: string;
   yAxisCumulative?: boolean;
+  xAxisDateBucket?: 'auto' | 'day' | 'week' | 'month' | 'quarter' | 'year';
+  chartHeight?: 'small' | 'medium' | 'large' | 'xl';
+  gradientFill?: boolean;
+  donutCenterValue?: boolean;
+  colorByValue?: boolean;
+  hiddenGroups?: string[];
+  manualGroupOrder?: string[];
   showReferenceLine?: boolean;
   referenceLineValue?: number | null;
   colorPalette?: string;
@@ -109,6 +142,9 @@ export interface DomainViewSettings {
   widgets?: DomainDashboardWidget[];
   formulaAnalytics?: boolean;
   relationAnalytics?: boolean;
+  dashboardWidgets?: DomainDashboardViewWidget[];
+  dashboardRows?: DomainDashboardRow[];
+  dashboardFilters?: DomainDashboardGlobalFilter[];
 }
 
 export interface FieldConfig {

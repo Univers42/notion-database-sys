@@ -329,6 +329,30 @@ export interface DashboardWidget {
   height: 1 | 2;
 }
 
+/** Dashboard widget referencing an existing database view (Notion model). */
+export interface DashboardViewWidget {
+  id: string;
+  viewId: string;
+  title?: string;
+}
+
+/** One dashboard row: up to 4 widgets, widths are fractions summing to 1. */
+export interface DashboardRow {
+  id: string;
+  widgetIds: string[];
+  widths: number[];
+  height: number;
+}
+
+/** Simple global filter applied across dashboard widgets (matched by name+type). */
+export interface DashboardGlobalFilter {
+  id: string;
+  propertyName: string;
+  propertyType: string;
+  operator: FilterOperator;
+  value: PropertyValue;
+}
+
 /** View display and behavior settings. */
 export interface ViewSettings {
   icon?: string;
@@ -361,11 +385,20 @@ export interface ViewSettings {
   xAxisOmitZero?: boolean;
   xAxisTitle?: string;
   yAxisProperty?: string;
-  yAxisAggregation?: 'count' | 'sum' | 'average';
+  yAxisAggregation?: 'count' | 'sum' | 'average' | 'min' | 'max' | 'median';
   yAxisGroupBy?: string;
   yAxisRange?: 'auto' | '0-100' | '0-1000' | 'custom';
+  yAxisRangeMin?: number;
+  yAxisRangeMax?: number;
   yAxisTitle?: string;
   yAxisCumulative?: boolean;
+  xAxisDateBucket?: 'auto' | 'day' | 'week' | 'month' | 'quarter' | 'year';
+  chartHeight?: 'small' | 'medium' | 'large' | 'xl';
+  gradientFill?: boolean;
+  donutCenterValue?: boolean;
+  colorByValue?: boolean;
+  hiddenGroups?: string[];
+  manualGroupOrder?: string[];
   showReferenceLine?: boolean;
   referenceLineValue?: number | null;
   colorPalette?: string;
@@ -383,6 +416,9 @@ export interface ViewSettings {
   widgets?: DashboardWidget[];
   formulaAnalytics?: boolean;
   relationAnalytics?: boolean;
+  dashboardWidgets?: DashboardViewWidget[];
+  dashboardRows?: DashboardRow[];
+  dashboardFilters?: DashboardGlobalFilter[];
 }
 
 /** Complete configuration for a database view. */
