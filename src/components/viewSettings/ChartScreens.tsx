@@ -22,6 +22,7 @@ import { SettingsHeader, SettingsRow, ToggleSwitch } from '../ui/MenuPrimitives'
 import { CHART_TYPE_META } from './constants';
 import { ViewIdentityRow } from './SubComponents';
 import { copyViewLink } from '../../lib/viewLink';
+import { getChartTypeDef } from '../../lib/chart/chartTypeRegistry';
 
 // Re-export sub-screens so existing consumers keep working via this module
 export { ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen } from './ChartSubScreens';
@@ -84,6 +85,10 @@ export function EditChartScreen(props: Readonly<ChartScreensProps>) {
                 </button>
               );
             })}
+          </div>
+          <div className={cn("mx-2 pb-1")}>
+            <SettingsRow icon={<ChartIcon className={cn("w-5 h-5")} />} label="Browse all chart types"
+              value={getChartTypeDef(ct).label} onClick={() => setScreen('chartTypeGallery')} />
           </div>
         </div>
 

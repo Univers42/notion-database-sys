@@ -109,7 +109,8 @@ export interface DomainViewSettings {
   fitMedia?: boolean;
 
   // Chart
-  chartType?: 'vertical_bar' | 'horizontal_bar' | 'line' | 'donut' | 'pie' | 'number';
+  /** Chart preset id — see chartTypeRegistry (legacy five + ECharts family). */
+  chartType?: string;
   xAxisProperty?: string;
   xAxisSort?: 'ascending' | 'descending' | 'manual';
   xAxisOmitZero?: boolean;

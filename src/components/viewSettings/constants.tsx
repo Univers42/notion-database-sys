@@ -29,7 +29,7 @@ export type PanelScreen =
   | 'loadLimit' | 'cardPreview' | 'cardSize' | 'showCalendarBy'
   | 'showCalendarAs' | 'showTimelineBy' | 'openPagesIn' | 'groupBy'
   | 'mapBy' | 'source' | 'manageSources' | 'editProperties' | 'conditionalColor'
-  | 'editChart' | 'chartType' | 'xAxisWhat' | 'xAxisSort'
+  | 'editChart' | 'chartType' | 'chartTypeGallery' | 'xAxisWhat' | 'xAxisSort'
   | 'xAxisBucket' | 'xAxisGroups'
   | 'yAxisWhat' | 'yAxisGroupBy' | 'yAxisRange' | 'yAxisReferenceLine'
   | 'colorPalette' | 'moreStyle';

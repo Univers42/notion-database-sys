@@ -18,6 +18,7 @@ import type { ChartType } from './useChartData';
 import { useServerChartData } from './useServerChartData';
 import { fetchServerDrilldownRows } from './chartServerDrilldown';
 import { applyConditionalChartColors } from '../../../lib/conditionalColor';
+import { getChartTypeDef } from '../../../lib/chart/chartTypeRegistry';
 import { isLiveDatabaseId } from '../../../store/live/liveTypes';
 import type { DrilldownPage, DrilldownTarget } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
@@ -26,6 +27,7 @@ import { useViewPages } from '../../../hooks/useViewPages';
 // Lazy boundary: everything recharts lives behind this import, so the chart
 // chunk only loads when a chart view is actually rendered.
 const ChartCanvas = React.lazy(() => import('./ChartCanvas'));
+const EChartsCanvas = React.lazy(() => import('./echarts/EChartsCanvas'));
 
 function EmptyChartState() {
   return (
@@ -73,8 +75,11 @@ export function ChartView() {
   if (!view || !database) return null;
   if (!settings.xAxisProperty) return <EmptyChartState />;
 
-  const chartType: ChartType = (settings.chartType as ChartType) || 'vertical_bar';
-  if (chartType === 'number') {
+  const typeDef = getChartTypeDef(settings.chartType);
+  const chartType: ChartType = typeDef.engine === 'recharts'
+    ? ((typeDef.id as ChartType) || 'vertical_bar')
+    : 'vertical_bar';
+  if (typeDef.id === 'number') {
     const label = settings.yAxisProperty
       ? `${settings.yAxisAggregation ?? 'sum'}`
       : 'count';
@@ -124,11 +129,15 @@ export function ChartView() {
         </div>
       )}
       <Suspense fallback={<ChartLoading />}>
-        <ChartCanvas result={result} settings={settings}
-          chartType={chartType as Exclude<ChartType, 'number'>}
-          onToggleGroup={onToggleGroup} hiddenLabelFor={hiddenLabelFor}
-          resolvePages={resolvePages} fetchDrilldownRows={fetchDrilldownRows}
-          onOpenPage={openPage} />
+        {typeDef.engine === 'echarts' ? (
+          <EChartsCanvas viewId={view.id} result={result} settings={settings} />
+        ) : (
+          <ChartCanvas result={result} settings={settings}
+            chartType={chartType as Exclude<ChartType, 'number'>}
+            onToggleGroup={onToggleGroup} hiddenLabelFor={hiddenLabelFor}
+            resolvePages={resolvePages} fetchDrilldownRows={fetchDrilldownRows}
+            onOpenPage={openPage} />
+        )}
       </Suspense>
     </div>
   );
