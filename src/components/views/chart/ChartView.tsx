@@ -20,6 +20,7 @@ import { fetchServerDrilldownRows } from './chartServerDrilldown';
 import { isLiveDatabaseId } from '../../../store/live/liveTypes';
 import type { DrilldownPage, DrilldownTarget } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 // Lazy boundary: everything recharts lives behind this import, so the chart
 // chunk only loads when a chart view is actually rendered.
@@ -49,13 +50,12 @@ function ChartLoading() {
 export function ChartView() {
   const activeViewId = useActiveViewId();
   const {
-    views, databases, pages: pagesMap, getPagesForView,
-    openPage, getPageTitle, updateViewSettings,
+    views, databases, pages: pagesMap, openPage, getPageTitle, updateViewSettings,
   } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const settings = view?.settings || {};
-  const pages = view ? getPagesForView(view.id) : [];
+  const pages = useViewPages(view?.id);
 
   const labelResolver = useCallback((propId: string, key: string) => {
     const prop = database?.properties[propId];

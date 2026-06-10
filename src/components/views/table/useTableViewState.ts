@@ -18,6 +18,7 @@ import { READ_ONLY_TYPES } from '../../../constants/propertyIcons';
 import { useFillDrag } from './useFillDrag';
 import { useColumnResize, useColWidth } from './useColumnResize';
 import { useTableKeyboard } from './useTableKeyboard';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 /** Encapsulates all state, memos, and callbacks for the TableView component. */
 export function useTableViewState() {
@@ -27,7 +28,7 @@ export function useTableViewState() {
   const _pages = useDatabaseStore(s => s.pages);
   const _searchQuery = useDatabaseStore(s => s.searchQuery);
   const storeApi = useStoreApi();
-  const { getPagesForView, addPage, openPage, deletePage,
+  const { addPage, openPage, deletePage,
     getGroupedPages, duplicatePage } = storeApi.getState();
 
   const view = activeViewId ? views[activeViewId] : null;
@@ -69,7 +70,7 @@ export function useTableViewState() {
     [hiddenProps, searchQuery]
   );
 
-  const pages = view ? getPagesForView(view.id) : [];
+  const pages = useViewPages(view?.id);
   const loadLimit = view?.settings?.loadLimit || 50;
   const currentLimit = visibleCount ?? loadLimit;
   const displayedPages = pages.slice(0, currentLimit);

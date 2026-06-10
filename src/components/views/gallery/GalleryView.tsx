@@ -18,13 +18,15 @@ import type { Page, Block } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { renderPropertyValue, coverColors } from './GalleryViewHelpers';
 import { cn } from '../../../utils/cn';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 /** Renders a gallery view of database pages as cards with optional cover previews. */
 export function GalleryView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
+  const { views, databases, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+  const pages = useViewPages(view?.id);
 
   if (!view || !database) return null;
 
@@ -35,7 +37,6 @@ export function GalleryView() {
   const wrapContent = settings.wrapContent === true;
   const cardPreview = settings.cardPreview || 'none';
 
-  const pages = getPagesForView(view.id);
   const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
   const nonTitleProps = visibleProps.filter(p => p.id !== database.titlePropertyId);
 

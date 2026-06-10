@@ -16,6 +16,8 @@ import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus } from 'lucide-react';
 import { getColumnWidth, BoardCard } from './BoardCardHelpers';
 import { cn } from '../../../utils/cn';
+import { useDashboardFilters } from '../../../hooks/useDashboardFilters';
+import { applyGlobalFilters } from '../../../hooks/useViewPages';
 
 /** Renders a Kanban-style board view with drag-and-drop between columns grouped by a select/status property. */
 export function BoardView() {
@@ -23,6 +25,7 @@ export function BoardView() {
   const { views, databases, updatePageProperty, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+  const globalFilters = useDashboardFilters();
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [_dragPageId, setDragPageId] = useState<string | null>(null); // NOSONAR
 
@@ -42,7 +45,10 @@ export function BoardView() {
     return <div className={cn("flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary")}>Board view requires a select or status property for grouping.</div>;
   }
 
-  const groups = getGroupedPages(view.id);
+  const rawGroups = getGroupedPages(view.id);
+  const groups = globalFilters.length === 0 ? rawGroups : rawGroups.map(g => ({
+    ...g, pages: applyGlobalFilters(g.pages, globalFilters, database.properties),
+  }));
   const settings = view.settings || {};
   const cardSize = settings.cardSize || 'medium';
   const loadLimit = settings.loadLimit || 50;

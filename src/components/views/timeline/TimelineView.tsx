@@ -28,12 +28,13 @@ import { TimelineDayHeaders } from './TimelineDayHeaders';
 import { TimelineRow } from './TimelineRow';
 import { TodayMarker } from './TimelineBarComponents';
 import { cn } from '../../../utils/cn';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 /** Renders a drag-and-drop timeline (Gantt) view for date-based database pages. */
 export function TimelineView() {
   const activeViewId = useActiveViewId();
   const {
-    views, databases, getPagesForView, updatePageProperty,
+    views, databases, updatePageProperty,
     openPage, addPage, getPageTitle,
   } = useDatabaseStore();
   const storeApi = useStoreApi();
@@ -44,7 +45,7 @@ export function TimelineView() {
   const [hoverRow, setHoverRow] = useState<string | null>(null);
   const [datePicker, setDatePicker] = useState<DatePickerState | null>(null);
 
-  const pages = view ? getPagesForView(view.id) : [];
+  const pages = useViewPages(view?.id);
   const settings = view?.settings || {};
   const showTable = settings.showTable !== false;
   const zoomLevel = (settings.zoomLevel || 'week') as ZoomLevel;

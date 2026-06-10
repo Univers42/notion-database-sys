@@ -16,6 +16,7 @@ import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, addMonths, subMonths, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { cn } from '../../../utils/cn';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 function getDayNumberStyle(dayIsToday: boolean, isCurrentMonth: boolean): string {
   if (dayIsToday) return 'bg-accent text-ink-inverse';
@@ -26,16 +27,17 @@ function getDayNumberStyle(dayIsToday: boolean, isCurrentMonth: boolean): string
 /** Renders a monthly calendar view with drag-to-reschedule and per-day page cards. */
 export function CalendarView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, getPagesForView, updatePageProperty, openPage, addPage, getPageTitle } = useDatabaseStore();
+  const { views, databases, updatePageProperty, openPage, addPage, getPageTitle } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [_dragPageId, setDragPageId] = useState<string | null>(null); // NOSONAR
   const [dragOverDay, setDragOverDay] = useState<string | null>(null);
 
+  const pages = useViewPages(view?.id);
+
   if (!view || !database) return null;
 
-  const pages = getPagesForView(view.id);
   const settings = view.settings || {};
   const showWeekends = settings.showWeekends !== false;
   const wrapTitles = settings.wrapPageTitles !== false;

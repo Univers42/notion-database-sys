@@ -16,19 +16,20 @@ import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import type * as Leaflet from 'leaflet';
 import { MARKER_COLORS, makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar, type MappablePage } from './MapHelpers';
 import { cn } from '../../../utils/cn';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 /** Renders a Leaflet-based map view with markers for geolocated database pages. */
 export function MapView() {
   const [leaflet, setLeaflet] = React.useState<typeof Leaflet | null>(null);
   const activeViewId = useActiveViewId();
-  const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
+  const { views, databases, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Leaflet.Map | null>(null);
   const markersRef = useRef<Leaflet.LayerGroup | null>(null);
 
-  const pages = useMemo(() => view ? getPagesForView(view.id) : [], [view, getPagesForView]);
+  const pages = useViewPages(view?.id);
   const settings = view?.settings || {};
 
   // Find the place property to use for mapping

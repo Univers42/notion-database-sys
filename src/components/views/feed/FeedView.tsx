@@ -17,6 +17,7 @@ import { MoreHorizontal, FileText } from 'lucide-react';
 import { parseISO, formatDistanceToNow } from 'date-fns';
 import { cn } from '../../../utils/cn';
 import { FeedActionBar } from './FeedActionBar';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 type FeedProp = { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] };
 
@@ -50,9 +51,11 @@ function renderFeedPropertyTags(
 /** Renders a social-media-style feed of database pages with actions and property tags. */
 export function FeedView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, getPagesForView, openPage, getPageTitle, addPage } = useDatabaseStore();
+  const { views, databases, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+
+  const pages = useViewPages(view?.id);
 
   if (!view || !database) return null;
 
@@ -61,7 +64,6 @@ export function FeedView() {
   const showPageIcon = settings.showPageIcon !== false;
   const wrapProperties = settings.wrapProperties !== false;
 
-  const pages = getPagesForView(view.id);
   const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
   const nonTitleProps = visibleProps.filter(p => p.id !== database.titlePropertyId);
 

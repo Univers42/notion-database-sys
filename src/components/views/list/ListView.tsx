@@ -18,6 +18,7 @@ import type { Page, SchemaProperty } from '../../../types/database';
 import { format } from 'date-fns';
 import { cn } from '../../../utils/cn';
 import { safeString } from '../../../utils/safeString';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 /** Renders a compact property tag for the list view row. */
 function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactNode {
@@ -69,9 +70,11 @@ function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactN
 /** Renders a list view of database pages with optional grouping and inline property tags. */
 export function ListView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, getPagesForView, openPage, getPageTitle, addPage, getGroupedPages } = useDatabaseStore();
+  const { views, databases, openPage, getPageTitle, addPage, getGroupedPages } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+
+  const viewPages = useViewPages(view?.id);
 
   if (!view || !database) return null;
 
@@ -156,7 +159,7 @@ export function ListView() {
   }
 
   // Ungrouped rendering
-  const pages = getPagesForView(view.id).slice(0, loadLimit);
+  const pages = viewPages.slice(0, loadLimit);
   return (
     <div className={cn("flex-1 overflow-auto p-4 bg-surface-primary")}>
       <div className={cn("max-w-4xl mx-auto flex flex-col gap-0.5")}>

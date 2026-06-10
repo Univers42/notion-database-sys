@@ -24,15 +24,16 @@ import { BooleanSummary } from '../formulaAnalytics/BooleanSummary';
 import { FormulaOverviewTable } from '../formulaAnalytics/FormulaOverviewTable';
 import { SampleResultsTable } from '../formulaAnalytics/SampleResultsTable';
 import { cn } from '../../../utils/cn';
+import { useViewPages } from '../../../hooks/useViewPages';
 
 /** Renders a comprehensive formula analytics dashboard with KPIs, charts, and tables. */
 export function FormulaAnalyticsDashboard() {
   const activeViewId = useActiveViewId();
-  const { views, databases, getPagesForView, resolveFormula, getPageTitle, openPage } =
+  const { views, databases, resolveFormula, getPageTitle, openPage } =
     useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
-  const pages = useMemo(() => view ? getPagesForView(view.id) : [], [view, getPagesForView]);
+  const pages = useViewPages(view?.id);
 
 
   const formulaResults = useMemo(() => {
