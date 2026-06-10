@@ -359,6 +359,30 @@ export interface DashboardRow {
   height: number;
 }
 
+/** One automation action (set_property writes back, notify toasts via
+ *  realtime, webhook POSTs server-side — HTTPS-only, SSRF-guarded). */
+export interface AutomationAction {
+  type: 'set_property' | 'notify' | 'webhook';
+  column?: string;
+  value?: unknown;
+  message?: string;
+  url?: string;
+}
+
+/** A database automation: trigger → optional condition → actions. Live
+ *  mounts store rules SERVER-side (they fire for every client); local
+ *  databases evaluate them client-side on this session's mutations. */
+export interface AutomationRule {
+  id: string;
+  name: string;
+  enabled: boolean;
+  /** Table/collection the rule watches (live mounts; local DBs use the db id). */
+  table: string;
+  trigger: 'row_added' | 'row_updated' | 'row_deleted';
+  condition?: { column: string; operator: FilterOperator; value?: unknown };
+  actions: AutomationAction[];
+}
+
 /** One conditional-color rule: a filter condition + the color it applies.
  *  First matching rule wins (row tint, card accent, chart category color). */
 export interface ConditionalColorRule {
@@ -448,6 +472,8 @@ export interface ViewSettings {
   dashboardFilters?: DashboardGlobalFilter[];
   locked?: boolean;
   conditionalColors?: ConditionalColorRule[];
+  /** Local-database automations (live mounts persist rules server-side). */
+  automations?: AutomationRule[];
 }
 
 /** Complete configuration for a database view. */

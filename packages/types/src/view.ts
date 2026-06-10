@@ -54,6 +54,26 @@ export interface DomainDashboardRow {
   height: number;
 }
 
+/** One automation action (mirror of contract-types AutomationAction). */
+export interface DomainAutomationAction {
+  type: 'set_property' | 'notify' | 'webhook';
+  column?: string;
+  value?: unknown;
+  message?: string;
+  url?: string;
+}
+
+/** A database automation: trigger → optional condition → actions. */
+export interface DomainAutomationRule {
+  id: string;
+  name: string;
+  enabled: boolean;
+  table: string;
+  trigger: 'row_added' | 'row_updated' | 'row_deleted';
+  condition?: { column: string; operator: DomainFilterOperator; value?: unknown };
+  actions: DomainAutomationAction[];
+}
+
 /** One conditional-color rule: a filter condition + the color it applies. */
 export interface DomainConditionalColorRule {
   id: string;
@@ -160,6 +180,8 @@ export interface DomainViewSettings {
   dashboardFilters?: DomainDashboardGlobalFilter[];
   locked?: boolean;
   conditionalColors?: DomainConditionalColorRule[];
+  /** Local-database automations (live mounts persist rules server-side). */
+  automations?: DomainAutomationRule[];
 }
 
 export interface FieldConfig {

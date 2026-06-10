@@ -81,7 +81,7 @@ export function MainSettingsScreen({
           <div className={cn('flex flex-col gap-px px-2 pb-2')}>
             <SettingsRow icon={<SourceIcon />} label="Source" value={databaseName} onClick={() => setScreen('source')} />
             <SettingsRow icon={<ListIcon className={cn('w-5 h-5')} />} label="Edit properties" onClick={() => setScreen('editProperties')} />
-            <SettingsRow icon={<LightningIcon />} label="Automations" onClick={() => {}} />
+            <SettingsRow icon={<LightningIcon />} label="Automations" onClick={() => setScreen('automations')} />
           </div>
           <SettingsSectionLabel>&nbsp;</SettingsSectionLabel>
           <div className={cn('flex flex-col gap-px px-2 pb-2')}>

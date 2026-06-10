@@ -31,6 +31,7 @@ import { EditPropertiesScreen } from './viewSettings/EditPropertiesScreen';
 import { ConditionalColorScreen } from './viewSettings/ConditionalColorScreen';
 import { ChartTypeGalleryScreen } from './viewSettings/ChartTypeGalleryScreen';
 import { SaveChartScreen } from './viewSettings/SaveChartScreen';
+import { AutomationsScreen } from './viewSettings/AutomationsScreen';
 import { renderPropertyScreen } from './viewSettings/PropertyScreens';
 import type { PanelScreen, ChartScreensProps } from './viewSettings/index';
 import { cn } from '../utils/cn';
@@ -105,6 +106,9 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
   }
   if (screen === 'editProperties') {
     return <EditPropertiesScreen databaseId={view.databaseId} viewId={view.id} onBack={goHome} onClose={onClose} />;
+  }
+  if (screen === 'automations') {
+    return <AutomationsScreen databaseId={view.databaseId} viewId={view.id} onBack={goHome} onClose={onClose} />;
   }
   if (screen === 'conditionalColor') {
     return (
