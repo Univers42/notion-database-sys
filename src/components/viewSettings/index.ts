@@ -24,3 +24,5 @@ export {
 export type { ChartScreensProps } from './ChartSubScreens';
 export { renderPropertyScreen } from './PropertyScreens';
 export type { PropertyScreensContext } from './PropertyScreens';
+export { MainSettingsScreen } from './MainSettingsScreen';
+export { SourcePickerScreen } from './SourcePickerScreen';

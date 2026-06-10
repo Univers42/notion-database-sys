@@ -14,24 +14,18 @@ import React, { useState } from 'react';
 import { useDatabaseStore, useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import {
-  EyeIcon, FilterIcon, SortIcon, ConditionalColorIcon,
-  CopyLinkIcon, SourceIcon, LightningIcon, CollectionIcon, LockIcon,
-  ListIcon,
-} from './ui/Icons';
-import {
-  SettingsRow, SettingsHeader, SettingsSectionLabel,
-} from './ui/MenuPrimitives';
-import {
   FilterSettingsSubpanel, FilterPropertyPicker, getOperatorsForType,
   SortSettingsSubpanel,
 } from './FilterComponents';
 import {
-  VIEW_META, ViewIdentityRow, LayoutScreen,
+  VIEW_META, LayoutScreen,
   EditChartScreen, ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen,
   XAxisBucketScreen, XAxisGroupsScreen,
   YAxisWhatScreen, YAxisGroupByScreen, YAxisRangeScreen, YAxisReferenceLineScreen,
   ColorPaletteScreen, MoreStyleScreen,
 } from './viewSettings/index';
+import { MainSettingsScreen } from './viewSettings/MainSettingsScreen';
+import { SourcePickerScreen } from './viewSettings/SourcePickerScreen';
 import { renderPropertyScreen } from './viewSettings/PropertyScreens';
 import type { PanelScreen, ChartScreensProps } from './viewSettings/index';
 import { cn } from '../utils/cn';
@@ -94,6 +88,15 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
       databaseName: database.name, onClose, identityProps,
     };
     return <ChartComponent {...chartProps} />;
+  }
+
+  if (screen === 'source') {
+    return (
+      <SourcePickerScreen
+        viewId={view.id} currentDatabaseId={view.databaseId}
+        onBack={goHome} onClose={onClose}
+      />
+    );
   }
 
   if (screen === 'filter') {
@@ -160,35 +163,17 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
 
   // MAIN SCREEN
   const currentViewMeta = VIEW_META[view.type];
-  const visibleCount = view.visibleProperties.length;
 
   return (
-    <div className={cn("flex flex-col h-full")} style={{ minWidth: 290, maxWidth: 290 }}>
-      <SettingsHeader title="View settings" onClose={onClose} />
-      <div className={cn("flex-1 overflow-auto")} style={{ minHeight: 0 }}>
-        <div className={cn("flex flex-col gap-px")}>
-          <ViewIdentityRow {...identityProps} fallbackIcon={currentViewMeta.svgIcon} />
-          <div className={cn("flex flex-col gap-px px-2 py-1")}>
-            <SettingsRow icon={currentViewMeta.svgIcon} label="Layout" value={currentViewMeta.label} onClick={() => setScreen('layout')} />
-            <SettingsRow icon={<EyeIcon />} label="Property visibility" value={String(visibleCount)} onClick={() => setScreen('propertyVisibility')} />
-            <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
-            <SettingsRow icon={<SortIcon />} label="Sort" value={view.sorts.length > 0 ? String(view.sorts.length) : undefined} onClick={() => setScreen('sort')} />
-            <SettingsRow icon={<ConditionalColorIcon />} label="Conditional color" onClick={() => {}} />
-            <SettingsRow icon={<CopyLinkIcon className={cn("w-5 h-5")} />} label="Copy link to view" showChevron={false} onClick={() => {}} />
-          </div>
-          <SettingsSectionLabel>Data source settings</SettingsSectionLabel>
-          <div className={cn("flex flex-col gap-px px-2 pb-2")}>
-            <SettingsRow icon={<SourceIcon />} label="Source" value={database.name} onClick={() => {}} />
-            <SettingsRow icon={<ListIcon className={cn("w-5 h-5")} />} label="Edit properties" onClick={() => {}} />
-            <SettingsRow icon={<LightningIcon />} label="Automations" onClick={() => {}} />
-          </div>
-          <SettingsSectionLabel>&nbsp;</SettingsSectionLabel>
-          <div className={cn("flex flex-col gap-px px-2 pb-2")}>
-            <SettingsRow icon={<CollectionIcon />} label="Manage data sources" onClick={() => {}} />
-            <SettingsRow icon={<LockIcon />} label="Lock database" showChevron={false} onClick={() => {}} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <MainSettingsScreen
+      identityProps={{ ...identityProps, fallbackIcon: currentViewMeta.svgIcon }}
+      layoutLabel={currentViewMeta.label}
+      layoutIcon={currentViewMeta.svgIcon}
+      visibleCount={view.visibleProperties.length}
+      sortCount={view.sorts.length}
+      databaseName={database.name}
+      setScreen={setScreen}
+      onClose={onClose}
+    />
   );
 }

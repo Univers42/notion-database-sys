@@ -114,7 +114,7 @@ export function EditChartScreen(props: Readonly<ChartScreensProps>) {
 
         {/* Source / Filter */}
         <ChartDividerSection>
-          <SettingsRow icon={<PathRoundEndsIcon />} label="Source" value={databaseName} onClick={() => {}} />
+          <SettingsRow icon={<PathRoundEndsIcon />} label="Source" value={databaseName} onClick={() => setScreen('source')} />
           <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
         </ChartDividerSection>
 
