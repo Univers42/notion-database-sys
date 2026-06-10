@@ -64,7 +64,7 @@ export class PostgresDbAdapter implements DbAdapter {
     const cached = this.cache.get<string[]>('entities');
     if (cached) return cached;
 
-    const result = await pool.query(
+    const result = await pool.query<Record<string, unknown>>(
       `SELECT table_name FROM information_schema.tables
        WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
        ORDER BY table_name`,
@@ -128,7 +128,7 @@ export class PostgresDbAdapter implements DbAdapter {
     const pool = this.ensureConnected();
 
     // Try native information_schema first for accurate types
-    const colResult = await pool.query(
+    const colResult = await pool.query<Record<string, string>>(
       `SELECT column_name, data_type, is_nullable
        FROM information_schema.columns
        WHERE table_schema = 'public' AND table_name = $1

@@ -28,7 +28,7 @@ import { resolveLiveConflict } from './liveConflict';
 import { noteLiveOwnWrite } from './liveEchoRegistry';
 import { livePkFilter, postLiveTxn, writeLiveTableOp } from './liveWriteClient';
 import type { ChangeEvent } from '../../component/types';
-import type { LiveWriteEntry, LiveWriteQueue } from './liveWriteQueue';
+import { LIVE_MAX_ATTEMPTS, type LiveWriteEntry, type LiveWriteQueue } from './liveWriteQueue';
 import type { LiveRowsResponse, LiveSchemaResponse, LiveTableSchema } from './liveTypes';
 
 const TXN_MAX_OPS = 50;
@@ -72,9 +72,21 @@ export async function reconcileLiveCell(
   await resolveLiveConflict({ dbId: context.dbId, table: entry.table }, table, entry.pk, reason, context.emit);
 }
 
+/** Transient outcome: keep (true → backoff) unless the entry burned its
+ *  attempts — then drop it + reload so it can't block the queue forever. */
+function keepOrGiveUp(context: LiveCellWriteContext, entryId: string): boolean {
+  if (!context.queue.noteFailure(entryId, LIVE_MAX_ATTEMPTS)) return true;
+  console.warn(`[live-db] cell write dropped after ${LIVE_MAX_ATTEMPTS} failed attempts — reloading server truth`);
+  context.emit({ type: 'state-replaced' });
+  return false;
+}
+
 async function sendCellSingle(context: LiveCellWriteContext, item: ReadyCell): Promise<boolean> {
-  const result = await writeLiveTableOp(context.dbId, item.entry.table, item.op);
-  if (result.status === 0 || result.status >= 500) return true; // keep + backoff
+  // `resource` is a /txn-only field (the table rides in the URL here) and the
+  // single-op DTO is forbidNonWhitelisted: sending it is a guaranteed 400.
+  const { resource: _txnOnly, ...body } = item.op;
+  const result = await writeLiveTableOp(context.dbId, item.entry.table, body);
+  if (result.status === 0 || result.status >= 500) return keepOrGiveUp(context, item.entry.id);
   context.queue.remove([item.entry.id]);
   if (result.status >= 200 && result.status < 300) {
     const affected = (result.body as LiveRowsResponse | null)?.affected_rows ?? 1;
@@ -125,7 +137,13 @@ export async function drainLiveCells(
         if (await sendCellSingle(context, item)) return true; // isolate the conflicting row
       }
     } else if (result.status === 0 || result.status >= 500) {
-      return true; // transient — keep the whole chunk pending
+      // Transient — note one failure per chunk entry; if any survive, back
+      // off with them; if the whole chunk burned out, move on (dropped).
+      let surviving = false;
+      for (const item of chunk) {
+        if (keepOrGiveUp(context, item.entry.id)) surviving = true;
+      }
+      if (surviving) return true;
     } else {
       const reason = result.status === 409 ? 'server constraint' : `rejected (HTTP ${result.status})`;
       for (const item of chunk) {

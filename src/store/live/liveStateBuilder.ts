@@ -16,7 +16,9 @@
  * `baas:<dbId>:<table>`, humanized name), pages keyed
  * `baas:<dbId>:<table>:<pk>` (pk from primary_key columns; mongo `_id`),
  * one default table view per database + a board view when an enum column
- * exists (grouped by the first select property). Tables that the primary
+ * exists (grouped by the first select property). App-registered table
+ * presets (liveViewPresets) can upgrade text columns to select, derive a
+ * place property, and contribute curated views. Tables that the primary
  * table references arrive as schema-only databases (no rows) so relation
  * properties can resolve names lazily (`getPage` on demand).
  */
@@ -25,8 +27,15 @@ import type { DatabaseSchema, NotionState, Page, ViewConfig } from '../../compon
 import { humanizeName, mapLiveTable } from './liveSchemaMapper';
 import { decodeLiveValue, toDisplayString } from './liveValueCodec';
 import {
+  applyLivePresetProperties,
+  buildLivePresetViews,
+  decodeLivePlaceValue,
+  LIVE_PLACE_PROPERTY_ID,
+} from './liveViewPresets';
+import {
   formatLiveDatabaseId,
   formatLivePageId,
+  parseLiveDatabaseId,
   type LiveMountRef,
   type LiveSchemaResponse,
   type LiveTableSchema,
@@ -44,9 +53,15 @@ function rowTimestamp(row: Record<string, unknown>, names: string[]): string {
   return LIVE_EPOCH_ISO;
 }
 
-/** One mounted table → one notion DatabaseSchema. */
-export function buildLiveDatabase(table: LiveTableSchema, ref: LiveMountRef): DatabaseSchema {
+/** One mounted table → one notion DatabaseSchema (`rows`, when available,
+ *  feed the preset select-option synthesis — see liveViewPresets). */
+export function buildLiveDatabase(
+  table: LiveTableSchema,
+  ref: LiveMountRef,
+  rows: Record<string, unknown>[] = [],
+): DatabaseSchema {
   const { properties, titlePropertyId } = mapLiveTable(table, ref.dbId);
+  applyLivePresetProperties(properties, ref, rows);
   return {
     id: formatLiveDatabaseId(ref),
     name: humanizeName(table.name),
@@ -57,7 +72,8 @@ export function buildLiveDatabase(table: LiveTableSchema, ref: LiveMountRef): Da
   };
 }
 
-/** Default table view (+ board view grouped by the first select property). */
+/** Default table view, then either the preset's curated views or the
+ *  synthesized board view (grouped by the first select property). */
 export function buildLiveViews(database: DatabaseSchema): Record<string, ViewConfig> {
   const visibleProperties = Object.keys(database.properties)
     .filter((propertyId) => propertyId !== database.titlePropertyId);
@@ -72,9 +88,13 @@ export function buildLiveViews(database: DatabaseSchema): Record<string, ViewCon
     visibleProperties,
     settings: { showRowNumbers: true, openPagesIn: 'side_peek' },
   }];
+  const ref = parseLiveDatabaseId(database.id);
+  const presetViews = ref ? buildLivePresetViews(database, ref) : [];
   const groupProperty = Object.values(database.properties)
     .find((property) => property.type === 'select');
-  if (groupProperty) {
+  if (presetViews.length > 0) {
+    views.push(...presetViews); // curated set replaces the synthesized board
+  } else if (groupProperty) {
     views.push({
       id: `${database.id}#board`,
       databaseId: database.id,
@@ -100,18 +120,24 @@ export function buildLivePage(
   fallbackKey = '0',
 ): Page {
   const pkColumns = table.primary_key.length > 0 ? table.primary_key : [];
+  // Mongo wire alias: the data plane surfaces `_id` as `id` (normalize_doc),
+  // while the schema's primary_key still says `_id` — fall back per column.
   const pk = pkColumns.length > 0
-    ? pkColumns.map((column) => toDisplayString(row[column] ?? '')).join(':')
+    ? pkColumns.map((column) => toDisplayString(
+        row[column] ?? (column === '_id' ? row.id : undefined) ?? '',
+      )).join(':')
     : toDisplayString(row.id ?? row._id ?? fallbackKey);
   const columnsByName = new Map(table.columns.map((column) => [column.name, column]));
   const properties: Record<string, unknown> = {};
   for (const property of Object.values(database.properties)) {
-    properties[property.id] = decodeLiveValue(
-      row[property.id],
-      property,
-      columnsByName.get(property.id),
-      ref,
-    );
+    properties[property.id] = property.id === LIVE_PLACE_PROPERTY_ID
+      ? decodeLivePlaceValue(row, ref) // derived from the preset's lat/lng columns
+      : decodeLiveValue(
+          row[property.id] ?? (property.id === '_id' ? row.id : undefined),
+          property,
+          columnsByName.get(property.id),
+          ref,
+        );
   }
   const createdAt = rowTimestamp(row, ['created_at', 'createdAt', 'inserted_at']);
   const updatedAt = rowTimestamp(row, ['updated_at', 'updatedAt', 'created_at', 'createdAt']);
@@ -145,7 +171,7 @@ export function buildLiveState(
   for (const table of schema.tables) {
     if (!included.has(table.name)) continue;
     const tableRef: LiveMountRef = { dbId: ref.dbId, table: table.name };
-    const database = buildLiveDatabase(table, tableRef);
+    const database = buildLiveDatabase(table, tableRef, rowsByTable[table.name] ?? []);
     databases[database.id] = database;
     Object.assign(views, buildLiveViews(database));
     (rowsByTable[table.name] ?? []).forEach((row, index) => {

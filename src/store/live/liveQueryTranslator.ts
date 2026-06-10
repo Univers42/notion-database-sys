@@ -11,16 +11,21 @@
 /* ************************************************************************** */
 
 /**
- * PageQuery (the adapter contract's DocFilter) → the data-plane filter wire
- * grammar, built against data-plane-core/src/filter.rs reality:
- * - `{col: {"$op": v}}` with ops $eq $ne $lt $lte $gt $gte $like $ilike $in
- *   $between $null; `{"$and": [..]}` / `{"$or": [..]}` / `{"$not": f}`.
- * - field names must not start with `$`; `$in` lists are capped at 1000.
- * - `$null: true` → IS NULL, `$null: false` → IS NOT NULL.
- * Mapping: eq→$eq, neq→$ne, in→$in, nin→$not($in), gt/gte/lt/lte→same,
- * contains(string)→$ilike '%v%' (escaped), exists→$null(!exists).
- * Anything unmappable is OMITTED server-side and reported in `clientSide` —
- * the views already filter client-side over loaded pages.
+ * PageQuery (the adapter contract's DocFilter) → the engine's filter wire
+ * grammar. The wire FORKS by engine (verified against the live data plane):
+ * - postgresql/mysql parse the shared Filter grammar (filter.rs): `{col:
+ *   {"$op": v}}` with $eq $ne $lt $lte $gt $gte $like $ilike $in $between
+ *   $null; `{"$and"|"$or": [..]}` / top-level `{"$not": f}`.
+ * - mongodb passes NATIVE filters through a default-deny operator allowlist:
+ *   $ilike/$null are 400s and a top-level $not is invalid — contains must be
+ *   `$regex` (+`$options:"i"`, regex-escaped), exists `$exists`, nin the
+ *   native `$nin`. The shared ops ($eq $ne $gt $gte $lt $lte $in $and $or)
+ *   mean the same thing on both sides.
+ * Mapping: eq→$eq, neq→$ne, in→$in, gt/gte/lt/lte→same; nin→$not($in) (sql) /
+ * $nin (mongo); contains→$ilike '%v%' (sql) / $regex i (mongo); exists→
+ * $null(!exists) (sql) / $exists (mongo). Anything unmappable is OMITTED
+ * server-side and reported in `clientSide` — the views already filter
+ * client-side over loaded pages.
  * Sort: only the FIRST entry is sent (the wire sort is a BTreeMap, so multi-
  * key order would not survive); the rest stays client-side.
  */
@@ -43,10 +48,16 @@ export function escapeLikePattern(value: string): string {
   return value.replace(/[\\%_]/g, (match) => `\\${match}`);
 }
 
+/** Escape regex metacharacters so a mongo `$regex` matches literally. */
+export function escapeRegexPattern(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, (match) => `\\${match}`);
+}
+
 function translateColumn(
   column: string,
   ops: Record<string, unknown>,
   clientSide: string[],
+  mongo: boolean,
 ): Record<string, unknown>[] {
   if (column.startsWith('$')) {
     clientSide.push(`${column}:*`);
@@ -62,25 +73,35 @@ function translateColumn(
     if (op in simple) direct[simple[op]] = value;
     else if (op === 'in' && Array.isArray(value) && value.length <= LIVE_MAX_IN) direct.$in = value;
     else if (op === 'nin' && Array.isArray(value) && value.length <= LIVE_MAX_IN) {
-      nodes.push({ $not: { [column]: { $in: value } } });
+      if (mongo) direct.$nin = value; // native; mongo has no top-level $not
+      else nodes.push({ $not: { [column]: { $in: value } } });
     } else if (op === 'contains' && typeof value === 'string') {
-      direct.$ilike = `%${escapeLikePattern(value)}%`;
-    } else if (op === 'exists' && typeof value === 'boolean') direct.$null = !value;
-    else clientSide.push(`${column}:${op}`);
+      if (mongo) {
+        direct.$regex = escapeRegexPattern(value);
+        direct.$options = 'i';
+      } else {
+        direct.$ilike = `%${escapeLikePattern(value)}%`;
+      }
+    } else if (op === 'exists' && typeof value === 'boolean') {
+      if (mongo) direct.$exists = value; // $null is a sql-grammar-only op
+      else direct.$null = !value;
+    } else clientSide.push(`${column}:${op}`);
   }
   if (Object.keys(direct).length > 0) nodes.push({ [column]: direct });
   return nodes;
 }
 
-/** Translate a PageQuery into `{ filter, sort, limit }` per the wire grammar. */
-export function translateLivePageQuery(query: PageQuery): LiveQueryTranslation {
+/** Translate a PageQuery into `{ filter, sort, limit }` for the mount's
+ *  engine (default sql grammar; pass `engine: "mongodb"` for native mongo). */
+export function translateLivePageQuery(query: PageQuery, engine?: string): LiveQueryTranslation {
   const clientSide: string[] = [];
   const params: LiveListParams = {};
   const nodes: Record<string, unknown>[] = [];
+  const mongo = engine === 'mongodb';
 
   for (const [column, ops] of Object.entries(query.filter ?? {})) {
     if (!ops || typeof ops !== 'object') continue;
-    nodes.push(...translateColumn(column, ops as Record<string, unknown>, clientSide));
+    nodes.push(...translateColumn(column, ops as Record<string, unknown>, clientSide, mongo));
   }
   if (nodes.length === 1) params.filter = nodes[0];
   else if (nodes.length > 1) params.filter = { $and: nodes };

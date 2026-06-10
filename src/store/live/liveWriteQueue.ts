@@ -24,12 +24,19 @@
 
 export const LIVE_WRITE_OUTBOX_KEY = 'osionos.liveWriteOutbox.v1';
 
-/** Raw notion values keyed by column; the publisher encodes column-aware. */
+/** Transient failures per entry before it is dropped (poison-pill guard) —
+ *  ~4 minutes through the publisher's 2s→60s backoff ladder. Lives here (not
+ *  the publisher) so liveCellWrites can share it without an import cycle. */
+export const LIVE_MAX_ATTEMPTS = 8;
+
+/** Raw notion values keyed by column; the publisher encodes column-aware.
+ *  `attempts` counts transient-failure retries (absent = 0; wire-compatible
+ *  with pre-existing persisted ledgers). */
 export type LiveWriteEntry =
-  | { id: string; kind: 'cell'; databaseId: string; table: string; pk: string; data: Record<string, unknown> }
-  | { id: string; kind: 'insert'; databaseId: string; table: string; values: Record<string, unknown>; tempId: string }
-  | { id: string; kind: 'delete'; databaseId: string; table: string; pk: string }
-  | { id: string; kind: 'ddl'; databaseId: string; table: string; request: Record<string, unknown> };
+  | { id: string; kind: 'cell'; databaseId: string; table: string; pk: string; data: Record<string, unknown>; attempts?: number }
+  | { id: string; kind: 'insert'; databaseId: string; table: string; values: Record<string, unknown>; tempId: string; attempts?: number }
+  | { id: string; kind: 'delete'; databaseId: string; table: string; pk: string; attempts?: number }
+  | { id: string; kind: 'ddl'; databaseId: string; table: string; request: Record<string, unknown>; attempts?: number };
 
 /** Injectable storage so node tests stub localStorage. */
 export interface LiveQueueStorage {
@@ -100,6 +107,21 @@ export class LiveWriteQueue {
     const drop = new Set(ids);
     this.entries = this.entries.filter((entry) => !drop.has(entry.id));
     this.save();
+  }
+
+  /** Record one transient failure; when the entry has now failed `max` times
+   *  it is DROPPED (poison-pill guard: one doomed entry must not block the
+   *  queue forever) and `true` is returned so the caller can surface it. */
+  noteFailure(id: string, max: number): boolean {
+    const entry = this.entries.find((candidate) => candidate.id === id);
+    if (!entry) return false;
+    entry.attempts = (entry.attempts ?? 0) + 1;
+    if (entry.attempts >= max) {
+      this.remove([id]);
+      return true;
+    }
+    this.save();
+    return false;
   }
 
   size(): number {

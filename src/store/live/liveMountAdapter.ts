@@ -102,9 +102,9 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
     const schema = await getLiveSchema(target.dbId);
     const table = schema.tables.find((candidate) => candidate.name === target.table);
     if (!table) return [];
-    const { params } = translateLivePageQuery(query);
+    const { params } = translateLivePageQuery(query, schema.engine);
     const result = await listLiveRows(target.dbId, target.table, params);
-    const database = buildLiveDatabase(table, target);
+    const database = buildLiveDatabase(table, target, result.rows);
     return result.rows.map((row, index) => buildLivePage(row, table, database, target, String(index)));
   }
 
@@ -123,7 +123,7 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
     );
     const row = result.rows[0];
     if (!row) return null;
-    return buildLivePage(row, table, buildLiveDatabase(table, pageRef), pageRef);
+    return buildLivePage(row, table, buildLiveDatabase(table, pageRef, [row]), pageRef);
   }
 
   // The host persists in-view edits via persistState; these direct CRUD

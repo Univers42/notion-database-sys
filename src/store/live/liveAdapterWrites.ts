@@ -29,7 +29,7 @@ import type { ChangeEvent, NotionState } from '../../component/types';
 import { diffLiveState, type LiveStateDiff } from './liveStateDiff';
 import { LiveWriteQueue, type LiveQueueStorage } from './liveWriteQueue';
 import { LiveWritePublisher } from './liveWritePublisher';
-import { ddlAddColumnRequest, ddlDropColumnRequest, ddlRetypeRequest } from './liveDdlMapper';
+import { collectLiveDdlIntents } from './liveSchemaIntents';
 import { parseLiveDatabaseId, parseLivePageId, type LiveSchemaResponse } from './liveTypes';
 
 export interface LiveAdapterWritesDeps {
@@ -40,12 +40,6 @@ export interface LiveAdapterWritesDeps {
   onSchemaChanged?: () => void;
   /** Test injection; defaults to localStorage inside the queue. */
   storage?: LiveQueueStorage;
-}
-
-/** UI-added properties get `prop-<hex>` ids (databaseSlice); mapper property
- *  ids are raw column names — so this safely tags never-created columns. */
-function isUiTempPropertyId(propertyId: string): boolean {
-  return propertyId.startsWith('prop-');
 }
 
 export class LiveAdapterWrites {
@@ -147,24 +141,15 @@ export class LiveAdapterWrites {
   }
 
   private enqueueSchemaChanges(diff: LiveStateDiff): boolean {
-    let mutated = false;
-    for (const property of diff.schemaAdds) {
-      const { request, skipped } = ddlAddColumnRequest(this.table, property);
-      if (request) { this.queue.enqueue({ kind: 'ddl', table: this.table, request }); mutated = true; }
-      if (skipped) console.warn(`[live-db] schema change skipped: ${skipped}`);
+    // Guard rails (UI-temp ids, derived `__*` presets, presentational
+    // text↔select drift) live in liveSchemaIntents — only honest engine
+    // changes come back as requests.
+    const intents = collectLiveDdlIntents(diff, this.table);
+    for (const message of intents.messages) console.warn(`[live-db] ${message}`);
+    for (const request of intents.requests) {
+      this.queue.enqueue({ kind: 'ddl', table: this.table, request });
     }
-    for (const propertyId of diff.schemaRemoves) {
-      if (isUiTempPropertyId(propertyId)) continue; // column was never created server-side
-      this.queue.enqueue({ kind: 'ddl', table: this.table, request: ddlDropColumnRequest(this.table, propertyId) });
-      mutated = true;
-    }
-    for (const retype of diff.schemaRetypes) {
-      if (isUiTempPropertyId(retype.propertyId)) continue; // pending add already carries a type
-      const { request, skipped } = ddlRetypeRequest(this.table, retype.property);
-      if (request) { this.queue.enqueue({ kind: 'ddl', table: this.table, request }); mutated = true; }
-      if (skipped) console.warn(`[live-db] schema change skipped: ${skipped}`);
-    }
-    return mutated;
+    return intents.requests.length > 0;
   }
 
   /** One-shot suppressions so corrective events never echo into the queue. */

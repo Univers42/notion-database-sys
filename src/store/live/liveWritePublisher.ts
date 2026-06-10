@@ -30,12 +30,13 @@ import { mapLiveTable } from './liveSchemaMapper';
 import { buildLiveDatabase, buildLivePage } from './liveStateBuilder';
 import { drainLiveCells, encodeLiveCellData, type LiveCellEntry } from './liveCellWrites';
 import { livePkFilter, postLiveDdl, writeLiveTableOp } from './liveWriteClient';
-import type { LiveWriteEntry, LiveWriteQueue } from './liveWriteQueue';
+import { LIVE_MAX_ATTEMPTS, type LiveWriteEntry, type LiveWriteQueue } from './liveWriteQueue';
 import type { LiveMountRef, LiveRowsResponse, LiveSchemaResponse, LiveTableSchema } from './liveTypes';
 
 export const LIVE_BACKOFF_MIN_MS = 2_000;
 export const LIVE_BACKOFF_MAX_MS = 60_000;
 export const LIVE_DRAIN_DEBOUNCE_MS = 500;
+export { LIVE_MAX_ATTEMPTS };
 
 export interface LiveWritePublisherDeps {
   mount: LiveMountRef;
@@ -126,7 +127,7 @@ export class LiveWritePublisher {
       ? { op: 'insert', data: this.insertData(entry, table), idempotencyKey: entry.id }
       : { op: 'delete', filter: livePkFilter(table, entry.pk), idempotencyKey: entry.id };
     const result = await writeLiveTableOp(this.deps.mount.dbId, entry.table, body);
-    if (result.status === 0 || result.status >= 500) return true;
+    if (result.status === 0 || result.status >= 500) return this.keepOrGiveUp(entry.id, entry.kind);
     this.deps.queue.remove([entry.id]);
     if (result.status >= 200 && result.status < 300) {
       if (entry.kind === 'insert') this.emitInserted(entry, table, result.body);
@@ -146,9 +147,14 @@ export class LiveWritePublisher {
     const ref: LiveMountRef = { dbId: this.deps.mount.dbId, table: entry.table };
     const row = (body as LiveRowsResponse | null)?.rows?.[0];
     const pkColumns = table.primary_key.length > 0 ? table.primary_key : ['id'];
-    if (row && pkColumns.every((column) => row[column] !== undefined && row[column] !== null)) {
+    // Mongo wire alias: rows surface `_id` as `id` (normalize_doc) while the
+    // schema pk still says `_id` — read through the alias or every mongo
+    // insert "loses" its pk and degrades to a full state reload.
+    const pkOf = (column: string): unknown =>
+      row?.[column] ?? (column === '_id' ? row?.id : undefined);
+    if (row && pkColumns.every((column) => pkOf(column) !== undefined && pkOf(column) !== null)) {
       // Best-effort realtime echo guard: the event's pk mirrors the row's `id`.
-      noteLiveOwnWrite(ref.dbId, entry.table, String(row[pkColumns[0]]));
+      noteLiveOwnWrite(ref.dbId, entry.table, String(pkOf(pkColumns[0])));
       this.deps.emit({ type: 'page-deleted', pageId: entry.tempId, databaseId: `baas:${ref.dbId}:${ref.table}` });
       this.deps.emit({ type: 'page-inserted', page: buildLivePage(row, table, buildLiveDatabase(table, ref), ref) });
     } else {
@@ -168,10 +174,20 @@ export class LiveWritePublisher {
     return data;
   }
 
+  /** Transient outcome: keep the entry (true → caller backs off) unless it
+   *  has burned LIVE_MAX_ATTEMPTS — then drop it and snap to server truth so
+   *  one doomed entry can never block the FIFO behind it forever. */
+  private keepOrGiveUp(entryId: string, label: string): boolean {
+    if (!this.deps.queue.noteFailure(entryId, LIVE_MAX_ATTEMPTS)) return true;
+    console.warn(`[live-db] ${label} write dropped after ${LIVE_MAX_ATTEMPTS} failed attempts — reloading server truth`);
+    this.deps.emit({ type: 'state-replaced' });
+    return false;
+  }
+
   /** One DDL op; success and hard rejection both refresh schema + state. */
   private async sendDdl(entry: Extract<LiveWriteEntry, { kind: 'ddl' }>): Promise<boolean> {
     const result = await postLiveDdl(this.deps.mount.dbId, entry.request);
-    if (result.status === 0 || result.status >= 500) return true;
+    if (result.status === 0 || result.status >= 500) return this.keepOrGiveUp(entry.id, 'ddl');
     this.deps.queue.remove([entry.id]);
     if (result.status < 200 || result.status >= 300) {
       const why = result.status === 409

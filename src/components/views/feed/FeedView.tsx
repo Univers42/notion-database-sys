@@ -13,9 +13,10 @@
 import React from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import { MessageCircle, Heart, Share2, MoreHorizontal, FileText } from 'lucide-react';
+import { MoreHorizontal, FileText } from 'lucide-react';
 import { parseISO, formatDistanceToNow } from 'date-fns';
 import { cn } from '../../../utils/cn';
+import { FeedActionBar } from './FeedActionBar';
 
 type FeedProp = { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] };
 
@@ -151,21 +152,8 @@ export function FeedView() {
                 </div>
               )}
 
-              {/* Action bar */}
-              <div className={cn("flex items-center gap-1 px-3 py-2 border-t border-line-light")}>
-                <button onClick={e => e.stopPropagation()}
-                  className={cn("flex items-center gap-1.5 py-1.5 px-3 text-ink-secondary hover:bg-hover-surface2 rounded-lg transition-colors text-sm")}>
-                  <Heart className={cn("w-4 h-4")} /> Like
-                </button>
-                <button onClick={e => e.stopPropagation()}
-                  className={cn("flex items-center gap-1.5 py-1.5 px-3 text-ink-secondary hover:bg-hover-surface2 rounded-lg transition-colors text-sm")}>
-                  <MessageCircle className={cn("w-4 h-4")} /> Comment
-                </button>
-                <button onClick={e => e.stopPropagation()}
-                  className={cn("flex items-center gap-1.5 py-1.5 px-3 text-ink-secondary hover:bg-hover-surface2 rounded-lg transition-colors text-sm")}>
-                  <Share2 className={cn("w-4 h-4")} /> Share
-                </button>
-              </div>
+              {/* Action bar — bridge-backed likes/comments (inert offline) */}
+              <FeedActionBar pageId={page.id} />
             </article>
           );
         })}

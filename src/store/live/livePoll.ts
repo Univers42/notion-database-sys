@@ -35,10 +35,14 @@ export interface LivePollDeps {
 }
 
 /** Cheap order-insensitive fingerprint: rows sorted by their pk string,
- *  then djb2 over the concatenated row JSON (length-prefixed). */
+ *  then djb2 over the concatenated row JSON (length-prefixed). Mongo wire
+ *  alias: rows surface `_id` as `id` (normalize_doc) — without the fallback
+ *  every pk is '' and natural-order drift flips the hash (false reloads). */
 export function hashLiveRows(rows: Record<string, unknown>[], pkColumns: string[]): string {
   const keyed = rows.map((row) => ({
-    pk: pkColumns.map((column) => String(row[column] ?? '')).join(':'),
+    pk: pkColumns
+      .map((column) => String(row[column] ?? (column === '_id' ? row.id : undefined) ?? ''))
+      .join(':'),
     json: JSON.stringify(row),
   }));
   keyed.sort((a, b) => (a.pk < b.pk ? -1 : a.pk > b.pk ? 1 : 0));

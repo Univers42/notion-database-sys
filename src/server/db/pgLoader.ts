@@ -45,7 +45,9 @@ export async function pgLoadPages(
         if (colName !== 'id') reverseMap[colName] = propId;
       }
 
-      const { rows } = await pool.query(`SELECT * FROM ${sqlId(table)}`);
+      // Row shape is engine-defined; type the dynamic columns explicitly
+      // (the pg shim's default TRow is `unknown`, not `any`).
+      const { rows } = await pool.query<Record<string, unknown>>(`SELECT * FROM ${sqlId(table)}`);
 
       for (const row of rows) {
         const pageId = String(row.id);

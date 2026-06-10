@@ -33,7 +33,12 @@ export const MAX_LIVE_ROW_OPS_PER_PERSIST = 3;
 export interface LiveCellChange { table: string; pk: string; column: string; value: unknown }
 export interface LiveInsertChange { table: string; values: Record<string, unknown>; tempId: string }
 export interface LiveDeleteChange { table: string; pk: string }
-export interface LiveSchemaRetype { propertyId: string; newType: PropertyType; property: SchemaProperty }
+export interface LiveSchemaRetype {
+  propertyId: string;
+  fromType: PropertyType;
+  newType: PropertyType;
+  property: SchemaProperty;
+}
 
 export interface LiveStateDiff {
   cellChanges: LiveCellChange[];
@@ -123,7 +128,7 @@ function collectSchemaChanges(
     if (!before) {
       diff.schemaAdds.push(property);
     } else if (before.type !== property.type) {
-      diff.schemaRetypes.push({ propertyId: id, newType: property.type, property });
+      diff.schemaRetypes.push({ propertyId: id, fromType: before.type, newType: property.type, property });
     }
   }
   for (const id of Object.keys(prevProps)) {
