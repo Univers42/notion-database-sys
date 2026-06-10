@@ -33,14 +33,21 @@ export interface ChartCanvasProps {
   onToggleGroup: (key: string) => void;
   hiddenLabelFor: (key: string) => string;
   resolvePages: (ids: string[]) => DrilldownPage[];
+  /** Server-truth drilldown: list rows from the live mount on demand. */
+  fetchDrilldownRows?: (target: DrilldownTarget) => Promise<DrilldownPage[]>;
   onOpenPage: (id: string) => void;
 }
 
 /** Chart body: typed chart + interactive legend + drilldown + cap notice. */
 export default function ChartCanvas({
-  result, settings, chartType, onToggleGroup, hiddenLabelFor, resolvePages, onOpenPage,
+  result, settings, chartType, onToggleGroup, hiddenLabelFor, resolvePages,
+  fetchDrilldownRows, onOpenPage,
 }: Readonly<ChartCanvasProps>) {
   const [drilldown, setDrilldown] = useState<DrilldownTarget | null>(null);
+  const isCountAgg = !settings.yAxisProperty || settings.yAxisAggregation === 'count';
+  const drillCount = drilldown && fetchDrilldownRows && isCountAgg
+    ? result.categories[drilldown.categoryIndex]?.values[drilldown.seriesKey]
+    : undefined;
   const height = heightFor(settings);
   const legend = settings.showLegend !== false
     ? legendItems(result, settings, hiddenLabelFor)
@@ -64,7 +71,8 @@ export default function ChartCanvas({
         {chart}
         {drilldown && (
           <ChartDrilldown result={result} target={drilldown}
-            resolvePages={resolvePages} onOpenPage={onOpenPage}
+            resolvePages={resolvePages} fetchRows={fetchDrilldownRows}
+            itemCount={drillCount} onOpenPage={onOpenPage}
             onClose={() => setDrilldown(null)} />
         )}
       </div>

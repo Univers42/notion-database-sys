@@ -14,9 +14,11 @@ import React, { Suspense, useCallback } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { BarChart3 } from 'lucide-react';
-import { useChartData } from './useChartData';
 import type { ChartType } from './useChartData';
-import type { DrilldownPage } from './ChartDrilldown';
+import { useServerChartData } from './useServerChartData';
+import { fetchServerDrilldownRows } from './chartServerDrilldown';
+import { isLiveDatabaseId } from '../../../store/live/liveTypes';
+import type { DrilldownPage, DrilldownTarget } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
 
 // Lazy boundary: everything recharts lives behind this import, so the chart
@@ -62,7 +64,7 @@ export function ChartView() {
     return target ? getPageTitle(target) : undefined;
   }, [database, pagesMap, getPageTitle]);
 
-  const result = useChartData(database, pages, settings, labelResolver);
+  const { result, isServerTruth } = useServerChartData(view, database, pages, settings, labelResolver);
 
   if (!view || !database) return null;
   if (!settings.xAxisProperty) return <EmptyChartState />;
@@ -100,13 +102,30 @@ export function ChartView() {
     .map(id => pagesMap[id])
     .filter(Boolean)
     .map(p => ({ id: p.id, title: getPageTitle(p), icon: p.icon }));
+  const fetchDrilldownRows = isServerTruth
+    ? (target: DrilldownTarget) => fetchServerDrilldownRows({
+      view, database, settings, result, target, storePages: pagesMap,
+    })
+    : undefined;
+  const isLive = isLiveDatabaseId(view.databaseId);
+  const badge = isLive
+    ? (isServerTruth ? 'Live · all rows' : `Live · first ${pages.length} rows`)
+    : null;
 
   return (
-    <Suspense fallback={<ChartLoading />}>
-      <ChartCanvas result={result} settings={settings}
-        chartType={chartType as Exclude<ChartType, 'number'>}
-        onToggleGroup={onToggleGroup} hiddenLabelFor={hiddenLabelFor}
-        resolvePages={resolvePages} onOpenPage={openPage} />
-    </Suspense>
+    <div className={cn("relative flex-1 flex flex-col min-h-0")}>
+      {badge && (
+        <div className={cn("absolute top-2 right-4 z-10 text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-ink-muted border border-line select-none")}>
+          {badge}
+        </div>
+      )}
+      <Suspense fallback={<ChartLoading />}>
+        <ChartCanvas result={result} settings={settings}
+          chartType={chartType as Exclude<ChartType, 'number'>}
+          onToggleGroup={onToggleGroup} hiddenLabelFor={hiddenLabelFor}
+          resolvePages={resolvePages} fetchDrilldownRows={fetchDrilldownRows}
+          onOpenPage={openPage} />
+      </Suspense>
+    </div>
   );
 }

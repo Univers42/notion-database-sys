@@ -39,7 +39,9 @@ export function liveBaasConfigured(): boolean {
   return Boolean(BASE_URL && API_KEY);
 }
 
-async function requestLive<T>(path: string, init: RequestInit): Promise<T> {
+/** Shared authenticated transport for query-router calls (also used by the
+ *  aggregate client in liveAggregateClient.ts). */
+export async function requestLive<T>(path: string, init: RequestInit): Promise<T> {
   if (!liveBaasConfigured()) {
     throw new AdapterError(
       'Live BaaS is not configured (set VITE_BAAS_URL and VITE_BAAS_API_KEY).',
