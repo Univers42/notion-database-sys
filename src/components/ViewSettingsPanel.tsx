@@ -28,6 +28,7 @@ import {
 import {
   VIEW_META, ViewIdentityRow, LayoutScreen,
   EditChartScreen, ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen,
+  XAxisBucketScreen, XAxisGroupsScreen,
   YAxisWhatScreen, YAxisGroupByScreen, YAxisRangeScreen, YAxisReferenceLineScreen,
   ColorPaletteScreen, MoreStyleScreen,
 } from './viewSettings/index';
@@ -40,6 +41,8 @@ const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> =
   chartType:          ChartTypeScreen,
   xAxisWhat:          XAxisWhatScreen,
   xAxisSort:          XAxisSortScreen,
+  xAxisBucket:        XAxisBucketScreen,
+  xAxisGroups:        XAxisGroupsScreen,
   yAxisWhat:          YAxisWhatScreen,
   yAxisGroupBy:       YAxisGroupByScreen,
   yAxisRange:         YAxisRangeScreen,

@@ -23,22 +23,28 @@ import { CHART_TYPE_META } from './constants';
 import { ViewIdentityRow } from './SubComponents';
 
 // Re-export sub-screens so existing consumers keep working via this module
+export { ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen } from './ChartSubScreens';
+export { XAxisBucketScreen, XAxisGroupsScreen } from './ChartSubScreensX';
 export {
-  ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen,
-  YAxisWhatScreen, YAxisGroupByScreen, YAxisRangeScreen,
-  YAxisReferenceLineScreen, ColorPaletteScreen, MoreStyleScreen,
-} from './ChartSubScreens';
+  YAxisWhatScreen, YAxisGroupByScreen, YAxisRangeScreen, YAxisReferenceLineScreen,
+} from './ChartSubScreensY';
+export { ColorPaletteScreen, MoreStyleScreen } from './ChartSubScreensStyle';
 export type { ChartScreensProps } from './ChartSubScreens';
 
 import type { ChartScreensProps } from './ChartSubScreens';
 import { cn } from '../../utils/cn';
 
+const DATE_X_TYPES = ['date', 'created_time', 'last_edited_time', 'due_date'];
+
 /** Renders the main chart settings screen with type, axes, style, and data source controls. */
 export function EditChartScreen(props: Readonly<ChartScreensProps>) {
   const { setScreen, settings, updateSetting, allProps, databaseName, onClose, identityProps } = props;
   const ct = settings.chartType || 'vertical_bar';
-  const xPropName = settings.xAxisProperty ? allProps.find(p => p.id === settings.xAxisProperty)?.name || 'Select' : 'Select';
-  const yPropName = settings.yAxisProperty ? allProps.find(p => p.id === settings.yAxisProperty)?.name : 'Count';
+  const xProp = settings.xAxisProperty ? allProps.find(p => p.id === settings.xAxisProperty) : undefined;
+  const xPropName = xProp?.name || 'Select';
+  const isDateX = !!xProp && DATE_X_TYPES.includes(xProp.type);
+  const yProp = settings.yAxisProperty ? allProps.find(p => p.id === settings.yAxisProperty) : undefined;
+  const yPropName = yProp ? `${yProp.name} (${settings.yAxisAggregation || 'sum'})` : 'Count';
   const yGroupName = settings.yAxisGroupBy ? allProps.find(p => p.id === settings.yAxisGroupBy)?.name || 'None' : 'None';
 
   return (
@@ -75,7 +81,13 @@ export function EditChartScreen(props: Readonly<ChartScreensProps>) {
         {/* X Axis */}
         <ChartAxisSection title="X axis">
           <SettingsRow icon={<ArrowTurnDownRightIcon />} label="What to show" value={xPropName} onClick={() => setScreen('xAxisWhat')} />
+          {isDateX && (
+            <SettingsRow icon={<CollectionIcon />} label="Date grouping" value={settings.xAxisDateBucket || 'Auto'} onClick={() => setScreen('xAxisBucket')} />
+          )}
           <SettingsRow icon={<ArrowUpDownRotatedIcon />} label="Sort by" value={settings.xAxisSort || 'Manual'} onClick={() => setScreen('xAxisSort')} />
+          <SettingsRow icon={<EyeSlashIcon className={cn("w-5 h-5")} />} label="Visible groups"
+            value={settings.hiddenGroups?.length ? `${settings.hiddenGroups.length} hidden` : 'All'}
+            onClick={() => setScreen('xAxisGroups')} />
           <button onClick={() => updateSetting('xAxisOmitZero', !settings.xAxisOmitZero)}
             className={cn("w-full flex items-center gap-2.5 px-2 py-[7px] text-sm rounded-md transition-colors text-ink-body hover:bg-hover-surface-soft2")}>
             <span className={cn("w-5 h-5 flex items-center justify-center shrink-0 text-ink-secondary")}><EyeSlashIcon className={cn("w-5 h-5")} /></span>

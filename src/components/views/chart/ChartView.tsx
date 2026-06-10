@@ -6,71 +6,107 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:06 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:36:40 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/06/10 00:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React from 'react';
+import React, { Suspense, useCallback } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { BarChart3 } from 'lucide-react';
 import { useChartData } from './useChartData';
 import type { ChartType } from './useChartData';
-import { VerticalBarChart, HorizontalBarChart } from './BarCharts';
-import { LineChart } from './LineChart';
-import { DonutPieChart } from './DonutPieChart';
+import type { DrilldownPage } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
 
-/** Renders the chart view, dispatching to the appropriate chart type based on view settings. */
+// Lazy boundary: everything recharts lives behind this import, so the chart
+// chunk only loads when a chart view is actually rendered.
+const ChartCanvas = React.lazy(() => import('./ChartCanvas'));
+
+function EmptyChartState() {
+  return (
+    <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
+      <div className={cn("text-center text-ink-muted max-w-sm")}>
+        <BarChart3 className={cn("w-12 h-12 mx-auto mb-3 text-ink-disabled")} />
+        <p className={cn("font-medium mb-1")}>Configure your chart</p>
+        <p className={cn("text-sm")}>Open view settings to select an X-axis property for charting.</p>
+      </div>
+    </div>
+  );
+}
+
+function ChartLoading() {
+  return (
+    <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
+      <div className={cn("text-sm text-ink-muted animate-pulse")}>Loading chart…</div>
+    </div>
+  );
+}
+
+/** Renders the chart view: number type inline, the rest via the lazy canvas. */
 export function ChartView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, getPagesForView } = useDatabaseStore();
+  const {
+    views, databases, pages: pagesMap, getPagesForView,
+    openPage, getPageTitle, updateViewSettings,
+  } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
-
   const settings = view?.settings || {};
-  const chartType: ChartType = (settings.chartType as ChartType) || 'vertical_bar';
-  const xAxisProperty = settings.xAxisProperty;
-  const yAxisProperty = settings.yAxisProperty;
-  const yAxisAggregation = settings.yAxisAggregation || 'count';
-
   const pages = view ? getPagesForView(view.id) : [];
-  const chartData = useChartData(database, pages, xAxisProperty, yAxisProperty, yAxisAggregation);
+
+  const labelResolver = useCallback((propId: string, key: string) => {
+    const prop = database?.properties[propId];
+    if (!prop || !['relation', 'person', 'user'].includes(prop.type)) return undefined;
+    const target = pagesMap[key];
+    return target ? getPageTitle(target) : undefined;
+  }, [database, pagesMap, getPageTitle]);
+
+  const result = useChartData(database, pages, settings, labelResolver);
 
   if (!view || !database) return null;
+  if (!settings.xAxisProperty) return <EmptyChartState />;
 
-  if (!xAxisProperty) {
-    return (
-      <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
-        <div className={cn("text-center text-ink-muted max-w-sm")}>
-          <BarChart3 className={cn("w-12 h-12 mx-auto mb-3 text-ink-disabled")} />
-          <p className={cn("font-medium mb-1")}>Configure your chart</p>
-          <p className={cn("text-sm")}>Open view settings to select an X-axis property for charting.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const maxValue = Math.max(...chartData.map(d => d.value), 1);
-  const total = chartData.reduce((s, d) => s + d.value, 0);
-
+  const chartType: ChartType = (settings.chartType as ChartType) || 'vertical_bar';
   if (chartType === 'number') {
+    const label = settings.yAxisProperty
+      ? `${settings.yAxisAggregation ?? 'sum'}`
+      : 'count';
     return (
       <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
         <div className={cn("text-center")}>
-          <div className={cn("text-6xl font-bold text-ink tabular-nums")}>{total.toLocaleString()}</div>
-          <div className={cn("text-sm text-ink-secondary mt-2")}>Total {yAxisAggregation} &middot; {pages.length} records</div>
+          <div className={cn("text-6xl font-bold text-ink tabular-nums")}>{result.total.toLocaleString()}</div>
+          <div className={cn("text-sm text-ink-secondary mt-2")}>Total {label} · {pages.length} records</div>
         </div>
       </div>
     );
   }
 
-  if (chartType === 'vertical_bar') return <VerticalBarChart chartData={chartData} maxValue={maxValue} />;
-  if (chartType === 'horizontal_bar') return <HorizontalBarChart chartData={chartData} maxValue={maxValue} />;
-  if (chartType === 'line') return <LineChart chartData={chartData} maxValue={maxValue} />;
-  if (chartType === 'donut' || chartType === 'pie') {
-    return <DonutPieChart chartData={chartData} total={total} isDonut={chartType === 'donut'} />;
-  }
+  const onToggleGroup = (key: string) => {
+    const hidden = settings.hiddenGroups ?? [];
+    updateViewSettings(view.id, {
+      hiddenGroups: hidden.includes(key) ? hidden.filter(k => k !== key) : [...hidden, key],
+    });
+  };
+  const hiddenLabelFor = (key: string) => {
+    const props = [settings.yAxisGroupBy, settings.xAxisProperty];
+    for (const pid of props) {
+      const opt = pid ? database.properties[pid]?.options?.find(o => o.id === key) : undefined;
+      if (opt) return opt.value;
+    }
+    return labelResolver(settings.yAxisGroupBy ?? settings.xAxisProperty ?? '', key) ?? key;
+  };
+  const resolvePages = (ids: string[]): DrilldownPage[] => ids
+    .map(id => pagesMap[id])
+    .filter(Boolean)
+    .map(p => ({ id: p.id, title: getPageTitle(p), icon: p.icon }));
 
-  return null;
+  return (
+    <Suspense fallback={<ChartLoading />}>
+      <ChartCanvas result={result} settings={settings}
+        chartType={chartType as Exclude<ChartType, 'number'>}
+        onToggleGroup={onToggleGroup} hiddenLabelFor={hiddenLabelFor}
+        resolvePages={resolvePages} onOpenPage={openPage} />
+    </Suspense>
+  );
 }

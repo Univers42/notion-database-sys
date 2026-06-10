@@ -17,6 +17,7 @@ export { LayoutScreen } from './LayoutScreen';
 export type { LayoutScreenProps } from './LayoutScreen';
 export {
   EditChartScreen, ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen,
+  XAxisBucketScreen, XAxisGroupsScreen,
   YAxisWhatScreen, YAxisGroupByScreen, YAxisRangeScreen, YAxisReferenceLineScreen,
   ColorPaletteScreen, MoreStyleScreen,
 } from './ChartScreens';
