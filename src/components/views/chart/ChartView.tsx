@@ -17,6 +17,7 @@ import { BarChart3 } from 'lucide-react';
 import type { ChartType } from './useChartData';
 import { useServerChartData } from './useServerChartData';
 import { fetchServerDrilldownRows } from './chartServerDrilldown';
+import { applyConditionalChartColors } from '../../../lib/conditionalColor';
 import { isLiveDatabaseId } from '../../../store/live/liveTypes';
 import type { DrilldownPage, DrilldownTarget } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
@@ -64,7 +65,10 @@ export function ChartView() {
     return target ? getPageTitle(target) : undefined;
   }, [database, pagesMap, getPageTitle]);
 
-  const { result, isServerTruth } = useServerChartData(view, database, pages, settings, labelResolver);
+  const { result: rawResult, isServerTruth } = useServerChartData(view, database, pages, settings, labelResolver);
+  // Conditional `equals` rules on the x/groupBy property override the palette
+  // (the canvas prefers an explicit category/series color when present).
+  const result = applyConditionalChartColors(rawResult, settings, database?.properties ?? {});
 
   if (!view || !database) return null;
   if (!settings.xAxisProperty) return <EmptyChartState />;

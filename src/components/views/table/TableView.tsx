@@ -19,6 +19,8 @@ import { TableRowContextMenu } from './TableRowContextMenu';
 import { ChevronDown, Plus } from 'lucide-react';
 import { cn } from '../../../utils/cn';
 import { useTableViewState } from './useTableViewState';
+import { colorForPage } from '../../../lib/conditionalColor';
+import type { Page } from '../../../types/database';
 
 /** Renders the full table view with header, rows, grouping, pagination, and cell editing. */
 export function TableView() {
@@ -45,6 +47,7 @@ export function TableView() {
 
   if (!view || !database) return null;
 
+  const colorRules = view.settings?.conditionalColors;
   const rowProps = {
     visibleProps, focusedCell, editingCell, fillDrag,
     showRowNumbers, showVerticalLines, wrapContent, getColWidth,
@@ -53,6 +56,9 @@ export function TableView() {
     onOpenPage: handleOpenPage, onFillDragStart: startFillDrag,
     onFormulaEdit: handleFormulaEdit, onRowMenu: handleRowMenu,
     onPropertyConfig: handlePropertyConfig, tableRef,
+    rowTint: colorRules?.length
+      ? (page: Page) => colorForPage(page, colorRules, database.properties)?.tint ?? null
+      : undefined,
   };
 
   return (

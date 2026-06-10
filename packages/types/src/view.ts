@@ -52,6 +52,16 @@ export interface DomainDashboardRow {
   height: number;
 }
 
+/** One conditional-color rule: a filter condition + the color it applies. */
+export interface DomainConditionalColorRule {
+  id: string;
+  propertyId: string;
+  operator: DomainFilterOperator;
+  value: unknown;
+  /** Color token id (see conditionalColor lib), not a raw hex. */
+  color: string;
+}
+
 /** Simple global filter applied across dashboard widgets (matched by name+type). */
 export interface DomainDashboardGlobalFilter {
   id: string;
@@ -146,6 +156,7 @@ export interface DomainViewSettings {
   dashboardRows?: DomainDashboardRow[];
   dashboardFilters?: DomainDashboardGlobalFilter[];
   locked?: boolean;
+  conditionalColors?: DomainConditionalColorRule[];
 }
 
 export interface FieldConfig {

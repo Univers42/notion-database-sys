@@ -18,6 +18,7 @@ import { getColumnWidth, BoardCard } from './BoardCardHelpers';
 import { cn } from '../../../utils/cn';
 import { useDashboardFilters } from '../../../hooks/useDashboardFilters';
 import { applyGlobalFilters } from '../../../hooks/useViewPages';
+import { colorForPage } from '../../../lib/conditionalColor';
 
 /** Renders a Kanban-style board view with drag-and-drop between columns grouped by a select/status property. */
 export function BoardView() {
@@ -125,7 +126,8 @@ export function BoardView() {
                 <BoardCard key={page.id} page={page} pageIdx={pageIdx}
                   cardPreview={cardPreview} wrapContent={wrapContent}
                   nonTitleGroupProps={nonTitleGroupProps} openPage={openPage}
-                  getPageTitle={getPageTitle} onDragStart={handleDragStart} />
+                  getPageTitle={getPageTitle} onDragStart={handleDragStart}
+                  accent={colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null} />
               ))}
 
               {/* Add card button */}

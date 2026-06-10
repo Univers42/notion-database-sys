@@ -19,6 +19,7 @@ import { CURSORS } from '../../ui/cursors';
 import { renderPropertyValue, coverColors } from './GalleryViewHelpers';
 import { cn } from '../../../utils/cn';
 import { useViewPages } from '../../../hooks/useViewPages';
+import { colorForPage } from '../../../lib/conditionalColor';
 
 /** Renders a gallery view of database pages as cards with optional cover previews. */
 export function GalleryView() {
@@ -136,9 +137,10 @@ export function GalleryView() {
         {pages.map((page, idx) => {
           const title = getPageTitle(page);
 
+          const accent = colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null;
           return (
             <button type="button" key={page.id} onClick={() => openPage(page.id)}
-              style={{ cursor: CURSORS.pointer }}
+              style={{ cursor: CURSORS.pointer, ...(accent ? { boxShadow: `inset 0 3px 0 0 ${accent}` } : {}) }}
               className={cn("group border border-line rounded-xl overflow-hidden hover:shadow-lg hover:border-hover-border transition-all duration-200 bg-surface-primary text-left w-full")}>
               {/* Cover / Preview */}
               {renderCover(page, idx)}

@@ -357,6 +357,17 @@ export interface DashboardRow {
   height: number;
 }
 
+/** One conditional-color rule: a filter condition + the color it applies.
+ *  First matching rule wins (row tint, card accent, chart category color). */
+export interface ConditionalColorRule {
+  id: string;
+  propertyId: string;
+  operator: FilterOperator;
+  value: unknown;
+  /** Color token id (see conditionalColor lib), not a raw hex. */
+  color: string;
+}
+
 /** Simple global filter applied across dashboard widgets (matched by name+type). */
 export interface DashboardGlobalFilter {
   id: string;
@@ -433,6 +444,7 @@ export interface ViewSettings {
   dashboardRows?: DashboardRow[];
   dashboardFilters?: DashboardGlobalFilter[];
   locked?: boolean;
+  conditionalColors?: ConditionalColorRule[];
 }
 
 /** Complete configuration for a database view. */

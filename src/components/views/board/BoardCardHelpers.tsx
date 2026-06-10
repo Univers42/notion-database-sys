@@ -144,10 +144,12 @@ interface BoardCardProps {
   openPage: (id: string) => void;
   getPageTitle: (page: Page) => string;
   onDragStart: (e: React.DragEvent, pageId: string) => void;
+  /** Conditional-color edge accent, if a rule matched. */
+  accent?: string | null;
 }
 
 /** Renders a draggable board card with title, preview, and property values. */
-export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGroupProps, openPage, getPageTitle, onDragStart }: Readonly<BoardCardProps>) {
+export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGroupProps, openPage, getPageTitle, onDragStart, accent }: Readonly<BoardCardProps>) {
   const title = getPageTitle(page);
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];
 
@@ -156,7 +158,7 @@ export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGro
       onDragStart={e => onDragStart(e, page.id)}
       onClick={() => openPage(page.id)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
-      style={{ cursor: CURSORS.grab }}
+      style={{ cursor: CURSORS.grab, ...(accent ? { boxShadow: `inset 3px 0 0 0 ${accent}` } : {}) }}
       className={cn("bg-surface-primary p-3 rounded-lg shadow-sm border border-line active:cursor-grabbing hover:shadow-md hover:border-hover-border transition-all group/card text-left")}>
       <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} nonTitleGroupProps={nonTitleGroupProps} wrapContent={wrapContent} />
       <div className={cn("flex items-center gap-1 mb-1")}>

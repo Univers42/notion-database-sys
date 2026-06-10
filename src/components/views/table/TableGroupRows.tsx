@@ -43,6 +43,8 @@ interface RenderPageRowsProps {
   onRowMenu: (pageId: string, x: number, y: number) => void;
   onPropertyConfig: (prop: SchemaProperty, position: { top: number; left: number }) => void;
   tableRef: React.RefObject<HTMLDivElement | null>;
+  /** Conditional-color row tint (first matching rule), if any rules exist. */
+  rowTint?: (page: Page) => string | null;
 }
 
 /** Renders an array of pages as MemoTableRow components with proper row indexing. */
@@ -86,6 +88,7 @@ export function renderPageRows(
         onRowMenu={onRowMenu}
         onPropertyConfig={onPropertyConfig}
         tableRef={tableRef}
+        tint={props.rowTint?.(page) ?? null}
       />
     );
   });

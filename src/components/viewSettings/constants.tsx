@@ -28,7 +28,7 @@ export type PanelScreen =
   | 'sort' | 'addSort'
   | 'loadLimit' | 'cardPreview' | 'cardSize' | 'showCalendarBy'
   | 'showCalendarAs' | 'showTimelineBy' | 'openPagesIn' | 'groupBy'
-  | 'mapBy' | 'source' | 'manageSources' | 'editProperties'
+  | 'mapBy' | 'source' | 'manageSources' | 'editProperties' | 'conditionalColor'
   | 'editChart' | 'chartType' | 'xAxisWhat' | 'xAxisSort'
   | 'xAxisBucket' | 'xAxisGroups'
   | 'yAxisWhat' | 'yAxisGroupBy' | 'yAxisRange' | 'yAxisReferenceLine'

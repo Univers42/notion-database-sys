@@ -40,6 +40,8 @@ export interface MemoTableRowProps {
   onRowMenu: (pageId: string, x: number, y: number) => void;
   onPropertyConfig: (prop: SchemaProperty, position: { top: number; left: number }) => void;
   tableRef: React.RefObject<HTMLDivElement | null>;
+  /** Conditional-color background (translucent token tint), if matched. */
+  tint?: string | null;
 }
 
 /** Determines whether a row falls within the fill-drag highlight range. */
@@ -74,7 +76,8 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
 
   return (
-    <tr data-row-idx={rowIdx} className={cn("group hover:bg-hover-surface-soft")}>
+    <tr data-row-idx={rowIdx} className={cn("group hover:bg-hover-surface-soft")}
+      style={props.tint ? { backgroundColor: props.tint } : undefined}>
       {showRowNumbers && (
         <td className={cn("w-10 px-2 py-1.5 border-r border-b border-line text-xs text-ink-muted text-center tabular-nums")}>
           {rowIdx + 1}

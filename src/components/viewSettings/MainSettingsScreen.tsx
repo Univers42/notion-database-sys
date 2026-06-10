@@ -74,7 +74,7 @@ export function MainSettingsScreen({
             <SettingsRow icon={<EyeIcon />} label="Property visibility" value={String(visibleCount)} onClick={() => setScreen('propertyVisibility')} />
             <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
             <SettingsRow icon={<SortIcon />} label="Sort" value={sortCount > 0 ? String(sortCount) : undefined} onClick={() => setScreen('sort')} />
-            <SettingsRow icon={<ConditionalColorIcon />} label="Conditional color" onClick={() => {}} />
+            <SettingsRow icon={<ConditionalColorIcon />} label="Conditional color" onClick={() => setScreen('conditionalColor')} />
             <SettingsRow icon={<CopyLinkIcon className={cn('w-5 h-5')} />} label={copied ? 'Copied!' : 'Copy link to view'} showChevron={false} onClick={copyLink} />
           </div>
           <SettingsSectionLabel>Data source settings</SettingsSectionLabel>
