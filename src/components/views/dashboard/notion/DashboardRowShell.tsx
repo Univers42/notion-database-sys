@@ -65,7 +65,7 @@ export function DashboardRowShell({ row, editMode, renderWidget, onCommitWidths,
 
   return (
     <div className={cn("flex flex-col")}>
-      <div ref={rowRef}
+      <div ref={rowRef} data-dash-row={row.id}
         className={cn("grid items-stretch")}
         style={{ gridTemplateColumns: columnsFor(row.widths), height: row.height }}>
         {row.widgetIds.map((widgetId, i) => (
@@ -76,7 +76,7 @@ export function DashboardRowShell({ row, editMode, renderWidget, onCommitWidths,
                 onResize={liveWidths(i - 1)}
                 onResizeEnd={() => onCommitWidths(i - 1, drag.current.delta)} />
               : <div style={{ width: SPLITTER_PX }} />)}
-            <div className={cn("min-w-0 min-h-0 flex flex-col")}>{renderWidget(widgetId)}</div>
+            <div data-dash-widget={widgetId} className={cn("min-w-0 min-h-0 flex flex-col")}>{renderWidget(widgetId)}</div>
           </React.Fragment>
         ))}
       </div>

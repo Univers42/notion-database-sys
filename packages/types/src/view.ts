@@ -42,6 +42,8 @@ export interface DomainDashboardViewWidget {
   id: string;
   viewId: string;
   title?: string;
+  /** Hide the card title bar outside edit mode (clean tile look). */
+  hideTitle?: boolean;
 }
 
 /** One dashboard row: up to 4 widgets, widths are fractions summing to 1. */

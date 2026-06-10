@@ -14,8 +14,9 @@
 // Widgets ARE database views in a row grid (≤4/row, ≤12 total); Edit mode
 // arranges, View mode reads; global filters flow to widgets via context.
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Plus, Pencil, Check, ListFilter } from 'lucide-react';
+import { useWidgetDrag } from './useWidgetDrag';
 import { useDatabaseStore, useStoreApi } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../../hooks/useDatabaseScope';
 import { DashboardFiltersProvider } from '../../../../hooks/useDashboardFilters';
@@ -41,6 +42,26 @@ export default function DashboardNotionView() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Pointer drag-and-drop: DOM-only during the gesture, ONE commit on drop.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const viewIdRef = useRef<string | null>(null);
+  viewIdRef.current = view?.id ?? null;
+  const { startDrag } = useWidgetDrag({
+    containerRef, indicatorRef,
+    onDrop: (widgetId, target) => {
+      const id = viewIdRef.current;
+      if (!id) return;
+      const current = storeApi.getState().views[id];
+      if (!current) return;
+      const currentLayout = layoutFromSettings(current.settings || {});
+      const next = moveWidget(currentLayout, widgetId, target);
+      if (next !== currentLayout) {
+        updateViewSettings(id, { dashboardRows: next.rows, dashboardWidgets: next.widgets });
+      }
+    },
+  });
+
   if (!view || !database) return null;
   const locked = Boolean(database.locked || view.settings?.locked);
   const settings = view.settings || {};
@@ -52,6 +73,11 @@ export default function DashboardNotionView() {
     if (!next) return;
     updateViewSettings(view.id, { dashboardRows: next.rows, dashboardWidgets: next.widgets });
   };
+  const patchWidget = (widgetId: string, updates: Partial<(typeof layout.widgets)[number]>) =>
+    commit({
+      ...layout,
+      widgets: layout.widgets.map(w => (w.id === widgetId ? { ...w, ...updates } : w)),
+    });
   const widgetActions = (widgetId: string, rowId: string, indexInRow: number) => ({
     onDuplicate: () => {
       const widget = layout.widgets.find(w => w.id === widgetId);
@@ -67,6 +93,12 @@ export default function DashboardNotionView() {
         commit(moveWidget(layout, widgetId, { rowId, index }));
       }
     },
+    onRename: (title: string) => patchWidget(widgetId, { title: title || undefined }),
+    onToggleHideTitle: () => {
+      const widget = layout.widgets.find(w => w.id === widgetId);
+      patchWidget(widgetId, { hideTitle: !widget?.hideTitle });
+    },
+    onDragStart: (event: React.PointerEvent) => startDrag(widgetId, event),
   });
 
   return (
@@ -116,7 +148,10 @@ export default function DashboardNotionView() {
       )}
 
       <DashboardFiltersProvider value={filters}>
-        <div className={cn("flex-1 overflow-auto p-4")}>
+        <div ref={containerRef} className={cn("flex-1 overflow-auto p-4")}>
+          <div ref={indicatorRef} aria-hidden="true" data-dash-drop-indicator
+            className={cn("pointer-events-none fixed z-40 rounded bg-accent")}
+            style={{ display: 'none' }} />
           {layout.rows.length === 0 && (
             <div className={cn("h-64 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line text-ink-muted")}>
               <p className={cn("text-sm font-medium")}>Build your dashboard</p>
