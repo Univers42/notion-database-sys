@@ -42,6 +42,7 @@ export default function DashboardNotionView() {
   const [showFilters, setShowFilters] = useState(false);
 
   if (!view || !database) return null;
+  const locked = Boolean(database.locked || view.settings?.locked);
   const settings = view.settings || {};
   const layout = layoutFromSettings(settings);
   const filters = settings.dashboardFilters ?? [];
@@ -82,7 +83,7 @@ export default function DashboardNotionView() {
             <ListFilter className={cn("w-3.5 h-3.5")} />
             Filters{filters.length > 0 ? ` (${filters.length})` : ''}
           </button>
-          {editMode && (
+          {editMode && !locked && (
             <div className={cn("relative")}>
               <button onClick={() => setPickerOpen(o => !o)} disabled={layout.widgets.length >= MAX_WIDGETS}
                 className={cn("flex items-center gap-1 px-2 py-1 text-xs rounded-md text-ink-muted hover:bg-hover-surface transition-colors disabled:opacity-40")}>
@@ -97,13 +98,15 @@ export default function DashboardNotionView() {
               )}
             </div>
           )}
-          <button onClick={() => setEditMode(e => !e)}
-            className={cn(`flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors ${
-              editMode ? 'text-accent-text-light bg-accent-soft' : 'text-ink-muted hover:bg-hover-surface'
-            }`)}>
-            {editMode ? <Check className={cn("w-3.5 h-3.5")} /> : <Pencil className={cn("w-3.5 h-3.5")} />}
-            {editMode ? 'Done' : 'Edit layout'}
-          </button>
+          {!locked && (
+            <button onClick={() => setEditMode(e => !e)}
+              className={cn(`flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors ${
+                editMode ? 'text-accent-text-light bg-accent-soft' : 'text-ink-muted hover:bg-hover-surface'
+              }`)}>
+              {editMode ? <Check className={cn("w-3.5 h-3.5")} /> : <Pencil className={cn("w-3.5 h-3.5")} />}
+              {editMode ? 'Done' : 'Edit layout'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -118,10 +121,12 @@ export default function DashboardNotionView() {
             <div className={cn("h-64 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line text-ink-muted")}>
               <p className={cn("text-sm font-medium")}>Build your dashboard</p>
               <p className={cn("text-xs")}>Add widgets that show this database's views side by side.</p>
-              <button onClick={() => { setEditMode(true); setPickerOpen(true); }}
-                className={cn("mt-1 flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-accent-soft text-accent-text-light hover:bg-accent-soft3 transition-colors")}>
-                <Plus className={cn("w-3.5 h-3.5")} /> Add your first widget
-              </button>
+              {!locked && (
+                <button onClick={() => { setEditMode(true); setPickerOpen(true); }}
+                  className={cn("mt-1 flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-accent-soft text-accent-text-light hover:bg-accent-soft3 transition-colors")}>
+                  <Plus className={cn("w-3.5 h-3.5")} /> Add your first widget
+                </button>
+              )}
             </div>
           )}
           {layout.rows.map(row => (

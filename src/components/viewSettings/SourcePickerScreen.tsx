@@ -31,6 +31,10 @@ interface SourcePickerScreenProps {
   currentDatabaseId: string;
   onBack: () => void;
   onClose: () => void;
+  /** Pick-only mode (Manage data sources): the caller handles the choice and
+   *  the view is NOT rebound. */
+  onPick?: (source: DataSourceDescriptor) => void;
+  title?: string;
 }
 
 function groupCatalog(catalog: DataSourceDescriptor[], needle: string): [string, DataSourceDescriptor[]][] {
@@ -67,8 +71,11 @@ function SourceRow({ source, isCurrent, disabled, onPick }: Readonly<{
   );
 }
 
-/** Browses every registered data source; picking one rebinds the view. */
-export function SourcePickerScreen({ viewId, currentDatabaseId, onBack, onClose }: Readonly<SourcePickerScreenProps>) {
+/** Browses every registered data source; picking one rebinds the view
+ *  (or hands the descriptor to `onPick` in pick-only mode). */
+export function SourcePickerScreen({
+  viewId, currentDatabaseId, onBack, onClose, onPick, title = 'Source',
+}: Readonly<SourcePickerScreenProps>) {
   const storeApi = useStoreApi();
   const [catalog, setCatalog] = React.useState<DataSourceDescriptor[] | null>(null);
   const [query, setQuery] = React.useState('');
@@ -80,9 +87,13 @@ export function SourcePickerScreen({ viewId, currentDatabaseId, onBack, onClose 
     return () => { active = false; };
   }, []);
 
-  const pick = (sourceId: string) => {
+  const pick = (source: DataSourceDescriptor) => {
+    if (onPick) {
+      onPick(source);
+      return;
+    }
     setStatus('binding');
-    bindViewSource(storeApi, viewId, sourceId)
+    bindViewSource(storeApi, viewId, source.id)
       .then(() => onBack())
       .catch(() => setStatus('error'));
   };
@@ -90,7 +101,7 @@ export function SourcePickerScreen({ viewId, currentDatabaseId, onBack, onClose 
   const groups = groupCatalog(catalog ?? [], query.trim().toLowerCase());
   return (
     <div className={cn('flex flex-col h-full')} style={{ minWidth: 290, maxWidth: 290 }}>
-      <SubPanelHeader title="Source" onBack={onBack} onClose={onClose} />
+      <SubPanelHeader title={title} onBack={onBack} onClose={onClose} />
       <div className={cn('px-3 pb-2')}>
         <input autoFocus value={query} onChange={(event) => setQuery(event.target.value)}
           placeholder="Search data sources…" aria-label="Search data sources"
@@ -109,7 +120,7 @@ export function SourcePickerScreen({ viewId, currentDatabaseId, onBack, onClose 
             <div className={cn('px-2 pt-2 pb-1 text-xs font-medium text-ink-secondary select-none')}>{group}</div>
             {sources.map((source) => (
               <SourceRow key={source.id} source={source} isCurrent={source.id === currentDatabaseId}
-                disabled={status === 'binding'} onPick={() => pick(source.id)} />
+                disabled={status === 'binding'} onPick={() => pick(source)} />
             ))}
           </div>
         ))}

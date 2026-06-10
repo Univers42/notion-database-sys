@@ -30,6 +30,7 @@ export interface ChartScreensProps {
   allProps: SchemaProperty[];
   groupableProps: SchemaProperty[];
   databaseName: string;
+  viewId: string;
   onClose: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   identityProps: any;

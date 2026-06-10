@@ -241,6 +241,15 @@ export interface SchemaProperty {
   autoIncrement?: number;
 }
 
+/** A data source linked into a database container (Notion model: a database
+ *  holds one or more sources; each view shows exactly one of them). */
+export interface DataSourceRef {
+  id: string;
+  name: string;
+  kind: 'live' | 'known' | 'workspace';
+  addedAt?: string;
+}
+
 /** Database schema definition returned by loadState. */
 export interface DatabaseSchema {
   id: string;
@@ -249,6 +258,10 @@ export interface DatabaseSchema {
   description?: string;
   properties: Record<string, SchemaProperty>;
   titlePropertyId: string;
+  /** Sources linked through "Manage data sources" (the container record). */
+  dataSources?: DataSourceRef[];
+  /** Database lock: schema and view edits are disabled while set. */
+  locked?: boolean;
 }
 
 /** Rich content block embedded inside a page. */
@@ -419,6 +432,7 @@ export interface ViewSettings {
   dashboardWidgets?: DashboardViewWidget[];
   dashboardRows?: DashboardRow[];
   dashboardFilters?: DashboardGlobalFilter[];
+  locked?: boolean;
 }
 
 /** Complete configuration for a database view. */

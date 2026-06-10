@@ -127,7 +127,10 @@ export function ViewTabsRow({
         </div>
 
         <div className={cn("flex items-center gap-0.5 shrink-0", slots?.actionsWrap)}>
-          <div className={cn("relative")} ref={addViewRef}>
+          {database.locked && (
+            <span className={cn("px-2 text-xs text-ink-muted select-none")} title="Database is locked">🔒</span>
+          )}
+          {!database.locked && <div className={cn("relative")} ref={addViewRef}>
             <button onClick={() => { setShowAddView(!showAddView); setShowViewDots(false); }} aria-label="Add view"
               className={cn(`flex items-center gap-1 px-2 py-1.5 text-sm rounded-lg transition-all ${showAddView
                 ? 'text-ink-body-light bg-surface-tertiary opacity-100'
@@ -166,7 +169,7 @@ export function ViewTabsRow({
                 </div>
               </div>
             )}
-          </div>
+          </div>}
           <ViewDotsMenu show={showViewDots}
             onToggle={() => { setShowViewDots(!showViewDots); setShowAddView(false); }}
             onClose={() => setShowViewDots(false)} containerRef={viewDotsRef}

@@ -21,6 +21,7 @@ import {
 import { SettingsHeader, SettingsRow, ToggleSwitch } from '../ui/MenuPrimitives';
 import { CHART_TYPE_META } from './constants';
 import { ViewIdentityRow } from './SubComponents';
+import { copyViewLink } from '../../lib/viewLink';
 
 // Re-export sub-screens so existing consumers keep working via this module
 export { ChartTypeScreen, XAxisWhatScreen, XAxisSortScreen } from './ChartSubScreens';
@@ -38,7 +39,15 @@ const DATE_X_TYPES = ['date', 'created_time', 'last_edited_time', 'due_date'];
 
 /** Renders the main chart settings screen with type, axes, style, and data source controls. */
 export function EditChartScreen(props: Readonly<ChartScreensProps>) {
-  const { setScreen, settings, updateSetting, allProps, databaseName, onClose, identityProps } = props;
+  const { setScreen, settings, updateSetting, allProps, databaseName, viewId, onClose, identityProps } = props;
+  const [copied, setCopied] = React.useState(false);
+  const copyLink = () => {
+    void copyViewLink(viewId).then((ok) => {
+      if (!ok) return;
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
   const ct = settings.chartType || 'vertical_bar';
   const xProp = settings.xAxisProperty ? allProps.find(p => p.id === settings.xAxisProperty) : undefined;
   const xPropName = xProp?.name || 'Select';
@@ -121,13 +130,14 @@ export function EditChartScreen(props: Readonly<ChartScreensProps>) {
         {/* Save / Copy */}
         <ChartDividerSection>
           <SettingsRow icon={<ArrowLineDownIcon />} label="Save chart as..." onClick={() => {}} />
-          <SettingsRow icon={<LinkIcon />} label="Copy link to view" showChevron={false} onClick={() => {}} />
+          <SettingsRow icon={<LinkIcon />} label={copied ? 'Copied!' : 'Copy link to view'} showChevron={false} onClick={copyLink} />
         </ChartDividerSection>
 
         {/* Manage / Lock */}
         <ChartDividerSection>
-          <SettingsRow icon={<CollectionIcon />} label="Manage data sources" onClick={() => {}} />
-          <SettingsRow icon={<LockIcon />} label="Lock views" showChevron={false} onClick={() => {}} />
+          <SettingsRow icon={<CollectionIcon />} label="Manage data sources" onClick={() => setScreen('manageSources')} />
+          <SettingsRow icon={<LockIcon />} label="Lock views" value={settings.locked ? 'On' : undefined} showChevron={false}
+            onClick={() => updateSetting('locked', !settings.locked)} />
         </ChartDividerSection>
 
         {/* Learn */}

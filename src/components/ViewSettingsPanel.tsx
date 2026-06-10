@@ -26,6 +26,8 @@ import {
 } from './viewSettings/index';
 import { MainSettingsScreen } from './viewSettings/MainSettingsScreen';
 import { SourcePickerScreen } from './viewSettings/SourcePickerScreen';
+import { ManageSourcesScreen } from './viewSettings/ManageSourcesScreen';
+import { EditPropertiesScreen } from './viewSettings/EditPropertiesScreen';
 import { renderPropertyScreen } from './viewSettings/PropertyScreens';
 import type { PanelScreen, ChartScreensProps } from './viewSettings/index';
 import { cn } from '../utils/cn';
@@ -85,18 +87,19 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
   if (ChartComponent) {
     const chartProps: ChartScreensProps = {
       screen, setScreen, settings, updateSetting, allProps, groupableProps,
-      databaseName: database.name, onClose, identityProps,
+      databaseName: database.name, viewId: view.id, onClose, identityProps,
     };
     return <ChartComponent {...chartProps} />;
   }
 
   if (screen === 'source') {
-    return (
-      <SourcePickerScreen
-        viewId={view.id} currentDatabaseId={view.databaseId}
-        onBack={goHome} onClose={onClose}
-      />
-    );
+    return <SourcePickerScreen viewId={view.id} currentDatabaseId={view.databaseId} onBack={goHome} onClose={onClose} />;
+  }
+  if (screen === 'manageSources') {
+    return <ManageSourcesScreen databaseId={view.databaseId} viewId={view.id} onBack={goHome} onClose={onClose} />;
+  }
+  if (screen === 'editProperties') {
+    return <EditPropertiesScreen databaseId={view.databaseId} viewId={view.id} onBack={goHome} onClose={onClose} />;
   }
 
   if (screen === 'filter') {
@@ -169,6 +172,8 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
       identityProps={{ ...identityProps, fallbackIcon: currentViewMeta.svgIcon }}
       layoutLabel={currentViewMeta.label}
       layoutIcon={currentViewMeta.svgIcon}
+      viewId={view.id}
+      databaseId={view.databaseId}
       visibleCount={view.visibleProperties.length}
       sortCount={view.sorts.length}
       databaseName={database.name}

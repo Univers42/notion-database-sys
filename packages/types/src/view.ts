@@ -145,6 +145,7 @@ export interface DomainViewSettings {
   dashboardWidgets?: DomainDashboardViewWidget[];
   dashboardRows?: DomainDashboardRow[];
   dashboardFilters?: DomainDashboardGlobalFilter[];
+  locked?: boolean;
 }
 
 export interface FieldConfig {

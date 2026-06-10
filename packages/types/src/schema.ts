@@ -33,6 +33,15 @@ export interface DomainSchemaProperty {
   autoIncrement?: number;
 }
 
+/** A data source linked into a database container (Notion model: a database
+ *  holds one or more sources; each view shows exactly one of them). */
+export interface DomainDataSourceRef {
+  id: string;
+  name: string;
+  kind: 'live' | 'known' | 'workspace';
+  addedAt?: string;
+}
+
 /**
  * DatabaseSchema — the metadata definition of a user-created database.
  * This is embedded in the parent page/database document (not standalone).
@@ -45,4 +54,8 @@ export interface DomainDatabaseSchema {
   properties: Record<string, DomainSchemaProperty>;
   titlePropertyId: string;
   workspaceId?: string;
+  /** Sources linked through "Manage data sources" (the container record). */
+  dataSources?: DomainDataSourceRef[];
+  /** Database lock: schema and view edits are disabled while set. */
+  locked?: boolean;
 }

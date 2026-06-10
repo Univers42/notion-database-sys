@@ -30,6 +30,7 @@ import {
   useStoreApi,
 } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
+import { applyStoredDbMeta } from './store/sources/dbMetaPersistence';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import type { PanelSection } from './components/ui/ActionPanel';
 import {
@@ -467,7 +468,10 @@ async function loadAdapterState(
   try {
     const loaded = await adapter.loadState();
     const current = storeApi.getState();
-    const state = withRequestedDatabase(loaded, opts.databaseId, opts.initialView);
+    // Container meta (linked sources, locks) survives reloads via the
+    // localStorage write-through even for live mounts that rebuild their
+    // schema from the server on every load.
+    const state = applyStoredDbMeta(withRequestedDatabase(loaded, opts.databaseId, opts.initialView));
     const activeViewId = chooseActiveViewId(state, current.activeViewId, opts.databaseId, opts.initialView);
     const source = 'adapter';
 
