@@ -47,7 +47,10 @@ export function conditionalColorToken(id: string | null | undefined): Conditiona
   return CONDITIONAL_COLOR_TOKENS.find((token) => token.id === id) ?? null;
 }
 
-/** Token of the FIRST rule the page matches, or null. */
+/** Token of the FIRST rule the page matches, or null. Select-ish rule values
+ *  are option IDS (the editor stores them) while some sources keep RAW labels
+ *  in the cells (workspace/live tables) — both spellings are tried, mirroring
+ *  applyGlobalFilters' label matching. */
 export function colorForPage(
   page: Page,
   rules: readonly ConditionalColorRule[] | undefined,
@@ -58,6 +61,11 @@ export function colorForPage(
     if (!property) continue;
     const filter = { id: rule.id, propertyId: rule.propertyId, operator: rule.operator, value: rule.value };
     if (evaluateFilter(page, filter, property)) return conditionalColorToken(rule.color);
+    const option = property.options?.find((candidate) => candidate.id === rule.value);
+    if (option && option.value !== rule.value
+      && evaluateFilter(page, { ...filter, value: option.value }, property)) {
+      return conditionalColorToken(rule.color);
+    }
   }
   return null;
 }
