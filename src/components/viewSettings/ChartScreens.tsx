@@ -134,7 +134,7 @@ export function EditChartScreen(props: Readonly<ChartScreensProps>) {
 
         {/* Save / Copy */}
         <ChartDividerSection>
-          <SettingsRow icon={<ArrowLineDownIcon />} label="Save chart as..." onClick={() => {}} />
+          <SettingsRow icon={<ArrowLineDownIcon />} label="Save chart as..." onClick={() => setScreen('saveChartAs')} />
           <SettingsRow icon={<LinkIcon />} label={copied ? 'Copied!' : 'Copy link to view'} showChevron={false} onClick={copyLink} />
         </ChartDividerSection>
 

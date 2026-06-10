@@ -19,6 +19,7 @@ import { useServerChartData } from './useServerChartData';
 import { fetchServerDrilldownRows } from './chartServerDrilldown';
 import { applyConditionalChartColors } from '../../../lib/conditionalColor';
 import { getChartTypeDef } from '../../../lib/chart/chartTypeRegistry';
+import { registerChartExport } from './chartExportRegistry';
 import { isLiveDatabaseId } from '../../../store/live/liveTypes';
 import type { DrilldownPage, DrilldownTarget } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
@@ -72,6 +73,20 @@ export function ChartView() {
   // (the canvas prefers an explicit category/series color when present).
   const result = applyConditionalChartColors(rawResult, settings, database?.properties ?? {});
 
+  // "Save chart as…" export handle: latest result + the chart container
+  // (both engines render an <svg> inside it). Refs keep registration stable.
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const resultRef = React.useRef(result);
+  resultRef.current = result;
+  const viewIdForExport = view?.id;
+  React.useEffect(() => {
+    if (!viewIdForExport) return undefined;
+    return registerChartExport(viewIdForExport, {
+      getResult: () => resultRef.current,
+      getContainer: () => containerRef.current,
+    });
+  }, [viewIdForExport]);
+
   if (!view || !database) return null;
   if (!settings.xAxisProperty) return <EmptyChartState />;
 
@@ -122,7 +137,7 @@ export function ChartView() {
     : null;
 
   return (
-    <div className={cn("relative flex-1 flex flex-col min-h-0")}>
+    <div ref={containerRef} className={cn("relative flex-1 flex flex-col min-h-0")}>
       {badge && (
         <div className={cn("absolute top-2 right-4 z-10 text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-ink-muted border border-line select-none")}>
           {badge}

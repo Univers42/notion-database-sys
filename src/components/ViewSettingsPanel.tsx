@@ -30,6 +30,7 @@ import { ManageSourcesScreen } from './viewSettings/ManageSourcesScreen';
 import { EditPropertiesScreen } from './viewSettings/EditPropertiesScreen';
 import { ConditionalColorScreen } from './viewSettings/ConditionalColorScreen';
 import { ChartTypeGalleryScreen } from './viewSettings/ChartTypeGalleryScreen';
+import { SaveChartScreen } from './viewSettings/SaveChartScreen';
 import { renderPropertyScreen } from './viewSettings/PropertyScreens';
 import type { PanelScreen, ChartScreensProps } from './viewSettings/index';
 import { cn } from '../utils/cn';
@@ -38,6 +39,7 @@ const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> =
   editChart:          EditChartScreen,
   chartType:          ChartTypeScreen,
   chartTypeGallery:   ChartTypeGalleryScreen,
+  saveChartAs:        SaveChartScreen,
   xAxisWhat:          XAxisWhatScreen,
   xAxisSort:          XAxisSortScreen,
   xAxisBucket:        XAxisBucketScreen,
