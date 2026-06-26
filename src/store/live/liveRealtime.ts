@@ -100,6 +100,9 @@ export class LiveRealtime {
       fetchRows: deps.fetchFirstPage,
       pendingWrites: deps.pendingWrites,
       onChanged: () => deps.emit({ type: 'state-replaced' }),
+      // 403/401 = no access to this database — tear everything down (socket +
+      // poll) and never restart, instead of a 15s retry storm on a dead tab.
+      onPermanentError: () => this.stop(),
       intervalMs: deps.pollIntervalMs,
     });
   }

@@ -17,6 +17,7 @@ import type * as Leaflet from 'leaflet';
 import { MARKER_COLORS, makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar, type MappablePage } from './MapHelpers';
 import { cn } from '../../../utils/cn';
 import { useViewPages } from '../../../hooks/useViewPages';
+import { useGeocode } from '../../../store/live/placeGeocode';
 
 /** Renders a Leaflet-based map view with markers for geolocated database pages. */
 export function MapView() {
@@ -41,21 +42,43 @@ export function MapView() {
     p => p.type === 'select' && p.name.toLowerCase().includes('category')
   ) || Object.values(database?.properties || {}).find(p => p.type === 'select');
 
-  // Gather map-ready pages (those with lat/lng)
+  // Place names present but lacking offline coordinates → geocode online (cached,
+  // so the Map view can plot any city/country/region/address in the world).
+  const pendingAddresses = useMemo(() => {
+    if (!placePropId) return [] as string[];
+    const names: string[] = [];
+    for (const page of pages) {
+      const place = page.properties[placePropId] as { lat?: unknown; address?: unknown } | null;
+      if (place && typeof place === 'object' && typeof place.lat !== 'number'
+        && typeof place.address === 'string' && place.address.trim()) {
+        names.push(place.address);
+      }
+    }
+    return names;
+  }, [pages, placePropId]);
+  const geocoded = useGeocode(pendingAddresses);
+
+  // Gather map-ready pages: offline coordinates first, else the online-geocoded fallback.
   const mappablePages = useMemo(() => {
     if (!placePropId) return [];
     return pages
       .map(page => {
-        const place = page.properties[placePropId];
-        if (place && typeof place === 'object' && typeof place.lat === 'number' && typeof place.lng === 'number') {
-          const catVal = categoryProp ? page.properties[categoryProp.id] : null;
-          const catOpt = categoryProp?.options?.find(o => o.id === catVal);
-          return { page, lat: place.lat, lng: place.lng, address: place.address || '', color: catOpt?.color };
+        const place = page.properties[placePropId] as { lat?: unknown; lng?: unknown; address?: unknown } | null;
+        if (!place || typeof place !== 'object') return null;
+        let lat = typeof place.lat === 'number' ? place.lat : undefined;
+        let lng = typeof place.lng === 'number' ? place.lng : undefined;
+        const address = typeof place.address === 'string' ? place.address : '';
+        if (lat === undefined && address.trim()) {
+          const hit = geocoded[address.trim().toLowerCase()];
+          if (hit) { lat = hit[0]; lng = hit[1]; }
         }
-        return null;
+        if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+        const catVal = categoryProp ? page.properties[categoryProp.id] : null;
+        const catOpt = categoryProp?.options?.find(o => o.id === catVal);
+        return { page, lat, lng, address, color: catOpt?.color };
       })
       .filter(Boolean) as MappablePage[];
-  }, [pages, placePropId, categoryProp]);
+  }, [pages, placePropId, categoryProp, geocoded]);
 
   useEffect(() => {
     let cancelled = false;

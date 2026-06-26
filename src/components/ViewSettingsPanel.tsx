@@ -73,8 +73,12 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
   const settings = view.settings || {};
   const allProps = Object.values(database.properties);
   const dateProps = allProps.filter(p => p.type === 'date');
+  // Group by ANY value-bearing property (Notion-parity). buildGroups handles
+  // select/status (options), checkbox, and everything else by distinct value —
+  // so text/place/number/date columns (a live mount's city, cuisine, region…)
+  // are groupable too. Only identity/derived types can't form columns.
   const groupableProps = allProps.filter(p =>
-    ['select', 'multi_select', 'status', 'checkbox', 'user', 'person', 'assigned_to', 'due_date'].includes(p.type));
+    !['title', 'relation', 'formula', 'rollup', 'id', 'files', 'created_time', 'last_edited_time'].includes(p.type));
   const placeProps = allProps.filter(p => p.type === 'place' || p.type === 'text');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

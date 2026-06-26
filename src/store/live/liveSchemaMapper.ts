@@ -94,7 +94,10 @@ export function mapLiveColumn(column: LiveColumnSchema, dbId: string): SchemaPro
       ...base,
       type: 'relation',
       relationConfig: {
-        databaseId: formatLiveDatabaseId({ dbId, table: column.references.table }),
+        databaseId: formatLiveDatabaseId({
+          dbId: column.references.dbId ?? dbId, // cross-mount target carries its own dbId
+          table: column.references.table,
+        }),
         type: 'one_way',
       },
     };

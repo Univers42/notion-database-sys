@@ -80,6 +80,25 @@ export function formatShortDate(isoOrDate: DateInput): string {
 }
 
 /**
+ * Lenient, crash-safe date label for cell renderers. Unlike formatDate (strict
+ * parseISO), this parses with `new Date` so it also accepts engine-native
+ * formats like MySQL "YYYY-MM-DD HH:mm:ss" and epoch numbers. Returns null for
+ * an unparseable value so the caller renders a placeholder — instead of letting
+ * toLocaleDateString(opts)/date-fns `format` throw `RangeError: Invalid time
+ * value` on an invalid Date, which crashes the whole database view.
+ */
+export function safeDateFormat(value: unknown, pattern = 'MMM d, yyyy'): string | null {
+  if (value === null || value === undefined || value === '') return null;
+  const d = value instanceof Date ? value : new Date(value as string | number);
+  if (!isValid(d)) return null;
+  try {
+    return format(d, pattern);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Renders a property value as a plain-text string suitable for display.
  *
  * Handles type-specific formatting: numbers get `toLocaleString()`,

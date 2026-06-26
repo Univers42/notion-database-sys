@@ -20,7 +20,10 @@ import { useDashboardFilters } from '../../../hooks/useDashboardFilters';
 import { applyGlobalFilters } from '../../../hooks/useViewPages';
 import { colorForPage } from '../../../lib/conditionalColor';
 
-/** Renders a Kanban-style board view with drag-and-drop between columns grouped by a select/status property. */
+/** Property types that can't form board columns (identity/derived/per-row-unique). */
+const BOARD_UNGROUPABLE = new Set(['title', 'relation', 'formula', 'rollup', 'id', 'files', 'created_time', 'last_edited_time']);
+
+/** Renders a Kanban-style board view with drag-and-drop between columns grouped by any value-bearing property. */
 export function BoardView() {
   const activeViewId = useActiveViewId();
   const { views, databases, updatePageProperty, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
@@ -42,8 +45,11 @@ export function BoardView() {
   }
 
   const groupProperty = database.properties[view.grouping.propertyId];
-  if (!groupProperty || (groupProperty.type !== 'select' && groupProperty.type !== 'status')) {
-    return <div className={cn("flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary")}>Board view requires a select or status property for grouping.</div>;
+  // Any value-bearing property forms board columns (buildGroups groups select/
+  // status by options, checkbox by state, everything else by distinct value) —
+  // so a live mount's text/place columns (city, cuisine…) make a valid board.
+  if (!groupProperty || BOARD_UNGROUPABLE.has(groupProperty.type)) {
+    return <div className={cn("flex-1 flex items-center justify-center text-ink-secondary bg-surface-secondary")}>Board view needs a groupable property (e.g. a status, category, or text column).</div>;
   }
 
   const rawGroups = getGroupedPages(view.id);

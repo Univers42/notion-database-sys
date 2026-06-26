@@ -43,8 +43,24 @@ interface AggregateResponse {
 
 const VALUE_ALIAS = 'v';
 
-/** Runs one grouped aggregate and parses it into matrix cells. */
-export async function aggregateMatrix(params: AggregateMatrixParams): Promise<AggregateMatrixCell[]> {
+// In-flight dedup: a dashboard board can mount several cells bound to the same
+// (dbId, table, plan) — and the same view appears across boards — each firing
+// its own POST on mount/poll. Collapse identical concurrent requests onto one
+// promise. The entry is dropped on settle, so there is NO TTL/staleness: the
+// next poll re-fetches fresh, the 15s cadence and realtime freshness unchanged.
+const inflight = new Map<string, Promise<AggregateMatrixCell[]>>();
+
+/** Runs one grouped aggregate and parses it into matrix cells (deduped). */
+export function aggregateMatrix(params: AggregateMatrixParams): Promise<AggregateMatrixCell[]> {
+  const key = JSON.stringify(params);
+  const hit = inflight.get(key);
+  if (hit) return hit;
+  const pending = runAggregate(params).finally(() => inflight.delete(key));
+  inflight.set(key, pending);
+  return pending;
+}
+
+async function runAggregate(params: AggregateMatrixParams): Promise<AggregateMatrixCell[]> {
   const groupBy = params.subColumn ? [params.xColumn, params.subColumn] : [params.xColumn];
   const aggregate = {
     groupBy,
@@ -54,7 +70,7 @@ export async function aggregateMatrix(params: AggregateMatrixParams): Promise<Ag
       alias: VALUE_ALIAS,
     }],
   };
-  const path = `/query/v1/${encodeURIComponent(params.dbId)}/tables/${encodeURIComponent(params.table)}`;
+  const path = `/api/databases/${encodeURIComponent(params.dbId)}/tables/${encodeURIComponent(params.table)}`;
   const response = await requestLive<AggregateResponse>(path, {
     method: 'POST',
     body: JSON.stringify({ op: 'aggregate', filter: params.filter, aggregate }),

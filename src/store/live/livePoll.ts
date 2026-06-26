@@ -31,7 +31,19 @@ export interface LivePollDeps {
   pendingWrites: () => number;
   /** The first page diverged from the baseline → host should reload. */
   onChanged: () => void;
+  /** A PERMANENT fetch denial (403 not-accessible / 401) — the poll has
+   *  already stopped; the caller tears realtime down so it never restarts. */
+  onPermanentError?: (error: unknown) => void;
   intervalMs?: number;
+}
+
+/** 403 (no workspace access) / 401 (no session) are permanent for this table —
+ *  retrying just hammers the bridge. Matches status or the bridge's message. */
+export function isPermanentDenial(error: unknown): boolean {
+  const e = error as { status?: number; statusCode?: number; message?: unknown } | null;
+  const status = e?.status ?? e?.statusCode;
+  if (status === 403 || status === 401) return true;
+  return typeof e?.message === 'string' && /accessible workspace|forbidden|unauthor|HTTP 40[13]/i.test(e.message);
 }
 
 /** Cheap order-insensitive fingerprint: rows sorted by their pk string,
@@ -101,7 +113,12 @@ export class LivePoll {
       const changed = this.baseline !== null && hash !== this.baseline;
       this.baseline = hash;
       if (changed) this.deps.onChanged();
-    } catch { /* transient fetch failure — next pass converges */ } finally {
+    } catch (error) {
+      if (isPermanentDenial(error)) {
+        this.stop(); // no access — stop the 15s loop instead of hammering the bridge
+        this.deps.onPermanentError?.(error);
+      } // else transient — next pass converges
+    } finally {
       this.inFlight = false;
     }
     return true;

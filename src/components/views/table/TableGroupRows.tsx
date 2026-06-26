@@ -15,6 +15,7 @@ import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import type { FillDragState } from './useFillDrag';
 import { MemoTableRow } from './MemoTableRow';
+import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { cn } from '../../../utils/cn';
 
 interface GroupData {
@@ -47,11 +48,18 @@ interface RenderPageRowsProps {
   rowTint?: (page: Page) => string | null;
 }
 
-/** Renders an array of pages as MemoTableRow components with proper row indexing. */
+/** Renders an array of pages as MemoTableRow components with proper row indexing.
+ *  `renderAfterRow` (ungrouped sub-items only) interleaves host content (an
+ *  expanded row's child notes) after a row.
+ *  ponytail: the expansion <tr> is out-of-band for the row virtualizer (no
+ *  data-index) — fine for a transient, user-toggled expansion; flatten into the
+ *  virtual count if multi-row expansion ever needs exact scroll height. */
 export function renderPageRows(
   rowPages: Page[],
   props: RenderPageRowsProps,
   globalOffset = 0,
+  measureRow?: (el: HTMLTableRowElement | null) => void,
+  renderAfterRow?: (page: Page) => React.ReactNode,
 ) {
   const {
     visibleProps, focusedCell, editingCell, fillDrag,
@@ -65,7 +73,7 @@ export function renderPageRows(
     const rowIdx = globalOffset + i;
     const isFocusedRow = focusedCell?.pageId === page.id;
     const isEditingRow = editingCell?.pageId === page.id;
-    return (
+    const row = (
       <MemoTableRow
         key={page.id}
         page={page}
@@ -89,8 +97,11 @@ export function renderPageRows(
         onPropertyConfig={onPropertyConfig}
         tableRef={tableRef}
         tint={props.rowTint?.(page) ?? null}
+        measureRef={measureRow}
       />
     );
+    const after = renderAfterRow?.(page);
+    return after ? <React.Fragment key={page.id}>{row}{after}</React.Fragment> : row;
   });
 }
 
@@ -107,6 +118,7 @@ export function TableGroupRows({
   groupedData, collapsedGroups, toggleGroup, colCount,
   addPage, databaseId, ...rowProps
 }: Readonly<TableGroupRowsProps>) {
+  const createRecord = useDefaultTemplateCreate(() => addPage(databaseId));
   return (
     <>
       {groupedData.map((group) => {
@@ -178,7 +190,7 @@ export function TableGroupRows({
       {/* Global footer */}
       <tr>
         <td colSpan={colCount} className={cn("p-0")}>
-          <button onClick={() => addPage(databaseId)}
+          <button onClick={createRecord}
             className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
             <Plus className={cn("w-4 h-4")} /> New
           </button>

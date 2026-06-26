@@ -41,10 +41,13 @@ export type LiveNormalizedType =
   | 'text' | 'integer' | 'float' | 'decimal' | 'boolean' | 'date' | 'datetime'
   | 'json' | 'uuid' | 'enum' | 'array' | 'objectid' | 'unknown';
 
-/** FK target of a column (schema.rs `ForeignKeyRef`). */
+/** FK target of a column (schema.rs `ForeignKeyRef`). `dbId` is set only for a
+ *  CROSS-MOUNT target (the referenced table lives in another mount); absent =
+ *  same mount. */
 export interface LiveForeignKeyRef {
   table: string;
   column: string;
+  dbId?: string;
 }
 
 /** One column / document field (schema.rs `ColumnSchema`). */

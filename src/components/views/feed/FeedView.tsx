@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { MoreHorizontal, FileText } from 'lucide-react';
 import { parseISO, formatDistanceToNow } from 'date-fns';
@@ -56,6 +57,7 @@ export function FeedView() {
   const database = view ? databases[view.databaseId] : null;
 
   const pages = useViewPages(view?.id);
+  const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
 
   if (!view || !database) return null;
 
@@ -164,7 +166,7 @@ export function FeedView() {
           <div className={cn("text-center py-20 text-ink-muted")}>
             <FileText className={cn("w-10 h-10 mx-auto mb-3 text-ink-disabled")} />
             <p className={cn("text-sm mb-3")}>No pages to display</p>
-            <button onClick={() => addPage(database.id)}
+            <button onClick={createRecord}
               className={cn("text-sm text-accent-text-soft hover:text-hover-accent-text font-medium")}>
               Create a page
             </button>

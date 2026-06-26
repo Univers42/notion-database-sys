@@ -56,6 +56,7 @@ export function TopBar({ onViewChange, variant = 'full' }: TopBarProps = {}) {
   const [titleValue, setTitleValue] = useState('');
   const [isFullSize, setIsFullSize] = useState(false);
   const [showExtraActions, setShowExtraActions] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const searchRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -80,7 +81,8 @@ export function TopBar({ onViewChange, variant = 'full' }: TopBarProps = {}) {
   // reveal must persist even if the pointer leaves (panels render in portals,
   // so :focus-within alone cannot keep them visible).
   const panelsOpen = showSearch || showFilterPanel || showSortPanel || showViewSettings
-    || showExtraActions || showFilterPropertyPicker || showAdvancedFilter || showDbSwitcher;
+    || showExtraActions || showFilterPropertyPicker || showAdvancedFilter || showDbSwitcher
+    || showTemplates;
 
   return (
     <>
@@ -155,6 +157,7 @@ export function TopBar({ onViewChange, variant = 'full' }: TopBarProps = {}) {
             isFullSize={isFullSize} setIsFullSize={setIsFullSize}
             showViewSettings={showViewSettings} setShowViewSettings={setShowViewSettings}
             showExtraActions={showExtraActions} setShowExtraActions={setShowExtraActions}
+            showTemplates={showTemplates} setShowTemplates={setShowTemplates} databaseName={database.name}
             onNewPage={() => { const id = addPage(database.id); store.openPage(id); }}
           />
         </div>

@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { Image, ArrowUpRight } from 'lucide-react';
-import { format } from 'date-fns';
+import { safeDateFormat } from '../../../utils/format';
 import { CURSORS } from '../../ui/cursors';
 import type { Page, SchemaProperty, PropertyValue } from '../../../types/database';
 import { CARD_COVER_GRADIENTS as COVER_COLORS } from '../../../utils/color';
@@ -72,7 +72,7 @@ export function renderBoardPropertyValue(prop: SchemaProperty, val: PropertyValu
     case 'select':
     case 'status':       return renderSelectValue(prop, val);
     case 'multi_select': return renderMultiSelectValue(prop, val, wrapContent);
-    case 'date':         return <div className={cn("text-xs text-ink-secondary")}>{format(new Date(val), 'MMM d')}</div>;
+    case 'date':         return <div className={cn("text-xs text-ink-secondary")}>{safeDateFormat(val, 'MMM d') ?? ''}</div>;
     case 'user':
     case 'person':       return renderPersonValue(val);
     case 'number':       return <div className={cn("text-xs text-ink-secondary tabular-nums")}>{prop.name}: {Number(val).toLocaleString()}</div>;

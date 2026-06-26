@@ -41,7 +41,7 @@ export function ChartDonutChart({ result, settings, isDonut, onSliceClick }: Rea
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minHeight={120}>
         <PieChart margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <Tooltip content={<ChartTooltipContent total={result.total} />} />
           <Pie data={data} dataKey="value" nameKey="name"

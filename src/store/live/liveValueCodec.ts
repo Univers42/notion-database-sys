@@ -28,6 +28,7 @@
 import type { SchemaProperty } from '../../component/types';
 // Type-only (erased at runtime): node:test never needs to resolve the alias.
 import type { PropertyValue } from '@notion-db/contract-types';
+import { geocodePlaceColumn } from './placeColumns';
 import {
   formatLivePageId,
   parseLivePageId,
@@ -35,10 +36,12 @@ import {
   type LiveMountRef,
 } from './liveTypes';
 
-/** Property types the write path encodes; everything else is skipped. */
+/** Property types the write path encodes; everything else is skipped. A `place`
+ *  column is text-backed (its value is a place NAME) so it round-trips to the
+ *  engine; the DERIVED `__place` (id `__*`) is excluded by the diff, not here. */
 const ENCODABLE_TYPES = new Set([
   'title', 'text', 'url', 'email', 'phone', 'checkbox', 'number',
-  'date', 'select', 'multi_select', 'relation',
+  'date', 'select', 'multi_select', 'relation', 'place',
 ]);
 const NUMERIC_COLUMN_TYPES = new Set(['integer', 'float', 'decimal']);
 
@@ -53,6 +56,39 @@ export function toDisplayString(raw: unknown): string {
   } catch {
     return String(raw);
   }
+}
+
+/**
+ * Extract the clean place NAME from a raw cell value, unwrapping a place object
+ * (`{address}`) or an accidentally JSON-stringified one (`'{"address":"Reims"}'`).
+ * The latter is legacy data written before place encoding was hardened; tolerating
+ * it here lets old rows display + geocode correctly. Unwraps a few levels in case
+ * of repeated wrapping.
+ */
+export function placeAddressFromRaw(raw: unknown): string {
+  let value: unknown = raw;
+  for (let depth = 0; depth < 3; depth += 1) {
+    if (value && typeof value === 'object' && 'address' in value) {
+      value = (value as { address?: unknown }).address;
+      continue;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed.startsWith('{') && trimmed.includes('address')) {
+        try {
+          const parsed: unknown = JSON.parse(trimmed);
+          if (parsed && typeof parsed === 'object' && 'address' in parsed) {
+            value = (parsed as { address?: unknown }).address;
+            continue;
+          }
+        } catch {
+          /* not JSON — fall through to display the string as-is */
+        }
+      }
+    }
+    break;
+  }
+  return toDisplayString(value);
 }
 
 /** Lenient numeric coercion: numbers pass, numeric strings parse, else null. */
@@ -91,9 +127,18 @@ export function decodeLiveValue(
     case 'multi_select':
       return Array.isArray(raw) ? raw.map(toDisplayString) : [toDisplayString(raw)];
     case 'relation': {
-      const refTable = column?.references?.table;
-      if (!refTable) return [];
-      return [formatLivePageId({ dbId: mount.dbId, table: refTable }, toDisplayString(raw))];
+      const ref = column?.references;
+      if (!ref?.table) return [];
+      // cross-mount target carries its own dbId; same-mount falls back to this mount.
+      return [formatLivePageId({ dbId: ref.dbId ?? mount.dbId, table: ref.table }, toDisplayString(raw))];
+    }
+    case 'place': {
+      // text-backed location attribute: the cell value is a place NAME, geocoded
+      // (offline) to coordinates so the Map view can plot it. Legacy rows may hold
+      // a JSON-stringified `{address}` — placeAddressFromRaw recovers the name.
+      const address = placeAddressFromRaw(raw);
+      const coords = column ? geocodePlaceColumn(column.name, address) : null;
+      return coords ? { address, lat: coords[0], lng: coords[1] } : { address };
     }
     default:
       return toDisplayString(raw); // text + read-only `id` presentation
@@ -154,7 +199,20 @@ export function encodeLiveValue(
       }
       return pk;
     }
+    case 'place': {
+      // The place NAME goes back to the text column — coords are derived, never
+      // written. Value is `{address,…}` from decode or a plain string from the
+      // inline editor; either way only the name is sent.
+      const addr = placeAddressFromRaw(value);
+      return addr === '' ? null : addr;
+    }
     default: { // text | url | email | phone
+      // Defence: a place-cell object reaching a text column (place retyping not
+      // applied for this write) must store the NAME, never the `{address}` JSON.
+      if (value && typeof value === 'object' && 'address' in value) {
+        const addr = placeAddressFromRaw(value);
+        return addr === '' ? null : addr;
+      }
       if (column?.normalized_type === 'json' && typeof value === 'string') {
         try {
           return JSON.parse(value);

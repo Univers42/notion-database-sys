@@ -19,6 +19,7 @@ import { useFillDrag } from './useFillDrag';
 import { useColumnResize, useColWidth } from './useColumnResize';
 import { useTableKeyboard } from './useTableKeyboard';
 import { useViewPages } from '../../../hooks/useViewPages';
+import { useTableVirtualizer } from './useTableVirtualizer';
 
 /** Encapsulates all state, memos, and callbacks for the TableView component. */
 export function useTableViewState() {
@@ -76,6 +77,19 @@ export function useTableViewState() {
   const displayedPages = pages.slice(0, currentLimit);
   const hasMore = pages.length > currentLimit;
 
+  const settings = view?.settings || {};
+  const showVerticalLines = settings.showVerticalLines !== false;
+  const wrapContent = settings.wrapContent === true;
+  const showRowNumbers = settings.showRowNumbers === true;
+  const colCount = visibleProps.length + (showRowNumbers ? 1 : 0) + 2;
+  const isGrouped = !!view?.grouping;
+  const groupedData = (isGrouped && view) ? getGroupedPages(view.id) : [];
+  const virtual = useTableVirtualizer({
+    count: displayedPages.length,
+    scrollRef: tableRef,
+    enabled: !isGrouped,
+  });
+
   const handleCellClick = useCallback((pageId: string, propId: string, type: string, currentValue: PropertyValue) => {
     setFocusedCell({ pageId, propId });
     if (type === 'checkbox') {
@@ -109,15 +123,8 @@ export function useTableViewState() {
   const handleKeyDown = useTableKeyboard({
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
+    scrollToIndex: virtual.scrollToIndex,
   });
-
-  const settings = view?.settings || {};
-  const showVerticalLines = settings.showVerticalLines !== false;
-  const wrapContent = settings.wrapContent === true;
-  const showRowNumbers = settings.showRowNumbers === true;
-  const colCount = visibleProps.length + (showRowNumbers ? 1 : 0) + 2;
-  const isGrouped = !!view?.grouping;
-  const groupedData = (isGrouped && view) ? getGroupedPages(view.id) : [];
 
   return {
     view, database,
@@ -138,5 +145,6 @@ export function useTableViewState() {
     addPage, openPage, deletePage, duplicatePage,
     showVerticalLines, wrapContent, showRowNumbers,
     colCount, isGrouped, groupedData,
+    virtual,
   };
 }

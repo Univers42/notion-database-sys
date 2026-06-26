@@ -13,9 +13,10 @@
 import React from 'react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
-import { MoreHorizontal } from 'lucide-react';
+import { ArrowUpRight, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useSubItems } from './subItemsContext';
 import { cn } from '../../../utils/cn';
 
 /** Props for the memoized table row component. */
@@ -42,6 +43,8 @@ export interface MemoTableRowProps {
   tableRef: React.RefObject<HTMLDivElement | null>;
   /** Conditional-color background (translucent token tint), if matched. */
   tint?: string | null;
+  /** Virtualizer row-measure ref (windowed body) — attaches to the <tr>. */
+  measureRef?: (el: HTMLTableRowElement | null) => void;
 }
 
 /** Determines whether a row falls within the fill-drag highlight range. */
@@ -73,14 +76,30 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   } = props;
 
   const storeApi = useStoreApi();
+  const subItems = useSubItems();
+  const expanded = subItems?.isExpanded(page.id) ?? false;
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
 
   return (
-    <tr data-row-idx={rowIdx} className={cn("group hover:bg-hover-surface-soft")}
+    <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={rowIdx} className={cn("group hover:bg-hover-surface-soft")}
       style={props.tint ? { backgroundColor: props.tint } : undefined}>
       {showRowNumbers && (
-        <td className={cn("w-10 px-2 py-1.5 border-r border-b border-line text-xs text-ink-muted text-center tabular-nums")}>
-          {rowIdx + 1}
+        <td className={cn("w-10 px-1 py-1.5 border-r border-b border-line text-center align-middle relative")}>
+          <span className={cn("text-xs text-ink-muted tabular-nums group-hover:opacity-0")}>{rowIdx + 1}</span>
+          <div className={cn("absolute inset-0 flex items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100")}>
+            {subItems && (
+              <button type="button" aria-label={expanded ? "Collapse sub-items" : "Expand sub-items"}
+                className={cn("p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
+                onClick={e => { e.stopPropagation(); subItems.toggle(page.id); }}>
+                <ChevronRight className={cn(`w-3 h-3 transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`)} />
+              </button>
+            )}
+            <button type="button" aria-label="Open as page" title="Open as page"
+              className={cn("p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
+              onClick={e => { e.stopPropagation(); onOpenPage(page.id); }}>
+              <ArrowUpRight className={cn("w-3 h-3")} />
+            </button>
+          </div>
         </td>
       )}
 

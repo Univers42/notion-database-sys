@@ -105,7 +105,7 @@ export class LiveWritePublisher {
     const entries = this.deps.queue.pending();
     const cells = entries.filter((entry): entry is LiveCellEntry => entry.kind === 'cell');
     const context = { dbId: this.deps.mount.dbId, queue: this.deps.queue, emit: this.deps.emit };
-    if (cells.length > 0 && await drainLiveCells(context, cells, schema, tables)) return true;
+    if (cells.length > 0 && await drainLiveCells(context, cells, tables)) return true;
     for (const entry of entries) {
       if (entry.kind === 'cell') continue;
       const failed = entry.kind === 'ddl'

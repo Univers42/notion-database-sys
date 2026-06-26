@@ -11,8 +11,9 @@
 /* ************************************************************************** */
 
 /**
- * Write-side HTTP for live mounts. Auth/env mirrors liveMountClient (same
- * `VITE_BAAS_URL` / `X-Baas-Api-Key` / optional Kong `apikey`), but results
+ * Write-side HTTP for live mounts. Auth/transport mirrors liveMountClient (the
+ * osionos BRIDGE — `VITE_API_URL` + `Authorization: Bearer` app-session JWT, NOT
+ * Kong which 401s these routes for the browser), but results
  * are STATUS-shaped instead of thrown: the publisher classifies every write
  * as ok | gone | conflict | rejected | failed from `status` (0 = network),
  * mirroring pageOutbox's never-throw discipline. Kept free of the
@@ -29,9 +30,18 @@ import type { LiveTableSchema } from './liveTypes';
 
 // `?? {}` keeps the module import-safe outside Vite (e.g. node:test).
 const env = (import.meta.env ?? {}) as Record<string, string | undefined>;
-const BASE_URL = (env.VITE_BAAS_URL ?? '').trim().replace(/\/$/, '');
-const API_KEY = (env.VITE_BAAS_API_KEY ?? '').trim();
-const KONG_KEY = (env.VITE_BAAS_KONG_KEY ?? '').trim();
+const BASE_URL = (env.VITE_API_URL ?? '').trim().replace(/\/$/, '');
+
+/** The app-session JWT off the global publish seam (empty until signed in). */
+function appSessionJwt(): string {
+  try {
+    const store = (globalThis as Record<string, unknown>).__playgroundUserStore as
+      { getState?: () => { activePageJwt?: () => string | null } } | undefined;
+    return store?.getState?.().activePageJwt?.() ?? '';
+  } catch {
+    return '';
+  }
+}
 
 const PK_NUMERIC_TYPES = new Set(['integer', 'float', 'decimal']);
 
@@ -43,11 +53,9 @@ export interface LiveWriteResult {
 
 /** POST one JSON payload; never throws — failures become `{status: 0}`. */
 export async function postLiveWrite(path: string, payload: unknown): Promise<LiveWriteResult> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'X-Baas-Api-Key': API_KEY,
-  };
-  if (KONG_KEY) headers.apikey = KONG_KEY;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const jwt = appSessionJwt();
+  if (jwt) headers.Authorization = `Bearer ${jwt}`;
   try {
     const response = await fetch(`${BASE_URL}${path}`, {
       method: 'POST',
@@ -61,30 +69,22 @@ export async function postLiveWrite(path: string, payload: unknown): Promise<Liv
   }
 }
 
-/** Single-table write/read op: `POST /query/v1/:dbId/tables/:table`. */
+/** Single-table write/read op: `POST /api/databases/:dbId/tables/:table`. */
 export function writeLiveTableOp(
   dbId: string,
   table: string,
   body: Record<string, unknown>,
 ): Promise<LiveWriteResult> {
-  const path = `/query/v1/${encodeURIComponent(dbId)}/tables/${encodeURIComponent(table)}`;
+  const path = `/api/databases/${encodeURIComponent(dbId)}/tables/${encodeURIComponent(table)}`;
   return postLiveWrite(path, body);
 }
 
-/** Atomic single-mount batch: `POST /query/v1/txn` (PG + MySQL only). */
-export function postLiveTxn(
-  dbId: string,
-  operations: Record<string, unknown>[],
-): Promise<LiveWriteResult> {
-  return postLiveWrite('/query/v1/txn', { mount: dbId, operations });
-}
-
-/** One DDL operation: `POST /query/v1/:dbId/schema/ddl`. */
+/** One DDL operation: `POST /api/databases/:dbId/schema/ddl`. */
 export function postLiveDdl(
   dbId: string,
   request: Record<string, unknown>,
 ): Promise<LiveWriteResult> {
-  return postLiveWrite(`/query/v1/${encodeURIComponent(dbId)}/schema/ddl`, request);
+  return postLiveWrite(`/api/databases/${encodeURIComponent(dbId)}/schema/ddl`, request);
 }
 
 /** `<pk>` (joined `:` for composite keys) → a filter on the pk columns, with

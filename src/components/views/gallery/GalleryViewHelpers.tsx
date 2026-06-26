@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { format } from 'date-fns';
+import { safeDateFormat } from '../../../utils/format';
 import type { SchemaProperty, PropertyValue } from '../../../types/database';
 import { cn } from '../../../utils/cn';
 import { safeString } from '../../../utils/safeString';
@@ -60,7 +60,7 @@ export function renderPropertyValue(prop: SchemaProperty, val: PropertyValue, wr
     case 'select':
     case 'status':       return renderGallerySelectValue(prop, val);
     case 'multi_select': return renderGalleryMultiSelect(prop, val, wrapContent);
-    case 'date':         return <span className={cn("text-xs text-ink-secondary")}>{format(new Date(val), 'MMM d, yyyy')}</span>;
+    case 'date':         return <span className={cn("text-xs text-ink-secondary")}>{safeDateFormat(val, 'MMM d, yyyy') ?? ''}</span>;
     case 'checkbox':     return renderGalleryCheckbox(val);
     case 'number':       return <span className={cn("text-xs text-ink-secondary tabular-nums")}>{Number(val).toLocaleString()}</span>;
     case 'user':

@@ -12,14 +12,14 @@
 
 /**
  * Fetch layer for live mounts: schema (60s in-module cache, in-flight dedup)
- * + row listing through the query-router.
+ * + row listing.
  *
- * Auth/env mirrors `src/features/second-brain/baas/baasFetch.ts` (the source
- * of truth the graph feature uses): `VITE_BAAS_URL` base, `X-Baas-Api-Key`
- * tenant key, optional Kong `apikey`. Mirrored — not imported — because
- * notion-database-sys must stay decoupled from app feature modules.
- * Volume stays modest by design: one schema call + one first-page row list
- * per table (the app api-client's concurrency cap is for its own routes).
+ * Routed through the osionos BRIDGE (`VITE_API_URL` + `/api/databases/*`), NOT
+ * Kong directly: the browser's anon key 401s on `/query/v1` + `/admin/v1`, so
+ * the bridge proxies to the internal query-router with the tenant key. Auth is
+ * the app-session JWT read from the `__playgroundUserStore` global publish seam
+ * (the same seam the app api-client uses) — a runtime global, so the submodule
+ * stays free of app-module imports.
  */
 
 import { AdapterError } from '../../component/types';
@@ -27,16 +27,25 @@ import type { LiveListParams, LiveRowsResponse, LiveSchemaResponse } from './liv
 
 // `?? {}` keeps the module import-safe outside Vite (e.g. node:test).
 const env = (import.meta.env ?? {}) as Record<string, string | undefined>;
-const BASE_URL = (env.VITE_BAAS_URL ?? '').trim().replace(/\/$/, '');
-const API_KEY = (env.VITE_BAAS_API_KEY ?? '').trim();
-const KONG_KEY = (env.VITE_BAAS_KONG_KEY ?? '').trim();
+const BASE_URL = (env.VITE_API_URL ?? '').trim().replace(/\/$/, '');
 
 const SCHEMA_TTL_MS = 60_000;
 const schemaCache = new Map<string, { value: Promise<LiveSchemaResponse>; expiresAt: number }>();
 
-/** True when the query-router base URL + tenant key are configured. */
+/** The app-session JWT off the global publish seam (empty until signed in). */
+function appSessionJwt(): string {
+  try {
+    const store = (globalThis as Record<string, unknown>).__playgroundUserStore as
+      { getState?: () => { activePageJwt?: () => string | null } } | undefined;
+    return store?.getState?.().activePageJwt?.() ?? '';
+  } catch {
+    return '';
+  }
+}
+
+/** True when the bridge base URL is configured (the JWT is checked per call). */
 export function liveBaasConfigured(): boolean {
-  return Boolean(BASE_URL && API_KEY);
+  return Boolean(BASE_URL);
 }
 
 /** Shared authenticated transport for query-router calls (also used by the
@@ -44,17 +53,15 @@ export function liveBaasConfigured(): boolean {
 export async function requestLive<T>(path: string, init: RequestInit): Promise<T> {
   if (!liveBaasConfigured()) {
     throw new AdapterError(
-      'Live BaaS is not configured (set VITE_BAAS_URL and VITE_BAAS_API_KEY).',
+      'Live databases are not configured (set VITE_API_URL to the osionos bridge).',
       0,
       path,
       'NOT_CONFIGURED',
     );
   }
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'X-Baas-Api-Key': API_KEY,
-  };
-  if (KONG_KEY) headers.apikey = KONG_KEY;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const jwt = appSessionJwt();
+  if (jwt) headers.Authorization = `Bearer ${jwt}`;
   let response: Response;
   try {
     response = await fetch(`${BASE_URL}${path}`, { ...init, headers });
@@ -75,11 +82,11 @@ export async function requestLive<T>(path: string, init: RequestInit): Promise<T
   return payload as T;
 }
 
-/** `GET /query/v1/:dbId/schema` — cached 60s per mount, failures not cached. */
+/** `GET /api/databases/:dbId/schema` — cached 60s per mount, failures not cached. */
 export function getLiveSchema(dbId: string): Promise<LiveSchemaResponse> {
   const cached = schemaCache.get(dbId);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
-  const path = `/query/v1/${encodeURIComponent(dbId)}/schema`;
+  const path = `/api/databases/${encodeURIComponent(dbId)}/schema`;
   const value = requestLive<LiveSchemaResponse>(path, { method: 'GET' });
   const entry = { value, expiresAt: Date.now() + SCHEMA_TTL_MS };
   schemaCache.set(dbId, entry);
@@ -96,14 +103,14 @@ export function bustLiveSchemaCache(dbId: string): void {
   schemaCache.delete(dbId);
 }
 
-/** `POST /query/v1/:dbId/tables/:table` with `op: 'list' | 'get'`. */
+/** `POST /api/databases/:dbId/tables/:table` with `op: 'list' | 'get'`. */
 export function listLiveRows(
   dbId: string,
   table: string,
   params: LiveListParams = {},
   op: 'list' | 'get' = 'list',
 ): Promise<LiveRowsResponse> {
-  const path = `/query/v1/${encodeURIComponent(dbId)}/tables/${encodeURIComponent(table)}`;
+  const path = `/api/databases/${encodeURIComponent(dbId)}/tables/${encodeURIComponent(table)}`;
   return requestLive<LiveRowsResponse>(path, {
     method: 'POST',
     body: JSON.stringify({ op, ...params }),

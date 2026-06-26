@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus, Image, MoreHorizontal, ArrowUpRight } from 'lucide-react';
 import type { Page, Block } from '../../../types/database';
@@ -28,6 +29,7 @@ export function GalleryView() {
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const pages = useViewPages(view?.id);
+  const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
 
   if (!view || !database) return null;
 
@@ -37,6 +39,11 @@ export function GalleryView() {
   const showPageIcon = settings.showPageIcon !== false;
   const wrapContent = settings.wrapContent === true;
   const cardPreview = settings.cardPreview || 'none';
+  // Carousel = a single horizontally-scrolling row (show one row, scroll sideways
+  // for the rest) instead of the wrapping grid. Cards get a fixed width per size.
+  const isCarousel = settings.galleryLayout === 'carousel';
+  const carouselWidthMap: Record<string, string> = { small: '180px', large: '300px', xl: '340px' };
+  const carouselWidth = carouselWidthMap[cardSize] || '248px';
 
   const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
   const nonTitleProps = visibleProps.filter(p => p.id !== database.titlePropertyId);
@@ -132,16 +139,23 @@ export function GalleryView() {
   };
 
   return (
-    <div className={cn("flex-1 overflow-auto p-6 bg-surface-primary")}>
-      <div className={cn(`grid ${gridCols} gap-4`)}>
+    <div className={cn("flex-1 p-6 bg-surface-primary", isCarousel ? "overflow-x-auto overflow-y-hidden" : "overflow-auto")}>
+      <div
+        className={cn(isCarousel ? "flex gap-4" : `grid ${gridCols} gap-4`)}
+        style={isCarousel ? { scrollSnapType: "x proximity" } : undefined}
+      >
         {pages.map((page, idx) => {
           const title = getPageTitle(page);
 
           const accent = colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null;
           return (
             <button type="button" key={page.id} onClick={() => openPage(page.id)}
-              style={{ cursor: CURSORS.pointer, ...(accent ? { boxShadow: `inset 0 3px 0 0 ${accent}` } : {}) }}
-              className={cn("group border border-line rounded-xl overflow-hidden hover:shadow-lg hover:border-hover-border transition-all duration-200 bg-surface-primary text-left w-full")}>
+              style={{
+                cursor: CURSORS.pointer,
+                ...(accent ? { boxShadow: `inset 0 3px 0 0 ${accent}` } : {}),
+                ...(isCarousel ? { width: carouselWidth, scrollSnapAlign: "start" } : {}),
+              }}
+              className={cn("group border border-line rounded-xl overflow-hidden hover:shadow-lg hover:border-hover-border transition-all duration-200 bg-surface-primary text-left", isCarousel ? "shrink-0" : "w-full")}>
               {/* Cover / Preview */}
               {renderCover(page, idx)}
 
@@ -178,9 +192,9 @@ export function GalleryView() {
         })}
 
         {/* Add card */}
-        <button type="button" onClick={() => addPage(database.id)}
-          className={cn("border-2 border-dashed border-line rounded-xl flex items-center justify-center hover:border-hover-border-strong hover:bg-hover-surface transition-all duration-200")}
-          style={{ cursor: CURSORS.pointer, minHeight: minHeightMap[cardSize] || '180px' }}>
+        <button type="button" onClick={createRecord}
+          className={cn("border-2 border-dashed border-line rounded-xl flex items-center justify-center hover:border-hover-border-strong hover:bg-hover-surface transition-all duration-200", isCarousel ? "shrink-0" : "")}
+          style={{ cursor: CURSORS.pointer, minHeight: minHeightMap[cardSize] || '180px', ...(isCarousel ? { width: carouselWidth } : {}) }}>
           <div className={cn("flex flex-col items-center gap-1 text-ink-muted")}>
             <Plus className={cn("w-6 h-6")} />
             <span className={cn("text-sm")}>New page</span>

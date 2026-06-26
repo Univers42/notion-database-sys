@@ -27,6 +27,7 @@ import type { CellRendererProps } from '../CellRenderer';
 import { TimelineDatePicker } from '../../timeline/TimelineDatePicker';
 import { cn } from '../../../../utils/cn';
 import { safeString } from '../../../../utils/safeString';
+import { safeDateFormat } from '../../../../utils/format';
 
 /** Portal-based date picker cell editor anchored to the table cell. */
 export function DateCellEditor({ page, prop, value, onUpdate, onStopEditing }: Readonly<{
@@ -80,9 +81,10 @@ export function renderDate(p: CellRendererProps): React.ReactNode {
   if (isEditing) {
     return <DateCellEditor page={page} prop={prop} value={value} onUpdate={onUpdate} onStopEditing={onStopEditing} />;
   }
+  const label = safeDateFormat(value);
   return (
     <div className={cn("text-sm text-ink-body truncate whitespace-nowrap")}>
-      {value ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : <span className={cn("text-ink-muted")}>Empty</span>}
+      {label ?? <span className={cn("text-ink-muted")}>{value ? safeString(value) : 'Empty'}</span>}
     </div>
   );
 }

@@ -98,14 +98,18 @@ export function buildGroups(
     ];
   }
 
+  // Any other type (text/number/place/date/url…): one column per distinct value.
+  // Empty values share the '__unassigned__' column so a board drop there clears
+  // the value (the drop handler maps '__unassigned__' → null), like the select path.
   const gm = new Map<string, Page[]>();
   for (const p of pages) {
-    const v = String(p.properties[grouping.propertyId] ?? 'Unassigned');
+    const raw = p.properties[grouping.propertyId];
+    const v = (raw === null || raw === undefined || raw === '') ? '__unassigned__' : String(raw);
     if (!gm.has(v)) gm.set(v, []);
     gm.get(v)?.push(p);
   }
   return Array.from(gm.entries()).map(([k, ps]) => ({
-    groupId: k, groupLabel: k, groupColor: 'bg-surface-muted text-ink-body', pages: ps,
+    groupId: k, groupLabel: k === '__unassigned__' ? 'Unassigned' : k, groupColor: 'bg-surface-muted text-ink-body', pages: ps,
   }));
 }
 

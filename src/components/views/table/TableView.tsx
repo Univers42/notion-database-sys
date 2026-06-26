@@ -19,6 +19,9 @@ import { TableRowContextMenu } from './TableRowContextMenu';
 import { ChevronDown, Plus } from 'lucide-react';
 import { cn } from '../../../utils/cn';
 import { useTableViewState } from './useTableViewState';
+import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
+import { useSubItems } from './subItemsContext';
+import { SubItemRows } from './SubItemRows';
 import { colorForPage } from '../../../lib/conditionalColor';
 import type { Page } from '../../../types/database';
 
@@ -43,9 +46,27 @@ export function TableView() {
     addPage, openPage, deletePage, duplicatePage,
     showVerticalLines, wrapContent, showRowNumbers,
     colCount, isGrouped, groupedData,
+    virtual,
   } = useTableViewState();
 
+  const subItems = useSubItems();
+  const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
+
   if (!view || !database) return null;
+
+  const renderAfterRow = subItems
+    ? (page: Page): React.ReactNode =>
+        subItems.isExpanded(page.id) ? (
+          <SubItemRows
+            recordId={page.id}
+            visibleProps={visibleProps}
+            showRowNumbers={showRowNumbers}
+            getColWidth={getColWidth}
+            titlePropId={database.titlePropertyId}
+            colCount={colCount}
+          />
+        ) : null
+    : undefined;
 
   const colorRules = view.settings?.conditionalColors;
   const rowProps = {
@@ -84,7 +105,13 @@ export function TableView() {
               />
             ) : (
               <>
-                {renderPageRows(displayedPages, rowProps)}
+                {virtual.paddingTop > 0 && (
+                  <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingTop }} className={cn("p-0 border-0")} /></tr>
+                )}
+                {renderPageRows(displayedPages.slice(virtual.firstIndex, virtual.lastIndex + 1), rowProps, virtual.firstIndex, virtual.measureRow, renderAfterRow)}
+                {virtual.paddingBottom > 0 && (
+                  <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingBottom }} className={cn("p-0 border-0")} /></tr>
+                )}
                 {hasMore && (
                   <tr>
                     <td colSpan={colCount} className={cn("p-0 border-b border-line")}>
@@ -100,7 +127,7 @@ export function TableView() {
                 )}
                 <tr>
                   <td colSpan={colCount} className={cn("p-0")}>
-                    <button onClick={() => addPage(database.id)}
+                    <button onClick={createRecord}
                       className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
                       <Plus className={cn("w-4 h-4")} /> New
                     </button>

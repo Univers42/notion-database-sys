@@ -40,6 +40,8 @@ import {
   ArrowTurnUpRightIcon, TrashIcon, AiFaceIcon, QuestionMarkCircleIcon,
 } from './components/ui/Icons';
 import { cn } from './utils/cn';
+import { TemplatesContext } from './components/topBar/templatesContext';
+import { SubItemsProvider } from './components/views/table/subItemsContext';
 import { HttpAdapter } from './component/adapters/HttpAdapter';
 import type {
   ChangeEvent,
@@ -112,6 +114,8 @@ function ObjectDatabaseWithStore({
   renderPage,
   className,
   chrome = 'full',
+  templates,
+  subItems,
   forwardedRef,
 }: Readonly<ObjectDatabaseWithStoreProps>) {
   const resolvedAdapter = useMemo<ObjectDatabaseAdapter>(
@@ -131,21 +135,25 @@ function ObjectDatabaseWithStore({
 
   return (
     <AdapterProvider value={resolvedAdapter}>
-      <div
-        className={cn('notion-object-database h-full w-full', className)}
-        data-theme={theme}
-        data-dbms-source={dataSource}
-      >
-        <ObjectDatabaseInner
-          mode={mode}
-          databaseId={databaseId}
-          adapter={resolvedAdapter}
-          initialView={initialView}
-          onPageOpen={onPageOpen}
-          renderPage={renderPage}
-          chrome={chrome}
-        />
-      </div>
+      <TemplatesContext.Provider value={templates ?? null}>
+        <SubItemsProvider controller={subItems}>
+          <div
+            className={cn('notion-object-database h-full w-full', className)}
+            data-theme={theme}
+            data-dbms-source={dataSource}
+          >
+            <ObjectDatabaseInner
+              mode={mode}
+              databaseId={databaseId}
+              adapter={resolvedAdapter}
+              initialView={initialView}
+              onPageOpen={onPageOpen}
+              renderPage={renderPage}
+              chrome={chrome}
+            />
+          </div>
+        </SubItemsProvider>
+      </TemplatesContext.Provider>
     </AdapterProvider>
   );
 }
@@ -488,7 +496,13 @@ async function loadAdapterState(
     return source;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error('[object-database] Load error:', message);
+    // A permanent access denial (403 no-workspace / 401) is expected and already
+    // shown in the failure pane — don't spam console.error (it fires per mount/retry).
+    const status = (err as { status?: number; statusCode?: number } | null)?.status
+      ?? (err as { statusCode?: number } | null)?.statusCode;
+    const denied = status === 403 || status === 401
+      || /accessible workspace|forbidden|unauthor|HTTP 40[13]/i.test(message);
+    if (!denied) console.error('[object-database] Load error:', message);
     if (!opts.silent) storeApi.setState({ dbmsError: message, dbmsLoading: false });
     return null;
   }

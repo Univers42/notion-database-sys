@@ -52,7 +52,7 @@ export function TableHeader({
   const { addProperty, togglePropertyVisibility, hideAllProperties } = storeApi.getState();
 
   return (
-    <thead className={cn("sticky top-0 z-20")}>
+    <thead className={cn("sticky top-0 z-30")}>
       <tr className={cn("bg-surface-secondary border-b border-line")}>
         {showRowNumbers && (
           <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>#</th>

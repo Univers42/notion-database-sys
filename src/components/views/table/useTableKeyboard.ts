@@ -60,6 +60,8 @@ interface KeyboardDeps {
   visibleProps: SchemaProperty[];
   database: DatabaseSchema | null;
   tableRef: React.RefObject<HTMLDivElement | null>;
+  /** Scroll an off-screen row into view before focus lands on it (virtualized body). */
+  scrollToIndex?: (index: number) => void;
 }
 
 function handleNavigationKey(
@@ -80,7 +82,7 @@ function handleNavigationKey(
 
 /** Handles keyboard navigation (arrows, Tab) and cell editing shortcuts (Enter, Delete). */
 export function useTableKeyboard(deps: KeyboardDeps) {
-  const { focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef } = deps;
+  const { focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef, scrollToIndex } = deps;
   const storeApi = useStoreApi();
 
   return useCallback((e: React.KeyboardEvent) => {
@@ -95,6 +97,8 @@ export function useTableKeyboard(deps: KeyboardDeps) {
 
     if (handleNavigationKey(e.key, pi, ci, focusedCell, setFocusedCell, displayedPages, visibleProps)) {
       e.preventDefault();
+      if (e.key === 'ArrowDown') scrollToIndex?.(Math.min(displayedPages.length - 1, pi + 1));
+      else if (e.key === 'ArrowUp') scrollToIndex?.(Math.max(0, pi - 1));
       return;
     }
 
@@ -115,5 +119,5 @@ export function useTableKeyboard(deps: KeyboardDeps) {
         handleDeleteKey(focusedCell, database, storeApi);
         break;
     }
-  }, [focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef, storeApi]);
+  }, [focusedCell, editingCell, setFocusedCell, setEditingCell, displayedPages, visibleProps, database, tableRef, storeApi, scrollToIndex]);
 }

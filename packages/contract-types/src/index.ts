@@ -419,6 +419,9 @@ export interface ViewSettings {
   cardPreview?: 'none' | 'page_cover' | 'page_properties' | 'page_content';
   cardSize?: 'small' | 'medium' | 'large' | 'xl';
   cardLayout?: 'compact' | 'list';
+  /** Gallery card arrangement: a wrapping grid (default) or a single horizontally
+   *  scrolling row ("carousel" — show one row, scroll sideways for more). */
+  galleryLayout?: 'grid' | 'carousel';
   wrapPageTitles?: boolean;
   showCalendarBy?: string;
   showCalendarAs?: 'month' | 'week';

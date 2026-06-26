@@ -14,6 +14,7 @@ import React from 'react';
 import { MapPin, Plus, FileText, Layers } from 'lucide-react';
 import type * as Leaflet from 'leaflet';
 import type { Page, SchemaProperty } from '../../../types/database';
+import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { cn } from '../../../utils/cn';
 
 /** Page with resolved geographic coordinates for map rendering. */
@@ -111,6 +112,7 @@ export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, addPa
   addPage: (dbId: string) => void;
   databaseId: string;
 }>) {
+  const createRecord = useDefaultTemplateCreate(() => addPage(databaseId));
   return (
     <div className={cn("w-72 border-l border-line flex flex-col bg-surface-primary shrink-0")}>
       <div className={cn("px-4 py-3 border-b border-line flex items-center justify-between")}>
@@ -146,7 +148,7 @@ export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, addPa
         )}
       </div>
       <div className={cn("border-t border-line p-2")}>
-        <button onClick={() => addPage(databaseId)}
+        <button onClick={createRecord}
           className={cn("flex items-center gap-2 w-full px-3 py-2 text-sm text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors")}>
           <Plus className={cn("w-4 h-4")} /> New page
         </button>

@@ -160,10 +160,14 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
     <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
       {relatedIds.map(rid => {
         const relPage = storePages[rid];
-        if (!relPage) return null;
-        const relDb = store.databases[relPage.databaseId];
+        const relDb = relPage ? store.databases[relPage.databaseId] : undefined;
         const titlePropId = relDb?.titlePropertyId;
-        const title = titlePropId ? relPage.properties[titlePropId] : relPage.id;
+        // Resolved → the related record's title; not-yet-loaded (a live mount's
+        // referenced row beyond the preload, or a dangling link) → the key
+        // segment of the id, so a relation is a clickable tag, never blank.
+        const title = relPage
+          ? (titlePropId ? relPage.properties[titlePropId] : relPage.id)
+          : (rid.includes(':') ? rid.slice(rid.lastIndexOf(':') + 1) : rid);
         return (
           <button key={rid} onClick={e => { e.stopPropagation(); onOpenPage(rid); }}
             className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-tertiary hover:bg-hover-surface3 text-xs text-ink-body font-medium shrink-0 max-w-[140px]")}>

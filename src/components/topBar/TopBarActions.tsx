@@ -13,11 +13,13 @@
 import React from 'react';
 import {
   Plus, Search, Filter, ArrowUpDown, Settings2,
-  X, Maximize2, Zap,
+  X, Maximize2, Zap, ChevronDown,
 } from 'lucide-react';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { ExtraActionsMenu } from './MenuComponents';
 import { DbSourceDropdown } from '../DbSourceDropdown';
+import { TemplatesDropdown } from './TemplatesDropdown';
+import { useTemplatesController } from './templatesContext';
 import { cn } from '../../utils/cn';
 import type { Filter as FilterType, Sort } from '../../types/database';
 
@@ -49,6 +51,9 @@ export interface TopBarActionsProps {
   setShowViewSettings: (v: boolean) => void;
   showExtraActions: boolean;
   setShowExtraActions: (v: boolean) => void;
+  showTemplates: boolean;
+  setShowTemplates: (v: boolean) => void;
+  databaseName: string;
   onNewPage: () => void;
 }
 
@@ -64,8 +69,15 @@ export function TopBarActions({
   isFullSize, setIsFullSize,
   showViewSettings, setShowViewSettings,
   showExtraActions, setShowExtraActions,
+  showTemplates, setShowTemplates, databaseName,
   onNewPage,
 }: Readonly<TopBarActionsProps>) {
+  const templates = useTemplatesController();
+  const defaultTemplateId = templates?.list.find((t) => t.isDefault)?.id;
+  const handlePrimaryNew = () => {
+    if (templates && defaultTemplateId) templates.onCreateFrom(defaultTemplateId);
+    else onNewPage();
+  };
   return (
     <div className={cn("odb-topbar-actions flex items-center gap-0.5 shrink-0")}>
       <button ref={filterBtnRef}
@@ -122,10 +134,27 @@ export function TopBarActions({
         </>
       )}
       <div className={cn("w-px h-5 bg-surface-muted mx-1")} />
-      <button onClick={onNewPage}
-        className={cn("flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm")}>
-        <Plus className={cn("w-3.5 h-3.5")} /> New
-      </button>
+      {templates ? (
+        <div className={cn("relative flex items-center gap-px")}>
+          <button onClick={handlePrimaryNew}
+            className={cn("flex items-center gap-1.5 pl-3 pr-2.5 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-l-lg hover:bg-hover-accent transition-colors shadow-sm")}>
+            <Plus className={cn("w-3.5 h-3.5")} /> New
+          </button>
+          <button aria-label="New from template" aria-expanded={showTemplates} onClick={() => setShowTemplates(!showTemplates)}
+            className={cn("flex items-center px-1.5 py-1.5 bg-accent text-ink-inverse rounded-r-lg hover:bg-hover-accent transition-colors shadow-sm")}>
+            <ChevronDown className={cn("w-3.5 h-3.5")} />
+          </button>
+          {showTemplates && (
+            <TemplatesDropdown databaseName={databaseName} templates={templates}
+              onCreateBlank={onNewPage} onClose={() => setShowTemplates(false)} />
+          )}
+        </div>
+      ) : (
+        <button onClick={onNewPage}
+          className={cn("flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm")}>
+          <Plus className={cn("w-3.5 h-3.5")} /> New
+        </button>
+      )}
     </div>
   );
 }

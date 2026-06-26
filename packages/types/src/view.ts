@@ -113,6 +113,9 @@ export interface DomainViewSettings {
   cardPreview?: 'none' | 'page_cover' | 'page_properties' | 'page_content';
   cardSize?: 'small' | 'medium' | 'large' | 'xl';
   cardLayout?: 'compact' | 'list';
+  /** Gallery arrangement: wrapping grid (default) or a single horizontally
+   *  scrolling row ("carousel"). */
+  galleryLayout?: 'grid' | 'carousel';
 
   // Calendar
   wrapPageTitles?: boolean;

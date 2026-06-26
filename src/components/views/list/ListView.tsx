@@ -12,10 +12,11 @@
 
 import React from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { FileText, MoreHorizontal, ChevronDown, Plus } from 'lucide-react';
 import type { Page, SchemaProperty } from '../../../types/database';
-import { format } from 'date-fns';
+import { safeDateFormat } from '../../../utils/format';
 import { cn } from '../../../utils/cn';
 import { safeString } from '../../../utils/safeString';
 import { useViewPages } from '../../../hooks/useViewPages';
@@ -43,7 +44,7 @@ function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactN
     );
   }
   if (prop.type === 'date') {
-    return <span key={prop.id} className={cn("text-xs text-ink-secondary")}>{format(new Date(val as string | number), 'MMM d')}</span>;
+    return <span key={prop.id} className={cn("text-xs text-ink-secondary")}>{safeDateFormat(val, 'MMM d') ?? ''}</span>;
   }
   if (prop.type === 'user' || prop.type === 'person') {
     return (
@@ -75,6 +76,7 @@ export function ListView() {
   const database = view ? databases[view.databaseId] : null;
 
   const viewPages = useViewPages(view?.id);
+  const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
 
   if (!view || !database) return null;
 
@@ -170,7 +172,7 @@ export function ListView() {
             No pages found
           </div>
         )}
-        <button onClick={() => addPage(database.id)}
+        <button onClick={createRecord}
           className={cn("flex items-center gap-2 px-3 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded-lg transition-colors")}>
           <Plus className={cn("w-4 h-4")} /> New page
         </button>

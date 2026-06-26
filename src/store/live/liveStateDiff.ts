@@ -66,6 +66,7 @@ function collectCellChanges(
   pk: string,
 ): void {
   for (const property of Object.values(properties)) {
+    if (property.id.startsWith('__')) continue; // derived (e.g. __place) — no engine column
     const nextValue = nextPage.properties[property.id];
     const prevValue = prevPage.properties[property.id];
     if (encodedKey(nextValue, property) === encodedKey(prevValue, property)) continue;
@@ -95,6 +96,7 @@ function collectRowChanges(
     for (const page of inserts) {
       const values: Record<string, unknown> = {};
       for (const property of Object.values(properties)) {
+        if (property.id.startsWith('__')) continue; // derived (e.g. __place) — no engine column
         const raw = page.properties[property.id];
         const encoded = encodeLiveValue(raw, property, undefined);
         if (encoded === undefined || encoded === null || encoded === '') continue;

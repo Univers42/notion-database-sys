@@ -11,28 +11,28 @@
 /* ************************************************************************** */
 
 /**
- * Cell-update half of the live write publisher. Transactional engines
- * (postgresql/mysql) get ONE atomic `/txn` batch per ≤50 updates — a multi-op
- * 409 falls back to sequential singles to isolate the conflicting row, since
- * the txn response carries no per-op blame and the WHOLE batch rolled back.
- * mongodb (transactions: false) is always sequential. Outcome discipline:
+ * Cell-update half of the live write publisher. EVERY engine writes each edited
+ * cell as ONE single-op `POST /:dbId/tables/:table` update — the same one-round-
+ * trip path inserts/deletes already use. (Postgres/MySQL previously batched
+ * through the multi-round-trip `/txn`, whose data-plane pinned-connection step
+ * intermittently returned 502 and rolled the batch back, so the client retried
+ * then reverted the edit. A single cell edit is one UPDATE — it never needed
+ * multi-op atomicity, and per-cell independent saves are the expected Notion-style
+ * UX: one bad cell no longer rolls back the others.) Outcome discipline:
  * 2xx + affected≥1 → ok (entry removed); affected 0 → gone; 409 → conflict;
  * other 4xx → rejected — gone/conflict/rejected all reconcile through the
  * authoritative refetch (liveConflict) so the UI snaps to server truth; 5xx /
- * network → transient: entries KEPT, `true` returned so the caller backs off.
+ * network → transient: kept, then row-scoped reconcile after the attempt cap.
  */
 
 import { mapLiveTable } from './liveSchemaMapper';
 import { encodeLiveValue } from './liveValueCodec';
 import { resolveLiveConflict } from './liveConflict';
 import { noteLiveOwnWrite } from './liveEchoRegistry';
-import { livePkFilter, postLiveTxn, writeLiveTableOp } from './liveWriteClient';
+import { livePkFilter, writeLiveTableOp } from './liveWriteClient';
 import type { ChangeEvent } from '../../component/types';
 import { LIVE_MAX_ATTEMPTS, type LiveWriteEntry, type LiveWriteQueue } from './liveWriteQueue';
-import type { LiveRowsResponse, LiveSchemaResponse, LiveTableSchema } from './liveTypes';
-
-const TXN_MAX_OPS = 50;
-const TXN_ENGINES = new Set(['postgresql', 'mysql']);
+import type { LiveRowsResponse, LiveTableSchema } from './liveTypes';
 
 export type LiveCellEntry = Extract<LiveWriteEntry, { kind: 'cell' }>;
 
@@ -73,11 +73,15 @@ export async function reconcileLiveCell(
 }
 
 /** Transient outcome: keep (true → backoff) unless the entry burned its
- *  attempts — then drop it + reload so it can't block the queue forever. */
-function keepOrGiveUp(context: LiveCellWriteContext, entryId: string): boolean {
-  if (!context.queue.noteFailure(entryId, LIVE_MAX_ATTEMPTS)) return true;
-  console.warn(`[live-db] cell write dropped after ${LIVE_MAX_ATTEMPTS} failed attempts — reloading server truth`);
-  context.emit({ type: 'state-replaced' });
+ *  attempts — then drop it and reset ONLY its row to server truth (not a
+ *  whole-mount `state-replaced`, which would also wipe every other unsaved
+ *  edit the user made while one write was stuck retrying). reconcileLiveCell
+ *  refetches the single row; it degrades to a full reload only if even that
+ *  refetch fails (backend genuinely unreachable). */
+async function keepOrGiveUp(context: LiveCellWriteContext, item: ReadyCell): Promise<boolean> {
+  if (!context.queue.noteFailure(item.entry.id, LIVE_MAX_ATTEMPTS)) return true;
+  console.warn(`[live-db] cell write dropped after ${LIVE_MAX_ATTEMPTS} failed attempts — resetting that row to server truth`);
+  await reconcileLiveCell(context, item.entry, item.table, `backend unavailable (${LIVE_MAX_ATTEMPTS} attempts)`);
   return false;
 }
 
@@ -86,7 +90,7 @@ async function sendCellSingle(context: LiveCellWriteContext, item: ReadyCell): P
   // single-op DTO is forbidNonWhitelisted: sending it is a guaranteed 400.
   const { resource: _txnOnly, ...body } = item.op;
   const result = await writeLiveTableOp(context.dbId, item.entry.table, body);
-  if (result.status === 0 || result.status >= 500) return keepOrGiveUp(context, item.entry.id);
+  if (result.status === 0 || result.status >= 500) return keepOrGiveUp(context, item);
   context.queue.remove([item.entry.id]);
   if (result.status >= 200 && result.status < 300) {
     const affected = (result.body as LiveRowsResponse | null)?.affected_rows ?? 1;
@@ -102,7 +106,6 @@ async function sendCellSingle(context: LiveCellWriteContext, item: ReadyCell): P
 export async function drainLiveCells(
   context: LiveCellWriteContext,
   cells: LiveCellEntry[],
-  schema: LiveSchemaResponse,
   tables: Map<string, LiveTableSchema>,
 ): Promise<boolean> {
   const ready: ReadyCell[] = [];
@@ -115,42 +118,12 @@ export async function drainLiveCells(
       op: 'update', resource: entry.table, filter: livePkFilter(table, entry.pk), data, idempotencyKey: entry.id,
     } });
   }
-  if (!TXN_ENGINES.has(schema.engine)) {
-    for (const item of ready) {
-      if (await sendCellSingle(context, item)) return true;
-    }
-    return false;
-  }
-  for (let start = 0; start < ready.length; start += TXN_MAX_OPS) {
-    const chunk = ready.slice(start, start + TXN_MAX_OPS);
-    const result = await postLiveTxn(context.dbId, chunk.map((item) => item.op));
-    if (result.status >= 200 && result.status < 300) {
-      const rowCounts = (result.body as { results?: { rowCount?: number }[] } | null)?.results ?? [];
-      for (const [index, item] of chunk.entries()) {
-        context.queue.remove([item.entry.id]);
-        if ((rowCounts[index]?.rowCount ?? 1) === 0) {
-          await reconcileLiveCell(context, item.entry, item.table, 'row vanished or not owned');
-        }
-      }
-    } else if (result.status === 409 && chunk.length > 1) {
-      for (const item of chunk) {
-        if (await sendCellSingle(context, item)) return true; // isolate the conflicting row
-      }
-    } else if (result.status === 0 || result.status >= 500) {
-      // Transient — note one failure per chunk entry; if any survive, back
-      // off with them; if the whole chunk burned out, move on (dropped).
-      let surviving = false;
-      for (const item of chunk) {
-        if (keepOrGiveUp(context, item.entry.id)) surviving = true;
-      }
-      if (surviving) return true;
-    } else {
-      const reason = result.status === 409 ? 'server constraint' : `rejected (HTTP ${result.status})`;
-      for (const item of chunk) {
-        context.queue.remove([item.entry.id]);
-        await reconcileLiveCell(context, item.entry, item.table, reason);
-      }
-    }
+  // Every engine: one single-op UPDATE per cell (sendCellSingle strips the
+  // `resource` field and rides the table in the URL). No `/txn` batch — its
+  // data-plane pinned-transaction step intermittently 502'd and rolled the
+  // whole batch back, which is what reverted the user's edits.
+  for (const item of ready) {
+    if (await sendCellSingle(context, item)) return true;
   }
   return false;
 }

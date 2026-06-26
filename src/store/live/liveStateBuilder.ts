@@ -44,6 +44,10 @@ import {
 /** Deterministic fallback when a row has no parseable timestamp column. */
 export const LIVE_EPOCH_ISO = '1970-01-01T00:00:00.000Z';
 const LIVE_EDITOR = 'live';
+/** Show every preloaded live row at once — the table view virtualizes, so the
+ *  legacy 50-row "Load more" cap is unnecessary here (must stay ≥ the adapter's
+ *  MAX_PRELOAD_ROWS so nothing is hidden behind a Load-more button). */
+const LIVE_TABLE_LOAD_LIMIT = 5000;
 
 function rowTimestamp(row: Record<string, unknown>, names: string[]): string {
   for (const name of names) {
@@ -86,7 +90,7 @@ export function buildLiveViews(database: DatabaseSchema): Record<string, ViewCon
     filterConjunction: 'and',
     sorts: [],
     visibleProperties,
-    settings: { showRowNumbers: true, openPagesIn: 'side_peek' },
+    settings: { showRowNumbers: true, openPagesIn: 'side_peek', loadLimit: LIVE_TABLE_LOAD_LIMIT },
   }];
   const ref = parseLiveDatabaseId(database.id);
   const presetViews = ref ? buildLivePresetViews(database, ref) : [];
@@ -106,6 +110,24 @@ export function buildLiveViews(database: DatabaseSchema): Record<string, ViewCon
       grouping: { propertyId: groupProperty.id },
       visibleProperties,
       settings: { openPagesIn: 'side_peek' },
+    });
+  }
+  // A derived/detected place property (lat-lng pair or country centroid) makes
+  // the table mappable — offer the Map view unless a preset already added one.
+  const placeProps = Object.values(database.properties).filter((property) => property.type === 'place');
+  if (placeProps.length > 0 && !views.some((view) => view.type === 'map')) {
+    // Prefer the precise lat/lng-derived __place; else the first place column.
+    const mapBy = (placeProps.find((property) => property.id === LIVE_PLACE_PROPERTY_ID) ?? placeProps[0]).id;
+    views.push({
+      id: `${database.id}#map`,
+      databaseId: database.id,
+      name: 'Map',
+      type: 'map',
+      filters: [],
+      filterConjunction: 'and',
+      sorts: [],
+      visibleProperties,
+      settings: { openPagesIn: 'side_peek', mapBy },
     });
   }
   return Object.fromEntries(views.map((view) => [view.id, view]));

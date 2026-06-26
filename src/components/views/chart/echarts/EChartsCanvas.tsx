@@ -45,6 +45,20 @@ echarts.use([
   VisualMapComponent, CalendarComponent, SingleAxisComponent, SVGRenderer,
 ]);
 
+/** echarts/zrender parses colors itself and cannot read CSS `var(--…)` (the
+ *  default palette is CSS variables — fine for recharts' DOM/SVG, but echarts
+ *  warns "should have a component …" and drops to defaults). Resolve them
+ *  against the chart element's computed style before setOption. Pure-ish. */
+function resolveCssVarColors(colors: readonly string[], el: Element | null): string[] {
+  if (typeof window === 'undefined') return [...colors];
+  const style = getComputedStyle(el ?? document.documentElement);
+  return colors.map((color) => {
+    const match = /^var\(\s*(--[\w-]+)\s*(?:,\s*([^)]+))?\)$/.exec(color.trim());
+    if (!match) return color;
+    return style.getPropertyValue(match[1]).trim() || (match[2]?.trim() ?? color);
+  });
+}
+
 export interface EChartsCanvasProps {
   viewId: string;
   result: ChartResult;
@@ -77,7 +91,8 @@ export default function EChartsCanvas({ viewId, result, settings }: Readonly<ECh
     if (!chart) return;
     const def = getChartTypeDef(settings.chartType);
     const option = buildEChartsOption({
-      result, settings, def, colors: paletteColors(settings.colorPalette),
+      result, settings, def,
+      colors: resolveCssVarColors(paletteColors(settings.colorPalette), hostRef.current),
     });
     chart.setOption(option as Parameters<typeof chart.setOption>[0], { notMerge: true });
   }, [result, settings]);
