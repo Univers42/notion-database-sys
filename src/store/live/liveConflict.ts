@@ -18,12 +18,14 @@
  * when even the refetch fails. The dbms host has NO toast system (its only
  * error surface, dbmsError, replaces the whole view with a retry screen — far
  * too heavy for one rejected cell), so the user-facing message goes through
- * console.warn and the UI silently converges, as designed.
+ * console.warn AND the liveNotice seam (the app surfaces a toast) while the UI
+ * silently converges to server truth.
  */
 
 import type { ChangeEvent } from '../../component/types';
 import { buildLiveDatabase, buildLivePage } from './liveStateBuilder';
 import { livePkFilter, writeLiveTableOp } from './liveWriteClient';
+import { emitLiveWriteNotice } from './liveNotice';
 import { formatLivePageId, type LiveMountRef, type LiveTableSchema } from './liveTypes';
 
 export interface LiveConflictOutcome {
@@ -72,6 +74,7 @@ export async function resolveLiveConflict(
     emit({ type: 'state-replaced' });
     outcome = { resolution: 'unknown', message: conflictMessage(mount.table, 'unknown', reason) };
   }
+  emitLiveWriteNotice({ table: mount.table, message: outcome.message, resolution: outcome.resolution });
   console.warn(`[live-db] ${outcome.message}`);
   return outcome;
 }

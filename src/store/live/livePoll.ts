@@ -42,7 +42,7 @@ export interface LivePollDeps {
 export function isPermanentDenial(error: unknown): boolean {
   const e = error as { status?: number; statusCode?: number; message?: unknown } | null;
   const status = e?.status ?? e?.statusCode;
-  if (status === 403 || status === 401) return true;
+  if (status === 403 || status === 401 || status === 503) return true;
   return typeof e?.message === 'string' && /accessible workspace|forbidden|unauthor|HTTP 40[13]/i.test(e.message);
 }
 

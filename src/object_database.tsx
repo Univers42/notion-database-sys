@@ -448,14 +448,24 @@ function useAdapterStatePersistence(adapter: ObjectDatabaseAdapter, storeApi: Da
     if (!persistState) return undefined;
 
     let timer: ReturnType<typeof setTimeout> | null = null;
+    // The store state from BEFORE the first edit of the current debounce window.
+    // Rapid edits coalesce into one persistState; diffing against the LAST
+    // `previous` (which already holds the earlier optimistic edits) would lose
+    // every changed row but the last — so snapshot the window's true baseline
+    // once and reuse it until the timer fires.
+    let baseline: Pick<NotionState, 'databases' | 'pages' | 'views'> | null = null;
     const unsubscribe = storeApi.subscribe((state, previous) => {
       if (state.activeDbmsSource !== 'adapter') return;
       if (state.databases === previous.databases && state.pages === previous.pages && state.views === previous.views) return;
+      if (!timer) baseline = { databases: previous.databases, pages: previous.pages, views: previous.views };
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
+        timer = null;
+        const base = baseline ?? { databases: previous.databases, pages: previous.pages, views: previous.views };
+        baseline = null;
         persistState(
           { databases: state.databases, pages: state.pages, views: state.views },
-          { databases: previous.databases, pages: previous.pages, views: previous.views },
+          base,
         );
       }, 150);
     });

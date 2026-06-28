@@ -81,6 +81,7 @@ export function BoardView() {
     const pageId = e.dataTransfer.getData('text/plain');
     if (pageId && groupProperty) {
       const newValue = groupId === '__unassigned__' ? null : groupId;
+      if (newValue === null && groupProperty.nullable === false) return;
       updatePageProperty(pageId, groupProperty.id, newValue);
     }
   };

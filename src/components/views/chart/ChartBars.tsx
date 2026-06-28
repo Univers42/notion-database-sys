@@ -74,7 +74,7 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
   );
 
   return (
-    <ResponsiveContainer width="100%" height="100%" minHeight={120}>
+    <ResponsiveContainer width="100%" height="100%" minHeight={120} debounce={50}>
       <BarChart data={rows} layout={horizontal ? 'vertical' : 'horizontal'}
         margin={{ top: 12, right: 16, bottom: 8, left: 8 }}
         onClick={chartClick} style={{ cursor: 'pointer' }}>

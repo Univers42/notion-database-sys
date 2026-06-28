@@ -80,10 +80,13 @@ export interface LiveSchemaResponse {
   tables: LiveTableSchema[];
 }
 
-/** `POST /query/v1/:dbId/tables/:table` response (`DataResult`). */
+/** `POST /query/v1/:dbId/tables/:table` response (`DataResult`). The internal
+ *  query-router returns `rowCount` for writes; the public `/query/v1` contract
+ *  returns `affected_rows`. A consumer must accept EITHER (see liveCellWrites). */
 export interface LiveRowsResponse {
   rows: Record<string, unknown>[];
-  affected_rows: number;
+  affected_rows?: number;
+  rowCount?: number;
   next_cursor?: string | null;
 }
 

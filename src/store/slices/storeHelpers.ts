@@ -74,7 +74,9 @@ export function buildGroups(
 ): { groupId: string; groupLabel: string; groupColor: string; pages: Page[] }[] {
   if ((groupProp.type === 'select' || groupProp.type === 'status') && groupProp.options) {
     const groups = [
-      { groupId: '__unassigned__', groupLabel: 'No ' + groupProp.name, groupColor: 'bg-surface-muted text-ink-body', pages: [] as Page[] },
+      ...(groupProp.nullable !== false
+        ? [{ groupId: '__unassigned__', groupLabel: 'No ' + groupProp.name, groupColor: 'bg-surface-muted text-ink-body', pages: [] as Page[] }]
+        : []),
       ...groupProp.options.map(opt => ({ groupId: opt.id, groupLabel: opt.value, groupColor: opt.color, pages: [] as Page[] })),
     ];
     const gm = new Map(groups.map(g => [g.groupId, g]));

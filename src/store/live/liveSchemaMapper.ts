@@ -88,7 +88,7 @@ export function pickTitleColumn(table: LiveTableSchema): string {
 
 /** One live column → one notion property (id = column name). */
 export function mapLiveColumn(column: LiveColumnSchema, dbId: string): SchemaProperty {
-  const base: SchemaProperty = { id: column.name, name: humanizeName(column.name), type: 'text' };
+  const base: SchemaProperty = { id: column.name, name: humanizeName(column.name), type: 'text', nullable: column.nullable };
   if (column.references) {
     return {
       ...base,

@@ -56,8 +56,11 @@ export function encodeLiveCellData(
   for (const [column, raw] of Object.entries(data)) {
     const property = properties[column];
     if (!property) continue;
-    const encoded = encodeLiveValue(raw, property, table.columns.find((candidate) => candidate.name === column));
-    if (encoded !== undefined) out[column] = encoded;
+    const col = table.columns.find((candidate) => candidate.name === column);
+    const encoded = encodeLiveValue(raw, property, col);
+    if (encoded === undefined) continue;
+    if (encoded === null && col?.nullable === false) continue;
+    out[column] = encoded;
   }
   return out;
 }
@@ -93,7 +96,8 @@ async function sendCellSingle(context: LiveCellWriteContext, item: ReadyCell): P
   if (result.status === 0 || result.status >= 500) return keepOrGiveUp(context, item);
   context.queue.remove([item.entry.id]);
   if (result.status >= 200 && result.status < 300) {
-    const affected = (result.body as LiveRowsResponse | null)?.affected_rows ?? 1;
+    const body = result.body as LiveRowsResponse | null;
+    const affected = body?.affected_rows ?? body?.rowCount ?? 1;
     if (affected === 0) await reconcileLiveCell(context, item.entry, item.table, 'row vanished or not owned');
     return false;
   }

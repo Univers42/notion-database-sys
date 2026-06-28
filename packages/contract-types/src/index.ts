@@ -230,6 +230,7 @@ export interface SchemaProperty {
   name: string;
   type: PropertyType;
   icon?: string;
+  nullable?: boolean;
   options?: SelectOption[];
   statusGroups?: StatusGroup[];
   formulaConfig?: FormulaConfig;
