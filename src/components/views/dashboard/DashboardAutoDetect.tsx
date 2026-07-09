@@ -71,12 +71,15 @@ export function useComputedData(pages: { updatedAt: string; properties: Record<s
 }
 
 /** Auto-detected stats dashboard: stat cards + main select chart + recents. */
-export function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageTitle }: Readonly<{
+export function AutoDetectDashboard({ pages, allProps, computedData, openPage, getPageTitle, responsive = false }: Readonly<{
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
   allProps: { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }[];
   computedData: ComputedData;
   openPage: (id: string) => void;
   getPageTitle: (page: { properties: Record<string, unknown> }) => string;
+  /** "Responsive layout" view setting: columns follow the CONTAINER width —
+   *  viewport breakpoints lie inside inline embeds and slim panes. */
+  responsive?: boolean;
 }>) {
   const checkboxProps = allProps.filter(p => p.type === 'checkbox');
   const numberProps = allProps.filter(p => p.type === 'number');
@@ -91,7 +94,9 @@ export function AutoDetectDashboard({ pages, allProps, computedData, openPage, g
   return (
     <div className={cn("flex-1 overflow-auto p-6 bg-surface-secondary")}>
       <div className={cn("max-w-6xl mx-auto flex flex-col gap-6")}>
-        <div className={cn("grid grid-cols-2 md:grid-cols-4 gap-4")}>
+        <div className={cn(responsive
+          ? "grid grid-cols-1 @xl:grid-cols-2 @4xl:grid-cols-4 gap-4"
+          : "grid grid-cols-2 md:grid-cols-4 gap-4")}>
           <StatCard icon={<Hash className={cn("w-5 h-5")} />} label="Total Records" value={pages.length} color="blue" />
           <StatCard icon={<Clock className={cn("w-5 h-5")} />} label="Updated This Week" value={computedData.recentCount} color="purple" />
           {checkboxProps.length > 0 ? (
@@ -109,7 +114,9 @@ export function AutoDetectDashboard({ pages, allProps, computedData, openPage, g
           )}
         </div>
 
-        <div className={cn("grid grid-cols-1 lg:grid-cols-3 gap-6")}>
+        <div className={cn(responsive
+          ? "grid grid-cols-1 @4xl:grid-cols-3 gap-6"
+          : "grid grid-cols-1 lg:grid-cols-3 gap-6")}>
           {mainSelectProp && mainSelectData.length > 0 && (
             <div className={cn("bg-surface-primary rounded-xl border border-line p-5")}>
               <h3 className={cn("text-sm font-semibold text-ink mb-4")}>By {mainSelectProp.name}</h3>
@@ -122,7 +129,7 @@ export function AutoDetectDashboard({ pages, allProps, computedData, openPage, g
               <NumberSummaryWidget numberProps={numberProps as SchemaProperty[]} numberAggs={computedData.numberAggs} />
             </div>
           )}
-          <div className={cn(`bg-surface-primary rounded-xl border border-line p-5 ${!mainSelectData.length && !numberProps.length ? 'lg:col-span-3' : ''}`)}>
+          <div className={cn(`bg-surface-primary rounded-xl border border-line p-5 ${!mainSelectData.length && !numberProps.length ? (responsive ? '@4xl:col-span-3' : 'lg:col-span-3') : ''}`)}>
             <h3 className={cn("text-sm font-semibold text-ink mb-4")}>Recent Activity</h3>
             <RecentList pages={recentPages} openPage={openPage} getPageTitle={getPageTitle} />
           </div>

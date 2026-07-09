@@ -18,7 +18,7 @@ import {
 } from './TimelineViewHelpers';
 import type { DragKind, DragState } from './timelineTypes';
 import { RESIZE_HANDLE_WIDTH, BAR_V_PADDING } from './timelineTypes';
-import { computeBarMeta, computeDragOverrides, BarContent, BarTooltip } from './TimelineBarComponents';
+import { computeBarMeta, computeDragOverrides, BarContent, BarTooltip, LiveDragLabel } from './TimelineBarComponents';
 import { cn } from '../../../utils/cn';
 
 interface TimelineRowProps {
@@ -35,7 +35,10 @@ interface TimelineRowProps {
   readonly setHoverRow: (id: string | null) => void;
   readonly days: Date[];
   readonly todayIdx: number;
-  readonly handleGridCellClick: (dayIdx: number) => void;
+  /** Grab-and-slide on a dateless lane: draw this record's date range. */
+  readonly onLaneDraw: (e: React.PointerEvent, pageId: string, dayIdx: number) => void;
+  /** Keyboard alternative: Enter/Space on a cell sets a single-day date. */
+  readonly onLaneKeySet: (pageId: string, dayIdx: number) => void;
   readonly handlePointerDown: (e: React.PointerEvent, pageId: string, kind: DragKind, bar: BarGeometry) => void;
   readonly openDatePicker: (pageId: string, rect: DOMRect) => void;
 }
@@ -43,7 +46,7 @@ interface TimelineRowProps {
 export function TimelineRow({
   page, startPropId, endPropId, startDate, config, zoomLevel,
   statusProp, getPageTitle, dragState, hoverRow, setHoverRow,
-  days, todayIdx, handleGridCellClick, handlePointerDown, openDatePicker,
+  days, todayIdx, onLaneDraw, onLaneKeySet, handlePointerDown, openDatePicker,
 }: TimelineRowProps) {
   const bar = getBarGeometry(page, startPropId, endPropId, startDate, config, zoomLevel);
   const { colorSet, statusLabel, dateLabel } = computeBarMeta(
@@ -51,6 +54,8 @@ export function TimelineRow({
   );
   const title = getPageTitle(page);
   const { isDragging, displayLeft, displayWidth } = computeDragOverrides(page.id, dragState, bar);
+  const isCreating = isDragging && dragState?.kind === 'create';
+  const laneDrawable = !bar; // a dateless record: its lane is the create surface
   const verbosity = computeBarVerbosity(displayWidth, config.cellWidth);
   const barHeight = config.rowHeight - BAR_V_PADDING * 2;
 
@@ -65,30 +70,33 @@ export function TimelineRow({
       onMouseEnter={() => setHoverRow(page.id)}
       onMouseLeave={() => setHoverRow(null)}
     >
-      {/* Background grid cells */}
+      {/* Background grid cells — interactive ONLY on a dateless lane, where a
+          press starts drawing this record's date range (click = single day). */}
       <div className={cn("absolute inset-0 flex pointer-events-none")}>
         {days.map((day, i) => (
           <div // NOSONAR - timeline grid cell pattern
             key={day.toISOString()}
-            role="gridcell"
-            tabIndex={0}
+            role={laneDrawable ? 'gridcell' : undefined}
+            tabIndex={laneDrawable ? 0 : undefined}
             className={cn(`shrink-0 border-r border-line-light h-full pointer-events-auto
-                        cursor-cell ${
+                        ${laneDrawable ? 'cursor-cell' : ''} ${
               getGridCellBg(todayIdx === i, day.getDay() === 0 || day.getDay() === 6)
             }`)}
-            style={{ width: config.cellWidth }}
-            onClick={() => handleGridCellClick(i)}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGridCellClick(i); } }}
+            style={{ width: config.cellWidth, touchAction: laneDrawable ? 'none' : undefined }}
+            onPointerDown={e => { if (laneDrawable && e.button === 0) onLaneDraw(e, page.id, i); }}
+            onKeyDown={e => { if (laneDrawable && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onLaneKeySet(page.id, i); } }}
           />
         ))}
       </div>
 
       {(bar?.visible || isDragging) && (
         <div
+          data-timeline-bar
           className={cn(`group/bar absolute z-10 flex items-center
                       ${colorSet.bg} ${colorSet.text}
                       ${bar?.isPoint && !isDragging ? 'rounded-full' : 'rounded-md'}
                       ${isDragging ? 'opacity-80 ring-2 ring-accent-border' : ''}
+                      ${isCreating ? 'border-2 border-dashed border-accent-border' : ''}
                       shadow-sm transition-shadow`)}
           style={{
             left: displayLeft,
@@ -97,6 +105,12 @@ export function TimelineRow({
             top: BAR_V_PADDING,
           }}
         >
+          {isDragging && (
+            <LiveDragLabel
+              timelineStart={startDate} displayLeft={displayLeft}
+              displayWidth={displayWidth} cellWidth={config.cellWidth}
+            />
+          )}
           <BarTooltip
             title={title || 'Untitled'}
             statusLabel={statusLabel || 'No status'}
@@ -115,6 +129,7 @@ export function TimelineRow({
           {/* Bar body */}
           <button
             type="button"
+            aria-label={`Edit dates for ${title || 'Untitled'}`}
             className={cn(`flex-1 flex items-center justify-center overflow-hidden
                         h-full ${bar?.isPoint && !isDragging
                           ? 'cursor-ew-resize'
@@ -150,13 +165,13 @@ export function TimelineRow({
         </div>
       )}
 
-      {/* No-date indicator */}
+      {/* No-date indicator — on hover it teaches the create affordance. */}
       {!bar && !isDragging && (
         <div
           className={cn("absolute left-2 text-[10px] text-ink-disabled italic z-10 pointer-events-none")}
           style={{ top: (config.rowHeight - 14) / 2 }}
         >
-          No date
+          {hoverRow === page.id ? 'No date — drag on the lane to set one' : 'No date'}
         </div>
       )}
     </div>

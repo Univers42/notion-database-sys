@@ -16,6 +16,7 @@
  */
 
 import React from 'react';
+import { Layers } from 'lucide-react';
 import { useDatabaseStore, useStoreApi } from '../../store/dbms/hardcoded/useDatabaseStore';
 import {
   EyeIcon, FilterIcon, SortIcon, ConditionalColorIcon,
@@ -49,10 +50,18 @@ export function MainSettingsScreen({
   identityProps, layoutLabel, layoutIcon, viewId, databaseId,
   visibleCount, sortCount, databaseName, setScreen, onClose,
 }: Readonly<MainSettingsScreenProps>) {
-  const { databases } = useDatabaseStore();
+  const { databases, views } = useDatabaseStore();
   const storeApi = useStoreApi();
   const [copied, setCopied] = React.useState(false);
   const locked = Boolean(databases[databaseId]?.locked);
+
+  // "Group" lives on the MAIN panel (Notion order), for every groupable view.
+  const view = views[viewId];
+  const groupable = ['table', 'board', 'gallery', 'list', 'feed', 'timeline', 'calendar']
+    .includes(view?.type ?? '');
+  const groupName = view?.grouping
+    ? databases[databaseId]?.properties[view.grouping.propertyId]?.name ?? 'None'
+    : 'None';
 
   const copyLink = () => {
     void copyViewLink(viewId).then((ok) => {
@@ -74,6 +83,10 @@ export function MainSettingsScreen({
             <SettingsRow icon={<EyeIcon />} label="Property visibility" value={String(visibleCount)} onClick={() => setScreen('propertyVisibility')} />
             <SettingsRow icon={<FilterIcon />} label="Filter" onClick={() => setScreen('filter')} />
             <SettingsRow icon={<SortIcon />} label="Sort" value={sortCount > 0 ? String(sortCount) : undefined} onClick={() => setScreen('sort')} />
+            {groupable && (
+              <SettingsRow icon={<Layers className={cn('w-5 h-5')} />} label="Group"
+                value={groupName} onClick={() => setScreen('groupBy')} />
+            )}
             <SettingsRow icon={<ConditionalColorIcon />} label="Conditional color" onClick={() => setScreen('conditionalColor')} />
             <SettingsRow icon={<CopyLinkIcon className={cn('w-5 h-5')} />} label={copied ? 'Copied!' : 'Copy link to view'} showChevron={false} onClick={copyLink} />
           </div>

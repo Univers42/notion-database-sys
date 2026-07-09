@@ -26,9 +26,9 @@ export { PROPERTY_ICON_NAMES as DEFAULT_PROPERTY_ICONS } from '../../utils/prope
 export type PanelScreen =
   | 'main' | 'layout' | 'propertyVisibility' | 'filter' | 'addFilter'
   | 'sort' | 'addSort'
-  | 'loadLimit' | 'cardPreview' | 'cardSize' | 'showCalendarBy'
+  | 'loadLimit' | 'cardPreview' | 'cardSize' | 'groupLayout' | 'showCalendarBy'
   | 'showCalendarAs' | 'showTimelineBy' | 'openPagesIn' | 'groupBy'
-  | 'mapBy' | 'source' | 'manageSources' | 'editProperties' | 'conditionalColor'
+  | 'mapBy' | 'mapSizeBy' | 'weekStartsOn' | 'source' | 'manageSources' | 'editProperties' | 'conditionalColor'
   | 'automations'
   | 'editChart' | 'chartType' | 'chartTypeGallery' | 'saveChartAs'
   | 'xAxisWhat' | 'xAxisSort'

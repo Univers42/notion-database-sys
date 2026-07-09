@@ -78,6 +78,47 @@ export function eligibleWidgetViews(
     .filter(v => v.databaseId === databaseId && v.type !== 'dashboard');
 }
 
+export interface WidgetViewGroup {
+  databaseId: string;
+  databaseName: string;
+  views: ViewConfig[];
+}
+
+/** Widget-eligible views across the WHOLE workspace, host database first —
+ *  Notion dashboards mix sources ("combine widgets from different databases"). */
+export function groupedWidgetViews(
+  views: Record<string, ViewConfig>,
+  databases: Record<string, { name?: string; properties: Record<string, SchemaProperty> }>,
+  hostDatabaseId: string,
+): { host: ViewConfig[]; others: WidgetViewGroup[] } {
+  const host: ViewConfig[] = [];
+  const byDb = new Map<string, ViewConfig[]>();
+  for (const view of Object.values(views)) {
+    if (view.type === 'dashboard') continue;
+    if (view.databaseId === hostDatabaseId) host.push(view);
+    else {
+      const list = byDb.get(view.databaseId) ?? [];
+      list.push(view);
+      byDb.set(view.databaseId, list);
+    }
+  }
+  const others: WidgetViewGroup[] = [...byDb.entries()]
+    .map(([databaseId, groupViews]) => ({
+      databaseId,
+      databaseName: (databases[databaseId] as { name?: string } | undefined)?.name ?? 'Untitled database',
+      views: groupViews,
+    }))
+    .sort((a, b) => a.databaseName.localeCompare(b.databaseName));
+  return { host, others };
+}
+
+/** Number-typed properties usable by a stat widget's sum/avg/min/max. */
+export function numberProperties(
+  properties: Record<string, SchemaProperty>,
+): SchemaProperty[] {
+  return Object.values(properties).filter(p => p.type === 'number');
+}
+
 /** Properties usable in the global filter bar (sorted by name). */
 export function filterableProperties(
   properties: Record<string, SchemaProperty>,

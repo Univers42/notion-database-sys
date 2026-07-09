@@ -17,6 +17,7 @@ import {
 import { VIEW_META, LAYOUT_ORDER } from './constants';
 import { SubPanelHeader, CardLayoutPicker } from './SubComponents';
 import type { PanelScreen } from './constants';
+import { MAP_MODE_LABEL, type MapDisplayMode } from '../views/map/mapModes';
 import type { ViewType, SchemaProperty, ViewSettings } from '../../types/database';
 import { cn } from '../../utils/cn';
 
@@ -35,6 +36,10 @@ export interface LayoutScreenProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateSetting: (key: string, val: any) => void;
 }
+
+// Record-list views where a page-size "Limit" is meaningful (spatial views —
+// calendar/map — and charts show by time/geometry, not by row count).
+const LIMIT_VIEW_TYPES: ReadonlySet<string> = new Set(['table', 'board', 'gallery', 'list', 'feed', 'timeline']);
 
 function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, updateSetting }: Readonly<LayoutScreenProps>) {
   const groupName = grouping ? allProps.find(p => p.id === grouping.propertyId)?.name : 'None';
@@ -71,6 +76,7 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
             onClick={() => setScreen('showTimelineBy')} />
           <ToggleSettingRow label="Separate start and end dates" checked={!!settings.separateStartEndDates} onChange={v => updateSetting('separateStartEndDates', v)} />
           <ToggleSettingRow label="Show table" checked={settings.showTable !== false} onChange={v => updateSetting('showTable', v)} />
+          <NavSettingRow label="Group by" value={groupName} onClick={() => setScreen('groupBy')} />
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
         </>
       );
@@ -84,13 +90,31 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
             onClick={() => setScreen('showCalendarBy')} />
           <NavSettingRow label="Show calendar as" value={settings.calendarMode || 'Month'} onClick={() => setScreen('showCalendarAs')} />
           <ToggleSettingRow label="Show weekends" checked={settings.showWeekends !== false} onChange={v => updateSetting('showWeekends', v)} />
+          <NavSettingRow label="Start week on" value={settings.weekStartsOn === 0 ? 'Sunday' : 'Monday'} onClick={() => setScreen('weekStartsOn')} />
+          <ToggleSettingRow label="Show week numbers" checked={!!settings.showWeekNumbers} onChange={v => updateSetting('showWeekNumbers', v)} />
+          <NavSettingRow label="Group by" value={groupName} onClick={() => setScreen('groupBy')} />
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
         </>
       );
     case 'list':
+      return (
+        <>
+          <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
+          <NavSettingRow label="Group by" value={groupName} onClick={() => setScreen('groupBy')} />
+          {grouping && (
+            <NavSettingRow label="Group layout"
+              value={settings.groupLayout === 'sidebar' ? 'Side panel' : 'Stacked'}
+              onClick={() => setScreen('groupLayout')} />
+          )}
+          <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
+        </>
+      );
     case 'dashboard':
       return (
         <>
+          {/* Stacks widget rows earlier (count-aware) when the container is
+              too narrow for them to read — inline embeds, slim panes. */}
+          <ToggleSettingRow label="Responsive layout" checked={!!settings.responsiveLayout} onChange={v => updateSetting('responsiveLayout', v)} />
           <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
         </>
@@ -100,6 +124,12 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
         <>
           <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
           <ToggleSettingRow label="Wrap all content" checked={!!settings.wrapContent} onChange={v => updateSetting('wrapContent', v)} />
+          <NavSettingRow label="Group by" value={groupName} onClick={() => setScreen('groupBy')} />
+          {grouping && (
+            <NavSettingRow label="Group layout"
+              value={settings.groupLayout === 'sidebar' ? 'Side panel' : 'Stacked'}
+              onClick={() => setScreen('groupLayout')} />
+          )}
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
           <MenuDivider />
           <NavSettingRow label="Card preview" value={settings.cardPreview || 'None'} onClick={() => setScreen('cardPreview')} />
@@ -115,13 +145,40 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
           <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
           <ToggleSettingRow label="Wrap properties" checked={!!settings.wrapProperties} onChange={v => updateSetting('wrapProperties', v)} />
           <ToggleSettingRow label="Show author byline" checked={settings.showAuthorByline !== false} onChange={v => updateSetting('showAuthorByline', v)} />
+          <NavSettingRow label="Group by" value={groupName} onClick={() => setScreen('groupBy')} />
+          {grouping && (
+            <NavSettingRow label="Group layout"
+              value={settings.groupLayout === 'sidebar' ? 'Side panel' : 'Stacked'}
+              onClick={() => setScreen('groupLayout')} />
+          )}
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
-          <NavSettingRow label="Load limit" value={String(settings.loadLimit || 50)} onClick={() => setScreen('loadLimit')} />
         </>
       );
-    case 'map':
+    case 'map': {
+      const mode = settings.mapDisplayMode ?? 'pins';
       return (
         <>
+          <div className={cn("px-2 py-1.5")}>
+            <div className={cn("text-xs text-ink-muted mb-1.5")}>Display as</div>
+            <div className={cn("grid grid-cols-4 gap-1")} role="radiogroup" aria-label="Map display mode">
+              {(Object.entries(MAP_MODE_LABEL) as [MapDisplayMode, string][]).map(([value, label]) => (
+                <button key={value} type="button" role="radio" aria-checked={mode === value}
+                  onClick={() => updateSetting('mapDisplayMode', value)}
+                  className={cn(`px-1 py-1.5 text-[11px] rounded-md border transition-colors ${
+                    mode === value
+                      ? 'border-accent-border bg-accent-soft text-accent-text font-medium'
+                      : 'border-line text-ink-secondary hover:bg-hover-surface'
+                  }`)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {(mode === 'heat' || mode === 'bubbles') && (
+            <NavSettingRow label="Size by"
+              value={settings.mapSizeBy ? allProps.find(p => p.id === settings.mapSizeBy)?.name || 'Count' : 'Count'}
+              onClick={() => setScreen('mapSizeBy')} />
+          )}
           <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
           <NavSettingRow label="Map by"
             value={settings.mapBy ? allProps.find(p => p.id === settings.mapBy)?.name : 'Place'}
@@ -129,6 +186,7 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
         </>
       );
+    }
     default:
       return null;
   }
@@ -159,6 +217,11 @@ export function LayoutScreen(props: Readonly<LayoutScreenProps>) {
         </div>
         <div className={cn("flex flex-col gap-px px-2 py-2")}>
           <PerViewSettings {...props} />
+          {LIMIT_VIEW_TYPES.has(viewType) && (
+            <NavSettingRow label="Limit"
+              value={settings.loadLimit === 0 ? 'All' : String(settings.loadLimit || 50)}
+              onClick={() => setScreen('loadLimit')} />
+          )}
         </div>
         {(viewType === 'board' || viewType === 'gallery') && (
           <CardLayoutPicker

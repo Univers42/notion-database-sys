@@ -10,10 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useRef, useMemo } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useRef, useMemo, useState } from 'react';
 import {
-  Trash2, MoreHorizontal, Download, Upload, Printer, ChevronDown,
+  Trash2, MoreHorizontal, Download, Upload, Printer,
 } from 'lucide-react';
 import {
   CopyLinkIcon, DuplicateIcon, ExternalLinkIcon, PencilIcon,
@@ -63,41 +62,87 @@ export function ExtraActionsMenu({ show, onToggle, onClose }: Readonly<{
   );
 }
 
+const ICON_CHOICES = [
+  '📊', '📋', '🗂️', '📁', '🗃️', '📈', '🧮', '📅', '✅', '📝', '🎯', '🏷️',
+  '👥', '💼', '🛒', '📦', '💡', '🧪', '🚀', '⭐', '🔥', '🧭', '🗺️', '🎨',
+];
+
+/** Compact emoji grid for the database icon (opens from "Edit icon"). */
+function IconGrid({ onPick }: Readonly<{ onPick: (icon: string) => void }>) {
+  return (
+    <div className={cn("grid grid-cols-6 gap-0.5 p-2")}>
+      {ICON_CHOICES.map((emoji) => (
+        <button key={emoji} type="button" onClick={() => onPick(emoji)} aria-label={`Set icon ${emoji}`}
+          className={cn("flex h-8 w-8 items-center justify-center rounded-lg text-lg hover:bg-hover-surface transition-colors")}>
+          {emoji}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /** Renders the per-view context menu in the view tabs row (rename, duplicate, delete). */
 export function ViewDotsMenu({
   show, onToggle, onClose, containerRef,
   onDuplicate, onEditTitle, onEditLayout, isHoverVisible: _isHoverVisible,
+  viewId, onViewSource, onSetIcon, onToggleTitle, titleHidden,
 }: Readonly<{
   show: boolean; onToggle: () => void; onClose: () => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
   onDuplicate: () => void; onEditTitle: () => void; onEditLayout: () => void;
   isHoverVisible: boolean;
+  /** Active view id — enables "Copy link to view". */
+  viewId?: string;
+  /** Open the database's origin surface ("View data source"). */
+  onViewSource?: () => void;
+  /** Set the database icon (emoji) — enables "Edit icon". */
+  onSetIcon?: (icon: string) => void;
+  /** Toggle the inline title visibility ("Hide title"/"Show title"). */
+  onToggleTitle?: () => void;
+  titleHidden?: boolean;
 }>) {
+  const [showIconGrid, setShowIconGrid] = useState(false);
+
   const sections: PanelSection[] = useMemo(() => [
     {
       items: [
-        { icon: <CopyLinkIcon />, label: 'Copy link to view', onClick: onClose },
+        {
+          icon: <CopyLinkIcon />, label: 'Copy link to view',
+          onClick: () => {
+            if (viewId) navigator.clipboard?.writeText(globalThis.location.href + '?view=' + viewId);
+            onClose();
+          },
+        },
         { icon: <DuplicateIcon />, label: 'Duplicate view', onClick: onDuplicate },
       ],
     },
     {
       items: [
-        { icon: <ExternalLinkIcon />, label: 'View data source', onClick: onClose },
+        {
+          icon: <ExternalLinkIcon />, label: 'View data source',
+          onClick: () => { onViewSource?.(); onClose(); },
+        },
         { icon: <PencilIcon />, label: 'Edit title', onClick: onEditTitle },
-        { icon: <EmojiFaceIcon />, label: 'Edit icon', onClick: onClose },
+        {
+          icon: <EmojiFaceIcon />, label: 'Edit icon',
+          onClick: onSetIcon ? () => setShowIconGrid(true) : onClose,
+        },
         { icon: <LayoutIcon />, label: 'Edit layout', onClick: onEditLayout },
       ],
     },
     {
       items: [
-        { icon: <EyeSlashIcon />, label: 'Hide title', onClick: onClose },
+        {
+          icon: <EyeSlashIcon />, label: titleHidden ? 'Show title' : 'Hide title',
+          onClick: () => { onToggleTitle?.(); onClose(); },
+        },
       ],
     },
-  ], [onClose, onDuplicate, onEditTitle, onEditLayout]);
+  ], [onClose, onDuplicate, onEditTitle, onEditLayout, viewId, onViewSource, onSetIcon, onToggleTitle, titleHidden]);
 
   return (
     <div className={cn("relative")} ref={containerRef}>
-      <button onClick={onToggle} aria-label="More options"
+      <button onClick={() => { setShowIconGrid(false); onToggle(); }} aria-label="More options"
         className={cn(`flex items-center px-1.5 py-1.5 text-sm rounded-lg transition-all
           ${show
             ? 'bg-surface-tertiary text-ink-body-light opacity-100'
@@ -107,85 +152,15 @@ export function ViewDotsMenu({
       </button>
       {show && (
         <div className={cn("absolute top-full left-0 mt-1 z-50")}>
-          <ActionPanel sections={sections} width={240} />
+          {showIconGrid && onSetIcon ? (
+            <div className={cn("bg-surface-primary border border-line rounded-xl shadow-lg overflow-hidden")}>
+              <IconGrid onPick={(icon) => { onSetIcon(icon); setShowIconGrid(false); onClose(); }} />
+            </div>
+          ) : (
+            <ActionPanel sections={sections} width={240} />
+          )}
         </div>
       )}
     </div>
-  );
-}
-
-/** Renders the active view dropdown menu with layout and configuration options. */
-export function ActiveViewMenu({
-  show, onClose, btnRef, menuRef, view, dbViewsLength,
-  onRename, onEditView, onDuplicate, onDelete,
-}: {
-  show: boolean; onClose: () => void;
-  btnRef: React.RefObject<HTMLButtonElement | null>;
-  menuRef: React.RefObject<HTMLDivElement | null>;
-  view: { id: string; name: string };
-  dbViewsLength: number;
-  onRename: () => void; onEditView: () => void;
-  onDuplicate: () => void; onDelete: () => void;
-}) {
-  useOutsideClick(menuRef, show, onClose);
-
-  if (!show || !btnRef.current) return null;
-  const btnRect = btnRef.current.getBoundingClientRect();
-
-  return createPortal(
-    <>
-      <button type="button" className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={onClose} tabIndex={-1} aria-label="Close menu" />
-      <div ref={menuRef}
-        className={cn("fixed z-[9999] w-[220px] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden")}
-        style={{ top: btnRect.bottom + 4, left: btnRect.left }}>
-        <div className={cn("flex flex-col")}>
-          <div className={cn("p-1 flex flex-col gap-px")}>
-            <button onClick={onRename}
-              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
-              <PencilIcon className={cn("w-4 h-4")} /> Rename
-            </button>
-            <button onClick={onEditView}
-              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
-              <LayoutIcon className={cn("w-4 h-4")} /> Edit view
-            </button>
-            <button onClick={onClose}
-              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
-              <ExternalLinkIcon className={cn("w-4 h-4")} />
-              <span className={cn("flex-1 text-left")}>Source</span>
-              <ChevronDown className={cn("w-3 h-3 text-ink-muted -rotate-90")} />
-            </button>
-          </div>
-          <div className={cn("mx-3 h-px bg-surface-tertiary")} />
-          <div className={cn("p-1 flex flex-col gap-px")}>
-            <button onClick={() => { navigator.clipboard?.writeText(globalThis.location.href + '?view=' + view.id); onClose(); }}
-              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
-              <CopyLinkIcon className={cn("w-4 h-4")} /> Copy link to view
-            </button>
-            <button onClick={onClose}
-              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
-              <ExternalLinkIcon className={cn("w-4 h-4")} /> Open source database
-            </button>
-            <button onClick={onClose}
-              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
-              <EyeSlashIcon className={cn("w-4 h-4")} /> Hide data source titles
-            </button>
-          </div>
-          <div className={cn("mx-3 h-px bg-surface-tertiary")} />
-          <div className={cn("p-1 flex flex-col gap-px")}>
-            <button onClick={onDuplicate}
-              className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors")}>
-              <DuplicateIcon className={cn("w-4 h-4")} /> Duplicate view
-            </button>
-            {dbViewsLength > 1 && (
-              <button onClick={onDelete}
-                className={cn("w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-danger-text hover:bg-hover-danger transition-colors")}>
-                <Trash2 className={cn("w-3.5 h-3.5")} /> Delete view
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </>,
-    document.body
   );
 }

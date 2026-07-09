@@ -36,6 +36,9 @@ export interface DatabaseState {
   // Database CRUD
   renameDatabase: (databaseId: string, name: string) => void;
   updateDatabaseIcon: (databaseId: string, icon: string) => void;
+  setDefaultTemplate: (databaseId: string, templateId?: string) => void;
+  /** Copy a property (definition, options AND cell values), inserted right of the original. */
+  duplicateProperty: (databaseId: string, propertyId: string, viewId: string) => void;
 
   // Page CRUD
   addPage: (databaseId: string, properties?: Record<string, PropertyValue>) => string;
@@ -43,6 +46,12 @@ export interface DatabaseState {
   deletePage: (pageId: string) => void;
   duplicatePage: (pageId: string) => void;
   updatePageContent: (pageId: string, content: Block[]) => void;
+  /** Set page display meta (icon / cover). An undefined value clears the field. */
+  updatePageMeta: (pageId: string, meta: { icon?: string; cover?: string }) => void;
+  /** Create a template page (hidden from views). Returns its id. */
+  addTemplatePage: (databaseId: string) => string;
+  /** Instantiate a template into a real record. Returns the new page id. */
+  createPageFromTemplate: (templateId: string) => string;
   changeBlockType: (pageId: string, blockId: string, newType: Block['type']) => void;
   insertBlock: (pageId: string, afterBlockId: string | null, block: Block) => void;
   deleteBlock: (pageId: string, blockId: string) => void;
@@ -53,14 +62,17 @@ export interface DatabaseState {
 
   // Inline Database Creation
   createInlineDatabase: (name?: string) => { databaseId: string; viewId: string };
+  /** Materialize a host-minted database id (no-op when it already exists). */
+  ensureInlineDatabase: (databaseId: string, viewId?: string, name?: string) => void;
 
   // View CRUD
-  addView: (view: Omit<ViewConfig, 'id'>) => void;
+  addView: (view: Omit<ViewConfig, 'id'>) => string;
   updateView: (viewId: string, updates: Partial<ViewConfig>) => void;
   updateViewSettings: (viewId: string, settings: Partial<ViewSettings>) => void;
   deleteView: (viewId: string) => void;
   duplicateView: (viewId: string) => void;
   setActiveView: (viewId: string) => void;
+  reorderViews: (databaseId: string, orderedIds: string[]) => void;
 
   // Filter / Sort / Group
   addFilter: (viewId: string, filter: Omit<Filter, 'id'>) => void;
@@ -75,7 +87,7 @@ export interface DatabaseState {
   setGrouping: (viewId: string, grouping: Grouping | undefined) => void;
 
   // Property Management
-  addProperty: (databaseId: string, name: string, type: PropertyType) => void;
+  addProperty: (databaseId: string, name: string, type: PropertyType) => string;
   insertPropertyAt: (databaseId: string, name: string, type: PropertyType, viewId: string, afterPropId: string | null) => void;
   updateProperty: (databaseId: string, propertyId: string, updates: Partial<SchemaProperty>) => void;
   deleteProperty: (databaseId: string, propertyId: string) => void;

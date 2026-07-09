@@ -30,15 +30,26 @@ interface WidgetDragOptions {
 function collectGeometry(container: HTMLElement, widgetId: string): RowGeometry[] {
   return [...container.querySelectorAll<HTMLElement>('[data-dash-row]')].map((rowEl) => {
     const rect = rowEl.getBoundingClientRect();
-    const cells = [...rowEl.querySelectorAll<HTMLElement>('[data-dash-widget]')];
+    const cols = [...rowEl.querySelectorAll<HTMLElement>('[data-dash-col]')];
+    const slots = cols.map((colEl) => {
+      const colRect = colEl.getBoundingClientRect();
+      const cards = [...colEl.querySelectorAll<HTMLElement>('[data-dash-widget]')];
+      return {
+        left: colRect.left, right: colRect.right,
+        cards: cards.map((card) => {
+          const cardRect = card.getBoundingClientRect();
+          return { top: cardRect.top, bottom: cardRect.bottom };
+        }),
+        containsSource: cards.some((card) => card.dataset.dashWidget === widgetId),
+        soleSource: cards.length === 1 && cards[0].dataset.dashWidget === widgetId,
+      };
+    });
     return {
       rowId: rowEl.dataset.dashRow ?? '',
       top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right,
-      slots: cells.map((cell) => {
-        const cellRect = cell.getBoundingClientRect();
-        return { left: cellRect.left, right: cellRect.right };
-      }),
-      containsSource: cells.some((cell) => cell.dataset.dashWidget === widgetId),
+      slots,
+      containsSource: slots.some((slot) => slot.containsSource),
+      sourceAloneColumn: slots.some((slot) => slot.soleSource),
     };
   });
 }
@@ -56,6 +67,7 @@ function paintIndicator(indicator: HTMLElement, resolution: DropResolution): voi
     indicator.style.width = '4px';
     indicator.style.height = `${geometry.bottom - geometry.top}px`;
   } else {
+    // 'row' and 'stack' both paint a horizontal insertion bar.
     indicator.style.left = `${geometry.left}px`;
     indicator.style.top = `${geometry.y - 2}px`;
     indicator.style.width = `${geometry.right - geometry.left}px`;

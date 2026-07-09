@@ -17,6 +17,7 @@ import { randomTagColor } from '../../../constants/colors';
 import { SchemaProperty, PropertyValue } from '../../../types/database';
 import { CheckCircle2, Plus } from 'lucide-react';
 import { useCellAnchor } from '../../../hooks/useCellAnchor';
+import { useListHighlight } from '../../../hooks/useListHighlight';
 import { cn } from '../../../utils/cn';
 
 interface EditorProps {
@@ -37,6 +38,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
   const options = property.options || [];
   const filtered = options.filter(o => o.value.toLowerCase().includes(input.toLowerCase()));
   const exact = options.find(o => o.value.toLowerCase() === input.toLowerCase());
+  const { index: hi, setIndex: setHi, onArrowKey, activeRef } = useListHighlight(filtered.length);
 
   const handleSelect = (optId: string) => { onUpdate(optId); onClose(); };
 
@@ -49,7 +51,13 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') { if (exact) handleSelect(exact.id); else if (input.trim()) handleCreate(); }
+    if (onArrowKey(e)) return;
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filtered[hi]) handleSelect(filtered[hi].id);
+      else if (exact) handleSelect(exact.id);
+      else if (input.trim()) handleCreate();
+    }
     if (e.key === 'Escape') onClose();
   };
 
@@ -65,6 +73,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
             onKeyDown={e => e.stopPropagation()}>
             <div className={cn("p-2 border-b border-line-light")}>
               <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
+                aria-label="Search or create an option"
                 className={cn("w-full text-sm px-2 py-1.5 bg-surface-secondary rounded outline-none focus:ring-1 ring-ring-accent")} placeholder="Search or create..." />
             </div>
             <div className={cn("max-h-52 overflow-y-auto p-1")}>
@@ -73,9 +82,12 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
                   Clear selection
                 </button>
               )}
-              {filtered.map(opt => (
+              {filtered.map((opt, i) => (
                 <button key={opt.id} onClick={() => handleSelect(opt.id)}
-                  className={cn("w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center gap-2")}>
+                  ref={i === hi ? (activeRef as React.RefObject<HTMLButtonElement>) : undefined}
+                  aria-selected={i === hi}
+                  onMouseEnter={() => setHi(i)}
+                  className={cn(`w-full px-2 py-1.5 text-sm text-left rounded flex items-center gap-2 ${i === hi ? 'bg-hover-surface' : 'hover:bg-hover-surface'}`)}>
                   <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
                   {opt.id === value && <CheckCircle2 className={cn("w-3.5 h-3.5 text-accent-text-soft ml-auto")} />}
                 </button>
@@ -107,6 +119,7 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
   const unselected = options.filter(o => !selectedIds.includes(o.id));
   const filtered = unselected.filter(o => o.value.toLowerCase().includes(input.toLowerCase()));
   const exact = options.find(o => o.value.toLowerCase() === input.toLowerCase());
+  const { index: hi, setIndex: setHi, onArrowKey, activeRef } = useListHighlight(filtered.length);
 
   const toggle = (optId: string) => {
     const next = selectedIds.includes(optId) ? selectedIds.filter(id => id !== optId) : [...selectedIds, optId];
@@ -123,7 +136,13 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') { if (exact) toggle(exact.id); else if (input.trim()) handleCreate(); }
+    if (onArrowKey(e)) return;
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filtered[hi]) toggle(filtered[hi].id);
+      else if (exact) toggle(exact.id);
+      else if (input.trim()) handleCreate();
+    }
     if (e.key === 'Escape') onClose();
     if (e.key === 'Backspace' && !input && selectedIds.length) onUpdate(selectedIds.slice(0, -1));
   };
@@ -146,18 +165,22 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
                   return (
                     <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${opt.color}`)}>
                       {opt.value}
-                      <button onClick={() => toggle(id)} className={cn("hover:opacity-60")}>&times;</button>
+                      <button onClick={() => toggle(id)} aria-label={`Remove ${opt.value}`} className={cn("hover:opacity-60")}>&times;</button>
                     </span>
                   );
                 })}
               </div>
               <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
+                aria-label="Search or create an option"
                 className={cn("w-full text-sm px-1 py-1 outline-none bg-transparent")} placeholder={selectedIds.length ? '' : 'Search or create...'} />
             </div>
             <div className={cn("max-h-48 overflow-y-auto p-1")}>
-              {filtered.map(opt => (
+              {filtered.map((opt, i) => (
                 <button key={opt.id} onClick={() => toggle(opt.id)}
-                  className={cn("w-full px-2 py-1.5 hover:bg-hover-surface text-sm text-left rounded flex items-center")}>
+                  ref={i === hi ? (activeRef as React.RefObject<HTMLButtonElement>) : undefined}
+                  aria-selected={i === hi}
+                  onMouseEnter={() => setHi(i)}
+                  className={cn(`w-full px-2 py-1.5 text-sm text-left rounded flex items-center ${i === hi ? 'bg-hover-surface' : 'hover:bg-hover-surface'}`)}>
                   <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
                 </button>
               ))}

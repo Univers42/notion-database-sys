@@ -6,132 +6,80 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:02 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/10 00:36:01 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/07/08 10:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React from 'react';
 import { Image, ArrowUpRight } from 'lucide-react';
-import { safeDateFormat } from '../../../utils/format';
 import { CURSORS } from '../../ui/cursors';
-import type { Page, SchemaProperty, PropertyValue } from '../../../types/database';
+import { PropIcon } from '../../../constants/propertyIcons';
+import type { Page, SchemaProperty } from '../../../types/database';
 import { CARD_COVER_GRADIENTS as COVER_COLORS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
-import { safeString } from '../../../utils/safeString';
+import { CardPropertyValue, hasCardValue } from '../shared/CardPropertyValue';
+
+/** Card-size axis: column width + cover height + body density scale together. */
+const CARD_SIZES = {
+  small: { col: 'w-56', cover: 'h-16', pad: 'p-2.5', title: 'text-[13px]', icon: 'text-2xl' },
+  medium: { col: 'w-72', cover: 'h-24', pad: 'p-3', title: 'text-sm', icon: 'text-3xl' },
+  large: { col: 'w-80', cover: 'h-32', pad: 'p-3.5', title: 'text-sm', icon: 'text-4xl' },
+  xl: { col: 'w-96', cover: 'h-40', pad: 'p-4', title: 'text-[15px]', icon: 'text-5xl' },
+} as const;
+type CardSizeKey = keyof typeof CARD_SIZES;
+
+function sizeCfg(cardSize: string) {
+  return CARD_SIZES[(cardSize in CARD_SIZES ? cardSize : 'medium') as CardSizeKey];
+}
 
 /** Returns the Tailwind width class for a board column based on card size. */
 export function getColumnWidth(cardSize: string) {
-  switch (cardSize) {
-    case 'small': return 'w-56';
-    case 'large': return 'w-80';
-    case 'xl': return 'w-96';
-    default: return 'w-72';
+  return sizeCfg(cardSize).col;
+}
+
+/** Cover strip: real cover (image url OR css gradient string), else the page
+ *  icon, else a deterministic placeholder tint. Sits ABOVE the card padding. */
+function BoardCardCover({ page, coverColor, heightCls, iconCls }: Readonly<{
+  page: Page; coverColor: string; heightCls: string; iconCls: string;
+}>) {
+  const cover = typeof page.cover === 'string' ? page.cover : '';
+  if (cover.includes('gradient(')) {
+    return <div className={cn(`${heightCls} w-full shrink-0`)} style={{ backgroundImage: cover }} />;
   }
-}
-
-function renderSelectValue(prop: SchemaProperty, val: PropertyValue) {
-  const opt = prop.options?.find(o => o.id === val);
-  return opt ? <span className={cn(`inline-block w-fit px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
-}
-
-function renderMultiSelectValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
-  const ids: string[] = Array.isArray(val) ? val : [];
-  return (
-    <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>      {ids.map(id => {
-        const opt = prop.options?.find(o => o.id === id);
-        return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
-      })}
-    </div>
-  );
-}
-
-function renderPersonValue(val: PropertyValue) {
-  return (
-    <div className={cn("flex items-center gap-1")}>
-      <div className={cn("w-4 h-4 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[8px] font-bold")}>{safeString(val).charAt(0).toUpperCase()}</div>
-      <span className={cn("text-xs text-ink-body-light")}>{safeString(val)}</span>
-    </div>
-  );
-}
-
-function renderCheckboxValue(prop: SchemaProperty, val: PropertyValue) {
-  return (
-    <div className={cn("flex items-center gap-1")}>
-      <div className={cn(`w-3.5 h-3.5 rounded border ${val ? 'bg-accent border-accent-border' : 'border-line-medium'} flex items-center justify-center`)}>
-        {val && <span className={cn("text-ink-inverse text-[8px]")}>✓</span>}
-      </div>
-      <span className={cn("text-xs text-ink-secondary")}>{prop.name}</span>
-    </div>
-  );
-}
-
-/** Renders a compact property value for display inside a board card. */
-export function renderBoardPropertyValue(prop: SchemaProperty, val: PropertyValue, wrapContent: boolean) {
-  if (val === undefined || val === null || val === '' || (Array.isArray(val) && val.length === 0)) return null;
-  switch (prop.type) {
-    case 'select':
-    case 'status':       return renderSelectValue(prop, val);
-    case 'multi_select': return renderMultiSelectValue(prop, val, wrapContent);
-    case 'date':         return <div className={cn("text-xs text-ink-secondary")}>{safeDateFormat(val, 'MMM d') ?? ''}</div>;
-    case 'user':
-    case 'person':       return renderPersonValue(val);
-    case 'number':       return <div className={cn("text-xs text-ink-secondary tabular-nums")}>{prop.name}: {Number(val).toLocaleString()}</div>;
-    case 'checkbox':     return renderCheckboxValue(prop, val);
-    default:             return null;
+  if (cover) {
+    return <img src={cover} alt="" className={cn(`${heightCls} w-full object-cover shrink-0`)} />;
   }
+  return (
+    <div className={cn(`${heightCls} w-full shrink-0 ${coverColor} flex items-center justify-center`)}>
+      {page.icon
+        ? <span className={cn(iconCls)}>{page.icon}</span>
+        : <Image className={cn('w-6 h-6 text-ink-disabled/60')} aria-hidden="true" />}
+    </div>
+  );
 }
 
-/** Renders an optional preview section (cover, content, or properties) at the top of a board card. */
-export function BoardCardPreview({ cardPreview, coverColor, page, nonTitleGroupProps, wrapContent }: Readonly<{
+/** Optional preview header above the card body (page cover or content). */
+export function BoardCardPreview({ cardPreview, coverColor, page, size }: Readonly<{
   cardPreview: string;
   coverColor: string;
   page: Page;
-  nonTitleGroupProps: SchemaProperty[];
-  wrapContent: boolean;
+  size: ReturnType<typeof sizeCfg>;
 }>) {
-  if (cardPreview === 'none') return null;
-
   if (cardPreview === 'page_cover') {
-    let coverContent: React.ReactNode;
-    if (page.cover) coverContent = <img src={page.cover} alt="" className={cn("w-full h-full object-cover")} />;
-    else if (page.icon) coverContent = <span className={cn("text-3xl")}>{page.icon}</span>;
-    else coverContent = <Image className={cn("w-6 h-6 text-ink-disabled")} />;
-
-    return (
-      <div className={cn(`h-24 ${coverColor} flex items-center justify-center rounded-t-lg -mx-3 -mt-3 mb-2 overflow-hidden`)}>
-        {coverContent}
-      </div>
-    );
+    return <BoardCardCover page={page} coverColor={coverColor} heightCls={size.cover} iconCls={size.icon} />;
   }
-
   if (cardPreview === 'page_content') {
     const textContent = page.content?.map(b => b.content).filter(Boolean).join(' ') || '';
     return (
-      <div className={cn(`h-16 ${coverColor} rounded -mx-3 -mt-3 mb-2 p-2 overflow-hidden relative`)}>
-        <p className={cn("text-[10px] text-ink-secondary leading-relaxed line-clamp-3")}>{textContent || 'No content'}</p>
-        <div className={cn("absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-gradient-fade-from to-transparent")} />
+      <div className={cn('shrink-0 bg-surface-secondary border-b border-line-light px-3 py-2')}>
+        <p className={cn('text-[11px] text-ink-secondary leading-relaxed line-clamp-3')}>
+          {textContent || <span className={cn('text-ink-muted italic')}>Empty page</span>}
+        </p>
       </div>
     );
   }
-
-  if (cardPreview === 'page_properties') {
-    return (
-      <div className={cn("bg-surface-secondary rounded -mx-3 -mt-3 mb-2 p-2 overflow-hidden")}>
-        {nonTitleGroupProps.slice(0, 3).map(prop => {
-          const val = page.properties[prop.id];
-          const rendered = renderBoardPropertyValue(prop, val, wrapContent);
-          if (!rendered) return null;
-          return (
-            <div key={prop.id} className={cn("flex items-center gap-1.5 mb-1")}>
-              <span className={cn("text-[9px] uppercase text-ink-muted tracking-wide shrink-0 w-12 truncate")}>{prop.name}</span>
-              {rendered}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
+  // 'none' and the legacy 'page_properties' (properties now always live in
+  // the body — no duplicated gray block).
   return null;
 }
 
@@ -139,7 +87,9 @@ interface BoardCardProps {
   page: Page;
   pageIdx: number;
   cardPreview: string;
+  cardSize: string;
   wrapContent: boolean;
+  databaseId: string;
   nonTitleGroupProps: SchemaProperty[];
   openPage: (id: string) => void;
   getPageTitle: (page: Page) => string;
@@ -148,10 +98,16 @@ interface BoardCardProps {
   accent?: string | null;
 }
 
-/** Renders a draggable board card with title, preview, and property values. */
-export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGroupProps, openPage, getPageTitle, onDragStart, accent }: Readonly<BoardCardProps>) {
+/** Draggable board card: optional cover/preview strip, title row, then one
+ *  labeled row per visible property — every type renders, none throw. */
+export function BoardCard({
+  page, pageIdx, cardPreview, cardSize, wrapContent, databaseId,
+  nonTitleGroupProps, openPage, getPageTitle, onDragStart, accent,
+}: Readonly<BoardCardProps>) {
   const title = getPageTitle(page);
+  const size = sizeCfg(cardSize);
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];
+  const shownProps = nonTitleGroupProps.filter(p => hasCardValue(p, page.properties[p.id]));
 
   return (
     <button type="button" draggable
@@ -159,29 +115,32 @@ export function BoardCard({ page, pageIdx, cardPreview, wrapContent, nonTitleGro
       onClick={() => openPage(page.id)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
       style={{ cursor: CURSORS.grab, ...(accent ? { boxShadow: `inset 3px 0 0 0 ${accent}` } : {}) }}
-      className={cn("bg-surface-primary p-3 rounded-lg shadow-sm border border-line active:cursor-grabbing hover:shadow-md hover:border-hover-border transition-all group/card text-left")}>
-      <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} nonTitleGroupProps={nonTitleGroupProps} wrapContent={wrapContent} />
-      <div className={cn("flex items-center gap-1 mb-1")}>
-        <div className={cn(`font-medium text-sm text-ink flex-1 min-w-0 ${wrapContent ? 'break-words' : 'truncate'}`)}>
-          {page.icon && <span className={cn("mr-1")}>{page.icon}</span>}
-          {title || <span className={cn("text-ink-muted")}>Untitled</span>}
+      className={cn('bg-surface-primary rounded-xl shadow-sm border border-line overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-md hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-all group/card text-left')}>
+      <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} size={size} />
+      <div className={cn(`${size.pad} flex flex-col gap-1.5 min-w-0`)}>
+        <div className={cn('flex items-start gap-1')}>
+          <div className={cn(`font-medium ${size.title} text-ink flex-1 min-w-0 leading-snug ${wrapContent ? 'break-words' : 'truncate'}`)}>
+            {page.icon && <span className={cn('mr-1')}>{page.icon}</span>}
+            {title || <span className={cn('text-ink-muted')}>Untitled</span>}
+          </div>
+          <span
+            className={cn('shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity')}
+            aria-hidden="true">
+            <ArrowUpRight className={cn('w-2.5 h-2.5')} /> Open
+          </span>
         </div>
-        <span
-          className={cn("shrink-0 flex items-center gap-0.5 text-[9px] font-medium text-accent-text-soft bg-accent-soft px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity")}
-          aria-hidden="true">
-          <ArrowUpRight className={cn("w-2.5 h-2.5")} /> Open
-        </span>
+        {shownProps.length > 0 && (
+          <div className={cn('flex flex-col gap-1 min-w-0')} data-testid="board-card-props">
+            {shownProps.map(prop => (
+              <div key={prop.id} title={prop.name} className={cn('flex items-center gap-1.5 min-w-0')}>
+                <PropIcon type={prop.type} className={cn('w-3 h-3 shrink-0 text-ink-disabled')} />
+                <CardPropertyValue prop={prop} val={page.properties[prop.id]} page={page}
+                  databaseId={databaseId} wrap={wrapContent} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      {cardPreview !== 'page_properties' && (
-        <div className={cn("flex flex-col gap-1.5 mt-2")}>
-          {nonTitleGroupProps.map(prop => {
-            const val = page.properties[prop.id];
-            const rendered = renderBoardPropertyValue(prop, val, wrapContent);
-            if (!rendered) return null;
-            return <React.Fragment key={prop.id}>{rendered}</React.Fragment>;
-          })}
-        </div>
-      )}
     </button>
   );
 }

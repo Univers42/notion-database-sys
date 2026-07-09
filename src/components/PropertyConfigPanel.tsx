@@ -11,15 +11,19 @@
 /* ************************************************************************** */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import type { PropertyType, SchemaProperty } from '../types/database';
 import { FormulaEditorPanel } from './FormulaEditorPanel';
+import { ButtonEditorPanel } from './ButtonEditorPanel';
 import { RelationEditorPanel } from './RelationEditorPanel';
 import { RollupEditorPanel } from './RollupEditorPanel';
 import { ActionButton, PropertyIconButton, IdFormatConfig, TYPE_OPTIONS, getPropIcon } from './propertyConfig/index';
 import {
   ArrowUp, ArrowDown, Filter, Group, EyeOff, PanelLeftClose,
-  PanelRightClose, Trash2, ChevronRight, Sigma, GitBranch, ExternalLink
+  PanelRightClose, Trash2, ChevronRight, Sigma, GitBranch, ExternalLink,
+  Copy, WrapText,
+  MousePointerClick,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 
@@ -32,16 +36,23 @@ interface PropertyConfigPanelProps {
 }
 
 /** Floating panel for configuring a database property (rename, change type, sort, filter, etc.). */
-export function PropertyConfigPanel({ property, databaseId, viewId, position, onClose }: Readonly<PropertyConfigPanelProps>) {
+export function PropertyConfigPanel({ property: propertySnapshot, databaseId, viewId, position, onClose }: Readonly<PropertyConfigPanelProps>) {
   const {
     updateProperty, deleteProperty, togglePropertyVisibility,
-    addSort, addFilter, setGrouping, insertPropertyAt, views,
+    addSort, addFilter, setGrouping, insertPropertyAt, duplicateProperty,
+    updateViewSettings, views, databases,
   } = useDatabaseStore();
+
+  // The click handler captures a snapshot; read live so a type change (or any
+  // schema edit) reflects immediately in the open panel.
+  const property = databases[databaseId]?.properties[propertySnapshot.id] ?? propertySnapshot;
+  const viewSettings = views[viewId]?.settings ?? {};
 
   const [propName, setPropName] = useState(property.name);
   const [showTypeList, setShowTypeList] = useState(false);
   const [typeSearch, setTypeSearch] = useState('');
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
+  const [showButtonEditor, setShowButtonEditor] = useState(false);
   const [showRelationEditor, setShowRelationEditor] = useState(false);
   const [showRollupEditor, setShowRollupEditor] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -67,19 +78,28 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
     setShowTypeList(false);
   };
 
-  const isReadOnly = ['title', 'created_time', 'last_edited_time', 'created_by', 'last_edited_by', 'id'].includes(property.type);
+  // Notion parity: every property is renamable (including the mandatory title);
+  // type is changeable everywhere except the title and id columns.
+  const isTitle = property.type === 'title';
+  const canChangeType = !isTitle && property.type !== 'id';
   const filteredTypes = TYPE_OPTIONS.filter(t => t.label.toLowerCase().includes(typeSearch.toLowerCase()));
 
+  // Anchor stays glued below the header — never pulled up over it. If the
+  // viewport lacks room the panel caps its height and scrolls internally.
   const style: React.CSSProperties = {
     position: 'fixed',
-    top: Math.min(position.top, window.innerHeight - 400),
-    left: Math.min(position.left, window.innerWidth - 280),
+    top: position.top,
+    left: Math.min(position.left, window.innerWidth - 292),
+    maxHeight: Math.max(160, window.innerHeight - position.top - 12),
     zIndex: 60,
   };
 
-  return (
-    <div ref={panelRef} style={style}
-      className={cn("w-[280px] bg-surface-primary rounded-xl shadow-2xl border border-line overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150")}>
+  // Portaled to body: host pages size-contain (`container-type: size`), which
+  // makes them the containing block for position:fixed — rendering in place
+  // would shift the panel by the page container's offset.
+  return createPortal(
+    <div ref={panelRef} style={style} data-testid="property-config-panel"
+      className={cn("w-[280px] bg-surface-primary rounded-xl shadow-2xl border border-line overflow-y-auto overflow-x-hidden animate-in fade-in slide-in-from-top-2 duration-150")}>
 
       {/* ─── Property name + clickable icon ─── */}
       <div className={cn("px-3 pt-3 pb-2")}>
@@ -89,12 +109,31 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
             onChange={e => setPropName(e.target.value)} onBlur={commitName}
             onKeyDown={e => { if (e.key === 'Enter') { commitName(); nameRef.current?.blur(); } }}
             className={cn("flex-1 text-sm font-medium text-ink outline-none bg-transparent border-b border-transparent focus:border-focus-border-strong px-1 py-0.5 transition-colors")}
-            placeholder="Property name" disabled={property.type === 'title'} />
+            placeholder="Property name" />
         </div>
       </div>
 
+      {/* ─── Show page icon (title column only, Notion parity) ─── */}
+      {isTitle && (
+        <div className={cn("px-3 pb-2")}>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={viewSettings.showPageIcon !== false}
+            aria-label="Show page icon"
+            onClick={() => updateViewSettings(viewId, { showPageIcon: viewSettings.showPageIcon === false })}
+            className={cn("w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-hover-surface text-sm text-ink-body transition-colors")}
+          >
+            <span>Show page icon</span>
+            <span className={cn(`relative inline-flex h-4 w-7 shrink-0 rounded-full p-0.5 transition-colors ${viewSettings.showPageIcon !== false ? 'bg-accent' : 'bg-surface-muted'}`)}>
+              <span className={cn(`h-3 w-3 rounded-full bg-surface-primary transition-transform ${viewSettings.showPageIcon !== false ? 'translate-x-3' : ''}`)} />
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* ─── Type selector ─── */}
-      {!isReadOnly && (
+      {canChangeType && (
         <div className={cn("px-3 pb-2")}>
           <button onClick={() => setShowTypeList(!showTypeList)}
             className={cn("w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-hover-surface text-sm text-ink-body transition-colors")}>
@@ -132,6 +171,9 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
       {property.type === 'formula' && (
         <><div className={cn("py-1 px-1")}><ActionButton icon={<Sigma className={cn("w-3.5 h-3.5")} />} label="Edit formula" onClick={() => setShowFormulaEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
       )}
+      {property.type === 'button' && (
+        <><div className={cn("py-1 px-1")}><ActionButton icon={<MousePointerClick className={cn("w-3.5 h-3.5")} />} label="Edit button" onClick={() => setShowButtonEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
+      )}
       {property.type === 'relation' && (
         <><div className={cn("py-1 px-1")}><ActionButton icon={<ExternalLink className={cn("w-3.5 h-3.5")} />} label="Edit relation" onClick={() => setShowRelationEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
       )}
@@ -148,18 +190,19 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
           onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'asc' }); onClose(); }} />
         <ActionButton icon={<ArrowDown className={cn("w-3.5 h-3.5")} />} label="Sort descending"
           onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'desc' }); onClose(); }} />
-        {(property.type === 'select' || property.type === 'status' || property.type === 'multi_select' || property.type === 'checkbox' || property.type === 'person' || property.type === 'user') && (
-          <ActionButton icon={<Group className={cn("w-3.5 h-3.5")} />} label="Group by this property"
-            onClick={() => { setGrouping(viewId, { propertyId: property.id }); onClose(); }} />
-        )}
+        <ActionButton icon={<Group className={cn("w-3.5 h-3.5")} />} label="Group by this property"
+          onClick={() => { setGrouping(viewId, { propertyId: property.id }); onClose(); }} />
+        <ActionButton icon={<EyeOff className={cn("w-3.5 h-3.5")} />} label="Hide in view"
+          onClick={() => { togglePropertyVisibility(viewId, property.id); onClose(); }} disabled={isTitle} />
+        <ActionButton icon={<WrapText className={cn("w-3.5 h-3.5")} />}
+          label={viewSettings.wrapContent ? 'Unwrap content' : 'Wrap content'}
+          onClick={() => { updateViewSettings(viewId, { wrapContent: !viewSettings.wrapContent }); onClose(); }} />
       </div>
 
       <div className={cn("h-px bg-surface-tertiary")} />
 
-      {/* ─── View actions ─── */}
+      {/* ─── Structure actions (Notion order: insert / duplicate / delete) ─── */}
       <div className={cn("py-1 px-1")}>
-        <ActionButton icon={<EyeOff className={cn("w-3.5 h-3.5")} />} label="Hide in view"
-          onClick={() => { togglePropertyVisibility(viewId, property.id); onClose(); }} disabled={property.type === 'title'} />
         <ActionButton icon={<PanelLeftClose className={cn("w-3.5 h-3.5")} />} label="Insert left"
           onClick={() => {
             const view = views[viewId];
@@ -170,20 +213,18 @@ export function PropertyConfigPanel({ property, databaseId, viewId, position, on
           }} />
         <ActionButton icon={<PanelRightClose className={cn("w-3.5 h-3.5")} />} label="Insert right"
           onClick={() => { insertPropertyAt(databaseId, 'New column', 'text', viewId, property.id); onClose(); }} />
+        <ActionButton icon={<Copy className={cn("w-3.5 h-3.5")} />} label="Duplicate property"
+          onClick={() => { duplicateProperty(databaseId, property.id, viewId); onClose(); }} disabled={isTitle} />
+        <ActionButton icon={<Trash2 className={cn("w-3.5 h-3.5")} />} label="Delete property"
+          onClick={() => { deleteProperty(databaseId, property.id); onClose(); }} danger disabled={isTitle} />
       </div>
-
-      {/* ─── Delete ─── */}
-      {property.type !== 'title' && !isReadOnly && (
-        <><div className={cn("h-px bg-surface-tertiary")} /><div className={cn("py-1 px-1")}>
-          <ActionButton icon={<Trash2 className={cn("w-3.5 h-3.5")} />} label="Delete property"
-            onClick={() => { deleteProperty(databaseId, property.id); onClose(); }} danger />
-        </div></>
-      )}
 
       {/* ─── Editor Portals ─── */}
       {showFormulaEditor && <FormulaEditorPanel databaseId={databaseId} propertyId={property.id} onClose={() => setShowFormulaEditor(false)} />}
+      {showButtonEditor && <ButtonEditorPanel databaseId={databaseId} propertyId={property.id} onClose={() => setShowButtonEditor(false)} position={position} />}
       {showRelationEditor && <RelationEditorPanel databaseId={databaseId} propertyId={property.id} onClose={() => setShowRelationEditor(false)} position={position} />}
       {showRollupEditor && <RollupEditorPanel databaseId={databaseId} propertyId={property.id} onClose={() => setShowRollupEditor(false)} position={position} />}
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -16,9 +16,10 @@ import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { addDays, startOfWeek, eachDayOfInterval, isToday as isTodayFn } from 'date-fns';
 import { Plus } from 'lucide-react';
 import {
-  getTimelineConfig, getMonthGroups, findDateProperties,
+  getTimelineConfig, getMonthGroups, resolveTimelineProps,
   type ZoomLevel,
 } from './TimelineViewHelpers';
+import { TimelineDatesMenu } from './TimelineDatesMenu';
 import { TimelineDatePicker } from './TimelineDatePicker';
 import type { DatePickerState } from './timelineTypes';
 import { useTimelineDrag } from './useTimelineDrag';
@@ -49,12 +50,16 @@ export function TimelineView() {
   const settings = view?.settings || {};
   const showTable = settings.showTable !== false;
   const zoomLevel = (settings.zoomLevel || 'week') as ZoomLevel;
-  const loadLimit = settings.loadLimit || 100;
+  // Timeline defaults to 100; "All" (loadLimit 0) lifts the cap entirely.
+  const loadLimit = settings.loadLimit === 0 ? Infinity : (settings.loadLimit || 100);
   const displayedPages = pages.slice(0, loadLimit);
 
-  const dateProps = database ? findDateProperties(database.properties) : { startProp: null, endProp: null };
-  const startProp = dateProps.startProp;
-  const endProp = dateProps.endProp;
+  // The view's explicit date-property choice (Dates menu) wins; fallback is the
+  // name heuristic — several date props can mean different kinds of time.
+  const resolved = database
+    ? resolveTimelineProps(database.properties, settings)
+    : { startProp: null, endProp: null, dateProps: [] };
+  const { startProp, endProp, dateProps } = resolved;
   const dbId = database?.id ?? '';
 
   const today = new Date();
@@ -81,16 +86,32 @@ export function TimelineView() {
     [database?.properties],
   );
 
-  const { dragState, scrollRef, findEndProp, ensureEndProp, handlePointerDown, handlePointerMove, handlePointerUp } =
-    useTimelineDrag({ cellWidth: config.cellWidth, startDate, startPropId: startProp?.id ?? '', dbId, updatePageProperty });
+  const { dragState, scrollRef, findEndProp, ensureEndProp, beginCreate, cancelDrag, handlePointerDown, handlePointerMove, handlePointerUp } =
+    useTimelineDrag({ cellWidth: config.cellWidth, startDate, startPropId: startProp?.id ?? '', endPropId: endProp?.id ?? null, dbId, updatePageProperty });
 
-  const handleGridCellClick = useCallback(
-    (dayIdx: number) => {
-      if (dragState || !startProp || !dbId) return;
-      const clickDate = addDays(startDate, dayIdx);
-      addPage(dbId, { [startProp.id]: clickDate.toISOString() });
+  // Grab-and-slide on a dateless lane draws THAT record's date range.
+  const handleLaneDraw = useCallback(
+    (e: React.PointerEvent, pageId: string, dayIdx: number) => {
+      if (dragState || !startProp) return;
+      beginCreate(e, pageId, dayIdx);
     },
-    [dragState, startDate, startProp, dbId, addPage],
+    [dragState, startProp, beginCreate],
+  );
+
+  // Keyboard alternative to the drag: set a single-day date on the record.
+  const handleLaneKeySet = useCallback(
+    (pageId: string, dayIdx: number) => {
+      if (!startProp) return;
+      updatePageProperty(pageId, startProp.id, addDays(startDate, dayIdx).toISOString());
+    },
+    [startProp, startDate, updatePageProperty],
+  );
+
+  const handleDatesChange = useCallback(
+    (patch: { showTimelineBy?: string; timelineEndBy?: string }) => {
+      if (view) storeApi.getState().updateViewSettings(view.id, patch);
+    },
+    [view, storeApi],
   );
 
   const openDatePicker = useCallback(
@@ -127,7 +148,13 @@ export function TimelineView() {
       <TimelineToolbar
         startDate={startDate} endDate={endDate} zoomLevel={zoomLevel} navStep={navStep}
         onOffsetChange={d => setOffset(o => o + d)} onResetOffset={() => setOffset(0)} onZoom={handleZoom}
-      />
+      >
+        <TimelineDatesMenu
+          dateProps={dateProps} startPropId={startProp.id} endPropId={endProp?.id ?? null}
+          onChangeStart={id => handleDatesChange({ showTimelineBy: id })}
+          onChangeEnd={id => handleDatesChange({ timelineEndBy: id })}
+        />
+      </TimelineToolbar>
       <div className={cn("flex-1 flex overflow-hidden")}>
         {showTable && (
           <TimelineLeftPanel
@@ -137,7 +164,7 @@ export function TimelineView() {
           />
         )}
         <div ref={scrollRef} className={cn("flex-1 overflow-x-auto overflow-y-auto flex flex-col")}
-          onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}
+          onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={cancelDrag}
         >
           <TimelineDayHeaders monthGroups={monthGroups} days={days} config={config} zoomLevel={zoomLevel} />
           <div className={cn("relative overflow-hidden")} style={{ width: totalWidth }}>
@@ -148,7 +175,8 @@ export function TimelineView() {
                 startDate={startDate} config={config} zoomLevel={zoomLevel} statusProp={statusProp}
                 getPageTitle={getPageTitle} dragState={dragState} hoverRow={hoverRow}
                 setHoverRow={setHoverRow} days={days} todayIdx={todayIdx}
-                handleGridCellClick={handleGridCellClick} handlePointerDown={handlePointerDown}
+                onLaneDraw={handleLaneDraw} onLaneKeySet={handleLaneKeySet}
+                handlePointerDown={handlePointerDown}
                 openDatePicker={openDatePicker}
               />
             ))}
@@ -168,6 +196,11 @@ export function TimelineView() {
       {datePicker && dpPage && (
         <TimelineDatePicker
           anchorRect={datePicker.anchorRect} startDate={dpStartDate} endDate={dpEndDate} hasEndDate={dpHasEnd}
+          dateFormat={startProp.dateFormat as never} includeTime={startProp.dateIncludeTime ?? false}
+          remind={startProp.dateRemind as never}
+          onChangeDateFormat={v => storeApi.getState().updateProperty(dbId, startProp.id, { dateFormat: v })}
+          onToggleIncludeTime={v => storeApi.getState().updateProperty(dbId, startProp.id, { dateIncludeTime: v })}
+          onChangeRemind={v => storeApi.getState().updateProperty(dbId, startProp.id, { dateRemind: v })}
           onChangeStart={d => updatePageProperty(datePicker.pageId, startProp.id, d.toISOString())}
           onChangeEnd={d => {
             if (d) { const ep = ensureEndProp(); if (ep) updatePageProperty(datePicker.pageId, ep.id, d.toISOString()); }

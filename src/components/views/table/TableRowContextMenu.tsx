@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { ExternalLink, Copy, Trash2 } from 'lucide-react';
 import { cn } from '../../../utils/cn';
 
@@ -26,7 +27,8 @@ interface TableRowContextMenuProps {
 export function TableRowContextMenu({
   rowMenu, onClose, openPage, duplicatePage, deletePage,
 }: Readonly<TableRowContextMenuProps>) {
-  return (
+  // Portaled: host pages size-contain, trapping position:fixed descendants.
+  return createPortal(
     <>
       <button type="button" className={cn("fixed inset-0 z-40 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={onClose} tabIndex={-1} aria-label="Close" />
       <div
@@ -47,7 +49,8 @@ export function TableRowContextMenu({
           <Trash2 className={cn("w-4 h-4")} /> Delete
         </button>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }
 

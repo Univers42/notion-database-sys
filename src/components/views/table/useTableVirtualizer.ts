@@ -22,11 +22,13 @@
  * hook order stays stable.
  */
 
-import type { RefObject } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 const ROW_ESTIMATE_PX = 34;
-const OVERSCAN_ROWS = 12;
+// Overscan buys ~2 viewports of pre-rendered rows so a fast wheel/drag scroll
+// doesn't outrun the render and flash blank rows on a thousand-row table.
+const OVERSCAN_ROWS = 24;
 
 interface TableVirtualizerArgs {
   count: number;
@@ -43,14 +45,39 @@ export interface TableVirtual {
   measureRow?: (el: HTMLTableRowElement | null) => void;
 }
 
+/**
+ * Measure the `sticky top-0` <thead> that sits inside the scroll element. Its
+ * height is dead space the windowed <tbody> rows start below, so the virtualizer
+ * must treat it as `scrollMargin` — otherwise its 0-based coordinate space is
+ * shifted one header-height from the real DOM and the thumb drifts / snaps to
+ * the top near the bottom (it overshoots the end by that offset).
+ */
+function useHeaderOffset(scrollRef: RefObject<HTMLDivElement | null>, enabled: boolean): number {
+  const [offset, setOffset] = useState(0);
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    if (!enabled || !scrollEl || typeof ResizeObserver === 'undefined') return;
+    const thead = scrollEl.querySelector('thead');
+    if (!thead) return;
+    const measure = () => setOffset(thead.getBoundingClientRect().height);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(thead);
+    return () => ro.disconnect();
+  }, [scrollRef, enabled]);
+  return offset;
+}
+
 /** Windowed range + spacer paddings for the ungrouped table body. */
 export function useTableVirtualizer({ count, scrollRef, enabled }: TableVirtualizerArgs): TableVirtual {
   const hasResizeObserver = typeof ResizeObserver !== 'undefined';
+  const scrollMargin = useHeaderOffset(scrollRef, enabled);
   const virtualizer = useVirtualizer<HTMLDivElement, HTMLTableRowElement>({
     count: enabled ? count : 0,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => ROW_ESTIMATE_PX,
     overscan: OVERSCAN_ROWS,
+    scrollMargin,
   });
 
   const items = virtualizer.getVirtualItems();
@@ -58,9 +85,11 @@ export function useTableVirtualizer({ count, scrollRef, enabled }: TableVirtuali
     return { paddingTop: 0, paddingBottom: 0, firstIndex: 0, lastIndex: -1, scrollToIndex: () => {} };
   }
   const total = virtualizer.getTotalSize();
+  // `start`/`end` are offset by scrollMargin; the real <thead> already provides
+  // it, so strip it back out of the spacer <tr>s or the body double-shifts down.
   return {
-    paddingTop: items[0].start,
-    paddingBottom: total - items[items.length - 1].end,
+    paddingTop: Math.max(0, items[0].start - scrollMargin),
+    paddingBottom: Math.max(0, total - (items[items.length - 1].end - scrollMargin)),
     firstIndex: items[0].index,
     lastIndex: items[items.length - 1].index,
     scrollToIndex: virtualizer.scrollToIndex,

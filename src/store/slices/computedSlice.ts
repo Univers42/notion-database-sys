@@ -15,6 +15,7 @@ import { FORMULA_ENGINE_UNAVAILABLE, evalFormula, isWasmReady } from '../../lib/
 import { getCachedFormula, setCachedFormula } from '../../lib/formula/formulaCache';
 import { evaluateFilter } from '../../lib/filter/evaluateFilter';
 import { compareValues } from '../../lib/filter/compareValues';
+import { compareWithManualOrder, manualOrderRank } from '../../lib/manualRowOrder';
 import { searchPage, buildGroups, formatFormulaResult, computeRollup } from './storeHelpers';
 
 let pagesForViewCache: {
@@ -62,7 +63,7 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       if (cached) return cached;
 
       let result = Object.values(state.pages).filter(
-        p => p.databaseId === view.databaseId && !p.archived,
+        p => p.databaseId === view.databaseId && !p.archived && !p.isTemplate,
       );
 
       if (state.searchQuery) {
@@ -96,11 +97,10 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
           return (a.createdAt || '').localeCompare(b.createdAt || '');
         });
       } else {
-        // No user sorts → preserve stable creation order so rows never
-        // shuffle when a cell value changes or the view re-renders.
-        result.sort((a, b) =>
-          (a.createdAt || '').localeCompare(b.createdAt || ''),
-        );
+        // No user sorts → manual drag-order when the user has one, then stable
+        // creation order so rows never shuffle when a cell value changes.
+        const rank = manualOrderRank(view.settings?.manualRowOrder);
+        result.sort((a, b) => compareWithManualOrder(a, b, rank));
       }
 
       pagesForViewCache.results.set(viewId, result);

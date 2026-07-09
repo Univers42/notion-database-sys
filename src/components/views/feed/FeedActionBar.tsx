@@ -6,74 +6,81 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/10 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/06/10 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/07/08 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 /**
- * Like / Comment / Share bar for one feed card, wired to the bridge feed
- * endpoints via useFeedInteractions; degrades to the original inert buttons
- * when the bridge is absent.
+ * Engagement bar for one feed card: multi-emoji reactions + a comment thread +
+ * a share menu, wired to the bridge via useFeedInteractions. The outer wrapper
+ * stops click/keydown so interacting never opens the card's page. Degrades to
+ * the original inert buttons when the bridge feature is absent (offline feeds).
  */
 
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { SmilePlus, MessageCircle, Share2 } from 'lucide-react';
 
 import { cn } from '../../../utils/cn';
 import { useFeedInteractions } from './useFeedInteractions';
+import { FeedReactionBar } from './FeedReactions';
+import { FeedComments } from './FeedComments';
+import { FeedShareMenu } from './FeedShareMenu';
+
+function InertBar() {
+  const inert = cn('flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-ink-secondary');
+  return (
+    <div className={cn('flex items-center gap-1 border-t border-line-light px-3 py-2')}>
+      <span className={inert}><SmilePlus className={cn('h-4 w-4')} /> React</span>
+      <span className={inert}><MessageCircle className={cn('h-4 w-4')} /> Comment</span>
+      <span className={inert}><Share2 className={cn('h-4 w-4')} /> Share</span>
+    </div>
+  );
+}
 
 export function FeedActionBar({ pageId }: Readonly<{ pageId: string }>) {
-  const { available, likes, comments, toggleLike, loadComments, addComment } = useFeedInteractions(pageId);
+  const feed = useFeedInteractions(pageId);
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [draft, setDraft] = useState('');
+  const commentCount = feed.commentCount;
 
-  const buttonClass = cn('flex items-center gap-1.5 py-1.5 px-3 text-ink-secondary hover:bg-hover-surface2 rounded-lg transition-colors text-sm');
+  const stop = (event: React.SyntheticEvent) => event.stopPropagation();
+
+  if (!feed.available) {
+    return (
+      <div onClick={stop} onKeyDown={stop} role="presentation">
+        <InertBar />
+      </div>
+    );
+  }
 
   return (
-    <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()} role="presentation">
-      <div className={cn('flex items-center gap-1 px-3 py-2 border-t border-line-light')}>
-        <button onClick={() => { void toggleLike(); }} className={buttonClass}>
-          <Heart className={cn(`w-4 h-4 ${likes?.likedByMe ? 'fill-current text-rose-500' : ''}`)} />
-          Like{likes && likes.count > 0 ? ` · ${likes.count}` : ''}
-        </button>
+    <div onClick={stop} onKeyDown={stop} role="presentation">
+      <div className={cn('flex flex-wrap items-center gap-2 border-t border-line-light px-3 py-2')}>
+        <FeedReactionBar reactions={feed.reactions} onToggle={feed.toggleReaction} />
         <button
+          type="button"
+          aria-expanded={commentsOpen}
           onClick={() => {
             setCommentsOpen((open) => !open);
-            if (!commentsOpen && comments === null) void loadComments();
+            if (feed.comments === null) void feed.loadComments();
           }}
-          className={buttonClass}
+          className={cn('flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-ink-secondary transition-colors hover:bg-hover-surface2')}
         >
-          <MessageCircle className={cn('w-4 h-4')} />
-          Comment{comments && comments.length > 0 ? ` · ${comments.length}` : ''}
+          <span aria-hidden>💬</span>
+          Comment{commentCount > 0 ? ` · ${commentCount}` : ''}
         </button>
-        <button className={buttonClass}>
-          <Share2 className={cn('w-4 h-4')} /> Share
-        </button>
+        <div className={cn('ml-auto')}>
+          <FeedShareMenu onShare={feed.share} count={feed.shareCount} />
+        </div>
       </div>
-      {commentsOpen && available && (
-        <div className={cn('px-5 pb-3 border-t border-line-light pt-2 flex flex-col gap-2')}>
-          {(comments ?? []).map((comment) => (
-            <p key={comment.id} className={cn('text-sm text-ink-body-light')}>
-              <span className={cn('font-semibold text-ink')}>{comment.authorName}</span> {comment.content}
-            </p>
-          ))}
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void addComment(draft).then(() => setDraft(''));
-            }}
-            className={cn('flex gap-2')}
-          >
-            <input
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder="Write a comment…"
-              className={cn('flex-1 rounded-lg border border-line bg-surface-secondary px-3 py-1.5 text-sm outline-none')}
-            />
-            <button type="submit" disabled={!draft.trim()} className={cn('text-sm font-medium text-accent-text-soft disabled:opacity-40')}>
-              Post
-            </button>
-          </form>
+      {commentsOpen && (
+        <div className={cn('border-t border-line-light px-5 pb-3 pt-3')}>
+          <FeedComments
+            comments={feed.comments}
+            myId={feed.myId}
+            onAdd={feed.addComment}
+            onEdit={feed.editComment}
+            onDelete={feed.deleteComment}
+          />
         </div>
       )}
     </div>

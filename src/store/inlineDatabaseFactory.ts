@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { DatabaseSchema, ViewConfig } from '../types/database';
+import type { DatabaseSchema, Page, ViewConfig } from '../types/database';
 import type { ExtendedDatabaseState } from './dbmsStoreTypes';
 
 type SetState = (
@@ -23,43 +23,60 @@ export function createInlineDatabaseAction(set: SetState) {
   return (name = 'Untitled Database') => {
     const dbId = `db-inline-${crypto.randomUUID().slice(0, 8)}`;
     const viewId = `v-${crypto.randomUUID().slice(0, 8)}`;
-    const titlePropId = `prop-${crypto.randomUUID().slice(0, 6)}`;
-    const tagsPropId = `prop-${crypto.randomUUID().slice(0, 6)}`;
-    const statusPropId = `prop-${crypto.randomUUID().slice(0, 6)}`;
-
-    const newDb: DatabaseSchema = {
-      id: dbId, name, icon: '📊', titlePropertyId: titlePropId,
-      properties: {
-        [titlePropId]: { id: titlePropId, name: 'Name', type: 'title' },
-        [tagsPropId]: {
-          id: tagsPropId, name: 'Tags', type: 'multi_select',
-          options: [
-            { id: `opt-${crypto.randomUUID().slice(0, 6)}`, value: 'Tag 1', color: 'bg-accent-muted text-accent-text-bold' },
-            { id: `opt-${crypto.randomUUID().slice(0, 6)}`, value: 'Tag 2', color: 'bg-success-surface-muted text-success-text-tag' },
-          ],
-        },
-        [statusPropId]: {
-          id: statusPropId, name: 'Status', type: 'select',
-          options: [
-            { id: `opt-${crypto.randomUUID().slice(0, 6)}`, value: 'Not started', color: 'bg-surface-muted text-ink-strong' },
-            { id: `opt-${crypto.randomUUID().slice(0, 6)}`, value: 'In progress', color: 'bg-accent-subtle text-accent-text-bold' },
-            { id: `opt-${crypto.randomUUID().slice(0, 6)}`, value: 'Done', color: 'bg-success-surface-medium text-success-text-tag' },
-          ],
-        },
-      },
-    };
-
-    const newView: ViewConfig = {
-      id: viewId, databaseId: dbId, name: 'Table', type: 'table',
-      filters: [], filterConjunction: 'and', sorts: [],
-      visibleProperties: [titlePropId, tagsPropId, statusPropId],
-      settings: { showVerticalLines: true },
-    };
-
+    const { newDb, newView, newPage } = buildInlineDatabase(dbId, viewId, name);
     set((state) => ({
       databases: { ...state.databases, [dbId]: newDb },
       views: { ...state.views, [viewId]: newView },
+      pages: { ...state.pages, [newPage.id]: newPage },
     }));
     return { databaseId: dbId, viewId };
   };
+}
+
+/** Materializes a host-minted database id if the adapter doesn't know it.
+ *  Idempotent: an existing database (or view) is left untouched. This is what
+ *  makes a freshly inserted `/database` block work — the editor mints the ids
+ *  and stores them on the block; the store must accept them as-is. */
+export function ensureInlineDatabaseAction(set: SetState) {
+  return (databaseId: string, viewId?: string, name = 'Untitled Database') => {
+    const ensuredViewId = viewId ?? `${databaseId}-table`;
+    set((state) => {
+      if (state.databases[databaseId]) return {};
+      const { newDb, newView, newPage } = buildInlineDatabase(databaseId, ensuredViewId, name);
+      return {
+        databases: { ...state.databases, [databaseId]: newDb },
+        views: state.views[ensuredViewId] ? state.views : { ...state.views, [ensuredViewId]: newView },
+        pages: { ...state.pages, [newPage.id]: newPage },
+      };
+    });
+  };
+}
+
+/** Default schema for a fresh inline database — Notion parity: ONLY the
+ *  mandatory title column plus one empty starter row ready to type into. */
+function buildInlineDatabase(dbId: string, viewId: string, name: string): { newDb: DatabaseSchema; newView: ViewConfig; newPage: Page } {
+  const titlePropId = `prop-${crypto.randomUUID().slice(0, 6)}`;
+  const now = new Date().toISOString();
+
+  const newDb: DatabaseSchema = {
+    id: dbId, name, icon: '📊', titlePropertyId: titlePropId,
+    properties: {
+      [titlePropId]: { id: titlePropId, name: 'Name', type: 'title' },
+    },
+  };
+
+  const newView: ViewConfig = {
+    id: viewId, databaseId: dbId, name: 'Table', type: 'table',
+    filters: [], filterConjunction: 'and', sorts: [],
+    visibleProperties: [titlePropId],
+    settings: { showVerticalLines: true },
+  };
+
+  const newPage: Page = {
+    id: crypto.randomUUID(), databaseId: dbId,
+    properties: { [titlePropId]: '' }, content: [],
+    createdAt: now, updatedAt: now, createdBy: 'You', lastEditedBy: 'You',
+  };
+
+  return { newDb, newView, newPage };
 }

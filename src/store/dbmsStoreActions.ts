@@ -13,12 +13,14 @@
 import type { ExtendedDatabaseState } from './dbmsStoreTypes';
 import { createDatabaseSlice } from './slices/databaseSlice';
 import { createPageSlice } from './slices/pageSlice';
+import { runLocalAutomations } from './slices/pageAutomations';
+import type { SchemaProperty } from '../types/database';
 import { validatePropertyValue } from './validation';
 import {
   flushState, dispatchOps, switchSource,
   loadInitialState, sendPersistRequest, persistTimers,
 } from './dbmsStoreHelpers';
-import { createInlineDatabaseAction } from './inlineDatabaseFactory';
+import { createInlineDatabaseAction, ensureInlineDatabaseAction } from './inlineDatabaseFactory';
 
 type SetState = (
   partial: Partial<ExtendedDatabaseState>
@@ -59,6 +61,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
     },
 
     patchPages: (patches: Record<string, Record<string, unknown>>) => {
+      // External/bulk sync writes (lastEditedBy 'External'): deliberately NO
+      // automations — a remote sync batch must not fan out notification storms.
       set((state) => {
         const updatedPages = { ...state.pages };
         for (const [pageId, propChanges] of Object.entries(patches)) {
@@ -109,6 +113,15 @@ export function createDbmsActions(set: SetState, get: GetState) {
       });
       // 2) Persist to DBMS backend (fire-and-forget)
       get().persistPageProperty(pageId, propertyId, coerced);
+      // 3) Local automations (row_updated). Loop-safe: planned writes are
+      // applied by runLocalAutomations in one direct set (never back through
+      // this action), so rules cannot chain. Their writes still need the
+      // same fire-and-forget persistence as the user's edit.
+      const updated = get().pages[pageId];
+      if (updated) {
+        const plan = runLocalAutomations(set, get, { type: 'row_updated', page: updated, changedPropertyId: propertyId });
+        for (const w of plan.writes) get().persistPageProperty(w.pageId, w.propertyId, w.value);
+      }
     },
 
     addPage: (databaseId: string, properties: Record<string, unknown> = {}) => {
@@ -128,6 +141,9 @@ export function createDbmsActions(set: SetState, get: GetState) {
       const page = get().pages[pageId];
       const sliceActions = createPageSlice(set, get);
       sliceActions.deletePage(pageId);
+      // row_deleted automations see the page as it was (planner refuses
+      // set_property on deletes — only notify/webhook apply).
+      if (page) runLocalAutomations(set, get, { type: 'row_deleted', page });
       // Persist full state immediately (page removed from state)
       if (get().activeDbmsSource !== 'adapter') flushState(get);
       if (page && get().activeDbmsSource !== 'adapter') {
@@ -140,11 +156,12 @@ export function createDbmsActions(set: SetState, get: GetState) {
 
     addProperty: (databaseId: string, name: string, type: string) => {
       const sliceActions = createDatabaseSlice(set, get);
-      sliceActions.addProperty(databaseId, name, type as never);
+      const propertyId = sliceActions.addProperty(databaseId, name, type as never);
       if (get().activeDbmsSource !== 'adapter') {
         flushState(get);
         dispatchOps('addColumn', { databaseId, columnName: name, propType: type }, get().activeDbmsSource);
       }
+      return propertyId;
     },
 
     deleteProperty: (databaseId: string, propertyId: string) => {
@@ -158,7 +175,7 @@ export function createDbmsActions(set: SetState, get: GetState) {
       }
     },
 
-    updateProperty: (databaseId: string, propertyId: string, updates: Partial<{ name: string; type: string }>) => {
+    updateProperty: (databaseId: string, propertyId: string, updates: Partial<SchemaProperty>) => {
       const oldProp = get().databases[databaseId]?.properties[propertyId];
       const sliceActions = createDatabaseSlice(set, get);
       sliceActions.updateProperty(databaseId, propertyId, updates as never);
@@ -173,5 +190,6 @@ export function createDbmsActions(set: SetState, get: GetState) {
     },
 
     createInlineDatabase: createInlineDatabaseAction(set),
+    ensureInlineDatabase: ensureInlineDatabaseAction(set),
   };
 }

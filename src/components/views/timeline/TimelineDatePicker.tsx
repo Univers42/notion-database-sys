@@ -38,17 +38,20 @@ export function TimelineDatePicker(props: Readonly<TimelineDatePickerProps>) {
     style, calDays,
     handleDayClick, inRange, isStart, isEnd,
     handleInputSubmit, handleToggleEnd,
+    startTime, endTime, handleStartTimeChange, handleEndTimeChange,
   } = useTimelineDatePicker(props);
 
   const { hasEndDate, onClear, onClose } = props;
 
   return createPortal(
     <>
-      {/* Backdrop */}
+      {/* Backdrop — closes on POINTERDOWN, not click: a click can be lost when
+          the input's blur triggers a store write that re-renders (node replaced
+          between mousedown and mouseup → no click event → stuck panel). */}
       <button
         type="button"
         className={cn("fixed inset-0 z-[9998] appearance-none border-0 bg-transparent cursor-default")}
-        onClick={() => {
+        onPointerDown={() => {
           setShowFormatDropdown(false);
           setShowRemindDropdown(false);
           onClose();
@@ -61,13 +64,13 @@ export function TimelineDatePicker(props: Readonly<TimelineDatePickerProps>) {
       <dialog // NOSONAR - dialog requires event handlers for propagation control
         open
         ref={panelRef}
-        className={cn(`fixed z-[9999] bg-surface-primary border border-line rounded-lg shadow-xl
+        className={cn(`odb-pop-in fixed z-[9999] bg-surface-primary border border-line rounded-lg shadow-xl
                    flex flex-col overflow-visible`)}
         style={{ ...style, width: 280, minWidth: 180, maxWidth: 'calc(100vw - 24px)' }}
         onClick={e => e.stopPropagation()}
-        onKeyDown={e => e.stopPropagation()}
+        onKeyDown={e => { e.stopPropagation(); if (e.key === 'Escape') onClose(); }}
       >
-        <div className={cn("px-2 pt-2 pb-2 flex")}>
+        <div className={cn("px-2 pt-2 pb-2 flex gap-1.5")}>
           <div
             className={cn(`flex items-center rounded-md h-7 leading-[1.2] px-2
                        flex-1 text-sm bg-surface-secondary/60
@@ -84,10 +87,20 @@ export function TimelineDatePicker(props: Readonly<TimelineDatePickerProps>) {
               onKeyDown={e => {
                 if (e.key === 'Enter') handleInputSubmit();
               }}
-              onBlur={handleInputSubmit}
               placeholder={selectingEnd ? 'End date' : 'Start date'}
             />
           </div>
+          {includeTime && (
+            <input
+              type="time"
+              aria-label={selectingEnd ? 'End time' : 'Start time'}
+              className={cn(`rounded-md h-7 px-2 text-sm bg-surface-secondary/60 text-ink
+                         shadow-[inset_0_0_0_1px_var(--line)] focus:shadow-[inset_0_0_0_1px_var(--accent)]
+                         outline-none transition-shadow`)}
+              value={selectingEnd ? endTime : startTime}
+              onChange={e => (selectingEnd ? handleEndTimeChange : handleStartTimeChange)(e.target.value)}
+            />
+          )}
         </div>
 
         <TimelineCalendarGrid
@@ -102,7 +115,7 @@ export function TimelineDatePicker(props: Readonly<TimelineDatePickerProps>) {
 
         <Divider />
 
-        <OptionRow label="End date" onClick={handleToggleEnd}>
+        <OptionRow label="End date" onClick={handleToggleEnd} role="switch" ariaChecked={hasEndDate}>
           <TimelineToggleSwitch enabled={hasEndDate} />
         </OptionRow>
 
@@ -129,7 +142,7 @@ export function TimelineDatePicker(props: Readonly<TimelineDatePickerProps>) {
           )}
         </div>
 
-        <OptionRow label="Include time" onClick={() => setIncludeTime(v => !v)}>
+        <OptionRow label="Include time" onClick={() => setIncludeTime(!includeTime)} role="switch" ariaChecked={includeTime}>
           <TimelineToggleSwitch enabled={includeTime} />
         </OptionRow>
 

@@ -12,7 +12,6 @@
 
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
-import { ToggleSwitch as CanonicalToggle } from '../../ui/ToggleSwitch';
 import { cn } from '../../../utils/cn';
 
 
@@ -21,25 +20,50 @@ export function Divider() {
   return <div className={cn("h-px bg-line mx-0")} />;
 }
 
-/** Toggle switch matching Notion's 14×26 switch — now uses canonical ToggleSwitch */
+/**
+ * PRESENTATIONAL toggle (Notion's 14×26 switch). Deliberately NOT interactive:
+ * the whole OptionRow is the switch button (role="switch"), so a click anywhere
+ * — including on this visual — toggles. A nested real control here used to
+ * swallow the click (stopPropagation + no-op onChange) and left the switch dead.
+ */
 export function TimelineToggleSwitch({ enabled }: Readonly<{ enabled: boolean }>) {
-  return <CanonicalToggle checked={enabled} onChange={() => {}} size="sm" />;
+  return (
+    <span
+      aria-hidden="true"
+      className={cn('flex shrink-0 rounded-full p-[2px] transition-colors duration-200 pointer-events-none',
+        enabled ? 'bg-accent' : 'bg-surface-strong')}
+      style={{ width: 26, height: 14, boxSizing: 'content-box' }}
+    >
+      <span
+        className={cn('rounded-full bg-white transition-transform duration-200')}
+        style={{ width: 14, height: 14, transform: `translateX(${enabled ? 12 : 0}px)` }}
+      />
+    </span>
+  );
 }
 
-/** A settings row: label on left, controls on right */
+/** A settings row: label on left, controls on right. With `role="switch"` the
+ *  whole row is the toggle and reports its state via aria-checked. */
 export function OptionRow({
   label,
   onClick,
   children,
+  role,
+  ariaChecked,
 }: Readonly<{
   label: string;
   onClick?: () => void;
   children?: React.ReactNode;
+  role?: 'switch';
+  ariaChecked?: boolean;
 }>) {
   return (
     <button
       type="button"
       onClick={onClick}
+      role={role}
+      aria-checked={role === 'switch' ? ariaChecked : undefined}
+      aria-label={role === 'switch' ? label : undefined}
       className={cn(`w-full flex items-center justify-between px-3 py-[7px]
                  hover:bg-hover-surface transition-colors cursor-pointer text-left`)}
     >
@@ -88,6 +112,7 @@ export function DropdownMenu({
           <button
             key={item}
             type="button"
+            role="menuitem"
             onClick={() => onSelect(item)}
             className={cn(`w-full text-left px-3 py-1.5 text-xs transition-colors
                         ${

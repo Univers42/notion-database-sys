@@ -49,6 +49,7 @@ export function TimelineCalendarGrid({
           <button
             type="button"
             onClick={() => onMonthChange(subMonths(currentMonth, 1))}
+            aria-label="Previous month"
             className={cn(`flex items-center justify-center rounded-[3px] w-5 h-5
                        hover:bg-hover-surface2 transition-colors`)}
           >
@@ -57,6 +58,7 @@ export function TimelineCalendarGrid({
           <button
             type="button"
             onClick={() => onMonthChange(addMonths(currentMonth, 1))}
+            aria-label="Next month"
             className={cn(`flex items-center justify-center rounded-[3px] w-5 h-5
                        hover:bg-hover-surface2 transition-colors`)}
           >

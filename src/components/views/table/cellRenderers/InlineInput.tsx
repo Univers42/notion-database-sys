@@ -27,10 +27,12 @@ import type { PropertyValue } from '../../../../types/database';
 import { cn } from '../../../../utils/cn';
 import { safeString } from '../../../../utils/safeString';
 
-/** Inline input that buffers locally while the user types; commits on blur or Enter. */
-export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, className = '', placeholder = 'Empty', step }: Readonly<{
+/** Inline input that buffers locally while the user types; commits on blur or
+ *  Enter. `multiline` (text properties) renders a textarea instead: Shift+Enter
+ *  inserts a newline and typing continues in the cell; plain Enter commits. */
+export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, className = '', placeholder = 'Empty', step, multiline = false }: Readonly<{
   type?: string; value: PropertyValue; onChange: (v: PropertyValue) => void; onStop: () => void;
-  tableRef: React.RefObject<HTMLDivElement | null>; className?: string; placeholder?: string; step?: string;
+  tableRef: React.RefObject<HTMLDivElement | null>; className?: string; placeholder?: string; step?: string; multiline?: boolean;
 }>) {
   const [local, setLocal] = useState<string>(safeString(value));
   const committed = useRef(false);
@@ -47,6 +49,22 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
     onChange(out);
     onStop();
   }, [local, type, onChange, onStop]);
+
+  if (multiline) {
+    return (
+      <textarea
+        autoFocus value={local} rows={Math.min(local.split('\n').length, 8)}
+        onChange={e => { committed.current = false; setLocal(e.target.value); }}
+        onBlur={commit}
+        onKeyDown={e => {
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(); tableRef.current?.focus(); }
+          if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
+        }}
+        className={cn(`w-full bg-transparent outline-none text-sm resize-none ${className}`)}
+        placeholder={placeholder}
+      />
+    );
+  }
 
   return (
     <input

@@ -43,6 +43,7 @@ export {
 export {
   renderFilesMedia,
   renderButton,
+  runButtonAction,
   renderDueDate,
   renderDueDateBadge,
   renderCustom,

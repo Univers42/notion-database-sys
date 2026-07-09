@@ -17,6 +17,7 @@
 import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useDashboardFilters } from './useDashboardFilters';
+import { useGroupSliceStore, sidebarGroupingActive } from './useViewGrouping';
 import { evaluateFilter } from '../lib/filter/evaluateFilter';
 import type { DashboardGlobalFilter, Page, SchemaProperty } from '../types/database';
 
@@ -44,17 +45,33 @@ export function applyGlobalFilters(
   return pages.filter(page => bound.every(({ prop, filter }) => evaluateFilter(page, filter, prop)));
 }
 
-/** Pages for a view with the surrounding dashboard's global filters applied. */
+/** Pages for a view with the surrounding dashboard's global filters applied,
+ *  then the view's active group SLICE (GitHub-mode sidebar selection). */
 export function useViewPages(viewId: string | null | undefined): Page[] {
   const extra = useDashboardFilters();
-  const { views, databases, getPagesForView } = useDatabaseStore();
+  // Data-only selectors: the bare-store subscription re-rendered every view,
+  // widget, and stat tile on ANY store change (UI state included). Pages is
+  // subscribed explicitly so counts/rows stay live on record edits.
+  const views = useDatabaseStore(s => s.views);
+  const databases = useDatabaseStore(s => s.databases);
+  useDatabaseStore(s => s.pages);
+  const getPagesForView = useDatabaseStore(s => s.getPagesForView);
+  const getGroupedPages = useDatabaseStore(s => s.getGroupedPages);
+  const slice = useGroupSliceStore(s => (viewId ? s.slices[viewId] ?? null : null));
   const pages = viewId ? getPagesForView(viewId) : [];
   return useMemo(() => {
-    if (!viewId || extra.length === 0) return pages as Page[];
-    const view = views[viewId];
+    let out = pages as Page[];
+    const view = viewId ? views[viewId] : null;
+    // Slice first (group membership is computed on the UNfiltered set, so the
+    // sidebar's counts and the slice stay consistent).
+    if (view && slice && sidebarGroupingActive(view)) {
+      const group = getGroupedPages(view.id).find(g => g.groupId === slice);
+      if (group) out = group.pages;
+    }
+    if (!viewId || extra.length === 0) return out;
     const database = view ? databases[view.databaseId] : null;
-    if (!database) return pages as Page[];
-    return applyGlobalFilters(pages as Page[], extra, database.properties);
+    if (!database) return out;
+    return applyGlobalFilters(out, extra, database.properties);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewId, pages, extra, views, databases]);
+  }, [viewId, pages, extra, views, databases, slice]);
 }

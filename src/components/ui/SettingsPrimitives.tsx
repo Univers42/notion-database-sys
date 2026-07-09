@@ -47,6 +47,7 @@ export function SettingsHeader({ title, onClose, onBack, slots = {} }: Readonly<
       {onBack && (
         <button
           onClick={onBack}
+          aria-label="Back"
           className={cn('p-1 -ml-1 mr-1 rounded-full text-ink-muted hover:text-hover-text hover:bg-hover-surface2 transition-colors', slots.backButton)}
         >
           <svg viewBox="0 0 16 16" className={cn("w-4 h-4")} fill="currentColor" aria-hidden="true">

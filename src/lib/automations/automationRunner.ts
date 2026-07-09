@@ -20,6 +20,10 @@
 
 import type { AutomationRule, Page } from '@notion-db/contract-types';
 
+/** Window CustomEvent name carrying automation/button notifications — the
+ *  single source for the runner, the button executor, and the host listener. */
+export const AUTOMATION_FIRED_EVENT = 'nds:automation-fired';
+
 export interface AutomationEvent {
   type: 'row_added' | 'row_updated' | 'row_deleted';
   page: Page;
@@ -28,10 +32,12 @@ export interface AutomationEvent {
 
 export interface PlannedWrite { pageId: string; propertyId: string; value: unknown }
 export interface PlannedNotification { ruleId: string; ruleName: string; message: string }
+export interface PlannedWebhook { ruleId: string; url: string }
 
 export interface AutomationPlan {
   writes: PlannedWrite[];
   notifications: PlannedNotification[];
+  webhooks: PlannedWebhook[];
 }
 
 function conditionHolds(page: Page, condition: NonNullable<AutomationRule['condition']>): boolean {
@@ -50,15 +56,20 @@ function conditionHolds(page: Page, condition: NonNullable<AutomationRule['condi
   }
 }
 
-/** The writes/notifications this event implies. Single pass, no chaining;
- *  webhook actions are SKIPPED client-side (server-only capability). */
+/** The writes/notifications/webhooks this event implies. Single pass, no
+ *  chaining. Webhooks go through the host-registered transport (the app
+ *  proxies them via its SSRF-guarded bridge endpoint). open_url/add_page
+ *  are BUTTON-only actions and are ignored for rules. */
 export function planAutomations(
   rules: readonly AutomationRule[] | undefined,
   event: AutomationEvent,
 ): AutomationPlan {
-  const plan: AutomationPlan = { writes: [], notifications: [] };
+  const plan: AutomationPlan = { writes: [], notifications: [], webhooks: [] };
   for (const rule of rules ?? []) {
     if (!rule.enabled || rule.trigger !== event.type) continue;
+    // Per-property scoping (Notion "property edited" trigger).
+    if (event.type === 'row_updated' && rule.watchColumn
+      && event.changedPropertyId !== rule.watchColumn) continue;
     if (rule.condition && !conditionHolds(event.page, rule.condition)) continue;
     for (const action of rule.actions) {
       if (action.type === 'set_property' && action.column && event.type !== 'row_deleted') {
@@ -66,6 +77,8 @@ export function planAutomations(
         plan.writes.push({ pageId: event.page.id, propertyId: action.column, value: action.value ?? null });
       } else if (action.type === 'notify') {
         plan.notifications.push({ ruleId: rule.id, ruleName: rule.name, message: action.message ?? rule.name });
+      } else if (action.type === 'webhook' && action.url) {
+        plan.webhooks.push({ ruleId: rule.id, url: action.url });
       }
     }
   }

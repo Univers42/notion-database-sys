@@ -87,10 +87,9 @@ export function createPageSlice(set: StoreSet, get: StoreGet): PageSliceActions 
           },
         };
       });
-      const updated = get().pages[pageId];
-      if (updated) {
-        runLocalAutomations(set, get, { type: 'row_updated', page: updated, changedPropertyId: propertyId });
-      }
+      // row_updated automations fire from the EFFECTIVE layer
+      // (dbmsStoreActions.updatePageProperty) — this slice version is
+      // shadowed by the dbms wrapper spread, so a hook here never runs.
     },
 
     deletePage: (pageId) => set((state: DatabaseState) => {
@@ -129,6 +128,47 @@ export function createPageSlice(set: StoreSet, get: StoreGet): PageSliceActions 
         },
       };
     }),
+
+    updatePageMeta: (pageId, meta) => set((state: DatabaseState) => {
+      const page = state.pages[pageId];
+      if (!page) return state;
+      return {
+        pages: {
+          ...state.pages,
+          [pageId]: { ...page, ...meta, updatedAt: now(), lastEditedBy: 'You' },
+        },
+      };
+    }),
+
+    addTemplatePage: (databaseId) => {
+      const db = get().databases[databaseId];
+      const props: Record<string, unknown> = {};
+      if (db?.titlePropertyId) props[db.titlePropertyId] = 'New template';
+      const id = crypto.randomUUID();
+      const newPage: Page = {
+        id, databaseId, isTemplate: true,
+        properties: props as Page['properties'], content: [],
+        createdAt: now(), updatedAt: now(), createdBy: 'You', lastEditedBy: 'You',
+      };
+      set((state: DatabaseState) => ({ pages: { ...state.pages, [id]: newPage } }));
+      return id;
+    },
+
+    createPageFromTemplate: (templateId) => {
+      const template = get().pages[templateId];
+      if (!template) return '';
+      const id = crypto.randomUUID();
+      const newPage: Page = {
+        ...template,
+        id,
+        isTemplate: false,
+        properties: { ...template.properties },
+        content: structuredClone(template.content),
+        createdAt: now(), updatedAt: now(), createdBy: 'You', lastEditedBy: 'You',
+      };
+      set((state: DatabaseState) => ({ pages: { ...state.pages, [id]: newPage } }));
+      return id;
+    },
 
     changeBlockType: (pageId, blockId, newType) => set((state: DatabaseState) => {
       const page = state.pages[pageId];

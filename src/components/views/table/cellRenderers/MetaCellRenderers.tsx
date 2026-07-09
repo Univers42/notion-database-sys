@@ -28,7 +28,8 @@ import type { SchemaProperty, Page, PropertyValue } from '../../../../types/data
 import { CheckCircle2, MapPin } from 'lucide-react';
 import { cn } from '../../../../utils/cn';
 import { safeString } from '../../../../utils/safeString';
-import { InlineInput } from './InlineInput';
+import { PersonCellEditor } from '../../../cellEditors/PersonCellEditor';
+import { PlaceCellEditor } from '../../../cellEditors/PlaceCellEditor';
 
 /** Renders a checkbox toggle cell. */
 export function renderCheckbox(value: PropertyValue): React.ReactNode {
@@ -41,11 +42,17 @@ export function renderCheckbox(value: PropertyValue): React.ReactNode {
   );
 }
 
-/** Renders a person/user cell with avatar and inline editing. */
+/** Renders a person/user cell: avatar chip + collaborator picker when editing. */
 export function renderPerson(p: CellRendererProps): React.ReactNode {
-  const { page, prop, value, isEditing, wrapContent, onUpdate, onStopEditing, tableRef } = p;
+  const { page, prop, value, isEditing, wrapContent, onUpdate, onStopEditing, databaseId } = p;
   if (isEditing) {
-    return <InlineInput value={value || ''} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing} tableRef={tableRef} placeholder="Name..." />;
+    return (
+      <>
+        {value ? <span className={cn("text-sm text-ink truncate")}>{safeString(value)}</span> : null}
+        <PersonCellEditor value={value} databaseId={databaseId} propertyId={prop.id}
+          onUpdate={v => onUpdate(page.id, prop.id, v)} onClose={onStopEditing} />
+      </>
+    );
   }
   if (!value) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
   return (
@@ -58,15 +65,16 @@ export function renderPerson(p: CellRendererProps): React.ReactNode {
   );
 }
 
-/** Renders a place/address cell with a map pin icon. */
+/** Renders a place/address cell: pin chip + location search when editing. */
 export function renderPlace(p: CellRendererProps): React.ReactNode {
-  const { page, prop, value, isEditing, wrapContent, onUpdate, onStopEditing, tableRef } = p;
+  const { page, prop, value, isEditing, wrapContent, onUpdate, onStopEditing } = p;
   const placeVal = typeof value === 'object' && value ? value : null;
   if (isEditing) {
     return (
-      <InlineInput value={placeVal?.address || (typeof value === 'string' ? value : '')}
-        onChange={v => onUpdate(page.id, prop.id, { address: v })}
-        onStop={onStopEditing} tableRef={tableRef} placeholder="Address..." />
+      <>
+        {placeVal?.address ? <span className={cn("text-sm text-ink-body truncate")}>{placeVal.address}</span> : null}
+        <PlaceCellEditor value={value} onUpdate={v => onUpdate(page.id, prop.id, v)} onClose={onStopEditing} />
+      </>
     );
   }
   if (!placeVal?.address) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;

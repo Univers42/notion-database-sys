@@ -14,12 +14,16 @@ import React from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import { FileText, MoreHorizontal, ChevronDown, Plus } from 'lucide-react';
+import { FileText, MoreHorizontal, Plus } from 'lucide-react';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { safeDateFormat } from '../../../utils/format';
 import { cn } from '../../../utils/cn';
 import { safeString } from '../../../utils/safeString';
 import { useViewPages } from '../../../hooks/useViewPages';
+import { useViewPager, resolvePageSize } from '../../../hooks/useViewPager';
+import { ViewPaginationBar } from '../shared/ViewPaginationBar';
+import { useStackedGroups } from '../../../hooks/useViewGrouping';
+import { GroupSectionHeader } from '../shared/GroupSectionHeader';
 
 /** Renders a compact property tag for the list view row. */
 function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactNode {
@@ -71,19 +75,22 @@ function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactN
 /** Renders a list view of database pages with optional grouping and inline property tags. */
 export function ListView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, openPage, getPageTitle, addPage, getGroupedPages } = useDatabaseStore();
+  const { views, databases, openPage, getPageTitle, addPage } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
   const viewPages = useViewPages(view?.id);
+  const pager = useViewPager(viewPages, view?.settings?.loadLimit, view?.id);
+  // Notion-mode grouping only — sidebar mode renders flat + sliced instead.
+  const { groups, collapsed, toggleCollapse } = useStackedGroups(view?.id);
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
 
   if (!view || !database) return null;
 
   const settings = view.settings || {};
   const showPageIcon = settings.showPageIcon !== false;
-  const loadLimit = settings.loadLimit || 50;
-  const hasGrouping = !!view.grouping;
+  const pageSize = resolvePageSize(settings.loadLimit);
+  const hasGrouping = !!groups;
 
   const renderPageRow = (page: Page) => {
     const title = getPageTitle(page);
@@ -129,21 +136,20 @@ export function ListView() {
   };
 
   // Grouped rendering
-  if (hasGrouping) {
-    const groups = getGroupedPages(view.id);
+  if (hasGrouping && groups) {
     return (
       <div className={cn("flex-1 overflow-auto p-4 bg-surface-primary")}>
         <div className={cn("max-w-4xl mx-auto flex flex-col gap-4")}>
           {groups.map(group => (
-            <div key={group.groupId}>
-              <div className={cn("flex items-center gap-2 px-3 py-2 mb-1")}>
-                <ChevronDown className={cn("w-3.5 h-3.5 text-ink-muted")} />
-                <span className={cn(`px-2 py-0.5 rounded text-xs font-semibold ${group.groupColor}`)}>{group.groupLabel}</span>
-                <span className={cn("text-xs text-ink-muted tabular-nums")}>{group.pages.length}</span>
-              </div>
+            <div key={group.groupId} data-testid="list-group-section">
+              <GroupSectionHeader label={group.groupLabel} color={group.groupColor}
+                count={group.pages.length} collapsed={collapsed.has(group.groupId)}
+                onToggle={() => toggleCollapse(group.groupId)} />
+              {!collapsed.has(group.groupId) && (
               <div className={cn("flex flex-col")}>
-                {group.pages.slice(0, loadLimit).map(renderPageRow)}
+                {group.pages.slice(0, pageSize).map(renderPageRow)}
               </div>
+              )}
               <button onClick={() => {
                 if (!view.grouping) return;
                 const groupPropId = view.grouping.propertyId;
@@ -160,22 +166,25 @@ export function ListView() {
     );
   }
 
-  // Ungrouped rendering
-  const pages = viewPages.slice(0, loadLimit);
+  // Ungrouped rendering — the pager windows the flat list; the +New row stays
+  // at the bottom of the current page.
   return (
-    <div className={cn("flex-1 overflow-auto p-4 bg-surface-primary")}>
-      <div className={cn("max-w-4xl mx-auto flex flex-col gap-0.5")}>
-        {pages.map(renderPageRow)}
-        {pages.length === 0 && (
-          <div className={cn("text-center py-16 text-ink-muted")}>
-            <FileText className={cn("w-8 h-8 mx-auto mb-2 text-ink-disabled")} />
-            No pages found
-          </div>
-        )}
-        <button onClick={createRecord}
-          className={cn("flex items-center gap-2 px-3 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded-lg transition-colors")}>
-          <Plus className={cn("w-4 h-4")} /> New page
-        </button>
+    <div className={cn("flex-1 flex flex-col min-h-0")}>
+      <ViewPaginationBar pager={pager} />
+      <div className={cn("flex-1 overflow-auto p-4 bg-surface-primary")}>
+        <div className={cn("max-w-4xl mx-auto flex flex-col gap-0.5")}>
+          {pager.items.map(renderPageRow)}
+          {pager.items.length === 0 && (
+            <div className={cn("text-center py-16 text-ink-muted")}>
+              <FileText className={cn("w-8 h-8 mx-auto mb-2 text-ink-disabled")} />
+              No pages found
+            </div>
+          )}
+          <button onClick={createRecord}
+            className={cn("flex items-center gap-2 px-3 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded-lg transition-colors")}>
+            <Plus className={cn("w-4 h-4")} /> New page
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -24,29 +24,102 @@
 
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
-import type { SchemaProperty, PropertyValue } from '../../../../types/database';
+import type { FileAttachment, SchemaProperty, PropertyValue } from '../../../../types/database';
 import { renderCheckbox, DateCellEditor } from './BasicCellRenderers';
+import { FilesCellEditor, fileKind } from '../../../cellEditors/FilesCellEditor';
+import { executeButtonActions, type ButtonActionContext } from '../../../../lib/automations/actionExecutor';
+import { AUTOMATION_FIRED_EVENT } from '../../../../lib/automations/automationRunner';
 import { cn } from '../../../../utils/cn';
 import { safeString } from '../../../../utils/safeString';
 
-/** Renders a files/media cell showing the file count. */
-export function renderFilesMedia(value: PropertyValue): React.ReactNode {
-  return (
-    <div className={cn("text-sm text-ink-muted italic truncate")}>
-      {Array.isArray(value) && value.length > 0 ? `${value.length} file(s)` : 'No files'}
+const CELL_DROP_DATA_URL_LIMIT = 8 * 1024 * 1024;
+
+/** Converts dropped files (data-URL fallback, ≤8 MB each) and appends them.
+ *  Takes a snapshot array — a live FileList empties once the drop event ends,
+ *  losing every file after the first await. */
+async function ingestDroppedFiles(
+  files: readonly File[],
+  current: FileAttachment[],
+  commit: (next: FileAttachment[]) => void,
+): Promise<void> {
+  const added: FileAttachment[] = [];
+  for (const file of files) {
+    if (file.size > CELL_DROP_DATA_URL_LIMIT) continue;
+    const url = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    }).catch(() => null);
+    if (url) added.push({ id: `f-${Date.now().toString(36)}-${added.length}`, name: file.name, url, type: fileKind(file.type || file.name), size: file.size });
+  }
+  if (added.length > 0) commit([...current, ...added]);
+}
+
+/** Renders a files/media cell: attachment chips, the Upload/Link editor when
+ *  editing, and direct drag-drop of system files onto the cell. */
+export function renderFilesMedia(p: CellRendererProps): React.ReactNode {
+  const { page, prop, value, isEditing, wrapContent, onUpdate, onStopEditing } = p;
+  const attachments: FileAttachment[] = Array.isArray(value) ? value : [];
+  // Wrap on → every attachment stacks across lines (no cap); wrap off → a single
+  // clipped row of the first few plus a "+N" overflow (parity with multi-select).
+  const shown = wrapContent ? attachments : attachments.slice(0, 3);
+  const display = (
+    <div
+      className={cn(`flex items-center gap-1.5 text-sm min-h-[20px] ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}
+      onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+      onDrop={e => {
+        // Dropping files straight onto the cell attaches them — no editor needed.
+        e.preventDefault();
+        e.stopPropagation();
+        void ingestDroppedFiles([...e.dataTransfer.files], attachments, next => onUpdate(page.id, prop.id, next));
+      }}
+    >
+      {attachments.length === 0 && <span className={cn("text-ink-muted italic truncate")}>No files</span>}
+      {shown.map(file =>
+        file.type === 'image'
+          ? <img key={file.id} src={file.url} alt={file.name} className={cn("w-5 h-5 rounded object-cover shrink-0")} />
+          : <span key={file.id} className={cn("px-1.5 py-0.5 rounded bg-surface-tertiary text-xs text-ink-body truncate max-w-[110px]")}>{file.name}</span>,
+      )}
+      {!wrapContent && attachments.length > 3 && <span className={cn("text-xs text-ink-muted")}>+{attachments.length - 3}</span>}
     </div>
+  );
+  if (!isEditing) return display;
+  return (
+    <>
+      {display}
+      <FilesCellEditor value={attachments} onUpdate={v => onUpdate(page.id, prop.id, v)} onClose={onStopEditing} />
+    </>
   );
 }
 
-/** Renders a clickable button cell with configurable actions. */
-export function renderButton(prop: SchemaProperty): React.ReactNode {
+/** Fires a button cell's configured actions. Shared by the click handler and
+ *  keyboard activation (Enter on a focused button cell) — one implementation.
+ *  With an `actions` list + row context it runs the full Notion action set
+ *  (edit property / add page / notify / webhook / open URL); the legacy
+ *  single-action config keeps working without context. */
+export function runButtonAction(prop: SchemaProperty, ctx?: ButtonActionContext): void {
+  const config = prop.buttonConfig;
+  if (!config) return;
+  if (config.actions?.length && ctx) {
+    executeButtonActions(config.actions, ctx, config.label || prop.name);
+    return;
+  }
+  if (config.action === 'open_url' && config.url) window.open(config.url, '_blank', 'noopener');
+  else if (config.action === 'copy') navigator.clipboard?.writeText(config.url || '');
+  else if (config.action === 'notify' && globalThis.window !== undefined) {
+    globalThis.dispatchEvent(new CustomEvent(AUTOMATION_FIRED_EVENT, {
+      detail: { ruleId: `button:${prop.id}`, ruleName: config.label || prop.name, message: config.label || prop.name },
+    }));
+  }
+}
+
+/** Renders a clickable button cell running its configured actions on the row. */
+export function renderButton(p: CellRendererProps): React.ReactNode {
+  const { prop, page, databaseId, storeApi } = p;
   return (
     <button className={cn("px-2.5 py-0.5 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md")}
-      onClick={e => {
-        e.stopPropagation();
-        if (prop.buttonConfig?.action === 'open_url' && prop.buttonConfig?.url) window.open(prop.buttonConfig.url, '_blank');
-        else if (prop.buttonConfig?.action === 'copy') navigator.clipboard?.writeText(prop.buttonConfig?.url || '');
-      }}>
+      onClick={e => { e.stopPropagation(); runButtonAction(prop, { storeApi, page, databaseId }); }}>
       {prop.buttonConfig?.label || 'Click'}
     </button>
   );
@@ -54,10 +127,11 @@ export function renderButton(prop: SchemaProperty): React.ReactNode {
 
 /** Renders a due-date cell with urgency badge when editing or displaying. */
 export function renderDueDate(p: CellRendererProps): React.ReactNode {
-  const { page, prop, value, isEditing, onUpdate, onStopEditing } = p;
+  const { page, prop, value, isEditing, onUpdate, onStopEditing, databaseId, storeApi, tableRef } = p;
   const dateVal = value ? new Date(value) : null;
   if (isEditing) {
-    return <DateCellEditor page={page} prop={prop} value={value} onUpdate={onUpdate} onStopEditing={onStopEditing} />;
+    return <DateCellEditor page={page} prop={prop} value={value} onUpdate={onUpdate}
+      onStopEditing={onStopEditing} databaseId={databaseId} storeApi={storeApi} tableRef={tableRef} />;
   }
   if (!dateVal) return <span className={cn("text-ink-muted")}>Empty</span>;
   return renderDueDateBadge(dateVal);

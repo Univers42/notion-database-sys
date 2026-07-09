@@ -114,3 +114,32 @@ export function findDateProperties(
 
   return { startProp, endProp };
 }
+
+/**
+ * Resolve WHICH date properties drive the timeline. A record can carry several
+ * date properties meaning different kinds of time (kickoff, deadline, review…)
+ * — the view's explicit choice (settings.showTimelineBy / timelineEndBy, the
+ * Dates menu) wins; a deleted/invalid choice falls back to the name heuristic.
+ * timelineEndBy === 'none' means explicitly single-date bars.
+ */
+export function resolveTimelineProps(
+  properties: Record<string, SchemaProperty>,
+  settings: { showTimelineBy?: string; timelineEndBy?: string },
+): { startProp: SchemaProperty | null; endProp: SchemaProperty | null; dateProps: SchemaProperty[] } {
+  const dateProps = Object.values(properties).filter(
+    p => p.type === 'date' || p.type === 'due_date',
+  );
+  const byId = (id?: string) => (id && dateProps.find(p => p.id === id)) || null;
+  const auto = findDateProperties(properties);
+
+  const startProp = byId(settings.showTimelineBy) ?? auto.startProp;
+  let endProp: SchemaProperty | null;
+  if (settings.timelineEndBy === 'none') endProp = null;
+  // Resolution order: explicit view choice → the start property's SCHEMA
+  // pairing (endPropertyId — the same interval the table cell renders) →
+  // the name heuristic.
+  else endProp = byId(settings.timelineEndBy) ?? byId(startProp?.endPropertyId) ?? auto.endProp;
+  if (endProp?.id === startProp?.id) endProp = null;
+
+  return { startProp, endProp, dateProps };
+}

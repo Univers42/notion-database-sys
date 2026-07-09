@@ -10,11 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useDatabaseStore } from "../store/dbms/hardcoded/useDatabaseStore";
 import { DatabaseScopeProvider } from "../hooks/useDatabaseScope";
 import { TopBar } from "./TopBar";
 import { DatabaseView } from "./DatabaseView";
+import { EngineTemplatesProvider } from "./topBar/EngineTemplatesProvider";
+import { orderedDatabaseViews } from "../lib/viewOrder";
 import { Plus, FileText } from "lucide-react";
 import { cn } from "../utils/cn";
 
@@ -26,8 +28,15 @@ export interface DatabaseBlockProps {
   initialViewId?: string;
   /** full = main app, fills screen. inline = embedded in page content. */
   mode?: "full" | "inline";
-  /** full = database surface, single-view = one view with view actions but no database switcher/tabs. */
-  chrome?: "full" | "single-view";
+  /** full = database surface, inline = Notion collection-view header (title link,
+   *  tabs, collapse), single-view = minimal shelf header. */
+  chrome?: "full" | "inline" | "single-view";
+  /** Display name used when materializing a host-minted database id. */
+  databaseName?: string;
+  /** Navigate to the database's origin (full-page) surface. */
+  onOpenFullPage?: (target: { databaseId: string; viewId?: string; name?: string }) => void;
+  /** Called after an in-store rename so the host can persist the name. */
+  onDatabaseRenamed?: (databaseId: string, name: string) => void;
 }
 
 /** Renders a complete database experience (TopBar + view body) in full-page or inline mode. */
@@ -36,14 +45,27 @@ export function DatabaseBlock({
   initialViewId,
   mode = "full",
   chrome = "full",
+  databaseName,
+  onOpenFullPage,
+  onDatabaseRenamed,
 }: Readonly<DatabaseBlockProps>) {
   const views = useDatabaseStore((s) => s.views);
   const databases = useDatabaseStore((s) => s.databases);
   const globalActiveViewId = useDatabaseStore((s) => s.activeViewId);
   const createInlineDatabase = useDatabaseStore((s) => s.createInlineDatabase);
+  const ensureInlineDatabase = useDatabaseStore((s) => s.ensureInlineDatabase);
   const setActiveView = useDatabaseStore((s) => s.setActiveView);
 
   const [localViewId, setLocalViewId] = useState(initialViewId || "");
+  const [collapsed, setCollapsed] = useState(false);
+
+  // A host-minted database id (a fresh `/database` block) is unknown to the
+  // adapter — materialize it with exactly the block's ids so the block works
+  // instead of dead-ending on the empty state.
+  const knownDb = databaseId ? Boolean(databases[databaseId]) : true;
+  useEffect(() => {
+    if (databaseId && !knownDb) ensureInlineDatabase(databaseId, initialViewId, databaseName);
+  }, [databaseId, knownDb, initialViewId, databaseName, ensureInlineDatabase]);
 
   const handleCreateDatabase = useCallback(() => {
     const { viewId } = createInlineDatabase("Untitled Database");
@@ -62,8 +84,8 @@ export function DatabaseBlock({
   const dbViews = useMemo(() => {
     const targetDbId = databaseId || view?.databaseId;
     if (!targetDbId) return [];
-    return Object.values(views).filter((v) => v.databaseId === targetDbId);
-  }, [views, databaseId, view?.databaseId]);
+    return orderedDatabaseViews(views, targetDbId, databases[targetDbId]?.viewOrder);
+  }, [views, databases, databaseId, view?.databaseId]);
 
   // Auto-fix stale local viewId
   const resolvedViewId = useMemo(() => {
@@ -108,34 +130,64 @@ export function DatabaseBlock({
     );
   }
 
-  const handleViewChange = mode === "inline" ? setLocalViewId : undefined;
-  const singleViewChrome = chrome === "single-view";
+  // Inline embeds track their view locally, but the instance store's
+  // activeViewId must follow: the open-page surface (object_database) resolves
+  // per-view settings (openPagesIn) from it. One store per instance, so this
+  // never bleeds across blocks.
+  const handleViewChange = mode === "inline"
+    ? (id: string) => { setLocalViewId(id); setActiveView(id); }
+    : undefined;
+  // Both embed chromes drop the standalone card scroll panel; 'inline' adds
+  // the Notion collection-view header (title link, tabs, collapse) on top.
+  const embedChrome = chrome !== "full";
 
   if (mode === "inline") {
     return (
+      <EngineTemplatesProvider database={database}>
       <DatabaseScopeProvider value={resolvedViewId}>
         <div
           className={cn(
             "my-3 border border-line rounded-xl overflow-hidden bg-surface-primary shadow-sm",
-            singleViewChrome && "osionos-object-database-single-view",
+            embedChrome && "osionos-object-database-single-view",
           )}
         >
-          <TopBar onViewChange={handleViewChange} variant={chrome} />
-          <div className={cn("max-h-[500px] overflow-auto")}>
-            <DatabaseView viewId={resolvedViewId ?? undefined} compact />
-          </div>
-          {singleViewChrome ? null : <InlineFooter databaseId={database.id} />}
+          <TopBar
+            onViewChange={handleViewChange}
+            variant={chrome}
+            onOpenFullPage={onOpenFullPage}
+            onDatabaseRenamed={onDatabaseRenamed}
+            collapsed={collapsed}
+            onToggleCollapsed={chrome === "inline" ? () => setCollapsed((v) => !v) : undefined}
+          />
+          {/* Single-view (page-embedded) DBs flow with the page: no fixed-height
+              inner scroll panel — the row count (host `recordLimit`) bounds the
+              height, so the embed reads as native content, not a clipped canvas. */}
+          {collapsed ? null : (
+            <div
+              className={cn(
+                embedChrome
+                  ? "osionos-db-single-body overflow-visible"
+                  : "max-h-[500px] overflow-auto",
+              )}
+            >
+              <DatabaseView viewId={resolvedViewId ?? undefined} compact />
+            </div>
+          )}
+          {embedChrome || collapsed ? null : <InlineFooter databaseId={database.id} />}
         </div>
       </DatabaseScopeProvider>
+      </EngineTemplatesProvider>
     );
   }
 
   // Full-page mode — identical to current App layout
   return (
-    <div className={cn("flex-1 flex flex-col min-h-0")}>
-      <TopBar variant={chrome} />
-      <DatabaseView />
-    </div>
+    <EngineTemplatesProvider database={database}>
+      <div className={cn("flex-1 flex flex-col min-h-0")}>
+        <TopBar variant={chrome} onDatabaseRenamed={onDatabaseRenamed} />
+        <DatabaseView />
+      </div>
+    </EngineTemplatesProvider>
   );
 }
 

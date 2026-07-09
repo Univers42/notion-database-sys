@@ -23,6 +23,12 @@ export interface PageSliceActions {
   deletePage: (pageId: string) => void;
   duplicatePage: (pageId: string) => void;
   updatePageContent: (pageId: string, content: Block[]) => void;
+  /** Set page display meta (icon / cover). An undefined value clears the field. */
+  updatePageMeta: (pageId: string, meta: { icon?: string; cover?: string }) => void;
+  /** Create a template page (hidden from views). Returns its id. */
+  addTemplatePage: (databaseId: string) => string;
+  /** Instantiate a template into a real record. Returns the new page id. */
+  createPageFromTemplate: (templateId: string) => string;
   changeBlockType: (pageId: string, blockId: string, newType: Block['type']) => void;
   insertBlock: (pageId: string, afterBlockId: string | null, block: Block) => void;
   deleteBlock: (pageId: string, blockId: string) => void;

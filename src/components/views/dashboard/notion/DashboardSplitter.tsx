@@ -15,47 +15,31 @@
 // updates in the parent), the final value commits once on pointer-up.
 
 import React, { useRef } from 'react';
+import { beginAxisDrag } from './pointerDrag';
 
 /** Drag divider: 'col' resizes widget widths, 'row' resizes row height. */
-export function DashboardSplitter({ direction, onResizeStart, onResize, onResizeEnd }: Readonly<{
+export function DashboardSplitter({ direction, onResizeStart, onResize, onResizeEnd, className }: Readonly<{
   direction: 'col' | 'row';
   onResizeStart: () => void;
   /** Signed delta since pointer-down: fraction of container (col) / px (row). */
   onResize: (delta: number) => void;
   onResizeEnd: () => void;
+  className?: string;
 }>) {
   const ref = useRef<HTMLDivElement>(null);
 
   function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    event.preventDefault();
     const handle = ref.current;
     const container = handle?.parentElement;
     if (!handle || !container) return;
     const span = direction === 'col' ? container.clientWidth : 1;
-    const start = direction === 'col' ? event.clientX : event.clientY;
-    handle.setPointerCapture(event.pointerId);
     onResizeStart();
-
-    const move = (moveEvent: PointerEvent) => {
-      const current = direction === 'col' ? moveEvent.clientX : moveEvent.clientY;
-      if (span > 0) onResize((current - start) / span);
-    };
-    const up = (upEvent: PointerEvent) => {
-      handle.releasePointerCapture(upEvent.pointerId);
-      handle.removeEventListener('pointermove', move);
-      handle.removeEventListener('pointerup', up);
-      document.body.style.removeProperty('cursor');
-      document.body.style.removeProperty('user-select');
-      delete document.body.dataset.paneResizing;
-      onResizeEnd();
-    };
-    document.body.style.cursor = direction === 'col' ? 'col-resize' : 'row-resize';
-    document.body.style.userSelect = 'none';
-    // Same CSS flag the workspace grid uses: off-screen cells skip layout
-    // (content-visibility) while something is being reshaped.
-    document.body.dataset.paneResizing = 'true';
-    handle.addEventListener('pointermove', move);
-    handle.addEventListener('pointerup', up);
+    beginAxisDrag(handle, event, {
+      axis: direction === 'col' ? 'x' : 'y',
+      cursor: direction === 'col' ? 'col-resize' : 'row-resize',
+      onMove: delta => { if (span > 0) onResize(delta / span); },
+      onEnd: onResizeEnd,
+    });
   }
 
   return (
@@ -66,8 +50,10 @@ export function DashboardSplitter({ direction, onResizeStart, onResize, onResize
       aria-orientation={direction === 'col' ? 'vertical' : 'horizontal'}
       onPointerDown={onPointerDown}
       className={[
-        'shrink-0 z-10 rounded-full bg-transparent hover:bg-accent-border/60 active:bg-accent-border transition-colors',
+        // touch-none: without it, touch pointermove is hijacked by scroll and the drag dies.
+        'shrink-0 z-10 rounded-full bg-transparent hover:bg-accent-border/60 active:bg-accent-border transition-colors touch-none',
         direction === 'col' ? 'w-1.5 cursor-col-resize self-stretch' : 'h-1.5 cursor-row-resize w-full',
+        className ?? '',
       ].join(' ')}
     />
   );

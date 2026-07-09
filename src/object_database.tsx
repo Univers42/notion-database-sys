@@ -41,6 +41,7 @@ import {
 } from './components/ui/Icons';
 import { cn } from './utils/cn';
 import { TemplatesContext } from './components/topBar/templatesContext';
+import { HostAdaptersProvider } from './hooks/useHostAdapters';
 import { SubItemsProvider } from './components/views/table/subItemsContext';
 import { HttpAdapter } from './component/adapters/HttpAdapter';
 import type {
@@ -85,6 +86,9 @@ type ObjectDatabaseInnerProps = Required<Pick<ObjectDatabaseProps, 'mode'>> & {
   onPageOpen?: (pageId: string | null) => void;
   renderPage?: ObjectDatabaseProps['renderPage'];
   chrome?: ObjectDatabaseProps['chrome'];
+  databaseName?: ObjectDatabaseProps['databaseName'];
+  onOpenFullPage?: ObjectDatabaseProps['onOpenFullPage'];
+  onDatabaseRenamed?: ObjectDatabaseProps['onDatabaseRenamed'];
 };
 
 type PersistableAdapter = ObjectDatabaseAdapter & {
@@ -116,6 +120,10 @@ function ObjectDatabaseWithStore({
   chrome = 'full',
   templates,
   subItems,
+  databaseName,
+  onOpenFullPage,
+  onDatabaseRenamed,
+  hostAdapters,
   forwardedRef,
 }: Readonly<ObjectDatabaseWithStoreProps>) {
   const resolvedAdapter = useMemo<ObjectDatabaseAdapter>(
@@ -135,6 +143,7 @@ function ObjectDatabaseWithStore({
 
   return (
     <AdapterProvider value={resolvedAdapter}>
+      <HostAdaptersProvider value={hostAdapters ?? {}}>
       <TemplatesContext.Provider value={templates ?? null}>
         <SubItemsProvider controller={subItems}>
           <div
@@ -150,10 +159,14 @@ function ObjectDatabaseWithStore({
               onPageOpen={onPageOpen}
               renderPage={renderPage}
               chrome={chrome}
+              databaseName={databaseName}
+              onOpenFullPage={onOpenFullPage}
+              onDatabaseRenamed={onDatabaseRenamed}
             />
           </div>
         </SubItemsProvider>
       </TemplatesContext.Provider>
+      </HostAdaptersProvider>
     </AdapterProvider>
   );
 }
@@ -166,6 +179,9 @@ function ObjectDatabaseInner({
   onPageOpen,
   renderPage,
   chrome = 'full',
+  databaseName,
+  onOpenFullPage,
+  onDatabaseRenamed,
 }: Readonly<ObjectDatabaseInnerProps>) {
   const [formulaReady, setFormulaReady] = useState(false);
   const activeViewId = useDatabaseStore(s => s.activeViewId);
@@ -184,9 +200,9 @@ function ObjectDatabaseInner({
   const selectionKey = `${databaseId ?? ''}:${initialView ?? ''}`;
   const reloadFromAdapter = useCallback(
     async () => {
-      await loadAdapterState(storeApi, adapter, { silent: true, databaseId, initialView });
+      await loadAdapterState(storeApi, adapter, { silent: true, databaseId, initialView, databaseName });
     },
-    [adapter, databaseId, initialView, storeApi],
+    [adapter, databaseId, databaseName, initialView, storeApi],
   );
 
   useEffect(() => {
@@ -209,7 +225,7 @@ function ObjectDatabaseInner({
   useEffect(() => {
     let cancelled = false;
 
-    loadAdapterState(storeApi, adapter, { databaseId, initialView }).then((storeSource) => {
+    loadAdapterState(storeApi, adapter, { databaseId, initialView, databaseName }).then((storeSource) => {
       if (!cancelled && storeSource && storeSource !== activeSource) {
         setActiveSource(storeSource as DbSourceType);
       }
@@ -218,7 +234,7 @@ function ObjectDatabaseInner({
     return () => {
       cancelled = true;
     };
-  }, [adapter, activeSource, databaseId, initialView, setActiveSource, storeApi]);
+  }, [adapter, activeSource, databaseId, databaseName, initialView, setActiveSource, storeApi]);
 
   useEffect(() => {
     if (lastSelectionKeyRef.current === selectionKey || Object.keys(views).length === 0) return;
@@ -301,7 +317,12 @@ function ObjectDatabaseInner({
 
   let openPageSurface: React.ReactNode = null;
   if (openPageId && renderPage) {
-    openPageSurface = renderPage(openPageId, storeApi.getState(), () => storeApi.getState().openPage(null));
+    openPageSurface = renderPage(
+      openPageId,
+      storeApi.getState(),
+      () => storeApi.getState().openPage(null),
+      view?.settings?.openPagesIn || 'side_peek',
+    );
   } else if (openPageId) {
     openPageSurface = (
       <Suspense fallback={null}>
@@ -324,6 +345,9 @@ function ObjectDatabaseInner({
               databaseId={databaseId}
               initialViewId={initialView ?? undefined}
               chrome={chrome}
+              databaseName={databaseName}
+              onOpenFullPage={onOpenFullPage}
+              onDatabaseRenamed={onDatabaseRenamed}
             />
           </Suspense>
         </ErrorBoundary>
@@ -351,6 +375,9 @@ function ObjectDatabaseInner({
                 databaseId={databaseId}
                 initialViewId={initialView ?? undefined}
                 chrome={chrome}
+                databaseName={databaseName}
+                onOpenFullPage={onOpenFullPage}
+                onDatabaseRenamed={onDatabaseRenamed}
               />
             </LazyBlockHandle>
           </Suspense>
@@ -480,7 +507,7 @@ function useAdapterStatePersistence(adapter: ObjectDatabaseAdapter, storeApi: Da
 async function loadAdapterState(
   storeApi: DatabaseStoreApi,
   adapter: ObjectDatabaseAdapter,
-  opts: { silent?: boolean; databaseId?: string; initialView?: string | null } = {},
+  opts: { silent?: boolean; databaseId?: string; initialView?: string | null; databaseName?: string } = {},
 ): Promise<string | null> {
   if (!opts.silent) storeApi.setState({ dbmsLoading: true, dbmsError: null });
   try {
@@ -489,7 +516,7 @@ async function loadAdapterState(
     // Container meta (linked sources, locks) survives reloads via the
     // localStorage write-through even for live mounts that rebuild their
     // schema from the server on every load.
-    const state = applyStoredDbMeta(withRequestedDatabase(loaded, opts.databaseId, opts.initialView));
+    const state = applyStoredDbMeta(withRequestedDatabase(loaded, opts.databaseId, opts.initialView, opts.databaseName));
     const activeViewId = chooseActiveViewId(state, current.activeViewId, opts.databaseId, opts.initialView);
     const source = 'adapter';
 
@@ -553,57 +580,47 @@ function withRequestedDatabase(
   loaded: NotionState,
   databaseId?: string,
   initialView?: string | null,
+  databaseName?: string,
 ): NotionState {
   if (!databaseId || loaded.databases[databaseId]) return loaded;
-  const emptyState = createEmptyDatabaseState(databaseId, initialView);
+  const emptyState = createEmptyDatabaseState(databaseId, initialView, databaseName);
   return {
     databases: { ...loaded.databases, ...emptyState.databases },
-    pages: loaded.pages,
+    // Include the starter row — dropping emptyState.pages ships a rowless table.
+    pages: { ...loaded.pages, ...emptyState.pages },
     views: { ...loaded.views, ...emptyState.views },
   };
 }
 
-function createEmptyDatabaseState(databaseId: string, initialView?: string | null): NotionState {
+/** Notion parity: a fresh database ships ONLY the mandatory title column, a
+ *  single Table view, and one empty starter row ready to type into. */
+function createEmptyDatabaseState(databaseId: string, initialView?: string | null, databaseName?: string): NotionState {
   const titlePropertyId = `${databaseId}-title`;
-  const statusPropertyId = `${databaseId}-status`;
-  const datePropertyId = `${databaseId}-date`;
   const tableViewId = initialView || `${databaseId}-table`;
+  const starterPageId = `${databaseId}-row-1`;
+  const now = new Date().toISOString();
 
   return {
     databases: {
       [databaseId]: {
         id: databaseId,
-        name: 'Untitled database',
+        name: databaseName || 'Untitled database',
         icon: '📋',
         titlePropertyId,
         properties: {
           [titlePropertyId]: { id: titlePropertyId, name: 'Name', type: 'title' },
-          [statusPropertyId]: {
-            id: statusPropertyId,
-            name: 'Status',
-            type: 'status',
-            options: [
-              { id: 'not-started', value: 'Not started', color: 'gray' },
-              { id: 'in-progress', value: 'In progress', color: 'blue' },
-              { id: 'done', value: 'Done', color: 'green' },
-            ],
-          },
-          [datePropertyId]: { id: datePropertyId, name: 'Date', type: 'date' },
         },
       },
     },
-    pages: {},
+    pages: {
+      [starterPageId]: {
+        id: starterPageId, databaseId,
+        properties: { [titlePropertyId]: '' }, content: [],
+        createdAt: now, updatedAt: now, createdBy: 'You', lastEditedBy: 'You',
+      },
+    },
     views: {
-      [tableViewId]: createEmptyView(tableViewId, databaseId, 'Table', 'table', [titlePropertyId, statusPropertyId, datePropertyId]),
-      [`${databaseId}-board`]: {
-        ...createEmptyView(`${databaseId}-board`, databaseId, 'Board', 'board', [titlePropertyId, statusPropertyId, datePropertyId]),
-        grouping: { propertyId: statusPropertyId },
-      },
-      [`${databaseId}-timeline`]: {
-        ...createEmptyView(`${databaseId}-timeline`, databaseId, 'Timeline', 'timeline', [titlePropertyId, statusPropertyId, datePropertyId]),
-        settings: { showTimelineBy: datePropertyId },
-      },
-      [`${databaseId}-list`]: createEmptyView(`${databaseId}-list`, databaseId, 'List', 'list', [titlePropertyId, statusPropertyId, datePropertyId]),
+      [tableViewId]: createEmptyView(tableViewId, databaseId, 'Table', 'table', [titlePropertyId]),
     },
   };
 }

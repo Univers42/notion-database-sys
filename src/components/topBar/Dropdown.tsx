@@ -23,7 +23,7 @@ export function Dropdown({ children, onClose, className = '' }: Readonly<{
 
   return (
     <div ref={ref}
-      className={cn('absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden', className)}>
+      className={cn('odb-pop-in absolute top-full left-0 mt-1 bg-surface-primary border border-line rounded-xl shadow-lg z-50 overflow-hidden', className)}>
       {children}
     </div>
   );

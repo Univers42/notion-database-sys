@@ -326,3 +326,72 @@
   --color-placeholder:           var(--color-placeholder);
   --color-slate:                 var(--color-slate);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Motion — one vocabulary for every popover/panel/row so the whole system
+   moves with the same rhythm. Transform/opacity only (compositor-friendly);
+   reduced-motion turns it all off.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@keyframes odb-pop-in {
+  from { opacity: 0; transform: scale(0.97) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes odb-rise-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Popovers, menus, cell editors, pickers. */
+.odb-pop-in {
+  animation: odb-pop-in 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: var(--odb-pop-origin, 50% 0%);
+}
+
+/* Cards / widgets entering the layout. */
+.odb-rise-in {
+  animation: odb-rise-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dashboard rows GLIDE on structural change (drop, equalize, move) but track
+   the pointer 1:1 during an active drag. grid-template-columns interpolates
+   fr values in modern engines; height covers the row-resize commit. */
+.odb-row-grid {
+  transition:
+    grid-template-columns 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Columns and stacked cards glide too (group commits, share commits,
+   snap-to-realign). */
+.odb-row-grid [data-dash-col],
+.odb-row-grid [data-dash-widget] {
+  transition: height 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.odb-row-grid[data-dragging],
+.odb-row-grid[data-dragging] [data-dash-col],
+.odb-row-grid[data-dragging] [data-dash-widget] {
+  transition: none;
+}
+
+/* Paint/layout isolation per widget: one card changing never repaints the
+   rest of the dashboard (same discipline as the workspace grid's panes).
+   On the cell BODY, not the cell — paint containment would clip the resize
+   handles that hang just below the card border. */
+.odb-row-grid [data-dash-widget] > .odb-cell-body {
+  contain: layout paint;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .odb-pop-in,
+  .odb-rise-in {
+    animation: none;
+  }
+
+  .odb-row-grid,
+  .odb-row-grid [data-dash-col],
+  .odb-row-grid [data-dash-widget] {
+    transition: none;
+  }
+}

@@ -18,23 +18,26 @@
  * Notifications surface as a `nds:automation-fired` CustomEvent.
  */
 
-import { planAutomations, type AutomationEvent } from '../../lib/automations/automationRunner';
+import { planAutomations, AUTOMATION_FIRED_EVENT, type AutomationEvent, type AutomationPlan } from '../../lib/automations/automationRunner';
+import { dispatchAutomationWebhook } from '../../lib/automations/webhookTransport';
 import { parseLiveDatabaseId } from '../live/liveTypes';
 import type { Page } from '../../component/types';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
+
+const EMPTY_PLAN: AutomationPlan = { writes: [], notifications: [], webhooks: [] };
 
 export function runLocalAutomations(
   set: StoreSet,
   get: StoreGet,
   event: AutomationEvent,
-): void {
+): AutomationPlan {
   const databaseId = event.page.databaseId;
-  if (parseLiveDatabaseId(databaseId)) return; // server-side territory
+  if (parseLiveDatabaseId(databaseId)) return EMPTY_PLAN; // server-side territory
   const state = get();
   const rules = Object.values(state.views)
     .filter((view) => view.databaseId === databaseId)
     .flatMap((view) => view.settings?.automations ?? []);
-  if (rules.length === 0) return;
+  if (rules.length === 0) return EMPTY_PLAN;
   const plan = planAutomations(rules, event);
   if (plan.writes.length > 0) {
     set((current: DatabaseState) => {
@@ -54,7 +57,15 @@ export function runLocalAutomations(
   }
   if (globalThis.window !== undefined) {
     for (const notification of plan.notifications) {
-      globalThis.dispatchEvent(new CustomEvent('nds:automation-fired', { detail: notification }));
+      globalThis.dispatchEvent(new CustomEvent(AUTOMATION_FIRED_EVENT, { detail: notification }));
     }
   }
+  for (const hook of plan.webhooks) {
+    dispatchAutomationWebhook(hook.url, {
+      source: { automationId: hook.ruleId, databaseId },
+      data: { trigger: event.type, pageId: event.page.id, properties: event.page.properties },
+    });
+  }
+  // Returned so the effective store layer can persist the planned writes.
+  return plan;
 }

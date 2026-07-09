@@ -32,7 +32,10 @@ import { InlineInput } from './InlineInput';
 export function renderTitleOrText(p: CellRendererProps): React.ReactNode {
   const { prop, page, value, isEditing, wrapContent, onUpdate, onStopEditing, onOpenPage, tableRef } = p;
   if (isEditing) {
-    return <InlineInput value={value || ''} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing} tableRef={tableRef} />;
+    return (
+      <InlineInput value={value || ''} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing}
+        tableRef={tableRef} multiline={prop.type === 'text'} />
+    );
   }
   return (
     <div className={cn("flex items-center gap-1")}>

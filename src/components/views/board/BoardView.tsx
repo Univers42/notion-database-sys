@@ -18,7 +18,9 @@ import { getColumnWidth, BoardCard } from './BoardCardHelpers';
 import { cn } from '../../../utils/cn';
 import { useDashboardFilters } from '../../../hooks/useDashboardFilters';
 import { applyGlobalFilters } from '../../../hooks/useViewPages';
+import { resolvePageSize } from '../../../hooks/useViewPager';
 import { colorForPage } from '../../../lib/conditionalColor';
+import { buildManualRowOrderAt } from '../../../lib/manualRowOrder';
 
 /** Property types that can't form board columns (identity/derived/per-row-unique). */
 const BOARD_UNGROUPABLE = new Set(['title', 'relation', 'formula', 'rollup', 'id', 'files', 'created_time', 'last_edited_time']);
@@ -26,12 +28,14 @@ const BOARD_UNGROUPABLE = new Set(['title', 'relation', 'formula', 'rollup', 'id
 /** Renders a Kanban-style board view with drag-and-drop between columns grouped by any value-bearing property. */
 export function BoardView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, updatePageProperty, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
+  const { views, databases, updatePageProperty, updateViewSettings, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const globalFilters = useDashboardFilters();
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [_dragPageId, setDragPageId] = useState<string | null>(null); // NOSONAR
+  // Card-level insertion point: which card the pointer is over, top or bottom half.
+  const [dropCard, setDropCard] = useState<{ pageId: string; after: boolean } | null>(null);
 
   if (!view || !database || !view.grouping) {
     return (
@@ -58,12 +62,28 @@ export function BoardView() {
   }));
   const settings = view.settings || {};
   const cardSize = settings.cardSize || 'medium';
-  const loadLimit = settings.loadLimit || 50;
+  // Per-column cap (Notion caps each board column, not the board as a whole).
+  const pageSize = resolvePageSize(settings.loadLimit);
   const wrapContent = settings.wrapContent === true;
   const cardPreview = settings.cardPreview || 'none';
 
   const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
   const nonTitleGroupProps = visibleProps.filter(p => p.id !== groupProperty.id && p.id !== database.titlePropertyId);
+
+  // Manual card order rides the table's manualRowOrder seam: getPagesForView
+  // applies it whenever the view has no user sorts, and getGroupedPages
+  // preserves that flat order inside every column.
+  const canReorder = view.sorts.length === 0;
+  const flatIds = rawGroups.flatMap(g => g.pages.map(p => p.id));
+
+  const setGroupValue = (pageId: string, groupId: string): boolean => {
+    const newValue = groupId === '__unassigned__' ? null : groupId;
+    if (newValue === null && groupProperty.nullable === false) return false;
+    updatePageProperty(pageId, groupProperty.id, newValue);
+    return true;
+  };
+
+  const clearDrag = () => { setDragOverCol(null); setDragPageId(null); setDropCard(null); };
 
   const handleDragStart = (e: React.DragEvent, pageId: string) => {
     setDragPageId(pageId);
@@ -74,22 +94,47 @@ export function BoardView() {
     setTimeout(() => { el.style.opacity = '1'; }, 0);
   };
 
+  // Drop on the column body → move to that column, at the BOTTOM (a known
+  // place — not "somewhere" mid-column wherever creation order lands it).
   const handleDrop = (e: React.DragEvent, groupId: string) => {
     e.preventDefault();
-    setDragOverCol(null);
-    setDragPageId(null);
+    clearDrag();
     const pageId = e.dataTransfer.getData('text/plain');
-    if (pageId && groupProperty) {
-      const newValue = groupId === '__unassigned__' ? null : groupId;
-      if (newValue === null && groupProperty.nullable === false) return;
-      updatePageProperty(pageId, groupProperty.id, newValue);
+    if (!pageId || !setGroupValue(pageId, groupId)) return;
+    if (canReorder && flatIds.includes(pageId)) {
+      updateViewSettings(view.id, { manualRowOrder: [...flatIds.filter(id => id !== pageId), pageId] });
     }
+  };
+
+  // Drop on a card → insert exactly before/after it (pointer half decides).
+  const handleCardDrop = (e: React.DragEvent, targetId: string, groupId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const after = dropCard?.pageId === targetId ? dropCard.after : true;
+    clearDrag();
+    const pageId = e.dataTransfer.getData('text/plain');
+    if (!pageId || pageId === targetId || !setGroupValue(pageId, groupId)) return;
+    if (canReorder) {
+      const order = buildManualRowOrderAt(flatIds, pageId, targetId, after);
+      if (order) updateViewSettings(view.id, { manualRowOrder: order });
+    }
+  };
+
+  const handleCardDragOver = (e: React.DragEvent, pageId: string) => {
+    if (!canReorder) return;
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const after = e.clientY > rect.top + rect.height / 2;
+    setDropCard(current =>
+      current?.pageId === pageId && current.after === after ? current : { pageId, after });
   };
 
   const handleDragOver = (e: React.DragEvent, groupId: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     setDragOverCol(groupId);
+    // Over the column's empty area: no card insertion point → drop appends.
+    if (!(e.target as HTMLElement).closest('[data-board-card]')) setDropCard(null);
   };
 
   const handleDragLeave = () => {
@@ -100,7 +145,7 @@ export function BoardView() {
     <div className={cn("flex-1 overflow-x-auto p-4 bg-surface-secondary flex gap-4 h-full")}>
       {groups.map(group => {
         const isDragOver = dragOverCol === group.groupId;
-        const displayPages = group.pages.slice(0, loadLimit);
+        const displayPages = group.pages.slice(0, pageSize);
 
         return (
           <div key={group.groupId} // NOSONAR - board column grouping pattern
@@ -122,6 +167,7 @@ export function BoardView() {
               </div>
               <button
                 onClick={() => addPage(database.id, { [groupProperty.id]: group.groupId === '__unassigned__' ? null : group.groupId })}
+                aria-label={`Add card to ${group.groupLabel}`}
                 className={cn("p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors")}>
                 <Plus className={cn("w-4 h-4")} />
               </button>
@@ -130,11 +176,23 @@ export function BoardView() {
             {/* Cards */}
             <div className={cn(`flex flex-col gap-2 min-h-[120px] pb-10 px-1`)}>
               {displayPages.map((page, pageIdx) => (
-                <BoardCard key={page.id} page={page} pageIdx={pageIdx}
-                  cardPreview={cardPreview} wrapContent={wrapContent}
-                  nonTitleGroupProps={nonTitleGroupProps} openPage={openPage}
-                  getPageTitle={getPageTitle} onDragStart={handleDragStart}
-                  accent={colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null} />
+                <div key={page.id} className={cn("relative")} data-board-card
+                  onDragOver={e => handleCardDragOver(e, page.id)}
+                  onDrop={e => handleCardDrop(e, page.id, group.groupId)}
+                  onDragEnd={clearDrag}>
+                  {dropCard?.pageId === page.id && !dropCard.after && (
+                    <div className={cn("absolute -top-[5px] left-1 right-1 h-[3px] rounded-full bg-accent z-10 pointer-events-none")} data-testid="board-drop-line" />
+                  )}
+                  <BoardCard page={page} pageIdx={pageIdx}
+                    cardPreview={cardPreview} cardSize={cardSize} wrapContent={wrapContent}
+                    databaseId={database.id}
+                    nonTitleGroupProps={nonTitleGroupProps} openPage={openPage}
+                    getPageTitle={getPageTitle} onDragStart={handleDragStart}
+                    accent={colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null} />
+                  {dropCard?.pageId === page.id && dropCard.after && (
+                    <div className={cn("absolute -bottom-[5px] left-1 right-1 h-[3px] rounded-full bg-accent z-10 pointer-events-none")} data-testid="board-drop-line" />
+                  )}
+                </div>
               ))}
 
               {/* Add card button */}

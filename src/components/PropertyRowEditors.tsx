@@ -26,8 +26,22 @@ export function ReadOnlyTime({ iso }: Readonly<{ iso: string | undefined }>) {
 
 const inputTypeMap: Record<string, string> = { email: 'email', url: 'url' };
 
-/** Inline text input for editing text, email, or URL properties. */
+/** Inline text input for editing text, email, or URL properties. A `text`
+ *  property is multiline: Shift+Enter inserts a newline, plain Enter commits
+ *  (blurs). Other types stay single-line inputs. */
 export function TextEditor({ value, onChange, type }: Readonly<{ value: string; onChange: (v: string) => void; type?: string }>) {
+  if (type === 'text') {
+    return (
+      <textarea
+        value={value || ''}
+        rows={Math.min((value || '').split('\n').length, 8)}
+        onChange={e => onChange(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.currentTarget.blur(); } }}
+        className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface resize-none")}
+        placeholder="Empty"
+      />
+    );
+  }
   return (
     <input
       type={inputTypeMap[type ?? ''] || 'text'}

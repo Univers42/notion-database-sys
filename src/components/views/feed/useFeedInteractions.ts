@@ -6,91 +6,78 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/10 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/06/10 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/07/08 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 /**
- * Feed likes/comments against the osionos bridge (`/api/feed/:pageId/...`).
- * notion-database-sys decoupling rule: resolve the bridge URL + app JWT from
- * env/globals, never import app feature modules. Feature-detects ONCE — the
- * first hard failure (no bridge route / network down) silences the whole
- * feature so playground/offline feeds keep their inert buttons.
+ * Composes the feed engagement engine for one card — reactions + comments +
+ * share — over the bridge. `available` gates the whole UI: it flips true only
+ * after the reactions probe succeeds, so an absent/offline bridge degrades to
+ * inert buttons (feature-detect lives in feedBridge). Replaces the old binary
+ * Like; the like GET is intentionally no longer called.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-const env = (import.meta.env ?? {}) as Record<string, string | undefined>;
-const BRIDGE_URL = (env.VITE_API_URL ?? '').trim().replace(/\/$/, '');
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+import { currentUserId, feedFetch, feedUsable, toFeedUuid } from './feedBridge';
+import { useFeedReactions } from './useFeedReactions';
+import { useFeedComments } from './useFeedComments';
+import { useFeedRealtime } from './useFeedRealtime';
 
-let featurePresent: boolean | null = null; // null = not probed yet
+export type { FeedReaction } from './useFeedReactions';
+export type { FeedComment } from './useFeedComments';
 
-function bridgeJwt(): string | null {
-  try {
-    const store = (globalThis as Record<string, unknown>).__playgroundUserStore as
-      | { getState: () => { activePageJwt?: () => string | null; activeJwt?: () => string | null } }
-      | undefined;
-    const state = store?.getState();
-    return state?.activePageJwt?.() || state?.activeJwt?.() || null;
-  } catch {
-    return null;
-  }
-}
-
-async function feedFetch<T>(method: string, path: string, body?: unknown): Promise<T | null> {
-  const jwt = bridgeJwt();
-  if (!BRIDGE_URL || !jwt || featurePresent === false) return null;
-  try {
-    const response = await fetch(`${BRIDGE_URL}${path}`, {
-      method,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    if (response.status === 404 && featurePresent === null) featurePresent = false; // route absent
-    if (!response.ok) return null;
-    featurePresent = true;
-    return await response.json() as T;
-  } catch {
-    if (featurePresent === null) featurePresent = false; // bridge unreachable
-    return null;
-  }
-}
-
-export interface FeedLikes { count: number; likedByMe: boolean }
-export interface FeedComment { id: string; authorName: string; content: string; createdAt: string }
+export interface FeedShareResult { count: number; link: string }
+export type FeedShareTarget = 'profile' | 'link' | 'dm';
 
 export function useFeedInteractions(pageId: string) {
-  const usable = UUID_RE.test(pageId) && Boolean(BRIDGE_URL) && featurePresent !== false;
-  const [likes, setLikes] = useState<FeedLikes | null>(null);
-  const [comments, setComments] = useState<FeedComment[] | null>(null);
+  // Normalise to the engagement UUID once — every bridge call + realtime topic
+  // keys off this, so demo/non-UUID pages are engageable (see toFeedUuid).
+  const feedId = useMemo(() => toFeedUuid(pageId), [pageId]);
+  const usable = feedUsable(feedId);
+  const myId = useMemo(() => currentUserId(), []);
+  const { reactions, toggleReaction, probeCommentCount, workspaceId, refresh: refreshReactions } = useFeedReactions(feedId, usable);
+  const { comments, loadComments, addComment, editComment, deleteComment } = useFeedComments(feedId, usable, myId);
+  const [shareCount, setShareCount] = useState(0);
 
-  useEffect(() => {
-    let alive = true;
-    if (!usable) return undefined;
-    void feedFetch<FeedLikes>('GET', `/api/feed/${pageId}/likes`).then((reply) => {
-      if (alive && reply) setLikes(reply);
-    });
-    return () => { alive = false; };
-  }, [pageId, usable]);
+  // The loaded thread length is authoritative; before it loads, show the server
+  // snapshot from the mount probe so the badge isn't blank on a commented post.
+  const commentCount = comments?.length ?? probeCommentCount;
 
-  const toggleLike = useCallback(async () => {
+  // Seed the running share count from the server (others' shares), not just this
+  // session's — mirrors the reactions probe. Reused as the realtime refresh.
+  const refreshShareCount = useCallback(async () => {
     if (!usable) return;
-    const reply = await feedFetch<FeedLikes>(likes?.likedByMe ? 'DELETE' : 'POST', `/api/feed/${pageId}/like`);
-    if (reply) setLikes(reply);
-  }, [pageId, usable, likes?.likedByMe]);
+    const reply = await feedFetch<{ count: number }>('GET', `/api/feed/${feedId}/share`);
+    if (reply) setShareCount(reply.count);
+  }, [feedId, usable]);
+  useEffect(() => { void refreshShareCount(); }, [refreshShareCount]);
 
-  const loadComments = useCallback(async () => {
-    if (!usable) return;
-    const reply = await feedFetch<{ comments: FeedComment[] }>('GET', `/api/feed/${pageId}/comments`);
-    if (reply) setComments(reply.comments);
-  }, [pageId, usable]);
+  // Live push: someone else reacted/commented/shared this post → refresh just that
+  // slice (own echoes are already filtered inside the socket).
+  const onRemote = useCallback((kind: 'reaction' | 'comment' | 'share') => {
+    if (kind === 'reaction') void refreshReactions();
+    else if (kind === 'comment') void loadComments();
+    else void refreshShareCount();
+  }, [refreshReactions, loadComments, refreshShareCount]);
+  useFeedRealtime(feedId, workspaceId, usable, onRemote);
 
-  const addComment = useCallback(async (content: string) => {
-    if (!usable || !content.trim()) return;
-    const reply = await feedFetch<{ comment: FeedComment }>('POST', `/api/feed/${pageId}/comments`, { content: content.trim() });
-    if (reply) setComments((current) => [...(current ?? []), reply.comment]);
-  }, [pageId, usable]);
+  const share = useCallback(async (target: FeedShareTarget, dmUserId?: string): Promise<FeedShareResult | null> => {
+    if (!usable) return null;
+    const reply = await feedFetch<{ ok: true; count: number; link: string }>('POST', `/api/feed/${feedId}/share`, { target, dmUserId });
+    if (!reply) return null;
+    setShareCount(reply.count);
+    return { count: reply.count, link: reply.link };
+  }, [feedId, usable]);
 
-  return { available: usable && likes !== null, likes, comments, toggleLike, loadComments, addComment };
+  return {
+    // Gate on bridge-presence alone; a transient reactions-probe miss no longer
+    // silences the whole card (only a real route-absent 404 flips usable false).
+    available: usable,
+    myId,
+    reactions, toggleReaction,
+    comments, commentCount, loadComments, addComment, editComment, deleteComment,
+    share, shareCount,
+  };
 }

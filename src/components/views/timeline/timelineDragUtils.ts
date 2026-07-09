@@ -59,6 +59,15 @@ export function computeDragPosition(
       liveWidth: originBar.width,
     };
   }
+  if (kind === 'create') {
+    // Anchored at the press day; drawing works in BOTH directions. Rendering
+    // convention matches getBarGeometry (width = endDay - startDay cells);
+    // an unmoved press previews as a 1-cell point.
+    const anchor = originBar.startDay;
+    if (delta === 0) return { liveLeft: anchor * cellWidth, liveWidth: cellWidth };
+    const { s, e } = clampDuration(anchor, anchor + delta);
+    return { liveLeft: s * cellWidth, liveWidth: (e - s) * cellWidth };
+  }
   if (kind === 'resize-left') {
     const { s, e } = clampDuration(originBar.startDay + delta, originBar.endDay);
     return { liveLeft: s * cellWidth, liveWidth: (e - s) * cellWidth };
@@ -66,6 +75,26 @@ export function computeDragPosition(
   // resize-right
   const { s, e } = clampDuration(originBar.startDay, originBar.endDay + delta);
   return { liveLeft: s * cellWidth, liveWidth: (e - s) * cellWidth };
+}
+
+/** Apply the 'create' drag: write the drawn range onto the record's date
+ *  property. A plain click (delta 0) sets a single day; a real drag also
+ *  writes the end property (drawing works in both directions). */
+export function applyCreateDrag(
+  originBar: BarGeometry, delta: number, pageId: string,
+  startDate: Date, startPropId: string,
+  updateProp: (pid: string, propId: string, val: string) => void,
+  ensureEndProp: () => { id: string } | null,
+): void {
+  const anchor = originBar.startDay;
+  if (delta === 0) {
+    updateProp(pageId, startPropId, addDays(startDate, anchor).toISOString());
+    return;
+  }
+  const { s, e } = clampDuration(anchor, anchor + delta);
+  updateProp(pageId, startPropId, addDays(startDate, s).toISOString());
+  const ep = ensureEndProp();
+  if (ep) updateProp(pageId, ep.id, addDays(startDate, e).toISOString());
 }
 
 /** Apply drag delta for the 'move' kind. */

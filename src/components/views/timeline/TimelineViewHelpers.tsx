@@ -28,7 +28,7 @@ export type {
   BarVerbosity,
 } from './timelineHelperTypes';
 
-export { getTimelineConfig, getMonthGroups, findDateProperties } from './timelineConfig';
+export { getTimelineConfig, getMonthGroups, findDateProperties, resolveTimelineProps } from './timelineConfig';
 export { getBarGeometry } from './timelineBarGeometry';
 export {
   getBarColorSet,

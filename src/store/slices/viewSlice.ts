@@ -27,13 +27,14 @@ import type { ViewSliceActions } from './viewSliceTypes';
  */
 export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions {
   return {
-    addView: (view) => set((state: DatabaseState) => {
+    addView: (view) => {
       const id = `v-${crypto.randomUUID().slice(0, 8)}`;
-      return {
+      set((state: DatabaseState) => ({
         views: { ...state.views, [id]: { ...view, id } as ViewConfig },
         activeViewId: id,
-      };
-    }),
+      }));
+      return id;
+    },
     updateView: (viewId, updates) => set((state: DatabaseState) => {
       const view = state.views[viewId];
       if (!view) return state;
@@ -74,6 +75,20 @@ export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions 
     },
 
     setActiveView: (viewId) => set({ activeViewId: viewId }),
+
+    // Reorder one database's header tabs. The order is persisted as an explicit
+    // `viewOrder` array ON THE DATABASE — not by reordering the views record,
+    // whose key order doesn't survive a JSONB/JSON round-trip to the server.
+    // Writing the database object (new ref) is what the object-database persist
+    // path (mergeChangedRecords) picks up, so the order syncs server-side and
+    // survives a reload on any device. Derivations sort by `viewOrder`.
+    reorderViews: (databaseId, orderedIds) => set((state: DatabaseState) => {
+      const database = state.databases[databaseId];
+      if (!database) return state;
+      return {
+        databases: { ...state.databases, [databaseId]: { ...database, viewOrder: orderedIds } },
+      };
+    }),
 
     ...createFilterActions(set),
     ...createSortActions(set),

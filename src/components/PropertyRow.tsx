@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
+import { runButtonAction } from './views/table/cellRenderers';
 import { PropIcon } from '../constants/propertyIcons';
 import type { SchemaProperty, DatabaseSchema, Page } from '../types/database';
 import {
@@ -27,11 +28,12 @@ export function PropertyRow({ prop, page, pageId, database: _database }: Readonl
   pageId: string;
   database: DatabaseSchema;
 }>) {
-  const { updatePageProperty } = useStoreApi().getState();
+  const storeApi = useStoreApi();
+  const { updatePageProperty } = storeApi.getState();
   const val = page.properties[prop.id];
   const update = (v: unknown) => updatePageProperty(pageId, prop.id, v);
 
-  const editor = renderPropertyEditor(prop, val, page, update);
+  const editor = renderPropertyEditor(prop, val, page, update, storeApi);
 
   return (
     <div className={cn("flex items-center gap-3 py-1.5 group hover:bg-hover-surface -mx-3 px-3 rounded-lg transition-colors")}>
@@ -49,6 +51,7 @@ function renderPropertyEditor(
   val: unknown,
   page: Page,
   update: (v: unknown) => void,
+  storeApi: ReturnType<typeof useStoreApi>,
 ): React.ReactNode {
   switch (prop.type) {
     case 'text':
@@ -78,7 +81,8 @@ function renderPropertyEditor(
       return <span className={cn("text-sm text-ink-muted italic px-2")}>{Array.isArray(val) && val.length > 0 ? `${val.length} file(s)` : 'No files'}</span>;
     case 'button':
       return (
-        <button className={cn("px-3 py-1 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md transition-colors")}>
+        <button className={cn("px-3 py-1 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md transition-colors")}
+          onClick={() => runButtonAction(prop, { storeApi, page, databaseId: page.databaseId })}>
           {prop.buttonConfig?.label || 'Click'}
         </button>
       );

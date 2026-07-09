@@ -12,7 +12,8 @@
 
 import type { BarGeometry } from './TimelineViewHelpers';
 
-export type DragKind = 'move' | 'resize-left' | 'resize-right';
+/** 'create' = drawing a NEW range on a dateless record's lane. */
+export type DragKind = 'move' | 'resize-left' | 'resize-right' | 'create';
 
 export interface DragState {
   pageId: string;

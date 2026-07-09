@@ -15,6 +15,7 @@ import { useDatabaseStore } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty, PropertyValue } from '../../types/database';
 import { X, Search, ArrowUpRight, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { CellPortal } from './CellPortal';
+import { useListHighlight } from '../../hooks/useListHighlight';
 import { cn } from '../../utils/cn';
 
 interface RelationCellEditorProps {
@@ -51,12 +52,19 @@ export function RelationCellEditor({ property, value, pageId, databaseId: _datab
     const q = search.toLowerCase();
     return targetPages.filter(p => p.title.toLowerCase().includes(q));
   }, [targetPages, search]);
+  const { index: hi, setIndex: setHi, onArrowKey, activeRef } = useListHighlight(filteredPages.length);
 
   const toggleRelation = (rid: string) => {
     const next = selectedIds.includes(rid)
       ? selectedIds.filter(id => id !== rid)
       : [...selectedIds, rid];
     onUpdate(next);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (onArrowKey(e)) return;
+    if (e.key === 'Enter' && filteredPages[hi]) { e.preventDefault(); toggleRelation(filteredPages[hi].id); }
+    if (e.key === 'Escape') onClose();
   };
 
   if (!targetDb) {
@@ -69,9 +77,10 @@ export function RelationCellEditor({ property, value, pageId, databaseId: _datab
 
   return (
     <CellPortal onClose={onClose} minWidth={340} maxWidth={560}>
-      <SearchBar search={search} setSearch={setSearch} onClose={onClose} targetDb={targetDb} />
+      <SearchBar search={search} setSearch={setSearch} onKeyDown={handleSearchKeyDown} targetDb={targetDb} />
       <SelectedChips selectedIds={selectedIds} targetPages={targetPages} onRemove={rid => onUpdate(selectedIds.filter(id => id !== rid))} />
-      <PageList filteredPages={filteredPages} selectedIds={selectedIds} search={search} onToggle={toggleRelation} />
+      <PageList filteredPages={filteredPages} selectedIds={selectedIds} search={search} onToggle={toggleRelation}
+        highlightIndex={hi} onHover={setHi} activeRef={activeRef} />
     </CellPortal>
   );
 }
@@ -86,14 +95,14 @@ function UnconfiguredRelation() {
   );
 }
 
-function SearchBar({ search, setSearch, onClose, targetDb }: Readonly<{
-  search: string; setSearch: (s: string) => void; onClose: () => void; targetDb: { icon?: string; name: string };
+function SearchBar({ search, setSearch, onKeyDown, targetDb }: Readonly<{
+  search: string; setSearch: (s: string) => void; onKeyDown: (e: React.KeyboardEvent) => void; targetDb: { icon?: string; name: string };
 }>) {
   return (
     <div className={cn("flex items-center gap-2 px-3 py-2 border-b border-line-light bg-surface-secondary-soft")}>
       <Search className={cn("w-4 h-4 text-ink-muted shrink-0")} />
       <input autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
-        onKeyDown={e => { if (e.key === 'Escape') onClose(); }}
+        aria-label="Search pages to link" onKeyDown={onKeyDown}
         className={cn("flex-1 text-sm bg-transparent outline-none placeholder:text-placeholder")} placeholder="Link or create a page…" />
       <div className={cn("flex items-center gap-1 text-xs text-ink-muted shrink-0")}>
         <span>In</span>
@@ -118,7 +127,7 @@ function SelectedChips({ selectedIds, targetPages, onRemove }: Readonly<{
           <span key={rid} className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent-soft text-accent-text text-xs font-medium")}>
             <ArrowUpRight className={cn("w-2.5 h-2.5")} />
             <span className={cn("max-w-[120px] truncate")}>{tp?.title || 'Untitled'}</span>
-            <button onClick={() => onRemove(rid)} className={cn("hover:text-hover-accent-text-bolder ml-0.5")}><X className={cn("w-3 h-3")} /></button>
+            <button onClick={() => onRemove(rid)} aria-label={`Remove ${tp?.title || 'Untitled'}`} className={cn("hover:text-hover-accent-text-bolder ml-0.5")}><X className={cn("w-3 h-3")} /></button>
           </span>
         );
       })}
@@ -126,8 +135,9 @@ function SelectedChips({ selectedIds, targetPages, onRemove }: Readonly<{
   );
 }
 
-function PageList({ filteredPages, selectedIds, search, onToggle }: Readonly<{
+function PageList({ filteredPages, selectedIds, search, onToggle, highlightIndex, onHover, activeRef }: Readonly<{
   filteredPages: { id: string; title: string }[]; selectedIds: string[]; search: string; onToggle: (id: string) => void;
+  highlightIndex: number; onHover: (i: number) => void; activeRef: React.RefObject<HTMLElement | null>;
 }>) {
   return (
     <div className={cn("max-h-[300px] overflow-y-auto")}>
@@ -135,11 +145,15 @@ function PageList({ filteredPages, selectedIds, search, onToggle }: Readonly<{
         <div className={cn("px-4 py-6 text-center text-sm text-ink-muted")}>
           {search ? 'No matching pages' : 'No pages in this database'}
         </div>
-      ) : filteredPages.map(p => {
+      ) : filteredPages.map((p, i) => {
         const isSelected = selectedIds.includes(p.id);
+        const isActive = i === highlightIndex;
         return (
           <button key={p.id} onClick={() => onToggle(p.id)}
-            className={cn(`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-hover-surface transition-colors ${isSelected ? 'bg-accent-soft2' : ''}`)}>
+            ref={isActive ? (activeRef as React.RefObject<HTMLButtonElement>) : undefined}
+            aria-selected={isActive}
+            onMouseEnter={() => onHover(i)}
+            className={cn(`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${isActive ? 'bg-hover-surface' : 'hover:bg-hover-surface'} ${isSelected ? 'bg-accent-soft2' : ''}`)}>
             <ArrowUpRight className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
             <span className={cn("flex-1 truncate text-ink-body")}>{p.title}</span>
             {isSelected && <CheckCircle2 className={cn("w-4 h-4 text-accent-text-soft shrink-0")} />}

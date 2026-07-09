@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { MapPin, Plus, FileText, Layers } from 'lucide-react';
+import { MapPin, Plus, FileText, Layers, ArrowUpRight } from 'lucide-react';
 import type * as Leaflet from 'leaflet';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
@@ -103,35 +103,50 @@ export function MapLegend({ categoryProp }: Readonly<{ categoryProp: SchemaPrope
   );
 }
 
-/** Renders the sidebar listing all map locations with navigation controls. */
-export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, addPage, databaseId }: Readonly<{
+/** Renders the sidebar listing all map locations with navigation controls.
+ *  Row click FLIES the map to the location; the corner arrow opens the page.
+ *  The list is height-bounded by the map (min-h-0) and scrolls on its own. */
+export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, onFocus, addPage, databaseId }: Readonly<{
   mappablePages: MappablePage[];
   pages: Page[];
   getPageTitle: (page: Page) => string;
   openPage: (id: string) => void;
+  onFocus: (mp: MappablePage) => void;
   addPage: (dbId: string) => void;
   databaseId: string;
 }>) {
   const createRecord = useDefaultTemplateCreate(() => addPage(databaseId));
   return (
-    <div className={cn("w-72 border-l border-line flex flex-col bg-surface-primary shrink-0")}>
-      <div className={cn("px-4 py-3 border-b border-line flex items-center justify-between")}>
+    <div className={cn("w-72 border-l border-line flex flex-col min-h-0 bg-surface-primary shrink-0")}>
+      <div className={cn("px-4 py-3 border-b border-line flex items-center justify-between shrink-0")}>
         <h3 className={cn("text-sm font-semibold text-ink-body")}>Locations</h3>
         <span className={cn("text-xs text-ink-muted tabular-nums")}>{mappablePages.length}</span>
       </div>
-      <div className={cn("flex-1 overflow-auto")}>
-        {mappablePages.map(({ page, address, color }) => {
+      <div data-map-location-list className={cn("flex-1 min-h-0 overflow-y-auto")}>
+        {mappablePages.map(mp => {
+          const { page, address, color } = mp;
           const title = getPageTitle(page);
           const dotColor = color ? MARKER_COLORS[color] || 'var(--color-chart-1)' : 'var(--color-chart-1)';
+          // Two SIBLING buttons (row = fly-to, corner = open page) — nesting
+          // an interactive element inside a button is invalid HTML and loses
+          // keyboard activation.
           return (
-            <button type="button" key={page.id} onClick={() => openPage(page.id)}
-              className={cn("flex items-start gap-2.5 px-4 py-2.5 hover:bg-hover-surface cursor-pointer border-b border-line-faint transition-colors group text-left w-full")}>
-              <div className={cn("w-3 h-3 rounded-full mt-1 shrink-0")} style={{ background: dotColor }} />
-              <div className={cn("overflow-hidden min-w-0")}>
-                <div className={cn("text-sm font-medium text-ink truncate")}>{title || 'Untitled'}</div>
-                {address && <div className={cn("text-xs text-ink-secondary truncate")}>{address}</div>}
-              </div>
-            </button>
+            <div key={page.id} className={cn("relative group border-b border-line-faint")}>
+              <button type="button" onClick={() => onFocus(mp)} title="Show on map"
+                className={cn("flex items-start gap-2.5 px-4 py-2.5 hover:bg-hover-surface cursor-pointer transition-colors text-left w-full")}>
+                <div className={cn("w-3 h-3 rounded-full mt-1 shrink-0")} style={{ background: dotColor }} />
+                <div className={cn("overflow-hidden min-w-0 pr-5")}>
+                  <div className={cn("text-sm font-medium text-ink truncate")}>{title || 'Untitled'}</div>
+                  {address && <div className={cn("text-xs text-ink-secondary truncate")}>{address}</div>}
+                </div>
+              </button>
+              <button type="button" aria-label={`Open ${title || 'Untitled'}`}
+                onClick={() => openPage(page.id)}
+                className={cn(`absolute right-2.5 top-2.5 p-1 rounded text-ink-muted opacity-0
+                  group-hover:opacity-100 focus-visible:opacity-100 hover:text-ink hover:bg-hover-surface2 transition-opacity`)}>
+                <ArrowUpRight className={cn("w-3.5 h-3.5")} />
+              </button>
+            </div>
           );
         })}
         {mappablePages.length === 0 && pages.length > 0 && (

@@ -39,7 +39,7 @@ export function CellPortal({ onClose, minWidth = 280, maxWidth, maxHeight = '70v
           <PortalBackdrop onClose={onClose} zIndex={Z.CELL_BACKDROP} />
           <dialog // NOSONAR - dialog requires event handlers for propagation control
             open
-            className={cn("fixed bg-surface-primary shadow-xl border border-line rounded-lg overflow-hidden", className)}
+            className={cn("odb-pop-in fixed bg-surface-primary shadow-xl border border-line rounded-lg overflow-hidden", className)}
             style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, minWidth), maxWidth, maxHeight, zIndex: Z.CELL_EDITOR }}
             onClick={e => e.stopPropagation()}
             onKeyDown={e => { if (e.key === 'Escape') onClose(); }}>

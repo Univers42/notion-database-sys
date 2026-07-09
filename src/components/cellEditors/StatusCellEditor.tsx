@@ -10,11 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { SchemaProperty, SelectOption, PropertyValue } from '../../types/database';
 import { CheckCircle2, Settings } from 'lucide-react';
 import { CellPortal } from './CellPortal';
 import { getDotColor } from './constants';
+import { useListHighlight } from '../../hooks/useListHighlight';
 import { cn } from '../../utils/cn';
 
 interface StatusCellEditorProps {
@@ -44,13 +45,29 @@ export function StatusCellEditor({ property, value, databaseId: _databaseId, onU
 
   const handleSelect = (optId: string) => { onUpdate(optId); onClose(); };
 
+  // Flat option order across groups, so ArrowUp/Down roves the whole list (there
+  // is no search input to hold focus — the scroll container takes focus instead).
+  const flatOptions = useMemo(() => groupedOptions.flatMap(g => g.options), [groupedOptions]);
+  const { index: hi, setIndex: setHi, onArrowKey, activeRef } = useListHighlight(flatOptions.length);
+  const activeId = flatOptions[hi]?.id;
+  const focusOnMount = useCallback((el: HTMLDivElement | null) => { el?.focus(); }, []);
+  const onHoverId = useCallback((optId: string) => {
+    setHi(flatOptions.findIndex(o => o.id === optId));
+  }, [flatOptions, setHi]);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onArrowKey(e)) return;
+    if (e.key === 'Enter' && flatOptions[hi]) { e.preventDefault(); handleSelect(flatOptions[hi].id); }
+    // Escape bubbles to CellPortal's dialog, which closes.
+  };
+
   return (
     <CellPortal onClose={onClose} minWidth={220}>
-      <div className={cn("max-h-[60vh] overflow-y-auto py-1")}>
+      <div ref={focusOnMount} tabIndex={-1} onKeyDown={handleKeyDown}
+        className={cn("max-h-[60vh] overflow-y-auto py-1 outline-none")}>
         {groupedOptions.map((group, gi) => (
           <React.Fragment key={group.label}>
             {gi > 0 && <div className={cn("h-px bg-surface-tertiary mx-3 my-1")} />}
-            <StatusGroup group={group} value={value} onSelect={handleSelect} />
+            <StatusGroup group={group} value={value} activeId={activeId} activeRef={activeRef} onHoverId={onHoverId} onSelect={handleSelect} />
           </React.Fragment>
         ))}
         {value && <ClearButton onClear={() => { onUpdate(null); onClose(); }} />}
@@ -78,20 +95,26 @@ function resolveGroupOptions(optionIds: string[], allOptions: SelectOption[]): S
   return optionIds.map(oid => allOptions.find(o => o.id === oid)).filter((o): o is SelectOption => !!o);
 }
 
-function StatusGroup({ group, value, onSelect }: Readonly<{
-  group: { label: string; options: SelectOption[] }; value: PropertyValue; onSelect: (id: string) => void;
+function StatusGroup({ group, value, activeId, activeRef, onHoverId, onSelect }: Readonly<{
+  group: { label: string; options: SelectOption[] }; value: PropertyValue;
+  activeId?: string; activeRef: React.RefObject<HTMLElement | null>; onHoverId: (id: string) => void;
+  onSelect: (id: string) => void;
 }>) {
   return (
     <div>
       <div className={cn("px-3 py-1.5 text-xs font-medium text-ink-muted uppercase tracking-wide")}>{group.label}</div>
       {group.options.map(opt => {
-        const isActive = opt.id === value;
+        const isSelected = opt.id === value;
+        const isHighlighted = opt.id === activeId;
         return (
           <button key={opt.id} onClick={() => onSelect(opt.id)}
-            className={cn(`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-hover-surface transition-colors ${isActive ? 'bg-surface-secondary' : ''}`)}>
+            ref={isHighlighted ? (activeRef as React.RefObject<HTMLButtonElement>) : undefined}
+            aria-selected={isHighlighted}
+            onMouseEnter={() => onHoverId(opt.id)}
+            className={cn(`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors ${isHighlighted ? 'bg-hover-surface' : 'hover:bg-hover-surface'} ${isSelected ? 'bg-surface-secondary' : ''}`)}>
             <span className={cn(`w-2 h-2 rounded-full shrink-0 ${getDotColor(opt.color)}`)} />
             <span className={cn(`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span>
-            {isActive && <CheckCircle2 className={cn("w-3.5 h-3.5 text-accent-text-soft ml-auto shrink-0")} />}
+            {isSelected && <CheckCircle2 className={cn("w-3.5 h-3.5 text-accent-text-soft ml-auto shrink-0")} />}
           </button>
         );
       })}

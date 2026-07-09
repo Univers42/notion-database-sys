@@ -75,8 +75,8 @@ export function renderCellContent(props: CellRendererProps): React.ReactNode {
     case 'phone':           return renderEmailUrlPhone(props);
     case 'place':           return renderPlace(props);
     case 'id':              return renderId(value);
-    case 'files_media':     return renderFilesMedia(value);
-    case 'button':          return renderButton(prop);
+    case 'files_media':     return renderFilesMedia(props);
+    case 'button':          return renderButton(props);
     case 'formula':         return renderFormula(props);
     case 'rollup':          return renderRollup(props);
     case 'relation':        return renderRelation(props);

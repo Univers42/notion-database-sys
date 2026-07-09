@@ -11,12 +11,41 @@
 /* ************************************************************************** */
 
 import React from 'react';
+import { addDays, format } from 'date-fns';
 import {
   getBarColorSet, compactDateRange,
   type BarColorSet, type BarGeometry,
 } from './TimelineViewHelpers';
 import type { DragState } from './timelineTypes';
 import { cn } from '../../../utils/cn';
+
+/**
+ * Live date chip pinned above a bar WHILE it is dragged/drawn — the user sees
+ * the resulting dates in real time, not only after release. Positions follow
+ * the live left/width, so the label tracks the pointer.
+ */
+export function LiveDragLabel({ timelineStart, displayLeft, displayWidth, cellWidth }: Readonly<{
+  timelineStart: Date; displayLeft: number; displayWidth: number; cellWidth: number;
+}>) {
+  const startDay = Math.round(displayLeft / cellWidth);
+  const widthCells = Math.max(1, Math.round(displayWidth / cellWidth));
+  const from = addDays(timelineStart, startDay);
+  // width = (endDay - startDay) cells, so the end DATE sits at startDay + cells.
+  const to = addDays(timelineStart, startDay + widthCells);
+  const label = widthCells <= 1
+    ? format(from, 'MMM d')
+    : `${format(from, 'MMM d')} → ${format(to, 'MMM d')}`;
+  return (
+    <div
+      className={cn(`absolute bottom-full mb-1 left-0 px-2 py-0.5 rounded-md
+                  bg-surface-primary border border-line shadow-md
+                  text-[10px] font-medium text-ink whitespace-nowrap
+                  pointer-events-none z-50`)}
+    >
+      {label}
+    </div>
+  );
+}
 
 /** Renders the vertical "today" marker line. */
 export function TodayMarker({ todayIdx, cellWidth }: Readonly<{ todayIdx: number; cellWidth: number }>) {

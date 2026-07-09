@@ -136,7 +136,7 @@ export function PropertyVisibilityRow({ propId: _propId, propName, iconName, vis
       <button onClick={onToggle} className={cn("flex-1 text-left min-w-0 truncate")}>
         <span className={cn(visible ? 'text-ink' : 'text-ink-muted')}>{propName}</span>
       </button>
-      <button onClick={onToggle} className={cn("shrink-0")}>
+      <button onClick={onToggle} aria-label={`${visible ? 'Hide' : 'Show'} property ${propName}`} className={cn("shrink-0")}>
         {visible
           ? <Eye className={cn("w-3.5 h-3.5 text-accent-text-soft opacity-60 group-hover:opacity-100")} />
           : <EyeOff className={cn("w-3.5 h-3.5 text-ink-disabled group-hover:text-ink-muted")} />}

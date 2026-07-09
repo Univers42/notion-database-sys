@@ -24,18 +24,52 @@ export function useTimelineDatePicker(props: Readonly<TimelineDatePickerProps>) 
   const {
     anchorRect, startDate, endDate, hasEndDate,
     onChangeStart, onChangeEnd, onToggleEndDate, onClose,
+    onChangeDateFormat, onToggleIncludeTime, onChangeRemind,
   } = props;
 
   const [currentMonth, setCurrentMonth] = useState(startDate ?? new Date());
   const [selectingEnd, setSelectingEnd] = useState(false);
-  const [dateFormat, setDateFormat] = useState<DateFormatLabel>('Full date');
-  const [includeTime, setIncludeTime] = useState(false);
-  const [remind, setRemind] = useState<RemindOption>('None');
+  // Settings are CONTROLLED when the property supplies them (persisted); the
+  // local state is the fallback for panel-only callers.
+  const [localFormat, setLocalFormat] = useState<DateFormatLabel>('Full date');
+  const [localIncludeTime, setLocalIncludeTime] = useState(false);
+  const [localRemind, setLocalRemind] = useState<RemindOption>('None');
+  const dateFormat = props.dateFormat ?? localFormat;
+  const includeTime = props.includeTime ?? localIncludeTime;
+  const remind = props.remind ?? localRemind;
+  const setDateFormat = useCallback((v: DateFormatLabel) => {
+    (onChangeDateFormat ?? setLocalFormat)(v);
+  }, [onChangeDateFormat]);
+  const setIncludeTime = useCallback((next: boolean) => {
+    (onToggleIncludeTime ?? setLocalIncludeTime)(next);
+  }, [onToggleIncludeTime]);
+  const setRemind = useCallback((v: RemindOption) => {
+    (onChangeRemind ?? setLocalRemind)(v);
+  }, [onChangeRemind]);
   const [showFormatDropdown, setShowFormatDropdown] = useState(false);
   const [showRemindDropdown, setShowRemindDropdown] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const panelRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  /** "HH:mm" for the given date, or '' if none. */
+  const timeStr = (d: Date | null): string => (d ? format(d, 'HH:mm') : '');
+  /** Merge a "HH:mm" time into a base date, keeping its Y/M/D. */
+  const mergeTime = useCallback((base: Date | null, hhmm: string): Date | null => {
+    const [h, m] = hhmm.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    const d = new Date(base ?? new Date());
+    d.setHours(h, m, 0, 0);
+    return d;
+  }, []);
+  const handleStartTimeChange = useCallback((hhmm: string) => {
+    const merged = mergeTime(startDate, hhmm);
+    if (merged) onChangeStart(merged);
+  }, [startDate, mergeTime, onChangeStart]);
+  const handleEndTimeChange = useCallback((hhmm: string) => {
+    const merged = mergeTime(endDate ?? startDate, hhmm);
+    if (merged) onChangeEnd(merged);
+  }, [endDate, startDate, mergeTime, onChangeEnd]);
 
   const style = useMemo(() => {
     const top = anchorRect.bottom + 4;
@@ -66,8 +100,11 @@ export function useTimelineDatePicker(props: Readonly<TimelineDatePickerProps>) 
         else onClose();
       }
     };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    // Capture phase: the panel stopPropagation()s bubbling keys (so typing never
+    // leaks to the grid), which would starve a bubble listener whenever the
+    // input has focus — Escape must close regardless of focus.
+    document.addEventListener('keydown', handler, true);
+    return () => document.removeEventListener('keydown', handler, true);
   }, [onClose, showFormatDropdown, showRemindDropdown]);
 
 
@@ -175,5 +212,7 @@ export function useTimelineDatePicker(props: Readonly<TimelineDatePickerProps>) 
     handleDayClick, inRange, isStart, isEnd,
     handleInputSubmit, handleToggleEnd,
     activeFmt, _formatDate,
+    startTime: timeStr(startDate), endTime: timeStr(endDate),
+    handleStartTimeChange, handleEndTimeChange,
   };
 }

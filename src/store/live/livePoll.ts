@@ -38,11 +38,15 @@ export interface LivePollDeps {
 }
 
 /** 403 (no workspace access) / 401 (no session) are permanent for this table —
- *  retrying just hammers the bridge. Matches status or the bridge's message. */
+ *  retrying just hammers the bridge. Matches status or the bridge's message.
+ *  503/network (FETCH_FAILED) is DELIBERATELY excluded: a transient bridge blip
+ *  (rebuild DNS hiccup, momentary unavailability) must NOT latch the adapter's
+ *  `forbidden` state — that poisoned every mount for the SPA lifetime and forced
+ *  a hard reload. Transient errors fall through to retry on the next load. */
 export function isPermanentDenial(error: unknown): boolean {
   const e = error as { status?: number; statusCode?: number; message?: unknown } | null;
   const status = e?.status ?? e?.statusCode;
-  if (status === 403 || status === 401 || status === 503) return true;
+  if (status === 403 || status === 401) return true;
   return typeof e?.message === 'string' && /accessible workspace|forbidden|unauthor|HTTP 40[13]/i.test(e.message);
 }
 

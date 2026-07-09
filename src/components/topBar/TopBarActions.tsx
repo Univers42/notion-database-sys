@@ -25,9 +25,11 @@ import type { Filter as FilterType, Sort } from '../../types/database';
 
 /** Props for {@link TopBarActions}. */
 export interface TopBarActionsProps {
-  /** 'single-view' = embedded in a host page: hide the developer chrome
+  /** Embedded chromes ('inline' | 'single-view') hide the developer chrome
    *  (data-source switcher, theme toggle) — the HOST owns those concerns. */
-  variant?: 'full' | 'single-view';
+  variant?: 'full' | 'inline' | 'single-view';
+  /** Navigate to the database's origin surface ("Open as full page"). */
+  onOpenFullPage?: () => void;
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
   filters: FilterType[];
   sorts: Sort[];
@@ -49,6 +51,10 @@ export interface TopBarActionsProps {
   setIsFullSize: (v: boolean) => void;
   showViewSettings: boolean;
   setShowViewSettings: (v: boolean) => void;
+  /** Open View settings pre-navigated to the Automations screen. */
+  onOpenAutomations: () => void;
+  /** Local-rule count for the ⚡ pill (live mounts manage rules server-side → 0). */
+  automationsCount: number;
   showExtraActions: boolean;
   setShowExtraActions: (v: boolean) => void;
   showTemplates: boolean;
@@ -60,6 +66,7 @@ export interface TopBarActionsProps {
 /** Right-side action buttons: filter, sort, search, settings, new page. */
 export function TopBarActions({
   variant = 'full',
+  onOpenFullPage,
   filterBtnRef, filters, sorts,
   showFilterPropertyPicker, setShowFilterPropertyPicker,
   showFilterPanel, setShowFilterPanel, setShowAdvancedFilter,
@@ -68,6 +75,7 @@ export function TopBarActions({
   searchRef, searchDebounceRef, onSearchQueryChange,
   isFullSize, setIsFullSize,
   showViewSettings, setShowViewSettings,
+  onOpenAutomations, automationsCount,
   showExtraActions, setShowExtraActions,
   showTemplates, setShowTemplates, databaseName,
   onNewPage,
@@ -80,7 +88,7 @@ export function TopBarActions({
   };
   return (
     <div className={cn("odb-topbar-actions flex items-center gap-0.5 shrink-0")}>
-      <button ref={filterBtnRef}
+      <button ref={filterBtnRef} aria-label="Filter" title="Filter"
         onClick={() => {
           if (filters.length === 0) { setShowFilterPropertyPicker(!showFilterPropertyPicker); setShowFilterPanel(false); setShowAdvancedFilter(false); }
           else { setShowFilterPanel(!showFilterPanel); setShowFilterPropertyPicker(false); }
@@ -88,23 +96,26 @@ export function TopBarActions({
         }}
         className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${filters.length > 0
           ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
-        <Filter className={cn("w-3.5 h-3.5")} /><span className={cn("hidden sm:inline")}>Filter</span>
+        <Filter className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Filter</span>
         {filters.length > 0 && <span className={cn("text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums")}>{filters.length}</span>}
       </button>
-      <button onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
+      <button aria-label="Sort" title="Sort" onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
         className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${sorts.length > 0
           ? 'bg-purple-surface text-purple-text font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
-        <ArrowUpDown className={cn("w-3.5 h-3.5")} /><span className={cn("hidden sm:inline")}>Sort</span>
+        <ArrowUpDown className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Sort</span>
         {sorts.length > 0 && <span className={cn("text-xs bg-purple-surface-muted text-purple-text-bold px-1.5 rounded-full tabular-nums")}>{sorts.length}</span>}
       </button>
-      <button className={cn("flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface transition-colors")}>
-        <Zap className={cn("w-3.5 h-3.5")} /><span className={cn("hidden sm:inline")}>Automations</span>
+      <button aria-label="Automations" title="Automations" onClick={onOpenAutomations}
+        className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${automationsCount > 0
+          ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
+        <Zap className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Automations</span>
+        {automationsCount > 0 && <span className={cn("text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums")}>{automationsCount}</span>}
       </button>
 
       {showSearch ? (
         <div className={cn("flex items-center gap-1 bg-surface-tertiary rounded-lg px-2 py-1")}>
           <Search className={cn("w-3.5 h-3.5 text-ink-muted")} />
-          <input ref={searchRef} type="text" placeholder="Search..." value={localSearchValue}
+          <input ref={searchRef} type="text" placeholder="Search..." aria-label="Search database" value={localSearchValue}
             onChange={e => { const v = e.target.value; setLocalSearchValue(v); clearTimeout(searchDebounceRef.current); searchDebounceRef.current = setTimeout(() => onSearchQueryChange(v), 200); }}
             onKeyDown={e => { if (e.key === 'Escape') { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); } }}
             className={cn("bg-transparent text-sm text-ink w-40 outline-none placeholder:text-placeholder")} />
@@ -118,8 +129,11 @@ export function TopBarActions({
         </button>
       )}
 
-      <button onClick={() => setIsFullSize(!isFullSize)} aria-label="Full-size"
-        className={cn(`p-2 rounded-lg transition-colors ${isFullSize ? 'bg-surface-tertiary text-ink-body' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)} title="Full-size">
+      <button
+        onClick={onOpenFullPage ?? (() => setIsFullSize(!isFullSize))}
+        aria-label={onOpenFullPage ? 'Open as full page' : 'Full-size'}
+        title={onOpenFullPage ? 'Open as full page' : 'Full-size'}
+        className={cn(`p-2 rounded-lg transition-colors ${!onOpenFullPage && isFullSize ? 'bg-surface-tertiary text-ink-body' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
         <Maximize2 className={cn("w-4 h-4")} />
       </button>
       <button onClick={() => setShowViewSettings(!showViewSettings)} aria-label="View settings"
@@ -127,7 +141,7 @@ export function TopBarActions({
         <Settings2 className={cn("w-4 h-4")} />
       </button>
       <ExtraActionsMenu show={showExtraActions} onToggle={() => setShowExtraActions(!showExtraActions)} onClose={() => setShowExtraActions(false)} />
-      {variant !== 'single-view' && (
+      {variant === 'full' && (
         <>
           <DbSourceDropdown />
           <ThemeToggle />
@@ -135,15 +149,19 @@ export function TopBarActions({
       )}
       <div className={cn("w-px h-5 bg-surface-muted mx-1")} />
       {templates ? (
-        <div className={cn("relative flex items-center gap-px")}>
-          <button onClick={handlePrimaryNew}
-            className={cn("flex items-center gap-1.5 pl-3 pr-2.5 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-l-lg hover:bg-hover-accent transition-colors shadow-sm")}>
-            <Plus className={cn("w-3.5 h-3.5")} /> New
-          </button>
-          <button aria-label="New from template" aria-expanded={showTemplates} onClick={() => setShowTemplates(!showTemplates)}
-            className={cn("flex items-center px-1.5 py-1.5 bg-accent text-ink-inverse rounded-r-lg hover:bg-hover-accent transition-colors shadow-sm")}>
-            <ChevronDown className={cn("w-3.5 h-3.5")} />
-          </button>
+        <div className={cn("relative")}>
+          {/* One seamless split control: shared rounded surface, equal-height
+              segments (items-stretch), inset divider — no see-through gap. */}
+          <div className={cn("flex items-stretch rounded-lg overflow-hidden shadow-sm")}>
+            <button onClick={handlePrimaryNew}
+              className={cn("flex items-center gap-1.5 pl-3 pr-2.5 py-1.5 bg-accent text-ink-inverse text-sm font-medium hover:bg-hover-accent transition-colors")}>
+              <Plus className={cn("w-3.5 h-3.5")} /> New
+            </button>
+            <button aria-label="New from template" aria-expanded={showTemplates} onClick={() => setShowTemplates(!showTemplates)}
+              className={cn("flex w-6 items-center justify-center self-stretch bg-accent text-ink-inverse border-l border-ink-inverse/25 hover:bg-hover-accent transition-colors")}>
+              <ChevronDown className={cn("w-3.5 h-3.5")} />
+            </button>
+          </div>
           {showTemplates && (
             <TemplatesDropdown databaseName={databaseName} templates={templates}
               onCreateBlank={onNewPage} onClose={() => setShowTemplates(false)} />

@@ -10,23 +10,25 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { findDateProperties, type BarGeometry } from './TimelineViewHelpers';
 import type { SchemaProperty } from '../../../types/database';
 import type { DragKind, DragState } from './timelineTypes';
-import { handleAutoScroll, computeDragPosition, applyMoveDrag, applyResizeLeftDrag, applyResizeRightDrag } from './timelineDragUtils';
+import { handleAutoScroll, computeDragPosition, applyMoveDrag, applyResizeLeftDrag, applyResizeRightDrag, applyCreateDrag } from './timelineDragUtils';
 
 interface UseTimelineDragOptions {
   cellWidth: number;
   startDate: Date;
   startPropId: string;
+  /** The view-selected end property (Dates menu); null → name heuristic. */
+  endPropId: string | null;
   dbId: string;
   updatePageProperty: (pageId: string, propId: string, val: string) => void;
 }
 
 export function useTimelineDrag({
-  cellWidth, startDate, startPropId, dbId, updatePageProperty,
+  cellWidth, startDate, startPropId, endPropId, dbId, updatePageProperty,
 }: UseTimelineDragOptions) {
   const [dragState, setDragState] = useState<DragState | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -45,24 +47,40 @@ export function useTimelineDrag({
     if (!dbId) return null;
     const freshDb = storeApi.getState().databases[dbId];
     if (!freshDb) return null;
+    // The view's explicit choice wins, then the start property's SCHEMA
+    // pairing (the same interval the table cell renders), then heuristics.
+    if (endPropId && freshDb.properties[endPropId]) return freshDb.properties[endPropId];
+    const paired = freshDb.properties[startPropId]?.endPropertyId;
+    if (paired && freshDb.properties[paired]) return freshDb.properties[paired];
     const { endProp } = findDateProperties(freshDb.properties);
     if (endProp) return endProp;
     return Object.values(freshDb.properties).find(
       p => p.name === 'End Date' && (p.type === 'date' || p.type === 'due_date'),
     ) ?? null;
-  }, [dbId, storeApi]);
+  }, [dbId, endPropId, startPropId, storeApi]);
 
   const ensureEndProp = useCallback((): SchemaProperty | null => {
     if (!dbId) return null;
-    const existing = findEndProp();
-    if (existing) return existing;
-    storeApi.getState().addProperty(dbId, 'End Date', 'date');
-    const updatedDb = storeApi.getState().databases[dbId];
-    if (!updatedDb) return null;
-    return Object.values(updatedDb.properties).find(
-      p => p.name === 'End Date' && (p.type === 'date' || p.type === 'due_date'),
-    ) ?? null;
-  }, [dbId, findEndProp, storeApi]);
+    let endProp = findEndProp();
+    if (!endProp) {
+      storeApi.getState().addProperty(dbId, 'End Date', 'date');
+      const updatedDb = storeApi.getState().databases[dbId];
+      endProp = updatedDb
+        ? Object.values(updatedDb.properties).find(
+            p => p.name === 'End Date' && (p.type === 'date' || p.type === 'due_date'),
+          ) ?? null
+        : null;
+    }
+    // Record the pairing on the start property, so the table's date cell
+    // renders the SAME interval this drag writes ("start → end").
+    if (endProp && startPropId && endProp.id !== startPropId) {
+      const state = storeApi.getState();
+      if (state.databases[dbId]?.properties[startPropId]?.endPropertyId !== endProp.id) {
+        state.updateProperty(dbId, startPropId, { endPropertyId: endProp.id });
+      }
+    }
+    return endProp;
+  }, [dbId, findEndProp, startPropId, storeApi]);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, pageId: string, kind: DragKind, bar: BarGeometry) => {
@@ -81,6 +99,36 @@ export function useTimelineDrag({
     },
     [getDayFromMouse],
   );
+
+  /** Start DRAWING a range on a dateless record's lane (grab-and-slide create). */
+  const beginCreate = useCallback(
+    (e: React.PointerEvent, pageId: string, dayIdx: number) => {
+      const ghost: BarGeometry = {
+        left: dayIdx * cellWidth, width: cellWidth, visible: true,
+        startDay: dayIdx, endDay: dayIdx + 1, hasEndDate: false, isPoint: true,
+      };
+      handlePointerDown(e, pageId, 'create', ghost);
+    },
+    [cellWidth, handlePointerDown],
+  );
+
+  const cancelDrag = useCallback(() => {
+    if (autoScrollRef.current) {
+      cancelAnimationFrame(autoScrollRef.current);
+      autoScrollRef.current = null;
+    }
+    setDragState(null);
+  }, []);
+
+  // Escape aborts an in-flight drag without committing (escape route).
+  useEffect(() => {
+    if (!dragState) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') cancelDrag();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [dragState, cancelDrag]);
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
@@ -111,7 +159,10 @@ export function useTimelineDrag({
       const delta = currentDay - dragState.originDayIdx;
       const { originBar, pageId, kind, hasMoved } = dragState;
 
-      if (hasMoved && delta !== 0) {
+      if (kind === 'create') {
+        // A plain click (no move) still commits: single-day date on the record.
+        applyCreateDrag(originBar, hasMoved ? delta : 0, pageId, startDate, startPropId, updatePageProperty, ensureEndProp);
+      } else if (hasMoved && delta !== 0) {
         if (kind === 'move') {
           applyMoveDrag(originBar, delta, pageId, startDate, startPropId, updatePageProperty, ensureEndProp);
         } else if (kind === 'resize-left') {
@@ -131,6 +182,8 @@ export function useTimelineDrag({
     scrollRef,
     findEndProp,
     ensureEndProp,
+    beginCreate,
+    cancelDrag,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,

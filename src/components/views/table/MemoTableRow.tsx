@@ -13,11 +13,13 @@
 import React from 'react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
-import { ArrowUpRight, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useSubItems } from './subItemsContext';
+import { GripHandleIcon } from '../../ui/Icons';
 import { cn } from '../../../utils/cn';
+import { cellDomId } from './gridKeyboard';
 
 /** Props for the memoized table row component. */
 export interface MemoTableRowProps {
@@ -33,6 +35,7 @@ export interface MemoTableRowProps {
   getColWidth: (propId: string) => number;
   databaseId: string;
   onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue) => void;
+  onCellDoubleClick: (pageId: string, propId: string, type: string) => void;
   onUpdateProperty: (pageId: string, propId: string, value: PropertyValue) => void;
   onStopEditing: () => void;
   onOpenPage: (pageId: string) => void;
@@ -45,6 +48,14 @@ export interface MemoTableRowProps {
   tint?: string | null;
   /** Virtualizer row-measure ref (windowed body) — attaches to the <tr>. */
   measureRef?: (el: HTMLTableRowElement | null) => void;
+  /** Row drag-reorder (manual order): off under user sorts / grouping. */
+  canReorder?: boolean;
+  onRowDragStart?: (pageId: string) => void;
+  onRowDragEnd?: () => void;
+  onRowDragOver?: (pageId: string) => void;
+  onRowDrop?: (pageId: string) => void;
+  /** This row is the current drop target — paints the insertion edge. */
+  isDropTarget?: boolean;
 }
 
 /** Determines whether a row falls within the fill-drag highlight range. */
@@ -71,7 +82,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const {
     page, rowIdx, visibleProps, focusedPropId, editingPropId,
     fillDrag, showRowNumbers, showVerticalLines, wrapContent,
-    getColWidth, databaseId, onCellClick, onUpdateProperty, onStopEditing,
+    getColWidth, databaseId, onCellClick, onCellDoubleClick, onUpdateProperty, onStopEditing,
     onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
   } = props;
 
@@ -81,27 +92,39 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
 
   return (
-    <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={rowIdx} className={cn("group hover:bg-hover-surface-soft")}
-      style={props.tint ? { backgroundColor: props.tint } : undefined}>
-      {showRowNumbers && (
-        <td className={cn("w-10 px-1 py-1.5 border-r border-b border-line text-center align-middle relative")}>
+    <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={rowIdx} data-page-id={page.id}
+      role="row"
+      className={cn(`group transition-colors duration-100 hover:bg-hover-surface-soft ${props.isDropTarget ? 'shadow-[inset_0_2px_0_0_var(--color-accent)]' : ''}`)}
+      style={props.tint ? { backgroundColor: props.tint } : undefined}
+      onDragOver={props.canReorder ? e => { e.preventDefault(); props.onRowDragOver?.(page.id); } : undefined}
+      onDrop={props.canReorder ? e => { e.preventDefault(); props.onRowDrop?.(page.id); } : undefined}>
+      {/* Leading control gutter — ALWAYS rendered (uniform w-10 so the cluster
+          never clips): drag grip + sub-item expand on row hover; the row number
+          only when enabled. Open-as-page lives on the title cell (OPEN pill)
+          and in the row-options menu — not here. */}
+      <td className={cn("w-10 px-1 py-1.5 border-r border-b border-line text-center align-middle relative")}>
+        {showRowNumbers && (
           <span className={cn("text-xs text-ink-muted tabular-nums group-hover:opacity-0")}>{rowIdx + 1}</span>
-          <div className={cn("absolute inset-0 flex items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100")}>
-            {subItems && (
-              <button type="button" aria-label={expanded ? "Collapse sub-items" : "Expand sub-items"}
-                className={cn("p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
-                onClick={e => { e.stopPropagation(); subItems.toggle(page.id); }}>
-                <ChevronRight className={cn(`w-3 h-3 transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`)} />
-              </button>
-            )}
-            <button type="button" aria-label="Open as page" title="Open as page"
-              className={cn("p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
-              onClick={e => { e.stopPropagation(); onOpenPage(page.id); }}>
-              <ArrowUpRight className={cn("w-3 h-3")} />
+        )}
+        <div className={cn("absolute inset-0 flex items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100")}>
+          {props.canReorder && (
+            <button type="button" aria-label="Drag to reorder record" title="Drag to reorder"
+              draggable
+              className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
+              onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; props.onRowDragStart?.(page.id); }}
+              onDragEnd={e => { e.stopPropagation(); props.onRowDragEnd?.(); }}>
+              <GripHandleIcon className={cn("w-[10px] h-[14px]")} />
             </button>
-          </div>
-        </td>
-      )}
+          )}
+          {subItems && (
+            <button type="button" aria-label={expanded ? "Collapse sub-items" : "Expand sub-items"}
+              className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
+              onClick={e => { e.stopPropagation(); subItems.toggle(page.id); }}>
+              <ChevronRight className={cn(`w-3 h-3 transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`)} />
+            </button>
+          )}
+        </div>
+      </td>
 
       {visibleProps.map(prop => {
         const value = page.properties[prop.id];
@@ -123,12 +146,16 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
 
         return (
           <td key={prop.id}
+            id={cellDomId(databaseId, page.id, prop.id)}
+            role="gridcell"
+            aria-selected={isFocused}
             className={cn(`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`)}
             style={{
               width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id),
               cursor: cellCursor,
             }}
-            onClick={() => onCellClick(page.id, prop.id, prop.type, value)}>
+            onClick={() => onCellClick(page.id, prop.id, prop.type, value)}
+            onDoubleClick={() => onCellDoubleClick(page.id, prop.id, prop.type)}>
             {renderCellContent(cellProps)}
             {isFocused && !isEditing && (
               <button type="button" className={cn("absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20 p-0 appearance-none outline-none")}

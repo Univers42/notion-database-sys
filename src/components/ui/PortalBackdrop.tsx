@@ -21,8 +21,11 @@ interface PortalBackdropProps {
 }
 
 /**
- * Invisible fullscreen button that closes a portal on click.
+ * Invisible fullscreen button that closes a portal.
  * Place this BEFORE the panel in the portal so the panel renders on top.
+ * Closes on POINTERDOWN, not click: a click can be lost when the panel's
+ * focused input blurs and triggers a store write that re-renders between
+ * mousedown and mouseup — the stuck-backdrop bug class.
  */
 export function PortalBackdrop({ onClose, zIndex = Z.CELL_BACKDROP, className }: Readonly<PortalBackdropProps>) {
   return (
@@ -30,7 +33,7 @@ export function PortalBackdrop({ onClose, zIndex = Z.CELL_BACKDROP, className }:
       type="button"
       className={cn('fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default', className)}
       style={{ zIndex }}
-      onClick={e => { e.stopPropagation(); onClose(); }}
+      onPointerDown={e => { e.stopPropagation(); onClose(); }}
       tabIndex={-1}
       aria-label="Close"
     />

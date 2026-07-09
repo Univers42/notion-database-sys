@@ -20,6 +20,10 @@ import { CURSORS } from '../../ui/cursors';
 import { renderPropertyValue, coverColors } from './GalleryViewHelpers';
 import { cn } from '../../../utils/cn';
 import { useViewPages } from '../../../hooks/useViewPages';
+import { useViewPager } from '../../../hooks/useViewPager';
+import { ViewPaginationBar } from '../shared/ViewPaginationBar';
+import { useStackedGroups } from '../../../hooks/useViewGrouping';
+import { GroupSectionHeader } from '../shared/GroupSectionHeader';
 import { colorForPage } from '../../../lib/conditionalColor';
 
 /** Renders a gallery view of database pages as cards with optional cover previews. */
@@ -29,6 +33,9 @@ export function GalleryView() {
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const pages = useViewPages(view?.id);
+  const pager = useViewPager(pages, view?.settings?.loadLimit, view?.id);
+  // Notion-mode grouping: stacked, collapsible sections (null when inactive).
+  const { groups, collapsed, toggleCollapse } = useStackedGroups(view?.id);
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
 
   if (!view || !database) return null;
@@ -38,7 +45,8 @@ export function GalleryView() {
   const fitMedia = settings.fitMedia !== false;
   const showPageIcon = settings.showPageIcon !== false;
   const wrapContent = settings.wrapContent === true;
-  const cardPreview = settings.cardPreview || 'none';
+  // Notion parity: a gallery previews the page cover unless explicitly disabled.
+  const cardPreview = settings.cardPreview || 'page_cover';
   // Carousel = a single horizontally-scrolling row (show one row, scroll sideways
   // for the rest) instead of the wrapping grid. Cards get a fixed width per size.
   const isCarousel = settings.galleryLayout === 'carousel';
@@ -62,11 +70,6 @@ export function GalleryView() {
   };
   const coverHeight = coverHeightMap[cardSize] || 'h-36';
 
-  const minHeightMap: Record<string, string> = {
-    small: '120px',
-    large: '240px',
-  };
-
   // Render cover based on cardPreview setting
   const renderCover = (page: Page, idx: number) => {
     const coverColor = coverColors[idx % coverColors.length];
@@ -79,9 +82,16 @@ export function GalleryView() {
     if (cardPreview === 'page_cover') {
       // Show page cover image, icon, or colored placeholder
       return (
-        <div className={cn(`${coverHeight} ${coverColor} relative flex items-center justify-center`)}>
+        <div data-testid="gallery-card-cover" className={cn(`${coverHeight} ${coverColor} relative flex items-center justify-center`)}>
           {(() => {
             if (page.cover) {
+              // A cover is a URL or a CSS gradient — gradients render as a
+              // painted div, not an <img> (which would show a broken image).
+              const isGradientCover = page.cover.startsWith('linear-gradient')
+                || page.cover.startsWith('radial-gradient');
+              if (isGradientCover) {
+                return <div className={cn("w-full h-full")} style={{ background: page.cover }} />;
+              }
               return <img src={page.cover} alt="" className={cn(`w-full h-full ${fitMedia ? 'object-cover' : 'object-contain'}`)} />;
             }
             if (page.icon) {
@@ -138,13 +148,7 @@ export function GalleryView() {
     return null;
   };
 
-  return (
-    <div className={cn("flex-1 p-6 bg-surface-primary", isCarousel ? "overflow-x-auto overflow-y-hidden" : "overflow-auto")}>
-      <div
-        className={cn(isCarousel ? "flex gap-4" : `grid ${gridCols} gap-4`)}
-        style={isCarousel ? { scrollSnapType: "x proximity" } : undefined}
-      >
-        {pages.map((page, idx) => {
+  const renderCard = (page: Page, idx: number) => {
           const title = getPageTitle(page);
 
           const accent = colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null;
@@ -189,25 +193,63 @@ export function GalleryView() {
               </div>
             </button>
           );
-        })}
+  };
 
-        {/* Add card */}
-        <button type="button" onClick={createRecord}
-          className={cn("border-2 border-dashed border-line rounded-xl flex items-center justify-center hover:border-hover-border-strong hover:bg-hover-surface transition-all duration-200", isCarousel ? "shrink-0" : "")}
-          style={{ cursor: CURSORS.pointer, minHeight: minHeightMap[cardSize] || '180px', ...(isCarousel ? { width: carouselWidth } : {}) }}>
-          <div className={cn("flex flex-col items-center gap-1 text-ink-muted")}>
-            <Plus className={cn("w-6 h-6")} />
+  /* One card grid (or carousel row). groupValue === undefined → ungrouped
+     (template-aware New); a group's grid seeds new cards into that group. */
+  const renderGrid = (list: Page[], groupValue?: string | null) => (
+      <div
+        className={cn(isCarousel ? "flex gap-4" : `grid ${gridCols} gap-4`)}
+        style={isCarousel ? { scrollSnapType: "x proximity" } : undefined}
+      >
+        {list.map((page, idx) => renderCard(page, idx))}
+        {/* Add card — a short Notion-style bar, not a full-height ghost card
+            (self-start opts out of the grid row's stretch alignment). */}
+        <button type="button" data-testid="gallery-new-page"
+          onClick={groupValue === undefined
+            ? createRecord
+            : () => { if (view.grouping) addPage(database.id, { [view.grouping.propertyId]: groupValue }); }}
+          className={cn("self-start h-10 border-2 border-dashed border-line rounded-xl flex items-center justify-center hover:border-hover-border-strong hover:bg-hover-surface transition-all duration-200", isCarousel ? "shrink-0" : "w-full")}
+          style={{ cursor: CURSORS.pointer, ...(isCarousel ? { width: carouselWidth } : {}) }}>
+          <div className={cn("flex items-center gap-1.5 text-ink-muted")}>
+            <Plus className={cn("w-4 h-4")} />
             <span className={cn("text-sm")}>New page</span>
           </div>
         </button>
       </div>
+  );
 
-      {pages.length === 0 && (
-        <div className={cn("text-center py-20 text-ink-muted")}>
-          <Image className={cn("w-10 h-10 mx-auto mb-3 text-ink-disabled")} />
-          <p className={cn("text-sm")}>No pages to display</p>
-        </div>
-      )}
+  // Notion-mode grouping: one collapsible section per group value.
+  if (groups) {
+    return (
+      <div className={cn("flex-1 p-6 bg-surface-primary overflow-auto flex flex-col gap-5")}>
+        {groups.map(g => (
+          <section key={g.groupId} data-testid="gallery-group-section">
+            <GroupSectionHeader label={g.groupLabel} color={g.groupColor} count={g.pages.length}
+              collapsed={collapsed.has(g.groupId)} onToggle={() => toggleCollapse(g.groupId)} />
+            {!collapsed.has(g.groupId) && (
+              <div className={cn("mt-2")}>
+                {renderGrid(g.pages, g.groupId === '__unassigned__' ? null : g.groupId)}
+              </div>
+            )}
+          </section>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("flex-1 flex flex-col min-h-0")}>
+      <ViewPaginationBar pager={pager} />
+      <div className={cn("flex-1 p-6 bg-surface-primary", isCarousel ? "overflow-x-auto overflow-y-hidden" : "overflow-auto")}>
+        {renderGrid(pager.items)}
+        {pager.items.length === 0 && (
+          <div className={cn("text-center py-20 text-ink-muted")}>
+            <Image className={cn("w-10 h-10 mx-auto mb-3 text-ink-disabled")} />
+            <p className={cn("text-sm")}>No pages to display</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

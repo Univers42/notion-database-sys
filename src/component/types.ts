@@ -12,6 +12,7 @@
 
 import type { ObjectDatabaseAdapter } from '@notion-db/contract-types';
 import type React from 'react';
+import type { HostAdapters } from '../hooks/useHostAdapters';
 export {
   AdapterError,
 } from '@notion-db/contract-types';
@@ -39,6 +40,8 @@ export type ObjectDatabasePageRenderer = (
   pageId: string,
   state: ExtendedDatabaseState,
   onClose: () => void,
+  /** The view's "Open pages in" preference — hosts should honor it. */
+  openIn?: 'side_peek' | 'center_peek' | 'full_page',
 ) => React.ReactNode;
 
 /** One template entry shown in the database "New" dropdown. */
@@ -107,11 +110,25 @@ export interface ObjectDatabaseProps {
   onPageOpen?: (pageId: string | null) => void;
   renderPage?: ObjectDatabasePageRenderer;
   className?: string;
-  chrome?: 'full' | 'single-view';
+  /** full = standalone surface (db switcher + editable h1).
+   *  inline = Notion collection-view header for page embeds (title-as-link,
+   *  view tabs, collapse). single-view = minimal shelf header (view name only). */
+  chrome?: 'full' | 'inline' | 'single-view';
   /** Host-supplied templates controller; when present the "New" button splits. */
   templates?: ObjectDatabaseTemplatesController;
   /** Host-supplied sub-items controller; when present rows gain an expand chevron. */
   subItems?: ObjectDatabaseSubItemsController;
+  /** Display name for a host-minted database the adapter doesn't know yet. */
+  databaseName?: string;
+  /** Navigate to the database's origin (full-page) surface. When present, the
+   *  inline title becomes a link and the toolbar gains "Open as full page". */
+  onOpenFullPage?: (target: { databaseId: string; viewId?: string; name?: string }) => void;
+  /** Called after an in-store rename so the host can persist/mirror the name. */
+  onDatabaseRenamed?: (databaseId: string, name: string) => void;
+  /** Optional host integrations: workspace collaborators for person cells, an
+   *  invite entry point, and a file-upload endpoint. Editors degrade gracefully
+   *  when absent (derived people, ≤2 MB data-URL uploads). */
+  hostAdapters?: HostAdapters;
 }
 
 /** Imperative handle exposed by ObjectDatabase refs. */

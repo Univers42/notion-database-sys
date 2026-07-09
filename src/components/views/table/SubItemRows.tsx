@@ -53,13 +53,13 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
   // hide the title column). `titlePropId` is read for that preference.
   const preferredId = titlePropId ?? visibleProps.find((p) => p.type === 'title')?.id;
   const anchorId = (preferredId && visibleProps.some((p) => p.id === preferredId)) ? preferredId : visibleProps[0]?.id;
-  const spanRest = colCount - (showRowNumbers ? 1 : 0);
+  const spanRest = colCount - 1; // the leading control gutter is always rendered
 
   return (
     <>
       {loading && rows.length === 0 && (
         <tr>
-          {showRowNumbers && <td className={cn("w-10 border-r border-b border-line bg-surface-secondary-soft2")} />}
+          <td className={cn("w-10 border-r border-b border-line bg-surface-secondary-soft2")} />
           <td colSpan={spanRest} className={cn("border-b border-line bg-surface-secondary-soft2 py-1.5 pl-10 text-sm text-ink-muted")}>Loading sub-items…</td>
         </tr>
       )}
@@ -67,7 +67,7 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
         const page = row.pageId ? pages[row.pageId] : undefined;
         return (
           <tr key={row.id} className={cn("group/sub cursor-pointer bg-surface-secondary-soft2 hover:bg-hover-surface-soft")} onClick={() => sub.open(row.id)}>
-            {showRowNumbers && <td className={cn("w-10 border-r border-b border-line")} />}
+            <td className={cn("w-10 border-r border-b border-line")} />
             {visibleProps.map((prop) => {
               const w = getColWidth(prop.id);
               const style = { width: w, minWidth: w, maxWidth: w };
@@ -89,7 +89,7 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
         );
       })}
       <tr className={cn("cursor-pointer hover:bg-hover-surface-accent3")} onClick={() => sub.create(recordId)}>
-        {showRowNumbers && <td className={cn("w-10 border-r border-b border-line")} />}
+        <td className={cn("w-10 border-r border-b border-line")} />
         <td colSpan={spanRest} className={cn("border-b border-line py-1.5")}>
           <div className={cn("flex items-center gap-1.5 pl-9 text-sm text-ink-muted hover:text-hover-text")}>
             <Plus className={cn("h-3.5 w-3.5")} /> New sub-item

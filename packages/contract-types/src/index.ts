@@ -155,8 +155,12 @@ export interface FileAttachment {
 /** Button property behavior configuration. */
 export interface ButtonConfig {
   label: string;
+  /** Legacy single action — superseded by `actions` when present. */
   action: 'open_url' | 'copy' | 'notify';
   url?: string;
+  /** Notion-parity action list run on click (edit property, add page,
+   *  open URL, notify, webhook). */
+  actions?: AutomationAction[];
 }
 
 /** Geographic place value for place properties. */
@@ -240,6 +244,16 @@ export interface SchemaProperty {
   customConfig?: CustomFieldConfig;
   prefix?: string;
   autoIncrement?: number;
+  /** Date properties: the paired END property forming an interval with this
+   *  START. Values stay two plain ISO date columns (data-plane friendly: maps
+   *  to `daterange(start, end, '[]')` in Postgres); the table cell renders the
+   *  pair as "start → end" and the timeline drags write both. */
+  endPropertyId?: string;
+  /** Date properties: display + behavior settings from the date panel. Values
+   *  stay ISO strings; these only govern how they render and remind. */
+  dateFormat?: string;
+  dateIncludeTime?: boolean;
+  dateRemind?: string;
 }
 
 /** A data source linked into a database container (Notion model: a database
@@ -263,6 +277,13 @@ export interface DatabaseSchema {
   dataSources?: DataSourceRef[];
   /** Database lock: schema and view edits are disabled while set. */
   locked?: boolean;
+  /** Template page the "New" button seeds from by default. */
+  defaultTemplateId?: string;
+  /** User's header tab order (view ids). Persisted with the database so the
+   *  order survives a reload on any device — an explicit array, because an
+   *  object's key order is not preserved through JSONB/JSON round-trips. Views
+   *  absent from it fall to the end in creation order. */
+  viewOrder?: string[];
 }
 
 /** Rich content block embedded inside a page. */
@@ -302,6 +323,8 @@ export interface Page {
   lastEditedBy: string;
   archived?: boolean;
   parentPageId?: string;
+  /** Template pages seed new records and are hidden from every view. */
+  isTemplate?: boolean;
 }
 
 /** Represents a single filter condition on a property. */
@@ -343,6 +366,15 @@ export interface DashboardWidget {
   height: 1 | 2;
 }
 
+/** KPI aggregation a dashboard widget shows instead of its embedded view
+ *  (Notion "Number" widget — count/sum/avg over the backing view's records,
+ *  so view filters AND dashboard global filters both apply). */
+export interface DashboardStatConfig {
+  fn: 'count' | 'sum' | 'avg' | 'min' | 'max';
+  /** Number property the fn aggregates (count needs none). */
+  propertyId?: string;
+}
+
 /** Dashboard widget referencing an existing database view (Notion model). */
 export interface DashboardViewWidget {
   id: string;
@@ -350,24 +382,48 @@ export interface DashboardViewWidget {
   title?: string;
   /** Hide the card title bar outside edit mode (clean tile look). */
   hideTitle?: boolean;
+  /** Present → render as a Number/KPI tile instead of the embedded view. */
+  stat?: DashboardStatConfig;
+  /** Own height in px. Absent → aligned to the row height (group-resizable). */
+  height?: number;
 }
 
-/** One dashboard row: up to 4 widgets, widths are fractions summing to 1. */
+/** One column of a dashboard row: a vertical stack of widget cards. The
+ *  column fills the row height unless it carries its own `height` (detached
+ *  from the group bar); members split the column height by shares. */
+export interface DashboardStack {
+  /** Cards top → bottom. */
+  widgetIds: string[];
+  /** Height fractions per card, summing to 1. Absent → equal shares. */
+  shares?: number[];
+  /** Own column height in px. Absent → aligned to the row height. */
+  height?: number;
+}
+
+/** One dashboard row: up to 4 COLUMNS, widths are fractions summing to 1.
+ *  `widgetIds` stays the flat list (stacks flattened) for legacy readers. */
 export interface DashboardRow {
   id: string;
   widgetIds: string[];
   widths: number[];
   height: number;
+  /** Column stacks; absent → every widget is its own single-card column. */
+  stacks?: DashboardStack[];
 }
 
 /** One automation action (set_property writes back, notify toasts via
  *  realtime, webhook POSTs server-side — HTTPS-only, SSRF-guarded). */
 export interface AutomationAction {
-  type: 'set_property' | 'notify' | 'webhook';
+  /** open_url and add_page are BUTTON-only actions; rules ignore them. */
+  type: 'set_property' | 'notify' | 'webhook' | 'open_url' | 'add_page';
   column?: string;
   value?: unknown;
   message?: string;
   url?: string;
+  /** add_page: database receiving the new page (absent = same database). */
+  targetDatabaseId?: string;
+  /** add_page: property values seeded onto the created page. */
+  properties?: Record<string, unknown>;
 }
 
 /** A database automation: trigger → optional condition → actions. Live
@@ -380,6 +436,8 @@ export interface AutomationRule {
   /** Table/collection the rule watches (live mounts; local DBs use the db id). */
   table: string;
   trigger: 'row_added' | 'row_updated' | 'row_deleted';
+  /** row_updated only: fire when THIS property changed (absent = any). */
+  watchColumn?: string;
   condition?: { column: string; operator: FilterOperator; value?: unknown };
   actions: AutomationAction[];
 }
@@ -414,6 +472,9 @@ export interface ViewSettings {
   openPagesIn?: 'side_peek' | 'center_peek' | 'full_page';
   showVerticalLines?: boolean;
   showRowNumbers?: boolean;
+  /** Manual row order (page ids) — applied when the view has no user sorts;
+   *  unranked pages follow in creation order. Written by row drag-reorder. */
+  manualRowOrder?: string[];
   columnWidths?: Record<string, number>;
   columnOrder?: string[];
   colorColumns?: boolean;
@@ -427,6 +488,10 @@ export interface ViewSettings {
   showCalendarBy?: string;
   showCalendarAs?: 'month' | 'week';
   showWeekends?: boolean;
+  /** Calendar: first day of the week (0 = Sunday, 1 = Monday, default). */
+  weekStartsOn?: 0 | 1;
+  /** Calendar month view: ISO week-number gutter. */
+  showWeekNumbers?: boolean;
   showTimelineBy?: string;
   timelineEndBy?: string;
   separateStartEndDates?: boolean;
@@ -468,12 +533,25 @@ export interface ViewSettings {
   wrapProperties?: boolean;
   showAuthorByline?: boolean;
   mapBy?: string;
+  /** Map view: how locations render — pins (default), clusters, heat, bubbles. */
+  mapDisplayMode?: 'pins' | 'clusters' | 'heat' | 'bubbles';
+  /** Map view: number property weighting heat intensity / bubble size (unset → count). */
+  mapSizeBy?: string;
   widgets?: DashboardWidget[];
   formulaAnalytics?: boolean;
   relationAnalytics?: boolean;
   dashboardWidgets?: DashboardViewWidget[];
   dashboardRows?: DashboardRow[];
   dashboardFilters?: DashboardGlobalFilter[];
+  /** Dashboard: stack rows earlier (count-aware) when widgets get too thin. */
+  responsiveLayout?: boolean;
+  /** How this view's TAB renders in the tabs row ("Display as"). */
+  tabDisplay?: 'text_icon' | 'text' | 'icon';
+  /** Grouped views: Notion-style in-place stacks (default) or a GitHub
+   *  Projects-style "slice" panel on the left. */
+  groupLayout?: 'stacked' | 'sidebar';
+  /** Stacked groups the user minimized (persisted per view). */
+  collapsedGroupIds?: string[];
   locked?: boolean;
   conditionalColors?: ConditionalColorRule[];
   /** Local-database automations (live mounts persist rules server-side). */

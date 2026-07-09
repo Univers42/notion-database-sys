@@ -54,7 +54,7 @@ const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> =
 };
 
 /** Multi-screen settings panel for configuring view layout, filters, sorts, properties, and charts. */
-export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>) {
+export function ViewSettingsPanel({ onClose, initialScreen }: Readonly<{ onClose: () => void; initialScreen?: PanelScreen }>) {
   const activeViewId = useActiveViewId();
   const {
     views, databases, updateViewSettings, updateView,
@@ -65,7 +65,14 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
-  const [screen, setScreen] = useState<PanelScreen>(view?.type === 'chart' ? 'editChart' : 'main');
+  const [screen, setScreen] = useState<PanelScreen>(initialScreen ?? (view?.type === 'chart' ? 'editChart' : 'main'));
+  // The Group screen is reachable from BOTH the main panel and Layout —
+  // remember the origin so its Back returns where the user came from.
+  const [groupBack, setGroupBack] = useState<PanelScreen>('main');
+  const navigate = (next: PanelScreen) => {
+    if (next === 'groupBy') setGroupBack(screen === 'layout' ? 'layout' : 'main');
+    setScreen(next);
+  };
   const [viewIcon, setViewIcon] = useState(view?.settings?.viewIcon || '');
 
   if (!view || !database) return null;
@@ -168,7 +175,7 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
     return (
       <LayoutScreen
         viewId={view.id} viewType={view.type} settings={settings}
-        allProps={allProps} grouping={view.grouping} setScreen={setScreen}
+        allProps={allProps} grouping={view.grouping} setScreen={navigate}
         goHome={goHome} onClose={onClose} updateView={updateView}
         updateSetting={updateSetting}
       />
@@ -176,11 +183,12 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
   }
 
   const propertyNode = renderPropertyScreen(screen, {
-    settings, updateSetting, setScreen, onClose,
+    settings, updateSetting, setScreen: navigate, onClose,
     dateProps, placeProps, groupableProps, allProps,
     viewId: view.id, grouping: view.grouping, setGrouping,
     visibleProperties: view.visibleProperties, databaseId: view.databaseId,
     togglePropertyVisibility, updateProperty,
+    viewType: view.type, groupBackScreen: groupBack,
   });
   if (propertyNode) return <>{propertyNode}</>;
 
@@ -197,7 +205,7 @@ export function ViewSettingsPanel({ onClose }: Readonly<{ onClose: () => void }>
       visibleCount={view.visibleProperties.length}
       sortCount={view.sorts.length}
       databaseName={database.name}
-      setScreen={setScreen}
+      setScreen={navigate}
       onClose={onClose}
     />
   );

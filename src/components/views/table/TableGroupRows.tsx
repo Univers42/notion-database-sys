@@ -36,6 +36,7 @@ interface RenderPageRowsProps {
   getColWidth: (propId: string) => number;
   databaseId: string;
   onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue) => void;
+  onCellDoubleClick: (pageId: string, propId: string, type: string) => void;
   onUpdateProperty: (pageId: string, propId: string, value: PropertyValue) => void;
   onStopEditing: () => void;
   onOpenPage: (pageId: string) => void;
@@ -46,6 +47,13 @@ interface RenderPageRowsProps {
   tableRef: React.RefObject<HTMLDivElement | null>;
   /** Conditional-color row tint (first matching rule), if any rules exist. */
   rowTint?: (page: Page) => string | null;
+  /** Row drag-reorder (manual order) — off under user sorts / grouping. */
+  canReorder?: boolean;
+  onRowDragStart?: (pageId: string) => void;
+  onRowDragEnd?: () => void;
+  onRowDragOver?: (pageId: string) => void;
+  onRowDrop?: (pageId: string) => void;
+  dropTargetId?: string | null;
 }
 
 /** Renders an array of pages as MemoTableRow components with proper row indexing.
@@ -64,7 +72,7 @@ export function renderPageRows(
   const {
     visibleProps, focusedCell, editingCell, fillDrag,
     showRowNumbers, showVerticalLines, wrapContent, getColWidth,
-    databaseId, onCellClick, onUpdateProperty, onStopEditing,
+    databaseId, onCellClick, onCellDoubleClick, onUpdateProperty, onStopEditing,
     onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu,
     onPropertyConfig, tableRef,
   } = props;
@@ -88,6 +96,7 @@ export function renderPageRows(
         getColWidth={getColWidth}
         databaseId={databaseId}
         onCellClick={onCellClick}
+        onCellDoubleClick={onCellDoubleClick}
         onUpdateProperty={onUpdateProperty}
         onStopEditing={onStopEditing}
         onOpenPage={onOpenPage}
@@ -98,6 +107,12 @@ export function renderPageRows(
         tableRef={tableRef}
         tint={props.rowTint?.(page) ?? null}
         measureRef={measureRow}
+        canReorder={props.canReorder}
+        onRowDragStart={props.onRowDragStart}
+        onRowDragEnd={props.onRowDragEnd}
+        onRowDragOver={props.onRowDragOver}
+        onRowDrop={props.onRowDrop}
+        isDropTarget={props.dropTargetId === page.id}
       />
     );
     const after = renderAfterRow?.(page);
@@ -134,6 +149,8 @@ export function TableGroupRows({
                 <div className={cn("flex items-center gap-2 px-3 py-2 select-none")}>
                   <button
                     onClick={() => toggleGroup(group.groupId)}
+                    aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} group ${group.groupLabel}`}
+                    aria-expanded={!isCollapsed}
                     className={cn("p-0.5 hover:bg-hover-surface3 rounded transition-colors shrink-0")}
                   >
                     <ChevronRight className={cn(`w-3.5 h-3.5 text-ink-secondary transition-transform duration-150 ${isCollapsed ? '' : 'rotate-90'}`)} />

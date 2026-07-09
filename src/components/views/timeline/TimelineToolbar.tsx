@@ -24,17 +24,20 @@ interface TimelineToolbarProps {
   readonly onOffsetChange: (delta: number) => void;
   readonly onResetOffset: () => void;
   readonly onZoom: (level: ZoomLevel) => void;
+  /** Extra controls (the Dates menu) rendered left of the zoom toggle. */
+  readonly children?: React.ReactNode;
 }
 
 export function TimelineToolbar({
   startDate, endDate, zoomLevel, navStep,
-  onOffsetChange, onResetOffset, onZoom,
+  onOffsetChange, onResetOffset, onZoom, children,
 }: TimelineToolbarProps) {
   return (
     <div className={cn("flex items-center justify-between px-4 py-2 border-b border-line bg-surface-secondary shrink-0")}>
       <div className={cn("flex items-center gap-2")}>
         <button
           onClick={() => onOffsetChange(-navStep)}
+          aria-label="Previous period"
           className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-secondary transition-colors")}
         >
           <ChevronLeft className={cn("w-4 h-4")} />
@@ -47,6 +50,7 @@ export function TimelineToolbar({
         </button>
         <button
           onClick={() => onOffsetChange(navStep)}
+          aria-label="Next period"
           className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-secondary transition-colors")}
         >
           <ChevronRight className={cn("w-4 h-4")} />
@@ -56,6 +60,8 @@ export function TimelineToolbar({
         </span>
       </div>
 
+      <div className={cn("flex items-center gap-2")}>
+      {children}
       {/* Zoom toggle */}
       <div className={cn("flex items-center gap-1 bg-surface-muted rounded-md p-0.5")}>
         {(['day', 'week', 'month'] as const).map(level => (
@@ -71,6 +77,7 @@ export function TimelineToolbar({
             {level.charAt(0).toUpperCase() + level.slice(1)}
           </button>
         ))}
+      </div>
       </div>
     </div>
   );

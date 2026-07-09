@@ -30,21 +30,27 @@ import { cn } from '../../../utils/cn';
 
 const DashboardNotionView = React.lazy(() => import('./notion/DashboardNotionView'));
 
-function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageTitle }: Readonly<{
+function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageTitle, responsive = false }: Readonly<{
   widgets: DashboardWidget[];
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[];
   propsMap: Record<string, SchemaProperty>;
   computedData: ComputedData;
   openPage: (id: string) => void;
   getPageTitle: (page: { properties: Record<string, unknown> }) => string;
+  /** "Responsive layout" view setting: columns collapse with CONTAINER width
+   *  (2-up under 4xl, 1-up under 2xl) so widgets never render too thin. The
+   *  `!` span overrides beat the inline span style. */
+  responsive?: boolean;
 }>) {
   return (
     <div className={cn("flex-1 overflow-auto p-6 bg-surface-secondary")}>
       <div className={cn("max-w-7xl mx-auto")}>
-        <div className={cn("grid grid-cols-4 gap-4 auto-rows-min")}>
+        <div className={cn("grid grid-cols-4 gap-4 auto-rows-min",
+          responsive && "@max-4xl:grid-cols-2 @max-2xl:grid-cols-1")}>
           {widgets.map((widget, idx) => (
             <div key={widget.id}
-              className={cn("bg-surface-primary rounded-xl border border-line overflow-hidden")}
+              className={cn("bg-surface-primary rounded-xl border border-line overflow-hidden",
+                responsive && "@max-4xl:![grid-column:span_1]")}
               style={{ gridColumn: `span ${Math.min(widget.width, 4)}`, minHeight: widget.height === 2 ? '320px' : '140px' }}>
               {renderWidget(widget, idx, pages, propsMap, computedData, openPage, getPageTitle)}
             </div>
@@ -58,7 +64,11 @@ function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageT
 /** Renders the dashboard view: Notion-model, preset widgets, or auto-detect. */
 export function DashboardView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, openPage, getPageTitle, updateViewSettings } = useDatabaseStore();
+  const views = useDatabaseStore(s => s.views);
+  const databases = useDatabaseStore(s => s.databases);
+  const openPage = useDatabaseStore(s => s.openPage);
+  const getPageTitle = useDatabaseStore(s => s.getPageTitle);
+  const updateViewSettings = useDatabaseStore(s => s.updateViewSettings);
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const pages = useViewPages(view?.id);
@@ -91,18 +101,21 @@ export function DashboardView() {
   );
 
   const widgets: DashboardWidget[] = view.settings?.widgets || [];
+  const responsive = view.settings?.responsiveLayout === true;
   const titleFn = (page: { properties: Record<string, unknown> }) =>
     getPageTitle(page as Page);
 
   return (
-    <div className={cn("relative flex-1 flex flex-col min-h-0")}>
+    <div className={cn("relative flex-1 flex flex-col min-h-0 @container")}>
       {customizeCta}
       {widgets.length > 0 ? (
         <WidgetGrid widgets={widgets} pages={pages} propsMap={propsMap}
-          computedData={computedData} openPage={openPage} getPageTitle={titleFn} />
+          computedData={computedData} openPage={openPage} getPageTitle={titleFn}
+          responsive={responsive} />
       ) : (
         <AutoDetectDashboard pages={pages} allProps={allProps}
-          computedData={computedData} openPage={openPage} getPageTitle={titleFn} />
+          computedData={computedData} openPage={openPage} getPageTitle={titleFn}
+          responsive={responsive} />
       )}
     </div>
   );

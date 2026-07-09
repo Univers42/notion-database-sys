@@ -93,7 +93,7 @@ export async function resolvePlace(name: string): Promise<Coords | null> {
  * synchronously on first render.
  */
 export function useGeocode(names: string[]): Record<string, Coords> {
-  const [, force] = React.useReducer((n: number) => n + 1, 0);
+  const [tick, force] = React.useReducer((n: number) => n + 1, 0);
   const joined = names.map(normalize).filter(Boolean).sort().join('|');
   React.useEffect(() => {
     let alive = true;
@@ -103,11 +103,16 @@ export function useGeocode(names: string[]): Record<string, Coords> {
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [joined]);
-  const out: Record<string, Coords> = {};
-  for (const name of names) {
-    const key = normalize(name);
-    const coords = cache.get(key);
-    if (coords) out[key] = coords;
-  }
-  return out;
+  // Stable identity: same names + no new resolutions → the SAME object, so
+  // downstream memos (mappable pages → the map render effect) stay quiet
+  // instead of refitting the viewport on every unrelated re-render.
+  return React.useMemo(() => {
+    const out: Record<string, Coords> = {};
+    for (const key of joined.split('|')) {
+      if (!key) continue;
+      const coords = cache.get(key);
+      if (coords) out[key] = coords;
+    }
+    return out;
+  }, [joined, tick]);
 }

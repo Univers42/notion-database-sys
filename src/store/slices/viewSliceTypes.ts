@@ -17,12 +17,15 @@ export interface ViewSliceState {
 }
 
 export interface ViewSliceActions {
-  addView: (view: Omit<ViewConfig, 'id'>) => void;
+  /** Adds a view (and makes it the global active view). Returns the new id. */
+  addView: (view: Omit<ViewConfig, 'id'>) => string;
   updateView: (viewId: string, updates: Partial<ViewConfig>) => void;
   updateViewSettings: (viewId: string, settings: Partial<ViewSettings>) => void;
   deleteView: (viewId: string) => void;
   duplicateView: (viewId: string) => void;
   setActiveView: (viewId: string) => void;
+  /** Reorders one database's views (the header tab order) to match `orderedIds`. */
+  reorderViews: (databaseId: string, orderedIds: string[]) => void;
   addFilter: (viewId: string, filter: Omit<Filter, 'id'>) => void;
   updateFilter: (viewId: string, filterId: string, updates: Partial<Filter>) => void;
   removeFilter: (viewId: string, filterId: string) => void;
