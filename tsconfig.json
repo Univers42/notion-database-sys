@@ -32,6 +32,8 @@
     "dist",
     "**/build/**",
     "**/pkg/**",
-    "src/lib/engine/**/pkg"
+    "src/lib/engine/**/pkg",
+    "vendor/scripts",
+    "packages"
   ]
 }

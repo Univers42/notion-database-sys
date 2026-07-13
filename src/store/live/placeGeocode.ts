@@ -114,5 +114,8 @@ export function useGeocode(names: string[]): Record<string, Coords> {
       if (coords) out[key] = coords;
     }
     return out;
+    // `tick` isn't read in the body — it's the cache-invalidation trigger that
+    // forces recompute once the effect above resolves a pending place lookup.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [joined, tick]);
 }

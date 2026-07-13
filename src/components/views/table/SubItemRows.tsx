@@ -28,7 +28,6 @@ import { cn } from '../../../utils/cn';
 interface SubItemRowsProps {
   recordId: string;
   visibleProps: SchemaProperty[];
-  showRowNumbers: boolean;
   getColWidth: (propId: string) => number;
   titlePropId?: string;
   colCount: number;
@@ -42,7 +41,7 @@ function formatValue(value: unknown): string {
 }
 
 export function SubItemRows(props: Readonly<SubItemRowsProps>) {
-  const { recordId, visibleProps, showRowNumbers, getColWidth, titlePropId, colCount } = props;
+  const { recordId, visibleProps, getColWidth, titlePropId, colCount } = props;
   const sub = useSubItems();
   const pages = useDatabaseStore((s) => s.pages);
   if (!sub) return null;

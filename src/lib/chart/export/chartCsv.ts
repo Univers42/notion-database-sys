@@ -37,5 +37,5 @@ export function chartResultToCsv(result: ChartResult): string {
       csvCell(category.total),
     ].join(',');
   });
-  return `﻿${[header.map(csvCell).join(','), ...rows].join('\n')}\n`;
+  return `\uFEFF${[header.map(csvCell).join(','), ...rows].join('\n')}\n`;
 }

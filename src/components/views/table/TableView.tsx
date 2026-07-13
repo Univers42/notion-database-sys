@@ -87,7 +87,6 @@ export function TableView() {
           <SubItemRows
             recordId={page.id}
             visibleProps={visibleProps}
-            showRowNumbers={showRowNumbers}
             getColWidth={getColWidth}
             titlePropId={database.titlePropertyId}
             colCount={colCount}

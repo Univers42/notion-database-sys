@@ -43,7 +43,7 @@ export function MapView() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Leaflet.Map | null>(null);
   const markersRef = useRef<Leaflet.LayerGroup | null>(null);
-  const pinsByPageRef = useRef<Record<string, Leaflet.LeafletMarker>>({});
+  const pinsByPageRef = useRef<Record<string, Leaflet.Marker>>({});
   const heatRef = useRef<HeatHandle | null>(null);
   // Refit the viewport only when the SET of coordinates changes — never on
   // unrelated re-renders (a fitBounds mid-session snaps the user's pan/zoom).

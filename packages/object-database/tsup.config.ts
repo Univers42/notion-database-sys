@@ -26,12 +26,15 @@ const PEER_EXTERNALS = [
   'katex',
   'leaflet',
   'mermaid',
+  'echarts',
+  '@univers42/ui-collection',
   /^react\//,
   /^react-dom\//,
   /^zustand\//,
   /^@radix-ui\//,
   /^katex\//,
   /^leaflet\//,
+  /^echarts\//,
 ] as const;
 
 export default defineConfig({

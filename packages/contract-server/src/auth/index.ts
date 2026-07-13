@@ -38,6 +38,15 @@ export interface AuthenticatedUser {
   authDisabled?: boolean;
 }
 
+// registerAuthHook below stamps every request with the authenticated user;
+// every route handler reads it back via `request.user`, so the augmentation
+// lives once here next to AuthenticatedUser rather than as a per-call cast.
+declare module 'fastify' {
+  interface FastifyRequest {
+    user?: AuthenticatedUser;
+  }
+}
+
 /** Registers /v1 authentication enforcement on a Fastify instance. */
 export function registerAuthHook(app: FastifyInstance): void {
   const mode = process.env.CONTRACT_SERVER_AUTH ?? 'disabled';

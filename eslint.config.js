@@ -77,7 +77,7 @@ export default [
 
   // Config files and scripts run in Node, not the browser.
   {
-    files: ['*.config.{js,ts}', '**/*.config.{js,ts}', 'scripts/**/*.{js,ts}'],
+    files: ['*.config.{js,ts}', '**/*.config.{js,ts}', '**/scripts/**/*.{js,ts,mjs,cjs}'],
     languageOptions: {
       globals: { ...globals.node },
     },

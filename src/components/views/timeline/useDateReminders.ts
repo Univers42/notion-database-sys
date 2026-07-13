@@ -43,7 +43,6 @@ export function useDateReminders(): void {
     const notify = (title: string, when: Date) => {
       if (!canNotify || Notification.permission !== 'granted') return;
       try {
-        // eslint-disable-next-line no-new
         new Notification('Reminder', { body: `${title} — ${when.toLocaleString()}` });
       } catch {
         /* notification construction can throw in some embeddings — ignore */
