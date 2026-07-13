@@ -27,6 +27,13 @@ import { cn } from '../../../utils/cn';
 import { useViewPages } from '../../../hooks/useViewPages';
 import { useGeocode } from '../../../store/live/placeGeocode';
 
+// Derived from the `marker()` factory rather than named directly: this file
+// also compiles under the host osionos app, which ships its own minimal
+// `declare module 'leaflet'` shim (no @types/leaflet dependency there) whose
+// marker type has a different name than the real @types/leaflet package's.
+// Reading it off the factory's return type keeps this file correct in both.
+type LeafletMarkerInstance = ReturnType<typeof Leaflet.marker>;
+
 /** Renders a Leaflet-based map view with markers for geolocated database pages. */
 export function MapView() {
   const [leaflet, setLeaflet] = React.useState<typeof Leaflet | null>(null);
@@ -43,7 +50,7 @@ export function MapView() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Leaflet.Map | null>(null);
   const markersRef = useRef<Leaflet.LayerGroup | null>(null);
-  const pinsByPageRef = useRef<Record<string, Leaflet.Marker>>({});
+  const pinsByPageRef = useRef<Record<string, LeafletMarkerInstance>>({});
   const heatRef = useRef<HeatHandle | null>(null);
   // Refit the viewport only when the SET of coordinates changes — never on
   // unrelated re-renders (a fitBounds mid-session snaps the user's pan/zoom).

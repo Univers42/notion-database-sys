@@ -1,32 +1,11 @@
 {
-  "compilerOptions": {
-    /* ── Shared (inherited by packages via extends) ── */
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-
-    /* ── src/ app specific ── */
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
-    "allowJs": true,
-    "jsx": "react-jsx",
-    "paths": {
-      "@/*": ["./*"],
-      "@src/*": ["./src/*"],
-      "@markdown": ["./src/lib/markdown/index.ts"],
-      "@markdown/*": ["./src/lib/markdown/*"]
-    },
-    "allowImportingTsExtensions": true,
-    "noEmit": true
-  },
+  // Root-only compile target ("Typecheck root" in CI). Packages have their
+  // own tsconfig.json extending tsconfig.base.json directly, NOT this file —
+  // this file's "exclude" deliberately keeps "packages" out of the root scan
+  // (each package is typechecked independently via `turbo run typecheck`),
+  // and that exclude pattern would otherwise be inherited (and rebased) into
+  // every package/*/tsconfig.json if they extended this file instead.
+  "extends": "./tsconfig.base.json",
   "exclude": [
     "node_modules",
     "dist",
