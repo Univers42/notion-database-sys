@@ -23,6 +23,7 @@
 import type { DatabaseSchema, NotionState, Page, ViewConfig } from '../../component/types';
 import { remapViewToSource } from '../../lib/sourceRemap';
 import { loadRegisteredDataSource } from './dataSourceRegistry';
+import { normalizeDatabases } from './normalizeDatabases';
 
 /** Duck-typed store handle (avoids importing the zustand store: no cycles). */
 export interface SourceBindStore {
@@ -61,7 +62,7 @@ export async function bindViewSource(
     newDb,
   );
   store.setState({
-    databases: { ...fresh.databases, ...(loaded?.databases ?? {}), [newDb.id]: newDb },
+    databases: normalizeDatabases({ ...fresh.databases, ...(loaded?.databases ?? {}), [newDb.id]: newDb }),
     pages: { ...fresh.pages, ...(loaded?.pages ?? {}) },
     views: { ...fresh.views, [viewId]: remapped },
   });

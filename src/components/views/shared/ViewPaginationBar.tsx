@@ -14,7 +14,7 @@
 // Renders "26–50 of 200" + prev/next; numeric page buttons when the count is
 // small enough to fit. Hidden entirely when the limit doesn't hide any rows.
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ViewPager } from '../../../hooks/useViewPager';
 import { cn } from '../../../utils/cn';
@@ -37,6 +37,46 @@ function PageNumbers({ pager }: Readonly<{ pager: ViewPager<unknown> }>) {
   );
 }
 
+/** The "N / total" readout when there are too many pages to list as buttons.
+ *  Double-click the current-page number to type a page to jump to — `goTo`
+ *  clamps to [1, pageCount], so an out-of-range entry snaps to the nearest end. */
+function PageJumpField({ pager }: Readonly<{ pager: ViewPager<unknown> }>) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const escaped = useRef(false);
+
+  const commit = () => {
+    const n = parseInt(draft, 10);
+    if (!Number.isNaN(n)) pager.goTo(n - 1);
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <span className={cn('px-1.5 text-xs text-ink-secondary tabular-nums')}>
+        <input type="text" inputMode="numeric" autoFocus aria-label="Go to page"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value.replace(/\D/g, ''))}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commit();
+            else if (e.key === 'Escape') { escaped.current = true; setEditing(false); }
+          }}
+          onBlur={() => { if (!escaped.current) commit(); escaped.current = false; }}
+          className={cn('w-8 rounded bg-hover-surface text-center tabular-nums outline-none')} />
+        {' / '}{pager.pageCount}
+      </span>
+    );
+  }
+
+  return (
+    <span title="Double-click to jump to a page"
+      onDoubleClick={() => { escaped.current = false; setDraft(String(pager.pageIndex + 1)); setEditing(true); }}
+      className={cn('px-1.5 text-xs text-ink-secondary tabular-nums select-none cursor-text')}>
+      {pager.pageIndex + 1} / {pager.pageCount}
+    </span>
+  );
+}
+
 /** Pagination controls for a windowed record list. Renders nothing unless the
  *  active limit actually hides rows. */
 export function ViewPaginationBar({ pager }: Readonly<{ pager: ViewPager<unknown> }>) {
@@ -54,9 +94,7 @@ export function ViewPaginationBar({ pager }: Readonly<{ pager: ViewPager<unknown
         </button>
         {pager.pageCount <= 7
           ? <PageNumbers pager={pager} />
-          : <span className={cn('px-1.5 text-xs text-ink-secondary tabular-nums select-none')}>
-              {pager.pageIndex + 1} / {pager.pageCount}
-            </span>}
+          : <PageJumpField pager={pager} />}
         <button type="button" onClick={pager.goNext} disabled={!pager.hasNext}
           aria-label="Next page" className={cn(navBtn)}>
           <ChevronRight className={cn('w-4 h-4')} />

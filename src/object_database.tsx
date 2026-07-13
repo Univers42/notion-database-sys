@@ -31,6 +31,7 @@ import {
 } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
 import { applyStoredDbMeta } from './store/sources/dbMetaPersistence';
+import { normalizeDatabases } from './store/sources/normalizeDatabases';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import type { PanelSection } from './components/ui/ActionPanel';
 import {
@@ -521,7 +522,7 @@ async function loadAdapterState(
     const source = 'adapter';
 
     storeApi.setState({
-      databases: state.databases,
+      databases: normalizeDatabases(state.databases),
       pages: state.pages,
       views: state.views,
       activeViewId,
