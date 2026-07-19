@@ -38,6 +38,7 @@ interface SlideState {
   incoming: Slot | null;   // the slot sliding in, or null when idle
   dir: 1 | -1;             // +1 = new view enters from the right, -1 = from the left
   run: boolean;            // false = pinned at the start offset, true = animating to rest
+  lockH: number;           // stage pixel height pinned for the slide (0 = unmeasured)
 }
 
 /** Pure: a slot's translateX (% of its own width). Off-screen = ±100. Exported
@@ -69,13 +70,18 @@ export interface ViewSlideStageProps {
 /** Full-page database body with an animated horizontal view transition. */
 export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<ViewSlideStageProps>) {
   const [st, setSt] = useState<SlideState>(() => ({
-    slots: [viewId, ''], keys: [0, 0], active: 0, incoming: null, dir: 1, run: false,
+    slots: [viewId, ''], keys: [0, 0], active: 0, incoming: null, dir: 1, run: false, lockH: 0,
   }));
   const lastIndex = useRef(orderIndex);
   const keySeq = useRef(0);
+  const stageRef = useRef<HTMLDivElement | null>(null);
 
   // A new target view id → start a slide (or an instant swap when motion is off).
+  // Measure the stage BEFORE the slots go absolute: absolute slots have no
+  // intrinsic height, so the slide runs inside a height pinned to the outgoing
+  // pane's real height instead of collapsing an auto-height host to zero.
   useEffect(() => {
+    const measured = stageRef.current?.offsetHeight ?? 0;
     setSt(prev => {
       if (viewId === prev.slots[prev.active]) return prev; // already showing it
       const dir: 1 | -1 = orderIndex >= lastIndex.current ? 1 : -1;
@@ -90,7 +96,7 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<View
       const inc: Slot = prev.active === 0 ? 1 : 0;
       slots[inc] = viewId;
       keys[inc] = ++keySeq.current;
-      return { slots, keys, active: prev.active, incoming: inc, dir, run: false };
+      return { slots, keys, active: prev.active, incoming: inc, dir, run: false, lockH: measured };
     });
   }, [viewId, orderIndex]);
 
@@ -118,6 +124,17 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<View
   const renderSlot = (slot: Slot): React.ReactNode => {
     const id = st.slots[slot];
     if (!id || (slot !== st.active && slot !== st.incoming)) return null;
+    if (!transitioning) {
+      // Idle: keep the pane IN FLOW. Absolute slots contribute no intrinsic
+      // height, so an auto-height host (a database block in the page flow)
+      // would collapse the whole body to 0 px — the table renders headers and
+      // nothing else. Normal flow lets the pane size the stage again.
+      return (
+        <div key={st.keys[slot]} className={cn('flex-1 flex flex-col min-h-0')}>
+          {renderPane(id)}
+        </div>
+      );
+    }
     const live = slot === st.active || slot === st.incoming;
     return (
       <div key={st.keys[slot]} className={cn('absolute inset-0 flex flex-col min-h-0')}
@@ -135,7 +152,9 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<View
   };
 
   return (
-    <div className={cn('relative flex-1 flex flex-col min-h-0', transitioning && 'overflow-hidden')}>
+    <div ref={stageRef}
+      className={cn('relative flex-1 flex flex-col min-h-0', transitioning && 'overflow-hidden')}
+      style={transitioning && st.lockH > 0 ? { height: st.lockH, flex: 'none' } : undefined}>
       {renderSlot(0)}
       {renderSlot(1)}
     </div>
