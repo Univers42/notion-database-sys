@@ -197,6 +197,13 @@ function ObjectDatabaseInner({
   const setActiveSource = useDbSource(s => s.setActiveSource);
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+  // Only instantiate the ~434KB WASM formula engine when a formula property
+  // actually exists in the mounted databases — a plain DB must never pay the
+  // fetch+instantiate, which blocks first paint (see the render gate below).
+  const hasFormulaProperty = useMemo(
+    () => Object.values(databases).some(db => Object.values(db.properties).some(p => p.type === 'formula')),
+    [databases],
+  );
   const lastSelectionKeyRef = useRef<string | null>(null);
   const selectionKey = `${databaseId ?? ''}:${initialView ?? ''}`;
   const reloadFromAdapter = useCallback(
@@ -207,6 +214,9 @@ function ObjectDatabaseInner({
   );
 
   useEffect(() => {
+    // Skip until schema has settled (databases starts {} with dbmsLoading:true) and
+    // only load WASM when a formula property exists — plain DBs never instantiate it.
+    if (dbmsLoading || !hasFormulaProperty) return;
     let cancelled = false;
 
     initFormulaEngineOnce()
@@ -221,7 +231,7 @@ function ObjectDatabaseInner({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [dbmsLoading, hasFormulaProperty]);
 
   useEffect(() => {
     let cancelled = false;
@@ -300,8 +310,11 @@ function ObjectDatabaseInner({
     ];
   }, [database, lockViews, view]);
 
-  if (!formulaReady || dbmsLoading) {
-    return <ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={!formulaReady} />;
+  // Plain DBs never wait on WASM; a DB with a formula property still blocks until
+  // the engine is ready, so no cell evaluates against a not-ready engine (which
+  // would cache the #ENGINE_UNAVAILABLE sentinel keyed by expression+updatedAt).
+  if (dbmsLoading || (hasFormulaProperty && !formulaReady)) {
+    return <ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={hasFormulaProperty && !formulaReady} />;
   }
 
   if (dbmsError) {
