@@ -141,8 +141,12 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
     // echo guard (next.pages === lastLoadedPages, reference equality) still fires.
     this.writes.noteLoadedPages(state.pages);
     const pkColumns = table.primary_key.length > 0 ? table.primary_key : ['id'];
-    this.baseline = { rows, pkColumns };
-    this.realtime?.noteBaseline(rows, pkColumns); // poll diff vs what the host shows
+    // Baseline only the FIRST page: the poll fallback refetches one page (not
+    // the full preload — 4 HTTP calls + an MB-scale hash every 15s), so the
+    // divergence comparison must cover the same scope on both sides.
+    const baselineRows = rows.length > LIVE_MAX_LIMIT ? rows.slice(0, LIVE_MAX_LIMIT) : rows;
+    this.baseline = { rows: baselineRows, pkColumns };
+    this.realtime?.noteBaseline(baselineRows, pkColumns); // poll diff vs what the host shows
     return state;
   }
 
@@ -317,7 +321,11 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
     this.realtime = new LiveRealtime({
       databaseId: this.databaseId,
       getPage: (pk) => this.getPage(formatLivePageId(this.ref, pk)),
-      fetchFirstPage: async () => this.loadAllRows(),
+      // ONE page, not loadAllRows: the 15s poll only compares against the
+      // first-page baseline, so refetching the whole preload (4 calls, up to
+      // 2000 rows) bought nothing — see the baseline note in loadStateInner.
+      fetchFirstPage: async () =>
+        (await listLiveRows(this.ref.dbId, this.ref.table, { limit: LIVE_MAX_LIMIT })).rows,
       pendingWrites: () => this.writes.pendingWrites(),
       emit: (event) => this.writes.emitFromServer(event), // arms the persist echo guards
       onSchemaChanged: () => bustLiveSchemaCache(this.ref.dbId),

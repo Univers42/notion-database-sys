@@ -18,13 +18,6 @@ import { compareValues } from '../../lib/filter/compareValues';
 import { compareWithManualOrder, manualOrderRank } from '../../lib/manualRowOrder';
 import { searchPage, buildGroups, formatFormulaResult, computeRollup } from './storeHelpers';
 
-let pagesForViewCache: {
-  pagesRef: Record<string, unknown> | null;
-  viewsRef: Record<string, unknown> | null;
-  searchQuery: string;
-  results: Map<string, Page[]>;
-} = { pagesRef: null, viewsRef: null, searchQuery: '', results: new Map() };
-
 import type { StoreSet, StoreGet } from '../dbms/hardcoded/storeTypes';
 
 /**
@@ -34,6 +27,22 @@ import type { StoreSet, StoreGet } from '../dbms/hardcoded/storeTypes';
  * resolution, rollup aggregation, and smart view defaults.
  */
 export function createComputedSlice(_set: StoreSet, get: StoreGet) {
+  // Per-INSTANCE cache: createDatabaseStore() makes one store per mounted
+  // ObjectDatabase, so a module-level cache would be shared across instances —
+  // with two database surfaces mounted, each would evict the other's entries
+  // on every render (full refilter+resort each time). One generation covers
+  // both derived shapes; `results`/`groups` are keyed by viewId within it.
+  // `databasesRef` is part of the generation because both filters and group
+  // columns read db.properties (a new select option must surface a new group).
+  let pagesForViewCache: {
+    pagesRef: Record<string, unknown> | null;
+    viewsRef: Record<string, unknown> | null;
+    databasesRef: Record<string, unknown> | null;
+    searchQuery: string;
+    results: Map<string, Page[]>;
+    groups: Map<string, ReturnType<typeof buildGroups>>;
+  } = { pagesRef: null, viewsRef: null, databasesRef: null, searchQuery: '', results: new Map(), groups: new Map() };
+
   return {
     getPageTitle: (page: Page) => {
       const state = get();
@@ -52,11 +61,12 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       if (
         pagesForViewCache.pagesRef !== state.pages ||
         pagesForViewCache.viewsRef !== state.views ||
+        pagesForViewCache.databasesRef !== state.databases ||
         pagesForViewCache.searchQuery !== state.searchQuery
       ) {
         pagesForViewCache = {
-          pagesRef: state.pages, viewsRef: state.views,
-          searchQuery: state.searchQuery, results: new Map(),
+          pagesRef: state.pages, viewsRef: state.views, databasesRef: state.databases,
+          searchQuery: state.searchQuery, results: new Map(), groups: new Map(),
         };
       }
       const cached = pagesForViewCache.results.get(viewId);
@@ -113,10 +123,16 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       if (!view?.grouping) return [];
       const db = state.databases[view.databaseId];
       if (!db) return [];
+      // getPagesForView refreshes the cache generation first (pages/views/
+      // search identity), so a group hit below is always same-generation.
       const pages = state.getPagesForView(viewId);
+      const cached = pagesForViewCache.groups.get(viewId);
+      if (cached) return cached;
       const groupProp = db.properties[view.grouping.propertyId];
       if (!groupProp) return [];
-      return buildGroups(pages, groupProp, view.grouping);
+      const groups = buildGroups(pages, groupProp, view.grouping);
+      pagesForViewCache.groups.set(viewId, groups);
+      return groups;
     },
 
     resolveFormula: (databaseId: string, page: Page, expression: string) => {

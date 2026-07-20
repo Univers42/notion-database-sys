@@ -142,7 +142,7 @@ export function TableView() {
               <TableGroupRows
                 groupedData={groupedData} collapsedGroups={collapsedGroups}
                 toggleGroup={toggleGroup} colCount={colCount}
-                addPage={addPage} {...rowProps}
+                addPage={addPage} loadLimit={view.settings?.loadLimit} {...rowProps}
               />
             ) : (
               <>

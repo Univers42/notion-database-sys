@@ -11,11 +11,12 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, MoreHorizontal, Plus } from 'lucide-react';
 import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import type { FillDragState } from './useFillDrag';
 import { MemoTableRow } from './MemoTableRow';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
+import { resolvePageSize } from '../../../hooks/useViewPager';
 import { cn } from '../../../utils/cn';
 
 interface GroupData {
@@ -77,10 +78,18 @@ export function renderPageRows(
     onPropertyConfig, tableRef,
   } = props;
 
+  // The drag-state object's identity changes per mousemove; passing it to every
+  // row broke React.memo for ALL windowed rows on each pointer move. The range
+  // test is hoisted here so untouched rows receive stable scalars instead.
+  const fillMin = fillDrag ? Math.min(fillDrag.sourceRowIdx, fillDrag.currentRowIdx) : 0;
+  const fillMax = fillDrag ? Math.max(fillDrag.sourceRowIdx, fillDrag.currentRowIdx) : -1;
+
   return rowPages.map((page, i) => {
     const rowIdx = globalOffset + i;
     const isFocusedRow = focusedCell?.pageId === page.id;
     const isEditingRow = editingCell?.pageId === page.id;
+    const inFillRange = fillDrag !== null
+      && rowIdx >= fillMin && rowIdx <= fillMax && rowIdx !== fillDrag.sourceRowIdx;
     const row = (
       <MemoTableRow
         key={page.id}
@@ -89,7 +98,8 @@ export function renderPageRows(
         visibleProps={visibleProps}
         focusedPropId={isFocusedRow && focusedCell ? focusedCell.propId : null}
         editingPropId={isEditingRow && editingCell ? editingCell.propId : null}
-        fillDrag={fillDrag}
+        fillDragActive={fillDrag !== null}
+        fillRangePropId={inFillRange && fillDrag ? fillDrag.sourcePropId : null}
         showRowNumbers={showRowNumbers}
         showVerticalLines={showVerticalLines}
         wrapContent={wrapContent}
@@ -126,14 +136,29 @@ interface TableGroupRowsProps extends RenderPageRowsProps {
   toggleGroup: (groupId: string) => void;
   colCount: number;
   addPage: (databaseId: string) => void;
+  /** The view's page-size source (settings.loadLimit) — grouping disables the
+   *  virtualizer AND the pager, so each group caps itself at this size with a
+   *  per-group "Load more" instead of mounting every row. */
+  loadLimit?: number;
 }
 
 /** Renders grouped table rows with collapsible headers and per-group actions. */
 export function TableGroupRows({
   groupedData, collapsedGroups, toggleGroup, colCount,
-  addPage, databaseId, ...rowProps
+  addPage, databaseId, loadLimit, ...rowProps
 }: Readonly<TableGroupRowsProps>) {
   const createRecord = useDefaultTemplateCreate(() => addPage(databaseId));
+  // Same per-column cap idiom as BoardView, plus "Load more": extra rows a
+  // group has revealed this session (groupId → count, grown by `cap` per click).
+  const cap = resolvePageSize(loadLimit);
+  const [expandedExtra, setExpandedExtra] = React.useState<Map<string, number>>(new Map());
+  const showMore = (groupId: string) => {
+    setExpandedExtra(prev => {
+      const next = new Map(prev);
+      next.set(groupId, (next.get(groupId) ?? 0) + cap);
+      return next;
+    });
+  };
   return (
     <>
       {groupedData.map((group) => {
@@ -141,6 +166,8 @@ export function TableGroupRows({
         const colorParts = group.groupColor.split(' ');
         const bgColor = colorParts[0] || 'bg-surface-muted';
         const textColor = colorParts[1] || 'text-ink-body';
+        const shown = cap + (expandedExtra.get(group.groupId) ?? 0);
+        const visiblePages = Number.isFinite(shown) ? group.pages.slice(0, shown) : group.pages;
 
         return (
           <React.Fragment key={group.groupId}>
@@ -178,7 +205,22 @@ export function TableGroupRows({
               </td>
             </tr>
 
-            {!isCollapsed && renderPageRows(group.pages, { ...rowProps, databaseId })}
+            {!isCollapsed && renderPageRows(visiblePages, { ...rowProps, databaseId })}
+
+            {/* Per-group "Load more" — mirrors the ungrouped pager's footer row */}
+            {!isCollapsed && group.pages.length > visiblePages.length && (
+              <tr>
+                <td colSpan={colCount} className={cn("p-0 border-b border-line")}>
+                  <button
+                    onClick={() => showMore(group.groupId)}
+                    className={cn("w-full text-left px-8 py-2 text-sm text-accent-text-soft hover:text-hover-accent-text-bold hover:bg-hover-surface-accent2 transition-colors flex items-center justify-between")}
+                  >
+                    <span className={cn("flex items-center gap-2")}><ChevronDown className={cn("w-4 h-4")} />Load more</span>
+                    <span className={cn("text-xs text-ink-muted tabular-nums")}>{visiblePages.length} of {group.pages.length}</span>
+                  </button>
+                </td>
+              </tr>
+            )}
 
             {/* Empty group placeholder */}
             {!isCollapsed && group.pages.length === 0 && (

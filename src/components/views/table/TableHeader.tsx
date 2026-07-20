@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import { AddPropertyPanel, ADD_PANEL_WIDTH } from './AddPropertyPanel';
+import { colWidthVar } from './useColumnResize';
 import { cn } from '../../../utils/cn';
 
 interface TableHeaderProps {
@@ -90,10 +91,15 @@ export function TableHeader({
         <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>
           {showRowNumbers ? '#' : ''}
         </th>
-        {visibleProps.map(prop => (
+        {visibleProps.map(prop => {
+          // var() first: a resize drag moves the column per frame through one
+          // CSS custom property on the table element (no store write per RAF);
+          // the store-backed width is the resting fallback. See useColumnResize.
+          const width = `var(${colWidthVar(prop.id)}, ${getColWidth(prop.id)}px)`;
+          return (
           <th key={prop.id}
             className={cn(`px-3 py-2 text-xs font-medium text-ink-secondary ${showVerticalLines ? 'border-r' : ''} border-line bg-surface-secondary group relative select-none transition-opacity ${dragColId === prop.id ? 'opacity-40' : ''}`)}
-            style={{ width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id), cursor: CURSORS.grab }}
+            style={{ width, minWidth: width, maxWidth: width, cursor: CURSORS.grab }}
             draggable
             onDragStart={e => { setDragColId(prop.id); if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'; }}
             onDragEnd={() => setDragColId(null)}
@@ -134,7 +140,8 @@ export function TableHeader({
               style={{ cursor: CURSORS.colResize }}
               onMouseDown={e => handleResizeStart(e, prop.id)} />
           </th>
-        ))}
+          );
+        })}
         <th className={cn("w-10 px-2 py-2 border-line text-center bg-surface-secondary")}>
           <button ref={addBtnRef} onClick={openAddPanel} aria-label="Add property" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><Plus className={cn("w-4 h-4")} /></button>
           {addPanel && createPortal(

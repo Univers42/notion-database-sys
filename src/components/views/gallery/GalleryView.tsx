@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus, Image, MoreHorizontal, ArrowUpRight } from 'lucide-react';
@@ -29,7 +29,15 @@ import { colorForPage } from '../../../lib/conditionalColor';
 /** Renders a gallery view of database pages as cards with optional cover previews. */
 export function GalleryView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, openPage, getPageTitle, addPage } = useDatabaseStore();
+  // Narrow selectors (MapView's fixed idiom): a bare useDatabaseStore() re-
+  // rendered the gallery on EVERY store write in this database. useViewPages
+  // subscribes pages; searchQuery is subscribed here because getPagesForView
+  // filters by it — actions come off the store api (stable, no subscription).
+  const views = useDatabaseStore(s => s.views);
+  const databases = useDatabaseStore(s => s.databases);
+  useDatabaseStore(s => s.searchQuery);
+  const storeApi = useStoreApi();
+  const { openPage, getPageTitle, addPage } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const pages = useViewPages(view?.id);

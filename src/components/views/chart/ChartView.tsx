@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React, { Suspense, useCallback } from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { BarChart3 } from 'lucide-react';
 import type { ChartType } from './useChartData';
@@ -53,9 +53,16 @@ function ChartLoading() {
 /** Renders the chart view: number type inline, the rest via the lazy canvas. */
 export function ChartView() {
   const activeViewId = useActiveViewId();
-  const {
-    views, databases, pages: pagesMap, openPage, getPageTitle, updateViewSettings,
-  } = useDatabaseStore();
+  // Narrow selectors (MapView's fixed idiom): a bare useDatabaseStore() re-
+  // rendered the chart on EVERY store write in this database. pagesMap is a
+  // real render input (label/drilldown resolution); searchQuery is subscribed
+  // because getPagesForView filters by it — actions come off the store api.
+  const views = useDatabaseStore(s => s.views);
+  const databases = useDatabaseStore(s => s.databases);
+  const pagesMap = useDatabaseStore(s => s.pages);
+  useDatabaseStore(s => s.searchQuery);
+  const storeApi = useStoreApi();
+  const { openPage, getPageTitle, updateViewSettings } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const settings = view?.settings || {};

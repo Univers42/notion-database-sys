@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { FileText, Clock } from 'lucide-react';
@@ -81,7 +81,15 @@ function renderFeedPropertyTags(
 /** Renders a social-media-style feed of database pages with actions and property tags. */
 export function FeedView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, openPage, getPageTitle, addPage, updatePageProperty } = useDatabaseStore();
+  // Narrow selectors (MapView's fixed idiom): a bare useDatabaseStore() re-
+  // rendered the feed on EVERY store write in this database. useViewPages
+  // subscribes pages; searchQuery is subscribed here because getPagesForView
+  // filters by it — actions come off the store api (stable, no subscription).
+  const views = useDatabaseStore(s => s.views);
+  const databases = useDatabaseStore(s => s.databases);
+  useDatabaseStore(s => s.searchQuery);
+  const storeApi = useStoreApi();
+  const { openPage, getPageTitle, addPage, updatePageProperty } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 

@@ -53,7 +53,7 @@ export function useTableViewState() {
   // clicked cell itself) from a keyboard tab-in (which should select the first).
   const pointerDownRef = useRef(false);
   const { fillDrag, startFillDrag } = useFillDrag(activeViewId);
-  const { resizingCol, handleResizeStart } = useColumnResize(view?.id ?? '');
+  const { resizingCol, handleResizeStart } = useColumnResize(view?.id ?? '', tableRef);
   const getColWidth = useColWidth();
   const [rowMenu, setRowMenu] = useState<{ pageId: string; x: number; y: number } | null>(null);
 

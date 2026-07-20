@@ -50,10 +50,11 @@ export function isPermanentDenial(error: unknown): boolean {
   return typeof e?.message === 'string' && /accessible workspace|forbidden|unauthor|HTTP 40[13]/i.test(e.message);
 }
 
-/** Cheap order-insensitive fingerprint: rows sorted by their pk string,
- *  then djb2 over the concatenated row JSON (length-prefixed). Mongo wire
- *  alias: rows surface `_id` as `id` (normalize_doc) — without the fallback
- *  every pk is '' and natural-order drift flips the hash (false reloads). */
+/** Cheap order-insensitive fingerprint: rows sorted by their pk string, then
+ *  djb2 folded row by row (each row's JSON, then a '\n' boundary so adjacent
+ *  rows can't alias) — never one joined MB-scale string. Mongo wire alias:
+ *  rows surface `_id` as `id` (normalize_doc) — without the fallback every pk
+ *  is '' and natural-order drift flips the hash (false reloads). */
 export function hashLiveRows(rows: Record<string, unknown>[], pkColumns: string[]): string {
   const keyed = rows.map((row) => ({
     pk: pkColumns
@@ -63,9 +64,12 @@ export function hashLiveRows(rows: Record<string, unknown>[], pkColumns: string[
   }));
   keyed.sort((a, b) => (a.pk < b.pk ? -1 : a.pk > b.pk ? 1 : 0));
   let hash = 5381;
-  const text = keyed.map((entry) => entry.json).join('\n');
-  for (let index = 0; index < text.length; index += 1) {
-    hash = (Math.imul(hash, 33) ^ text.charCodeAt(index)) >>> 0;
+  for (const entry of keyed) {
+    const text = entry.json;
+    for (let index = 0; index < text.length; index += 1) {
+      hash = (Math.imul(hash, 33) ^ text.charCodeAt(index)) >>> 0;
+    }
+    hash = (Math.imul(hash, 33) ^ 10) >>> 0; // '\n' row boundary
   }
   return `${rows.length}:${hash.toString(36)}`;
 }

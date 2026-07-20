@@ -15,6 +15,7 @@ import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
+import { colWidthVar } from './useColumnResize';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useSubItems } from './subItemsContext';
 import { GripHandleIcon } from '../../ui/Icons';
@@ -28,7 +29,13 @@ export interface MemoTableRowProps {
   visibleProps: SchemaProperty[];
   focusedPropId: string | null;
   editingPropId: string | null;
-  fillDrag: { sourcePropId: string; sourceRowIdx: number; currentRowIdx: number } | null;
+  /** ANY fill drag is in progress — drives the crosshair cursor. Changes only
+   *  at drag start/end, never per mousemove. */
+  fillDragActive: boolean;
+  /** The dragged column's prop id when THIS row is inside the fill range, else
+   *  null. Scalar (not the drag-state object, whose identity changes per
+   *  mousemove) so React.memo holds for the rows the drag doesn't touch. */
+  fillRangePropId: string | null;
   showRowNumbers: boolean;
   showVerticalLines: boolean;
   wrapContent: boolean;
@@ -58,18 +65,6 @@ export interface MemoTableRowProps {
   isDropTarget?: boolean;
 }
 
-/** Determines whether a row falls within the fill-drag highlight range. */
-function isInFillRange(
-  fillDrag: MemoTableRowProps['fillDrag'],
-  propId: string,
-  rowIdx: number,
-): boolean {
-  if (propId !== fillDrag?.sourcePropId) return false;
-  const minR = Math.min(fillDrag.sourceRowIdx, fillDrag.currentRowIdx);
-  const maxR = Math.max(fillDrag.sourceRowIdx, fillDrag.currentRowIdx);
-  return rowIdx >= minR && rowIdx <= maxR && rowIdx !== fillDrag.sourceRowIdx;
-}
-
 /** Computes cell focus ring classes. */
 function focusRingClass(isFocused: boolean, inFillRange: boolean): string {
   if (isFocused) return 'ring-2 ring-ring-success ring-inset bg-emerald-surface z-10 shadow-[inset_0_0_0_1px_var(--color-inset-success)]';
@@ -81,7 +76,7 @@ function focusRingClass(isFocused: boolean, inFillRange: boolean): string {
 export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRowProps) {
   const {
     page, rowIdx, visibleProps, focusedPropId, editingPropId,
-    fillDrag, showRowNumbers, showVerticalLines, wrapContent,
+    fillDragActive, fillRangePropId, showRowNumbers, showVerticalLines, wrapContent,
     getColWidth, databaseId, onCellClick, onCellDoubleClick, onUpdateProperty, onStopEditing,
     onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
   } = props;
@@ -130,7 +125,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         const value = page.properties[prop.id];
         const isFocused = focusedPropId === prop.id;
         const isEditing = editingPropId === prop.id;
-        const inFill = isInFillRange(fillDrag, prop.id, rowIdx);
+        const inFill = fillRangePropId === prop.id;
         const ring = focusRingClass(isFocused, inFill);
 
         const cellProps: CellRendererProps = {
@@ -140,10 +135,14 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         };
 
         let cellCursor: string | undefined;
-        if (fillDrag) cellCursor = CURSORS.crosshair;
+        if (fillDragActive) cellCursor = CURSORS.crosshair;
         else if (isEditing) cellCursor = undefined;
         else cellCursor = CURSORS.cell;
 
+        // var() first so a column-resize drag can move every cell per frame by
+        // writing ONE CSS custom property on the table element (no store write,
+        // no re-render); the store-backed width is the resting fallback.
+        const width = `var(${colWidthVar(prop.id)}, ${getColWidth(prop.id)}px)`;
         return (
           <td key={prop.id}
             id={cellDomId(databaseId, page.id, prop.id)}
@@ -151,7 +150,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
             aria-selected={isFocused}
             className={cn(`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`)}
             style={{
-              width: getColWidth(prop.id), minWidth: getColWidth(prop.id), maxWidth: getColWidth(prop.id),
+              width, minWidth: width, maxWidth: width,
               cursor: cellCursor,
             }}
             onClick={() => onCellClick(page.id, prop.id, prop.type, value)}

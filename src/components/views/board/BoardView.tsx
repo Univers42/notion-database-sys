@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React, { useState } from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus } from 'lucide-react';
 import { getColumnWidth, BoardCard } from './BoardCardHelpers';
@@ -28,7 +28,17 @@ const BOARD_UNGROUPABLE = new Set(['title', 'relation', 'formula', 'rollup', 'id
 /** Renders a Kanban-style board view with drag-and-drop between columns grouped by any value-bearing property. */
 export function BoardView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, updatePageProperty, updateViewSettings, addPage, getPageTitle, openPage, getGroupedPages } = useDatabaseStore();
+  // Narrow selectors (MapView's fixed idiom): a bare useDatabaseStore() re-
+  // rendered the board on EVERY store write in this database. Pages and
+  // searchQuery are subscribed explicitly — the board renders from
+  // getGroupedPages, which derives from both; actions come off the store api
+  // (stable references, no subscription).
+  const views = useDatabaseStore(s => s.views);
+  const databases = useDatabaseStore(s => s.databases);
+  useDatabaseStore(s => s.pages);
+  useDatabaseStore(s => s.searchQuery);
+  const storeApi = useStoreApi();
+  const { updatePageProperty, updateViewSettings, addPage, getPageTitle, openPage, getGroupedPages } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const globalFilters = useDashboardFilters();

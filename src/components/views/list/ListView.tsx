@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { FileText, MoreHorizontal, Plus } from 'lucide-react';
@@ -75,7 +75,15 @@ function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactN
 /** Renders a list view of database pages with optional grouping and inline property tags. */
 export function ListView() {
   const activeViewId = useActiveViewId();
-  const { views, databases, openPage, getPageTitle, addPage } = useDatabaseStore();
+  // Narrow selectors (MapView's fixed idiom): a bare useDatabaseStore() re-
+  // rendered the list on EVERY store write in this database. useViewPages
+  // subscribes pages; searchQuery is subscribed here because getPagesForView
+  // filters by it — actions come off the store api (stable, no subscription).
+  const views = useDatabaseStore(s => s.views);
+  const databases = useDatabaseStore(s => s.databases);
+  useDatabaseStore(s => s.searchQuery);
+  const storeApi = useStoreApi();
+  const { openPage, getPageTitle, addPage } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
