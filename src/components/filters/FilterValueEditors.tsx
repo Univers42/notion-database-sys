@@ -17,6 +17,7 @@ import { PortalDropdown } from './PortalDropdown';
 import { FilterEditorShell } from './FilterEditorShell';
 import type { FilterValueEditorProps } from './FilterEditorShell';
 import { cn } from '../../utils/cn';
+import { toDateInputValue } from '../../utils/format';
 
 function SelectFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const { property, operator, value, onOperatorChange, onValueChange, onDelete } = props;
@@ -119,11 +120,11 @@ function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
             <span className={cn("truncate")}>{displayVal}</span>
             <ChevronDown className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
           </button>
-          <input type="date" value={isCustom ? value : ''} onChange={e => onValueChange(e.target.value)}
+          <input type="date" value={isCustom ? toDateInputValue(value) : ''} onChange={e => onValueChange(e.target.value)}
             className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary")} />
           {operator === 'is_between' && (
             <input type="date"
-              value={typeof value === 'object' && value?.end ? value.end : ''}
+              value={typeof value === 'object' && value?.end ? toDateInputValue(value.end) : ''}
               onChange={e => onValueChange({ start: isCustom ? value : '', end: e.target.value })}
               className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary")} />
           )}

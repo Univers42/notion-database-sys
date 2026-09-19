@@ -26,6 +26,7 @@ import React from 'react';
 import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
 import { getOperatorsForType } from './constants';
 import { cn } from '../../utils/cn';
+import { toDateInputValue } from '../../utils/format';
 
 export function FilterOperatorPicker({ type, current, onSelect, onClose }: Readonly<{
   type: string; current: FilterOperator;
@@ -61,7 +62,7 @@ export function renderInlineFilterValue(
   }
   if (prop.type === 'date' || prop.type === 'due_date') {
     return (
-      <input type="date" value={filter.value || ''}
+      <input type="date" value={toDateInputValue(filter.value)}
         onChange={e => onUpdateFilter(filter.id, { value: e.target.value })}
         className={cn("h-8 px-2 border border-line rounded-lg text-sm w-full bg-surface-primary")} />
     );

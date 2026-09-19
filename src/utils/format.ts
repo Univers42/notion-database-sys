@@ -98,6 +98,32 @@ export function safeDateFormat(value: unknown, pattern = 'MMM d, yyyy'): string 
   }
 }
 
+/** A value that already leads with a calendar date, whatever trails it. */
+const LEADING_DATE = /^\d{4}-\d{2}-\d{2}/;
+
+/**
+ * Narrows any date-ish value to `yyyy-MM-dd`, the only format
+ * `<input type="date">` accepts. A live-DB `date` column arrives as a full
+ * Postgres timestamptz ("2026-09-19T08:54:05.240944+00:00"); handing that
+ * straight to the input makes the browser REJECT it — the field renders blank
+ * and the console fills with "does not conform to the required format,
+ * yyyy-MM-dd".
+ *
+ * A string that already leads with the date is SLICED, never re-parsed: a
+ * date-only value stored at midnight UTC shifts a day backwards for anyone west
+ * of Greenwich if it round-trips through a local-time `Date`. Only values that
+ * are not already date-led fall through to parsing. Unparseable → '' so the
+ * caller stays a controlled input.
+ */
+export function toDateInputValue(value: unknown): string {
+  if (value === null || value === undefined || value === '') return '';
+  if (typeof value === 'string') {
+    return LEADING_DATE.test(value) ? value.slice(0, 10) : '';
+  }
+  const d = value instanceof Date ? value : new Date(value as number);
+  return isValid(d) ? format(d, 'yyyy-MM-dd') : '';
+}
+
 /**
  * Renders a property value as a plain-text string suitable for display.
  *

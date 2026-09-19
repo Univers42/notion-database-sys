@@ -13,6 +13,7 @@
 import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { cn } from '../utils/cn';
+import { toDateInputValue } from '../utils/format';
 
 /** Renders a non-editable text value with fallback. */
 export function ReadOnlyText({ value, fallback = '—' }: Readonly<{ value: unknown; fallback?: string }>) {
@@ -130,12 +131,14 @@ export function CheckboxEditor({ value, onChange }: Readonly<{ value: boolean; o
   );
 }
 
-/** Native date input for editing date properties. */
+/** Native date input for editing date properties. The stored value may be a full
+ *  timestamp (a live-DB `date` column round-trips as timestamptz), so it is
+ *  narrowed to `yyyy-MM-dd` — the input rejects anything else outright. */
 export function DateEditor({ value, onChange }: Readonly<{ value: string; onChange: (v: string | null) => void }>) {
   return (
     <input
       type="date"
-      value={value || ''}
+      value={toDateInputValue(value)}
       onChange={e => onChange(e.target.value || null)}
       className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface")}
     />
