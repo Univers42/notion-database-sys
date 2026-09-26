@@ -122,13 +122,24 @@ export function useTableViewState() {
     }
   }, [database, displayedPages, storeApi]);
 
+  const lastClickRef = useRef<{ pageId: string; propId: string; time: number } | null>(null);
+
   // Spreadsheet model: single click *selects* the cell (ring, no editor); a
   // checkbox is the one exception that toggles on a single click. Editing starts
   // on Enter / double-click (see handleCellDoubleClick) / — never a single click.
   const handleCellClick = useCallback((pageId: string, propId: string, type: string, currentValue: PropertyValue) => {
+    const now = Date.now();
+    const prev = lastClickRef.current;
+    lastClickRef.current = { pageId, propId, time: now };
+    if (prev && prev.pageId === pageId && prev.propId === propId && now - prev.time < 500) {
+      if (type !== 'checkbox') {
+        activateCell({ pageId, propId });
+        return;
+      }
+    }
     setFocusedCell({ pageId, propId });
     if (type === 'checkbox') storeApi.getState().updatePageProperty(pageId, propId, !currentValue);
-  }, [storeApi]);
+  }, [activateCell, storeApi]);
   const handleCellDoubleClick = useCallback((pageId: string, propId: string, type: string) => {
     setFocusedCell({ pageId, propId });
     if (type === 'checkbox') return; // the first click already toggled it
