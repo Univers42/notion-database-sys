@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useCellAnchor } from '../../hooks/useCellAnchor';
 import { PortalBackdrop } from '../ui/PortalBackdrop';
@@ -30,6 +30,20 @@ interface CellPortalProps {
 export function CellPortal({ onClose, minWidth = 280, maxWidth, maxHeight = '70vh', className = '', children }: Readonly<CellPortalProps>) {
   const measureRef = useRef<HTMLDivElement>(null);
   const rect = useCellAnchor(measureRef);
+
+  // Non-modal <dialog open> does not capture Escape, and Playwright (or a
+  // focused page editor) often sends the key outside the dialog. Listen on
+  // document so the files/select portals actually dismiss.
+  useEffect(() => {
+    if (!rect) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.stopPropagation();
+      onClose();
+    };
+    document.addEventListener('keydown', onKey, true);
+    return () => document.removeEventListener('keydown', onKey, true);
+  }, [onClose, rect]);
 
   return (
     <>

@@ -146,7 +146,7 @@ export function TableHeader({
           <button ref={addBtnRef} onClick={openAddPanel} aria-label="Add property" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><Plus className={cn("w-4 h-4")} /></button>
           {addPanel && createPortal(
             <>
-              <button type="button" className={cn("fixed inset-0 z-40 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={() => setAddPanel(null)} tabIndex={-1} aria-label="Close" />
+              <button type="button" className={cn("fixed inset-0 z-40 appearance-none border-0 bg-transparent p-0 cursor-default")} onPointerDown={() => setAddPanel(null)} tabIndex={-1} aria-label="Close" />
               <div data-testid="add-property-panel" role="dialog" aria-label="Select type"
                 className={cn("fixed z-50 bg-surface-primary rounded-xl shadow-xl border border-line")}
                 style={{ top: addPanel.top, left: addPanel.left, width: addPanel.width, maxHeight: Math.max(160, window.innerHeight - addPanel.top - 12) }}
