@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/postgres:16-alpine
+FROM postgres:16-alpine
 
 LABEL maintainer="dlesieur"
 LABEL description="Notion DBMS — PostgreSQL 16 with custom config & tooling"

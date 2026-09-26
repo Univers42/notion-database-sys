@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM public.ecr.aws/docker/library/rust:1.88-slim-bookworm AS wasm-builder
+FROM rust:1.88-slim-bookworm AS wasm-builder
 
 RUN rustup target add wasm32-unknown-unknown \
     && cargo install wasm-pack --version 0.13.1 --locked
@@ -10,7 +10,7 @@ COPY src/lib/engine/src ./src
 
 RUN wasm-pack build --target web --out-dir pkg --release
 
-FROM public.ecr.aws/docker/library/node:22-bookworm-slim
+FROM node:22-bookworm-slim
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
