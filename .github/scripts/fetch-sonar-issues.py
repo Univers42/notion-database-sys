@@ -32,6 +32,7 @@ import base64
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 from collections import Counter
 from datetime import datetime, timezone
@@ -40,17 +41,11 @@ from datetime import datetime, timezone
 # Configuration
 # ---------------------------------------------------------------------------
 
-TOKEN = os.environ.get("SONAR_TOKEN", "")
-if not TOKEN:
-    print("ERROR: SONAR_TOKEN environment variable is required", file=sys.stderr)
-    sys.exit(1)
-
+TOKEN = os.environ.get("SONAR_TOKEN", "").strip()
 HOST = os.environ.get("SONAR_HOST_URL", "https://sonarcloud.io").rstrip("/")
 PROJECT = os.environ.get("SONAR_PROJECT_KEY", "Univers42_notion-database-sys")
 OUTPUT_DIR = os.environ.get("OUTPUT_DIR", ".")
 PAGE_SIZE = 500  # SonarCloud max is 500
-
-AUTH_HEADER = "Basic " + base64.b64encode(f"{TOKEN}:".encode()).decode()
 
 # ---------------------------------------------------------------------------
 # Fetch all issues (paginated)
@@ -60,6 +55,10 @@ def fetch_issues():
     """Return a list of all open/confirmed/reopened issues."""
     all_issues = []
     page = 1
+    headers = {}
+    if TOKEN:
+        headers["Authorization"] = "Basic " + base64.b64encode(f"{TOKEN}:".encode()).decode()
+
     while True:
         url = (
             f"{HOST}/api/issues/search"
@@ -67,17 +66,31 @@ def fetch_issues():
             f"&statuses=OPEN,CONFIRMED,REOPENED"
             f"&ps={PAGE_SIZE}&p={page}"
         )
-        req = urllib.request.Request(url, headers={"Authorization": AUTH_HEADER})
+        req = urllib.request.Request(url, headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
-                data = json.loads(resp.read())
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 403) and headers:
+                print(f"WARNING: Authentication failed (HTTP {exc.code}) with provided token. Retrying anonymously...", file=sys.stderr)
+                headers.clear()
+                req = urllib.request.Request(url, headers=headers)
+                try:
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        data = json.loads(resp.read().decode("utf-8"))
+                except Exception as inner_exc:
+                    print(f"WARNING: Unauthenticated fetch failed: {inner_exc}", file=sys.stderr)
+                    return all_issues
+            else:
+                print(f"WARNING: API request failed on page {page}: {exc}", file=sys.stderr)
+                return all_issues
         except Exception as exc:
-            print(f"ERROR: API request failed on page {page}: {exc}", file=sys.stderr)
-            sys.exit(1)
+            print(f"WARNING: API request failed on page {page}: {exc}", file=sys.stderr)
+            return all_issues
 
         issues = data.get("issues", [])
         all_issues.extend(issues)
-        total = data["paging"]["total"]
+        total = data.get("paging", {}).get("total", len(all_issues))
         print(f"  Page {page}: {len(issues)} issues ({len(all_issues)}/{total})", file=sys.stderr)
 
         if len(all_issues) >= total:
