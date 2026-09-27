@@ -62,10 +62,20 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        if (propName.trim() && propName.trim() !== property.name) {
+          updateProperty(databaseId, property.id, { name: propName.trim() });
+        }
+        onClose();
+      }
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        if (propName.trim() && propName.trim() !== property.name) {
+          updateProperty(databaseId, property.id, { name: propName.trim() });
+        }
+        onClose();
+      }
     };
     document.addEventListener('mousedown', handler);
     document.addEventListener('keydown', onKey);
@@ -73,7 +83,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       document.removeEventListener('mousedown', handler);
       document.removeEventListener('keydown', onKey);
     };
-  }, [onClose]);
+  }, [databaseId, onClose, propName, property.id, property.name, updateProperty]);
 
   const commitName = () => {
     if (propName.trim() && propName.trim() !== property.name)
