@@ -77,11 +77,13 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
         onClose();
       }
     };
-    document.addEventListener('mousedown', handler);
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', handler, true);
+    document.addEventListener('mousedown', handler, true);
+    document.addEventListener('keydown', onKey, true);
     return () => {
-      document.removeEventListener('mousedown', handler);
-      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', handler, true);
+      document.removeEventListener('mousedown', handler, true);
+      document.removeEventListener('keydown', onKey, true);
     };
   }, [databaseId, onClose, propName, property.id, property.name, updateProperty]);
 
