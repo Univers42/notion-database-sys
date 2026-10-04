@@ -35,6 +35,7 @@ export interface LiveRealtimeEventFrame {
 
 /** The subset of the DOM WebSocket the client touches (test-injectable). */
 export interface LiveWebSocketLike {
+  readonly readyState?: number;
   onopen: (() => void) | null;
   onmessage: ((event: { data: unknown }) => void) | null;
   onclose: (() => void) | null;
@@ -96,8 +97,18 @@ export class LiveRealtimeSocket {
     const ws = this.ws;
     this.ws = null;
     this.opened = false;
+    if (!ws) return;
     try {
-      ws?.close(1000, 'client stop');
+      if (ws.readyState === 0) {
+        ws.onopen = () => {
+          try { ws.close(1000, 'client stop'); } catch { /* ignore */ }
+        };
+        ws.onerror = () => { /* ignore */ };
+        ws.onclose = () => { /* ignore */ };
+        ws.onmessage = () => { /* ignore */ };
+      } else {
+        ws.close(1000, 'client stop');
+      }
     } catch { /* already closing */ }
   }
 
