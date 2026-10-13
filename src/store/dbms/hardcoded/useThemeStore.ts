@@ -32,8 +32,19 @@ function getStoredPreference(): ThemePreference {
   return 'system';
 }
 
+// <html data-theme> belongs to whoever hosts the database. Embedded in another
+// app, this store keeps a preference and writes nothing: writing here flipped
+// the host's light theme to the OS's dark one as soon as this module loaded.
+// Only the standalone app (main.tsx) installs it as the owner.
+let ownsDocumentTheme = false;
+
+/** True in the standalone app, where this store drives <html data-theme>. */
+export function ownsTheme(): boolean {
+  return ownsDocumentTheme;
+}
+
 function applyTheme(resolved: ResolvedTheme): void {
-  if (globalThis.document === undefined) return;
+  if (!ownsDocumentTheme || globalThis.document === undefined) return;
   const el = globalThis.document.documentElement;
   if (el.dataset.theme === resolved) return;
   el.dataset.theme = resolved;
@@ -49,9 +60,6 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>((set, get) => {
   const preference = getStoredPreference();
   const resolved = preference === 'system' ? getSystemTheme() : preference;
-
-  // Apply immediately on store creation
-  applyTheme(resolved);
 
   return {
     preference,
@@ -73,14 +81,16 @@ export const useThemeStore = create<ThemeState>((set, get) => {
   };
 });
 
-
-if (globalThis.window !== undefined) {
+/** Makes this store the owner of <html data-theme>: applies the stored
+ *  preference now and follows the OS while the preference is "system". */
+export function installStandaloneTheme(): void {
+  if (ownsDocumentTheme || globalThis.window === undefined) return;
+  ownsDocumentTheme = true;
+  applyTheme(useThemeStore.getState().resolved);
   globalThis.window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    const { preference } = useThemeStore.getState();
-    if (preference === 'system') {
-      const resolved = getSystemTheme();
-      applyTheme(resolved);
-      useThemeStore.setState({ resolved });
-    }
+    if (useThemeStore.getState().preference !== 'system') return;
+    const resolved = getSystemTheme();
+    applyTheme(resolved);
+    useThemeStore.setState({ resolved });
   });
 }

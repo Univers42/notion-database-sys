@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { useThemeStore } from '../../store/dbms/hardcoded/useThemeStore';
+import { ownsTheme, useThemeStore } from '../../store/dbms/hardcoded/useThemeStore';
 import { cn } from '../../utils/cn';
 
 const SunIcon = () => (
@@ -53,6 +53,9 @@ export function ThemeToggle() {
   const preference = useThemeStore(s => s.preference);
   const cycleTheme = useThemeStore(s => s.cycleTheme);
   const meta = THEME_META[preference];
+
+  // Embedded, the host app owns the theme and has its own switch.
+  if (!ownsTheme()) return null;
 
   return (
     <button
