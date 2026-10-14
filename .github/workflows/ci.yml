@@ -179,8 +179,8 @@ jobs:
   # 5. SonarCloud analysis.
   #
   #    Requires the SONAR_TOKEN repository secret (see docs/SONARQUBE.md).
-  #    The job is marked continue-on-error so a missing or invalid token
-  #    does not fail the entire pipeline — other jobs still gate the build.
+  #    The token is validated against SonarCloud before scanning; if missing
+  #    or invalid, the analysis is gracefully skipped so other CI jobs gate the build.
   #
   #    After the scan, a summary step queries the SonarCloud API and prints
   #    a human-readable metrics table directly in the Actions log.
@@ -201,7 +201,21 @@ jobs:
             echo "SONAR_TOKEN is not set — skipping analysis"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            AUTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/authentication/validate" 2>/dev/null || true)
+            if [ "$AUTH_STATUS" = "200" ]; then
+              AUTH_BODY=$(curl -sf -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/authentication/validate" 2>/dev/null || true)
+              IS_VALID=$(echo "$AUTH_BODY" | python3 -c "import sys, json; print(json.load(sys.stdin).get('valid', False))" 2>/dev/null || echo "False")
+              if [ "$IS_VALID" = "True" ]; then
+                echo "✅ SONAR_TOKEN is valid on SonarCloud"
+                echo "skip=false" >> "$GITHUB_OUTPUT"
+              else
+                echo "⚠️ SONAR_TOKEN is present but invalid on SonarCloud (validate returned valid=false) — skipping analysis"
+                echo "skip=true" >> "$GITHUB_OUTPUT"
+              fi
+            else
+              echo "⚠️ Failed to validate SONAR_TOKEN on SonarCloud (HTTP $AUTH_STATUS) — skipping analysis"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - uses: actions/checkout@v4
@@ -211,11 +225,14 @@ jobs:
           fetch-depth: 0
 
       - name: Run SonarCloud scanner
+        id: scanner
         if: steps.check.outputs.skip != 'true'
+        continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@v6
 
       - name: Wait for quality gate result
-        if: steps.check.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.scanner.outcome == 'success'
+        continue-on-error: true
         timeout-minutes: 5
         run: |
           PROJECT_KEY="Univers42_notion-database-sys"
@@ -260,7 +277,8 @@ jobs:
           exit 1
 
       - name: Print analysis summary
-        if: steps.check.outputs.skip != 'true' && always()
+        if: steps.check.outputs.skip != 'true' && steps.scanner.outcome == 'success'
+        continue-on-error: true
         run: |
           PROJECT_KEY="Univers42_notion-database-sys"
           METRICS="bugs,vulnerabilities,security_hotspots,code_smells,duplicated_lines_density,ncloc,coverage"
@@ -324,8 +342,8 @@ jobs:
   #
   #      gh run download <run-id> -n sonarcloud-issues
   #
-  #    This job always runs after the sonarqube job, even if the quality gate
-  #    failed — in fact that is exactly when the report is most useful.
+  #    This job runs after the sonarqube job, skipping gracefully if
+  #    SonarCloud credentials are not configured or invalid.
   # --------------------------------------------------------------------------
   sonar-issues:
     name: Export SonarCloud Issues
@@ -336,25 +354,41 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
-      - name: Skip if no token
+      - name: Check token for issue export
         id: gate
         run: |
           if [ -z "$SONAR_TOKEN" ]; then
             echo "SONAR_TOKEN not set — skipping issue export"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            AUTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/authentication/validate" 2>/dev/null || true)
+            if [ "$AUTH_STATUS" = "200" ]; then
+              AUTH_BODY=$(curl -sf -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/authentication/validate" 2>/dev/null || true)
+              IS_VALID=$(echo "$AUTH_BODY" | python3 -c "import sys, json; print(json.load(sys.stdin).get('valid', False))" 2>/dev/null || echo "False")
+              if [ "$IS_VALID" = "True" ]; then
+                echo "✅ SONAR_TOKEN is valid on SonarCloud"
+                echo "skip=false" >> "$GITHUB_OUTPUT"
+              else
+                echo "⚠️ SONAR_TOKEN is present but invalid on SonarCloud — skipping issue export"
+                echo "skip=true" >> "$GITHUB_OUTPUT"
+              fi
+            else
+              echo "⚠️ Failed to validate SONAR_TOKEN on SonarCloud (HTTP $AUTH_STATUS) — skipping issue export"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - uses: actions/checkout@v4
         if: steps.gate.outputs.skip != 'true'
 
       - name: Fetch all issues from SonarCloud API
+        id: fetch_issues
         if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
         run: python3 .github/scripts/fetch-sonar-issues.py
 
       - name: Upload issue reports as artifact
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.skip != 'true' && steps.fetch_issues.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: sonarcloud-issues

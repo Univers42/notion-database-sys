@@ -309,7 +309,9 @@ function MermaidPreview({ code }: Readonly<{ code: string }>) {
         mermaid.initialize({
           startOnLoad: false,
           theme: "neutral",
-          securityLevel: "loose",
+          // Diagrams come from shared pages: "loose" would run their `click … call`
+          // callbacks and HTML labels in this origin.
+          securityLevel: "strict",
         });
         const id = `mermaid-${Date.now()}`;
         const { svg } = await mermaid.render(id, code);
