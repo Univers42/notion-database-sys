@@ -16,8 +16,10 @@ import ObjectDatabase from './object_database';
 import { HttpAdapter } from './component/adapters';
 import './index.css';
 
-// Eagerly initialize the theme store so it applies data-theme before first paint
-import './store/dbms/hardcoded/useThemeStore.ts';
+import { installStandaloneTheme } from './store/dbms/hardcoded/useThemeStore.ts';
+
+// Standalone, this app owns <html data-theme>: apply it before first paint.
+installStandaloneTheme();
 
 const root = document.getElementById('root');
 if (root) {
