@@ -70,6 +70,51 @@ export function getDotColor(optColor: string): string {
   return 'bg-surface-strong';
 }
 
+/** Paint colour per tag family, keyed by the `<family>` of `bg-<family>-…`. */
+const TAG_FAMILY_COLORS: Readonly<Record<string, string>> = {
+  accent:  'var(--color-accent)',
+  success: 'var(--color-success)',
+  emerald: 'var(--color-emerald)',
+  warning: 'var(--color-warning)',
+  amber:   'var(--color-amber)',
+  danger:  'var(--color-danger)',
+  rose:    'var(--color-rose)',
+  orange:  'var(--color-orange)',
+  purple:  'var(--color-purple)',
+  violet:  'var(--color-purple)',
+  indigo:  'var(--color-indigo)',
+  pink:    'var(--color-pink)',
+  cyan:    'var(--color-cyan)',
+  teal:    'var(--color-cyan)',
+  surface: 'var(--color-chart-label)',
+  ink:     'var(--color-chart-label)',
+};
+
+const CSS_COLOR_VALUE = /^(?:#|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|var)\(|[a-z]+$)/i;
+
+/**
+ * The CSS colour a chart, map pin or legend dot paints for a select option.
+ *
+ * Option colours are Tailwind class pairs (`bg-orange-surface-muted
+ * text-orange-text-tag`); handed to a canvas or an SVG fill as-is they are
+ * invalid and paint black. A value that already is a colour (hex, a colour
+ * function, `var(--…)`, a keyword such as `green`) passes through unchanged.
+ *
+ * Caveat: the family is read from the first `bg-`/`text-` token, so a class
+ * outside the tag families above (`bg-brand-500`) returns '' and the caller's
+ * palette colour is used instead of its own.
+ *
+ * @param optionColor - The option's `color` field.
+ * @returns A CSS colour, or '' when none can be derived.
+ */
+export function optionColorToCss(optionColor: string | undefined): string {
+  const value = optionColor?.trim() ?? '';
+  if (!value) return '';
+  if (CSS_COLOR_VALUE.test(value)) return value;
+  const family = /\b(?:bg|text)-([a-z]+)-/.exec(value)?.[1];
+  return (family && TAG_FAMILY_COLORS[family]) || '';
+}
+
 /**
  * Cover gradient classes for cards, used by BoardView and GalleryView.
  * Cycle with `index % CARD_COVER_GRADIENTS.length`.

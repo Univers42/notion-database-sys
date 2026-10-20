@@ -16,6 +16,7 @@ import type * as Leaflet from 'leaflet';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { cn } from '../../../utils/cn';
+import { optionColorToCss } from '../../../utils/color';
 
 /** Page with resolved geographic coordinates for map rendering. */
 export type MappablePage = {
@@ -24,19 +25,6 @@ export type MappablePage = {
   lng: number;
   address: string;
   color?: string;
-};
-
-export const MARKER_COLORS: Record<string, string> = {
-  'bg-accent-muted text-accent-text-bold': 'var(--color-chart-1)',
-  'bg-pink-surface-muted text-pink-text-tag': 'var(--color-chart-3)',
-  'bg-amber-surface-muted text-amber-text-tag': 'var(--color-chart-4)',
-  'bg-indigo-surface-muted text-indigo-text-tag': 'var(--color-chart-8)',
-  'bg-success-surface-muted text-success-text-tag': 'var(--color-progress-high)',
-  'bg-rose-surface-muted text-rose-text-tag': 'var(--color-rose)',
-  'bg-orange-surface-muted text-orange-text-tag': 'var(--color-chart-10)',
-  'bg-purple-surface-muted text-purple-text-tag': 'var(--color-purple)',
-  'bg-surface-muted text-ink-strong': 'var(--color-chart-label)',
-  'bg-emerald-surface-muted text-emerald-text-tag': 'var(--color-chart-5)',
 };
 
 /** Creates a Leaflet divIcon with a colored circular marker and pin SVG. */
@@ -94,7 +82,7 @@ export function MapLegend({ categoryProp }: Readonly<{ categoryProp: SchemaPrope
       <div className={cn("flex flex-col gap-1.5")}>
         {categoryProp.options?.map(opt => (
           <div key={opt.id} className={cn("flex items-center gap-2")}>
-            <div className={cn("w-3 h-3 rounded-full shrink-0")} style={{ background: MARKER_COLORS[opt.color] || 'var(--color-chart-label)' }} />
+            <div className={cn("w-3 h-3 rounded-full shrink-0")} style={{ background: optionColorToCss(opt.color) || 'var(--color-chart-label)' }} />
             <span className={cn("text-[11px] text-ink-body-light truncate")}>{opt.value}</span>
           </div>
         ))}
@@ -126,7 +114,7 @@ export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, onFoc
         {mappablePages.map(mp => {
           const { page, address, color } = mp;
           const title = getPageTitle(page);
-          const dotColor = color ? MARKER_COLORS[color] || 'var(--color-chart-1)' : 'var(--color-chart-1)';
+          const dotColor = optionColorToCss(color) || 'var(--color-chart-1)';
           // Two SIBLING buttons (row = fly-to, corner = open page) — nesting
           // an interactive element inside a button is invalid HTML and loses
           // keyboard activation.

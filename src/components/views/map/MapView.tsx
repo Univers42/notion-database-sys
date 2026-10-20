@@ -19,8 +19,9 @@ import React, { useEffect, useRef, useMemo } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import type * as Leaflet from 'leaflet';
-import { MARKER_COLORS, makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar, type MappablePage } from './MapHelpers';
+import { makeColorIcon, MapEmptyOverlay, MapLegend, MapSidebar, type MappablePage } from './MapHelpers';
 import { buildClusterLayer, buildBubblesLayer } from './mapLayerModes';
+import { optionColorToCss } from '../../../utils/color';
 import { createHeatOverlay, type HeatHandle } from './HeatOverlay';
 import { MAP_MODE_LABEL, escapeHtml, type MapDisplayMode, type MapModePoint } from './mapModes';
 import { cn } from '../../../utils/cn';
@@ -121,7 +122,7 @@ export function MapView() {
     lng: mp.lng,
     weight: sizeProp ? Math.max(0, Number(mp.page.properties[sizeProp.id]) || 0) : 1,
     title: getPageTitle(mp.page) || 'Untitled',
-    color: mp.color ? MARKER_COLORS[mp.color] : undefined,
+    color: optionColorToCss(mp.color) || undefined,
   })), [mappablePages, sizeProp, getPageTitle]);
 
   useEffect(() => {
@@ -184,7 +185,7 @@ export function MapView() {
       } else if (mode === 'pins') {
         mappablePages.forEach(({ page, lat, lng, address, color }) => {
           const title = getPageTitle(page);
-          const markerColor = color ? MARKER_COLORS[color] || 'var(--color-chart-1)' : 'var(--color-chart-1)';
+          const markerColor = optionColorToCss(color) || 'var(--color-chart-1)';
           const marker = leaflet.marker([lat, lng], { icon: makeColorIcon(leaflet, markerColor) }).addTo(markers);
           marker.bindPopup(`
             <div style="min-width:180px;font-family:system-ui,sans-serif;">

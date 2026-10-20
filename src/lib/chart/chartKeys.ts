@@ -16,6 +16,7 @@ import type { SchemaProperty } from '../../types/database';
 import type { ChartPageLike, GroupKey } from './chartTypes';
 import { NONE_KEY } from './chartTypes';
 import { safeString } from '../../utils/safeString';
+import { optionColorToCss } from '../../utils/color';
 
 const CHECKED: GroupKey = { key: 'checked', label: 'Checked', color: '' };
 const UNCHECKED: GroupKey = { key: 'unchecked', label: 'Unchecked', color: '' };
@@ -32,7 +33,7 @@ function optionGroups(prop: SchemaProperty, raw: unknown): GroupKey[] {
     .filter(id => id !== null && id !== undefined && id !== '')
     .map(id => {
       const opt = prop.options?.find(o => o.id === id || o.value === id);
-      if (opt) return { key: opt.id, label: opt.value, color: opt.color };
+      if (opt) return { key: opt.id, label: opt.value, color: optionColorToCss(opt.color) };
       return { key: safeString(id), label: safeString(id), color: '' };
     });
 }
@@ -84,7 +85,7 @@ export function resolveGroupKeys(
  */
 export function seedGroups(prop: SchemaProperty): GroupKey[] {
   if (prop.type === 'select' || prop.type === 'status' || prop.type === 'multi_select') {
-    return (prop.options ?? []).map(o => ({ key: o.id, label: o.value, color: o.color }));
+    return (prop.options ?? []).map(o => ({ key: o.id, label: o.value, color: optionColorToCss(o.color) }));
   }
   if (prop.type === 'checkbox') return [CHECKED, UNCHECKED];
   return [];
