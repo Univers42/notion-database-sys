@@ -90,7 +90,14 @@ const TAG_FAMILY_COLORS: Readonly<Record<string, string>> = {
   ink:     'var(--color-chart-label)',
 };
 
-const CSS_COLOR_VALUE = /^(?:#|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|var)\(|[a-z]+$)/i;
+// Whole-value matches only: a value that merely starts like a colour can
+// carry markup. Inside a colour function only `[0-9a-z.,% /+-]` is allowed —
+// no quotes, semicolons or nested parens, so attribute break-outs, extra
+// declarations and url()/expression() are all rejected.
+const HEX_COLOR = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const CSS_VARIABLE = /^var\(--[a-z0-9-]+\)$/i;
+const COLOR_KEYWORD = /^[a-z]{3,20}$/i;
+const COLOR_FUNCTION = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([0-9a-z.,%\s/+-]*\)$/i;
 
 /**
  * The CSS colour a chart, map pin or legend dot paints for a select option.
@@ -99,6 +106,8 @@ const CSS_COLOR_VALUE = /^(?:#|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|var)
  * text-orange-text-tag`); handed to a canvas or an SVG fill as-is they are
  * invalid and paint black. A value that already is a colour (hex, a colour
  * function, `var(--…)`, a keyword such as `green`) passes through unchanged.
+ * Only a whole value matching one of those colour syntaxes passes, so the
+ * result is safe to interpolate inside an HTML attribute as-is.
  *
  * Caveat: the family is read from the first `bg-`/`text-` token, so a class
  * outside the tag families above (`bg-brand-500`) returns '' and the caller's
@@ -110,7 +119,8 @@ const CSS_COLOR_VALUE = /^(?:#|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|var)
 export function optionColorToCss(optionColor: string | undefined): string {
   const value = optionColor?.trim() ?? '';
   if (!value) return '';
-  if (CSS_COLOR_VALUE.test(value)) return value;
+  if (HEX_COLOR.test(value) || CSS_VARIABLE.test(value) || COLOR_KEYWORD.test(value) || COLOR_FUNCTION.test(value))
+    return value;
   const family = /\b(?:bg|text)-([a-z]+)-/.exec(value)?.[1];
   return (family && TAG_FAMILY_COLORS[family]) || '';
 }

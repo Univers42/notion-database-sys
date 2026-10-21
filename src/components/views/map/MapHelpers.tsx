@@ -17,6 +17,7 @@ import type { Page, SchemaProperty } from '../../../types/database';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { cn } from '../../../utils/cn';
 import { optionColorToCss } from '../../../utils/color';
+import { escapeHtml } from './mapModes';
 
 /** Page with resolved geographic coordinates for map rendering. */
 export type MappablePage = {
@@ -32,7 +33,7 @@ export function makeColorIcon(leaflet: Pick<typeof Leaflet, 'divIcon'>, color: s
   return leaflet.divIcon({
     className: '',
     html: `<div style="
-      width:28px;height:28px;border-radius:50%;background:${color};
+      width:28px;height:28px;border-radius:50%;background:${escapeHtml(color)};
       border:3px solid white;box-shadow:0 2px 6px var(--color-marker-shadow);
       display:flex;align-items:center;justify-content:center;
     "><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>`,
