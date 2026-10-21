@@ -49,16 +49,22 @@ export const STAT_COLOR_CYCLE: ReadonlyArray<keyof typeof STAT_BG> = [
   'blue', 'purple', 'green', 'amber', 'pink', 'cyan',
 ] as const;
 
+/** The tag family of an option colour class (`bg-orange-surface-muted …` → `orange`). */
+export function optionColorFamily(optionColor: string): string | undefined {
+  return /\b(?:bg|text)-([a-z]+)-/.exec(optionColor)?.[1];
+}
+
 /**
  * Maps a Tailwind color token string to a dot-indicator background class.
- *
- * Matches against color keywords in the input string (e.g. "green-500"
- * maps to `bg-success`). Falls back to `bg-surface-strong` for unknown colors.
+ * Tag-family classes (`bg-success-surface-muted …`) key the family table first.
+ * Legacy keyword strings (e.g. "green-500") fall back to the keyword checks.
  *
  * @param optColor - A Tailwind color class string to inspect.
  * @returns A single Tailwind `bg-*` class name.
  */
 export function getDotColor(optColor: string): string {
+  const family = optionColorFamily(optColor);
+  if (family && DOT_BY_FAMILY[family]) return DOT_BY_FAMILY[family];
   if (optColor.includes('green'))  return 'bg-success';
   if (optColor.includes('blue'))   return 'bg-accent';
   if (optColor.includes('red'))    return 'bg-danger';
@@ -69,6 +75,24 @@ export function getDotColor(optColor: string): string {
   if (optColor.includes('cyan')  || optColor.includes('teal'))    return 'bg-cyan';
   return 'bg-surface-strong';
 }
+
+/** Dot class per tag family, using only the dot classes the keyword checks return. */
+const DOT_BY_FAMILY: Readonly<Record<string, string>> = {
+  success:  'bg-success',
+  emerald:  'bg-success',
+  accent:   'bg-accent',
+  danger:   'bg-danger',
+  rose:     'bg-danger',
+  warning:  'bg-warning',
+  amber:    'bg-warning',
+  orange:   'bg-warning',
+  purple:   'bg-purple',
+  violet:   'bg-purple',
+  indigo:   'bg-purple',
+  pink:     'bg-pink',
+  cyan:     'bg-cyan',
+  teal:     'bg-cyan',
+};
 
 /** Paint colour per tag family, keyed by the `<family>` of `bg-<family>-…`. */
 const TAG_FAMILY_COLORS: Readonly<Record<string, string>> = {
@@ -121,7 +145,7 @@ export function optionColorToCss(optionColor: string | undefined): string {
   if (!value) return '';
   if (HEX_COLOR.test(value) || CSS_VARIABLE.test(value) || COLOR_KEYWORD.test(value) || COLOR_FUNCTION.test(value))
     return value;
-  const family = /\b(?:bg|text)-([a-z]+)-/.exec(value)?.[1];
+  const family = optionColorFamily(value);
   return (family && TAG_FAMILY_COLORS[family]) || '';
 }
 
