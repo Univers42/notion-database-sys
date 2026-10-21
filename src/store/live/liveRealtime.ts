@@ -19,9 +19,13 @@
  * change; `schema_changed` → schema-cache bust + `state-replaced`. Echoes of
  * our own writes are dropped via the (dbId, table, pk) registry — the WS
  * delivery frame does not carry the publish idempotency key. Token order:
- * VITE_BAAS_REALTIME_TOKEN, else the app JWT mirrored from the playground
- * user store global (same decoupling rule as liveMountClient: never import
- * app feature modules). No token / repeat AUTH_FAILED / socket down → the
+ * VITE_BAAS_REALTIME_TOKEN, else a NON-bridge app JWT mirrored from the
+ * playground user store global (same decoupling rule as liveMountClient: never
+ * import app feature modules). A bridge session JWT (iss 'osionos-bridge') is
+ * NEVER offered to the gateway — it answers AUTH_FAILED — so with no baked
+ * token the socket is opened through the app's minted-socket factory
+ * (globalThis.__osionosTopicSocket), which asks the bridge for a token scoped
+ * to this one topic. No token / repeat AUTH_FAILED / socket down → the
  * 15s poll fallback runs instead; on reconnect one refresh catches missed
  * events. All emissions MUST go through the adapter's echo-guarded emit so
  * server-originated store patches never re-enter the write queue.
@@ -61,10 +65,28 @@ export interface LiveRealtimeDeps {
   coalesceMs?: number;
 }
 
-/** (1) demo/dev token from env; (2) the app JWT via the playground user
- *  store global (mirrors getActivePageJwt without importing app modules) —
- *  it may not share the realtime JWT secret: AUTH_FAILED then degrades to
- *  polling, by design; (3) none → poll-only. */
+/**
+ * A bridge session JWT (iss 'osionos-bridge'): the app's own credential. The
+ * realtime gateway does not share the app session secret — it answers
+ * AUTH_FAILED — so it is NEVER offered to the gateway. Decoded like
+ * objectDatabaseRealtime.ownerIdFromJwt does (payload segment, base64url).
+ */
+function isBridgeSessionJwt(jwt: string): boolean {
+  const segment = jwt.split('.')[1];
+  if (!segment || typeof atob !== 'function') return false;
+  try {
+    const padded = `${segment}${'='.repeat((4 - (segment.length % 4)) % 4)}`;
+    const payload = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/'))) as { iss?: unknown };
+    return payload?.iss === 'osionos-bridge';
+  } catch {
+    return false;
+  }
+}
+
+/** (1) demo/dev token from env; (2) a NON-bridge app JWT via the playground user
+ *  store global (mirrors getActivePageJwt without importing app modules); a
+ *  bridge session JWT is refused on purpose — the gateway answers AUTH_FAILED;
+ *  (3) none → poll-only, or the app's minted-socket factory (see start). */
 export function resolveLiveRealtimeToken(): string | null {
   const envToken = (env.VITE_BAAS_REALTIME_TOKEN ?? '').trim();
   if (envToken) return envToken;
@@ -73,7 +95,32 @@ export function resolveLiveRealtimeToken(): string | null {
       | { getState: () => { activePageJwt?: () => string | null; activeJwt?: () => string | null } }
       | undefined;
     const state = store?.getState();
-    return state?.activePageJwt?.() || state?.activeJwt?.() || null;
+    const jwt = state?.activePageJwt?.() || state?.activeJwt?.() || null;
+    return jwt && !isBridgeSessionJwt(jwt) ? jwt : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The app's minted-socket factory, published on globalThis: the shared plane may
+ * not import the app (same decoupling rule as the user store above), so the app
+ * hands it over through this one global. Null when the app has not loaded its
+ * realtime transport yet.
+ */
+export interface TopicSocketFactoryOptions {
+  url: string;
+  topic: string;
+  onEvent: (frame: LiveRealtimeEventFrame) => void;
+  onUp?: () => void;
+  onDown?: () => void;
+}
+export type TopicSocketFactory = (options: TopicSocketFactoryOptions) => { start: () => void; stop: () => void };
+
+export function topicSocketFactory(): TopicSocketFactory | null {
+  try {
+    const candidate = (globalThis as Record<string, unknown>).__osionosTopicSocket;
+    return typeof candidate === 'function' ? (candidate as TopicSocketFactory) : null;
   } catch {
     return null;
   }
@@ -117,15 +164,35 @@ export class LiveRealtime {
     const token = this.deps.token !== undefined ? this.deps.token : resolveLiveRealtimeToken();
     const url = this.deps.socketUrl !== undefined ? this.deps.socketUrl : liveRealtimeUrl();
     this.poll.start(); // covers no-WS mode AND the window until SUBSCRIBED
-    if (!token || !url) return; // poll-only: no credential to offer the gateway
     const ref = parseLiveDatabaseId(this.deps.databaseId);
     if (!ref) return;
+    const topic = `table:${ref.dbId}:${ref.table}`;
+    const onEvent = (frame: LiveRealtimeEventFrame) => this.handleEvent(frame);
+    if (!token) {
+      // No credential the gateway accepts (a bridge session JWT answers
+      // AUTH_FAILED): ask the app for a socket on this topic — it mints a
+      // bridge token for it. The poll keeps covering the window until the first
+      // event and every outage.
+      if (this.deps.token === null) return; // the caller asked for no socket at all
+      const factory = topicSocketFactory();
+      if (!factory || !url) return;
+      this.socket = factory({
+        url,
+        topic,
+        onEvent,
+        onUp: () => this.handleUp(),
+        onDown: () => { if (!this.disposed) this.poll.start(); },
+      });
+      this.socket.start();
+      return;
+    }
+    if (!url) return; // poll-only: no credential to offer the gateway
     const make = this.deps.createSocket ?? ((opts: LiveSocketOptions) => new LiveRealtimeSocket(opts));
     this.socket = make({
       url,
       token,
-      topic: `table:${ref.dbId}:${ref.table}`,
-      onEvent: (frame) => this.handleEvent(frame),
+      topic,
+      onEvent,
       onUp: () => this.handleUp(),
       onDown: () => { if (!this.disposed) this.poll.start(); },
       onPermanentFailure: () => { if (!this.disposed) this.poll.start(); },
