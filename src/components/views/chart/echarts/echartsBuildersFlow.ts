@@ -16,8 +16,12 @@ import { baseOption, type BuilderCtx, type EOption } from './echartsBuildersCore
 
 export function buildFunnel(ctx: BuilderCtx): EOption {
   const data = [...ctx.result.categories]
+    .filter((category) => category.total > 0)
     .sort((a, b) => b.total - a.total)
-    .map((category) => ({ name: category.label, value: category.total }));
+    .map((category) => ({
+      name: category.label, value: category.total,
+      itemStyle: category.color ? { color: category.color } : undefined,
+    }));
   return {
     ...baseOption(ctx),
     tooltip: { trigger: 'item', confine: true },
