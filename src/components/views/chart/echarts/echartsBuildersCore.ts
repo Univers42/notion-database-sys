@@ -97,6 +97,7 @@ export function axisPair(ctx: BuilderCtx, horizontal: boolean): EOption {
     hideOverlap: true,
     interval: labels.length <= ALL_LABELS_UP_TO ? 0 : 'auto',
     formatter: wrapAxisLabel,
+    lineHeight: LABEL_LINE_PX,
   };
   if (labels.some((label) => wrapAxisLabel(label) !== label)) {
     categoryAxis.nameGap = 32 + LABEL_LINE_PX;
