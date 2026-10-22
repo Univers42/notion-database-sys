@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/07/08 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/22 14:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 import React, { useMemo } from 'react';
 
 import { cn } from '../../../utils/cn';
-import type { FeedComment } from './useFeedComments';
+import type { FeedComment, FeedCommentWriteResult } from './useFeedComments';
 import { FeedCommentComposer, FeedCommentItem, type CommentNode } from './FeedCommentItem';
 
 function buildCommentTree(comments: FeedComment[]): CommentNode[] {
@@ -44,8 +44,8 @@ function buildCommentTree(comments: FeedComment[]): CommentNode[] {
 export function FeedComments({ comments, myId, onAdd, onEdit, onDelete }: Readonly<{
   comments: FeedComment[] | null;
   myId: string | null;
-  onAdd: (content: string, parentId?: string) => void | Promise<void>;
-  onEdit: (id: string, content: string) => void;
+  onAdd: (content: string, parentId?: string, acknowledgeWarning?: boolean) => Promise<FeedCommentWriteResult>;
+  onEdit: (id: string, content: string, acknowledgeWarning?: boolean) => Promise<FeedCommentWriteResult>;
   onDelete: (id: string) => void;
 }>) {
   const tree = useMemo(() => buildCommentTree(comments ?? []), [comments]);
@@ -60,11 +60,11 @@ export function FeedComments({ comments, myId, onAdd, onEdit, onDelete }: Readon
             myId={myId}
             onEdit={onEdit}
             onDelete={onDelete}
-            onReply={(parentId, content) => onAdd(content, parentId)}
+            onReply={(parentId, content, acknowledgeWarning) => onAdd(content, parentId, acknowledgeWarning)}
           />
         ))}
       </ul>
-      <FeedCommentComposer onSubmit={(content) => onAdd(content)} />
+      <FeedCommentComposer onSubmit={(content, acknowledgeWarning) => onAdd(content, undefined, acknowledgeWarning)} />
     </div>
   );
 }

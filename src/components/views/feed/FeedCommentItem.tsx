@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/07/08 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/22 14:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,18 @@
  * One comment (avatar + author + relative time + body) with own-comment inline
  * edit / delete, a Reply affordance, and one level of indented replies. The
  * composer is shared by the top-level box, the reply box, and inline edit.
+ *
+ * The composer ANSWERS a moderation warning: L0 may hold a comment back and ask
+ * the author first (a 409 — nothing is written). The words stay in the box, the
+ * warning is announced, and the author edits them or posts them anyway.
  */
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { formatDistanceToNow, parseISO, format } from 'date-fns';
 import { Pencil, Trash2, Reply } from 'lucide-react';
 
 import { cn } from '../../../utils/cn';
-import type { FeedComment } from './useFeedComments';
+import type { FeedComment, FeedCommentWriteResult, FeedModerationWarning } from './useFeedComments';
 
 export interface CommentNode { comment: FeedComment; replies: FeedComment[] }
 
@@ -35,7 +39,7 @@ function relLabel(iso: string): { rel: string; abs: string } {
 }
 
 export function FeedCommentComposer({ onSubmit, initial = '', placeholder = 'Write a comment…', submitLabel = 'Post', autoFocus, onCancel }: Readonly<{
-  onSubmit: (content: string) => void | Promise<void>;
+  onSubmit: (content: string, acknowledgeWarning?: boolean) => Promise<FeedCommentWriteResult>;
   initial?: string;
   placeholder?: string;
   submitLabel?: string;
@@ -43,15 +47,35 @@ export function FeedCommentComposer({ onSubmit, initial = '', placeholder = 'Wri
   onCancel?: () => void;
 }>) {
   const [draft, setDraft] = useState(initial);
-  const submit = async () => {
+  const [warning, setWarning] = useState<FeedModerationWarning | null>(null);
+  const [failed, setFailed] = useState(false);
+  const areaRef = useRef<HTMLTextAreaElement | null>(null);
+  const submit = async (acknowledgeWarning = false) => {
     const text = draft.trim();
     if (!text) return;
-    await onSubmit(text);
-    if (!onCancel) setDraft(''); // the top-level composer clears + keeps focus for the next comment
+    const result = await onSubmit(text, acknowledgeWarning);
+    if (result.ok) {
+      setWarning(null);
+      setFailed(false);
+      // The inline edit and the reply close themselves; the top-level composer
+      // clears + keeps focus for the next comment.
+      if (onCancel) onCancel();
+      else setDraft('');
+      return;
+    }
+    // The words stay: the author edits them, or posts them anyway.
+    setWarning('warning' in result ? result.warning : null);
+    setFailed(!('warning' in result));
+  };
+  const edit = () => {
+    setWarning(null);
+    setFailed(false);
+    areaRef.current?.focus();
   };
   return (
     <form onSubmit={(event) => { event.preventDefault(); void submit(); }} className={cn('flex flex-col gap-1.5')}>
       <textarea
+        ref={areaRef}
         autoFocus={autoFocus}
         value={draft}
         rows={2}
@@ -64,6 +88,20 @@ export function FeedCommentComposer({ onSubmit, initial = '', placeholder = 'Wri
         aria-label={placeholder}
         className={cn('w-full resize-none rounded-lg border border-line bg-surface-secondary px-3 py-2 text-sm outline-none focus:border-accent')}
       />
+      {/* The warning is announced, not shouted: the author hears it once. */}
+      <div aria-live="polite" className={cn('flex flex-col gap-1')}>
+        {failed && <p className={cn('text-xs text-danger-text')}>The comment could not be saved.</p>}
+        {warning && (
+          <div className={cn('rounded-lg bg-surface-muted px-3 py-2')}>
+            <p className={cn('text-xs text-ink-body-light')}>{warning.message}</p>
+            {warning.terms.length > 0 && <p className={cn('mt-0.5 text-xs text-danger-text')}>Matched: {warning.terms.join(', ')}</p>}
+            <div className={cn('mt-1 flex gap-3')}>
+              <button type="button" onClick={edit} className={cn('text-xs text-ink-muted hover:text-ink')}>Edit</button>
+              <button type="button" onClick={() => void submit(true)} className={cn('text-xs text-ink-muted hover:text-ink')}>Post anyway</button>
+            </div>
+          </div>
+        )}
+      </div>
       <div className={cn('flex items-center gap-2 self-end text-xs')}>
         {onCancel && <button type="button" onClick={onCancel} className={cn('text-ink-muted hover:text-ink')}>Cancel</button>}
         <button type="submit" disabled={!draft.trim()} className={cn('rounded-lg bg-accent-soft px-3 py-1 font-medium text-accent-text disabled:opacity-40')}>{submitLabel}</button>
@@ -75,7 +113,7 @@ export function FeedCommentComposer({ onSubmit, initial = '', placeholder = 'Wri
 function FeedCommentLine({ comment, mine, onEdit, onDelete, actions }: Readonly<{
   comment: FeedComment;
   mine: boolean;
-  onEdit: (id: string, content: string) => void;
+  onEdit: (id: string, content: string, acknowledgeWarning?: boolean) => Promise<FeedCommentWriteResult>;
   onDelete: (id: string) => void;
   actions?: React.ReactNode;
 }>) {
@@ -98,11 +136,14 @@ function FeedCommentLine({ comment, mine, onEdit, onDelete, actions }: Readonly<
             initial={comment.content}
             submitLabel="Save"
             autoFocus
-            onSubmit={(content) => { onEdit(comment.id, content); setEditing(false); }}
+            onSubmit={(content, acknowledgeWarning) => onEdit(comment.id, content, acknowledgeWarning)}
             onCancel={() => setEditing(false)}
           />
         ) : (
           <p className={cn('whitespace-pre-wrap break-words text-sm text-ink-body-light')}>{comment.content}</p>
+        )}
+        {mine && comment.moderationState === 'held' && (
+          <p className={cn('mt-0.5 text-xs text-ink-muted')}>Held for review — only you can see it</p>
         )}
         {!editing && (
           <div className={cn('mt-0.5 flex items-center gap-3 text-xs text-ink-muted')}>
@@ -119,9 +160,9 @@ function FeedCommentLine({ comment, mine, onEdit, onDelete, actions }: Readonly<
 export function FeedCommentItem({ node, myId, onEdit, onDelete, onReply }: Readonly<{
   node: CommentNode;
   myId: string | null;
-  onEdit: (id: string, content: string) => void;
+  onEdit: (id: string, content: string, acknowledgeWarning?: boolean) => Promise<FeedCommentWriteResult>;
   onDelete: (id: string) => void;
-  onReply: (parentId: string, content: string) => void;
+  onReply: (parentId: string, content: string, acknowledgeWarning?: boolean) => Promise<FeedCommentWriteResult>;
 }>) {
   const [replying, setReplying] = useState(false);
   const root = node.comment;
@@ -139,7 +180,7 @@ export function FeedCommentItem({ node, myId, onEdit, onDelete, onReply }: Reado
             autoFocus
             submitLabel="Reply"
             placeholder={`Reply to ${root.authorName}…`}
-            onSubmit={(content) => { onReply(root.id, content); setReplying(false); }}
+            onSubmit={(content, acknowledgeWarning) => onReply(root.id, content, acknowledgeWarning)}
             onCancel={() => setReplying(false)}
           />
         </div>
