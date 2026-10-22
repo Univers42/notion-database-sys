@@ -55,7 +55,7 @@ export function buildClusterLayer(
       const dot = leaflet.divIcon({
         className: '',
         html: `<div style="width:14px;height:14px;border-radius:50%;border:2.5px solid white;
-          background:${only.color || 'var(--color-chart-1)'};box-shadow:0 1px 4px var(--color-marker-shadow);"></div>`,
+          background:${escapeHtml(only.color || 'var(--color-chart-1)')};box-shadow:0 1px 4px var(--color-marker-shadow);"></div>`,
         iconSize: [14, 14],
         iconAnchor: [7, 7],
       });

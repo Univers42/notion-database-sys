@@ -4,6 +4,7 @@
 // endpoint. Every editor degrades gracefully when a seam is absent.
 
 import { createContext, useContext } from 'react';
+import type { ComponentType } from 'react';
 import type { FileAttachment } from '../types/database';
 
 export interface CollaboratorEntry {
@@ -18,6 +19,11 @@ export interface HostAdapters {
   onInvitePerson?: (query: string) => void;
   /** Persists a file and returns its attachment; absent → small files inline as data URLs. */
   uploadFile?: (file: File) => Promise<FileAttachment>;
+  /**
+   * The host's locked diagram renderer; absent → the kit shows the source
+   * only, it never renders Mermaid itself.
+   */
+  MermaidDiagram?: ComponentType<{ chart: string; codeTheme?: 'dark' | 'light' }>;
 }
 
 const HostAdaptersContext = createContext<HostAdapters>({});

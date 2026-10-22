@@ -28,6 +28,7 @@ import type {
 } from '../../../lib/chart/chartTypes';
 import { NONE_KEY, VALUE_SERIES_KEY } from '../../../lib/chart/chartTypes';
 import { parseLiveDatabaseId } from '../../../store/live/liveTypes';
+import { optionColorToCss } from '../../../utils/color';
 import { getLiveSchema } from '../../../store/live/liveMountClient';
 import { aggregateMatrix } from '../../../store/live/liveAggregateClient';
 import type { AggregateMatrixCell, LiveAggregateFunc } from '../../../store/live/liveAggregateClient';
@@ -82,7 +83,7 @@ function cellGroupKey(raw: string | null, prop: SchemaProperty | undefined): Gro
   }
   const opt = prop.options?.find(o => o.id === raw || o.value === raw);
   return opt
-    ? { key: opt.id, label: opt.value, color: opt.color }
+    ? { key: opt.id, label: opt.value, color: optionColorToCss(opt.color) }
     : { key: raw, label: raw, color: '' };
 }
 

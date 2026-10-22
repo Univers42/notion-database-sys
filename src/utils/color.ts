@@ -49,16 +49,22 @@ export const STAT_COLOR_CYCLE: ReadonlyArray<keyof typeof STAT_BG> = [
   'blue', 'purple', 'green', 'amber', 'pink', 'cyan',
 ] as const;
 
+/** The tag family of an option colour class (`bg-orange-surface-muted …` → `orange`). */
+export function optionColorFamily(optionColor: string): string | undefined {
+  return /\b(?:bg|text)-([a-z]+)-/.exec(optionColor)?.[1];
+}
+
 /**
  * Maps a Tailwind color token string to a dot-indicator background class.
- *
- * Matches against color keywords in the input string (e.g. "green-500"
- * maps to `bg-success`). Falls back to `bg-surface-strong` for unknown colors.
+ * Tag-family classes (`bg-success-surface-muted …`) key the family table first.
+ * Legacy keyword strings (e.g. "green-500") fall back to the keyword checks.
  *
  * @param optColor - A Tailwind color class string to inspect.
  * @returns A single Tailwind `bg-*` class name.
  */
 export function getDotColor(optColor: string): string {
+  const family = optionColorFamily(optColor);
+  if (family && DOT_BY_FAMILY[family]) return DOT_BY_FAMILY[family];
   if (optColor.includes('green'))  return 'bg-success';
   if (optColor.includes('blue'))   return 'bg-accent';
   if (optColor.includes('red'))    return 'bg-danger';
@@ -68,6 +74,79 @@ export function getDotColor(optColor: string): string {
   if (optColor.includes('pink'))   return 'bg-pink';
   if (optColor.includes('cyan')  || optColor.includes('teal'))    return 'bg-cyan';
   return 'bg-surface-strong';
+}
+
+/** Dot class per tag family, using only the dot classes the keyword checks return. */
+const DOT_BY_FAMILY: Readonly<Record<string, string>> = {
+  success:  'bg-success',
+  emerald:  'bg-success',
+  accent:   'bg-accent',
+  danger:   'bg-danger',
+  rose:     'bg-danger',
+  warning:  'bg-warning',
+  amber:    'bg-warning',
+  orange:   'bg-warning',
+  purple:   'bg-purple',
+  violet:   'bg-purple',
+  indigo:   'bg-purple',
+  pink:     'bg-pink',
+  cyan:     'bg-cyan',
+  teal:     'bg-cyan',
+};
+
+/** Paint colour per tag family, keyed by the `<family>` of `bg-<family>-…`. */
+const TAG_FAMILY_COLORS: Readonly<Record<string, string>> = {
+  accent:  'var(--color-accent)',
+  success: 'var(--color-success)',
+  emerald: 'var(--color-emerald)',
+  warning: 'var(--color-warning)',
+  amber:   'var(--color-amber)',
+  danger:  'var(--color-danger)',
+  rose:    'var(--color-rose)',
+  orange:  'var(--color-orange)',
+  purple:  'var(--color-purple)',
+  violet:  'var(--color-purple)',
+  indigo:  'var(--color-indigo)',
+  pink:    'var(--color-pink)',
+  cyan:    'var(--color-cyan)',
+  teal:    'var(--color-cyan)',
+  surface: 'var(--color-chart-label)',
+  ink:     'var(--color-chart-label)',
+};
+
+// Whole-value matches only: a value that merely starts like a colour can
+// carry markup. Inside a colour function only `[0-9a-z.,% /+-]` is allowed —
+// no quotes, semicolons or nested parens, so attribute break-outs, extra
+// declarations and url()/expression() are all rejected.
+const HEX_COLOR = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const CSS_VARIABLE = /^var\(--[a-z0-9-]+\)$/i;
+const COLOR_KEYWORD = /^[a-z]{3,20}$/i;
+const COLOR_FUNCTION = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([0-9a-z.,%\s/+-]*\)$/i;
+
+/**
+ * The CSS colour a chart, map pin or legend dot paints for a select option.
+ *
+ * Option colours are Tailwind class pairs (`bg-orange-surface-muted
+ * text-orange-text-tag`); handed to a canvas or an SVG fill as-is they are
+ * invalid and paint black. A value that already is a colour (hex, a colour
+ * function, `var(--…)`, a keyword such as `green`) passes through unchanged.
+ * Only a whole value matching one of those colour syntaxes passes, so the
+ * result is safe to interpolate inside an HTML attribute as-is.
+ *
+ * Caveat: the family is read from the first `bg-`/`text-` token, so a class
+ * outside the tag families above (`bg-brand-500`) returns '' and the caller's
+ * palette colour is used instead of its own.
+ *
+ * @param optionColor - The option's `color` field.
+ * @returns A CSS colour, or '' when none can be derived.
+ */
+export function optionColorToCss(optionColor: string | undefined): string {
+  const value = optionColor?.trim() ?? '';
+  if (!value) return '';
+  if (HEX_COLOR.test(value) || CSS_VARIABLE.test(value) || COLOR_KEYWORD.test(value) || COLOR_FUNCTION.test(value))
+    return value;
+  const family = optionColorFamily(value);
+  return (family && TAG_FAMILY_COLORS[family]) || '';
 }
 
 /**

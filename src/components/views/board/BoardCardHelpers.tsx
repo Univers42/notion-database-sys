@@ -115,7 +115,7 @@ export function BoardCard({
       onClick={() => openPage(page.id)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
       style={{ cursor: CURSORS.grab, ...(accent ? { boxShadow: `inset 3px 0 0 0 ${accent}` } : {}) }}
-      className={cn('bg-surface-primary rounded-xl shadow-sm border border-line overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-md hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-all group/card text-left')}>
+      className={cn('bg-surface-primary w-full min-w-0 rounded-xl shadow-sm border border-line overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-md hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-all group/card text-left')}>
       <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} size={size} />
       <div className={cn(`${size.pad} flex flex-col gap-1.5 min-w-0`)}>
         <div className={cn('flex items-start gap-1')}>
