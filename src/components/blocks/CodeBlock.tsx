@@ -20,6 +20,7 @@ import React, {
 import { createPortal } from "react-dom";
 import type { BlockRendererProps } from "./BlockRenderer";
 import { useDatabaseStore } from "../../store/dbms/hardcoded/useDatabaseStore";
+import { useHostAdapters } from "../../hooks/useHostAdapters";
 import { tokenize, renderTokensToHtml } from "../../lib/syntax/tokenizer";
 import { cn } from "../../utils/cn";
 
@@ -296,64 +297,26 @@ export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
   );
 }
 
-/** Live mermaid diagram preview below the code editor */
+/**
+ * Mermaid preview below the code editor — drawn by the HOST's locked renderer
+ * (devil C108). The kit never renders Mermaid itself: an inline config is not
+ * a sandbox (strict still lets DOMPurify keep an <img> inside a label, so a
+ * shared page makes every viewer's browser fetch a third-party URL, and a
+ * `%%{init:…}%%` directive rewrites the config per diagram).
+ */
 function MermaidPreview({ code }: Readonly<{ code: string }>) {
-  const [svgHtml, setSvgHtml] = useState<string>("");
-  const [error, setError] = useState<string>("");
-
-  useEffect(() => {
-    let cancelled = false;
-    const renderMermaid = async () => {
-      try {
-        const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: "neutral",
-          // Diagrams come from shared pages: "loose" would run their `click … call`
-          // callbacks and HTML labels in this origin.
-          securityLevel: "strict",
-        });
-        const id = `mermaid-${Date.now()}`;
-        const { svg } = await mermaid.render(id, code);
-        if (!cancelled) {
-          setSvgHtml(svg);
-          setError("");
-        }
-      } catch (err: unknown) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Invalid mermaid syntax",
-          );
-          setSvgHtml("");
-        }
-      }
-    };
-    const timer = setTimeout(renderMermaid, 500); // debounce
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [code]);
-
-  if (error) {
-    return (
-      <div
-        className={cn(
-          "px-4 py-2 text-xs text-danger border-t border-line bg-danger-surface-muted",
-        )}
-      >
-        Mermaid: {error}
-      </div>
-    );
-  }
-  if (!svgHtml) return null;
+  const { MermaidDiagram } = useHostAdapters();
+  // No host renderer → nothing to draw; the code editor above already shows
+  // the source.
+  if (!MermaidDiagram) return null;
 
   return (
     <div
       className={cn(
         "border-t border-line bg-surface-primary p-4 flex justify-center overflow-auto",
       )}
-      dangerouslySetInnerHTML={{ __html: svgHtml }}
-    />
+    >
+      <MermaidDiagram chart={code} codeTheme="light" />
+    </div>
   );
 }

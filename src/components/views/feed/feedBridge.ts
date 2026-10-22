@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/07/08 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/22 14:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
  * current user from env/globals, never import app feature modules. Feature-
  * detects ONCE — the first hard failure (no bridge route / network down)
  * silences the whole feature so playground/offline feeds stay inert.
+ *
+ * Two shapes of answer: `feedFetch` drops every non-2xx (the old contract), and
+ * `feedFetchResult` KEEPS the failure — its status and the bridge's body — so a
+ * caller can show what the bridge said (a moderation warning, 409) instead of
+ * swallowing it.
  */
 
 const env = (import.meta.env ?? {}) as Record<string, string | undefined>;
@@ -56,7 +61,23 @@ export function currentUserId(): string | null {
   }
 }
 
-export async function feedFetch<T>(method: string, path: string, body?: unknown): Promise<T | null> {
+/**
+ * The answer of a bridge call: the data, a failure with its status and the
+ * bridge's body, or null when the feature is absent (no bridge, no JWT, the
+ * network down) — the same feature-detection `feedFetch` has always had.
+ */
+export type FeedFetchResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; status: number; body: unknown }
+  | null;
+
+/**
+ * The bridge call, with the failure kept. A 409 moderation warning carries the
+ * message, the codes and the terms the author must be shown: `feedFetch` threw
+ * that body away (it answers null for every non-2xx), and the author's words
+ * vanished with it.
+ */
+export async function feedFetchResult<T>(method: string, path: string, body?: unknown): Promise<FeedFetchResult<T>> {
   const jwt = bridgeJwt();
   if (!BRIDGE_URL || !jwt || featurePresent === false) return null;
   try {
@@ -68,14 +89,25 @@ export async function feedFetch<T>(method: string, path: string, body?: unknown)
     // Feature-detect only on a probe (GET) 404 = route truly absent. A 404 from a
     // PUT/DELETE is a resource-not-found (comment gone), NOT an absent feature.
     if (response.status === 404 && featurePresent === null && method === 'GET') featurePresent = false;
-    if (!response.ok) return null;
+    if (!response.ok) {
+      // The body is the bridge's envelope: the moderation warning's code, message,
+      // reasons and terms live in it. A body that is not JSON is nothing to show.
+      const payload = await response.json().catch(() => null);
+      return { ok: false, status: response.status, body: payload };
+    }
     featurePresent = true;
-    return await response.json() as T;
+    return { ok: true, data: await response.json() as T };
   } catch {
     // Transient (offline/DNS/timeout) — never latch the whole feature off. A later
     // call can still succeed; only an explicit route-absent 404 disables it.
     return null;
   }
+}
+
+/** The bridge call, the old contract: the data, or null for every failure. */
+export async function feedFetch<T>(method: string, path: string, body?: unknown): Promise<T | null> {
+  const reply = await feedFetchResult<T>(method, path, body);
+  return reply && reply.ok ? reply.data : null;
 }
 
 /**
