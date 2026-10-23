@@ -66,6 +66,17 @@ function useAutofillLabel(databaseId: string, propertyId: string, recordId: stri
 }
 
 /** The read-only pill shared by the table cell and the page modal. */
+/**
+ * The pill of a label. A select switched to AI-filled keeps its own option
+ * ids, so the label is matched by id, then by name, then drawn plain.
+ */
+export function autofillPill(prop: SchemaProperty, label: string | null): { text: string; color: string } | null {
+  if (!label) return null;
+  const option = prop.options?.find((candidate) => candidate.id === label)
+    ?? prop.options?.find((candidate) => candidate.value.toLowerCase() === label);
+  return { text: option?.value ?? label, color: option?.color ?? 'bg-surface-tertiary text-ink-body' };
+}
+
 export function AutofillValue({ prop, recordId, databaseId }: Readonly<{
   prop: SchemaProperty;
   recordId: string;
@@ -75,11 +86,11 @@ export function AutofillValue({ prop, recordId, databaseId }: Readonly<{
   // The adapter returns the option id (`negative`/`neutral`/`positive`), the
   // same id the select renderers look up. A label the schema does not carry is
   // shown as empty, never invented.
-  const option = label ? prop.options?.find((candidate) => candidate.id === label) : undefined;
-  if (!option) return <span className={cn('text-ink-muted text-sm')}>{AUTOFILL_EMPTY}</span>;
+  const pill = autofillPill(prop, label);
+  if (!pill) return <span className={cn('text-ink-muted text-sm')}>{AUTOFILL_EMPTY}</span>;
   return (
     <div className={cn('flex items-center gap-1.5')}>
-      <span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${option.color}`)}>{option.value}</span>
+      <span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${pill.color}`)}>{pill.text}</span>
     </div>
   );
 }
