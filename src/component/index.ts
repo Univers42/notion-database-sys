@@ -27,6 +27,7 @@ if (globalThis.crypto && !globalThis.crypto.randomUUID) {
 export { ObjectDatabase } from '../object_database';
 export { AdapterError } from './types';
 export type {
+  AutofillConfig,
   ChangeEvent,
   DocFilter,
   NotionState,
@@ -43,7 +44,7 @@ export type {
   SchemaProperty,
 } from './types';
 export { HttpAdapter, InMemoryAdapter, RemoteAdapter } from './adapters';
-export type { CollaboratorEntry, HostAdapters } from '../hooks/useHostAdapters';
+export type { AutofillAdapter, CollaboratorEntry, HostAdapters } from '../hooks/useHostAdapters';
 // Automation seams the HOST wires: notify events surface as app toasts, and
 // webhooks route through the app's authenticated bridge (default transport
 // only warns — the engine never fetches).

@@ -17,6 +17,7 @@ export {
   AdapterError,
 } from '@notion-db/contract-types';
 export type {
+  AutofillConfig,
   Block,
   ChangeEvent,
   DatabaseSchema,

@@ -21,7 +21,7 @@ import {
   GripVertical, Eye, Search,
 } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
-import { AddPropertyPanel, ADD_PANEL_WIDTH } from './AddPropertyPanel';
+import { AddPropertyPanel, ADD_PANEL_WIDTH, SENTIMENT_OPTIONS } from './AddPropertyPanel';
 import { colWidthVar } from './useColumnResize';
 import { cn } from '../../../utils/cn';
 
@@ -79,6 +79,25 @@ export function TableHeader({
     setAddPanel(null);
     const rect = addBtnRef.current?.getBoundingClientRect();
     // Read the fresh property from the store — render-scope snapshots predate it.
+    const prop = storeApi.getState().databases[databaseId]?.properties[newPropId];
+    if (prop && rect) {
+      onPropertyCreated?.(prop, { top: rect.bottom + 4, left: rect.left });
+    }
+  };
+
+  /** One entry, one configured column: a select with the three closed labels
+   *  and the title as its source text (the source picker can change it). */
+  const handleAddSentiment = () => {
+    const newPropId = addProperty(databaseId, 'Sentiment', 'select');
+    const state = storeApi.getState();
+    const database = state.databases[databaseId];
+    const titlePropertyId = database?.titlePropertyId;
+    state.updateProperty(databaseId, newPropId, {
+      options: SENTIMENT_OPTIONS,
+      autofill: { kind: 'sentiment', sourcePropertyIds: titlePropertyId ? [titlePropertyId] : [] },
+    });
+    setAddPanel(null);
+    const rect = addBtnRef.current?.getBoundingClientRect();
     const prop = storeApi.getState().databases[databaseId]?.properties[newPropId];
     if (prop && rect) {
       onPropertyCreated?.(prop, { top: rect.bottom + 4, left: rect.left });
@@ -151,7 +170,7 @@ export function TableHeader({
                 className={cn("fixed z-50 bg-surface-primary rounded-xl shadow-xl border border-line")}
                 style={{ top: addPanel.top, left: addPanel.left, width: addPanel.width, maxHeight: Math.max(160, window.innerHeight - addPanel.top - 12) }}
                 onKeyDown={e => { if (e.key === 'Escape') setAddPanel(null); }}>
-                <AddPropertyPanel onPick={handleAddProperty} />
+                <AddPropertyPanel onPick={handleAddProperty} onPickSentiment={handleAddSentiment} />
               </div>
             </>,
             document.body,
