@@ -14,7 +14,7 @@ import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { randomTagColor } from '../../../constants/colors';
-import { SchemaProperty, PropertyValue } from '../../../types/database';
+import type { SchemaProperty, PropertyValue } from '../../../types/database';
 import { CheckCircle2, Plus } from 'lucide-react';
 import { useCellAnchor } from '../../../hooks/useCellAnchor';
 import { useListHighlight } from '../../../hooks/useListHighlight';

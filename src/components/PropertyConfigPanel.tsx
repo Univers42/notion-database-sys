@@ -18,6 +18,7 @@ import { FormulaEditorPanel } from './FormulaEditorPanel';
 import { ButtonEditorPanel } from './ButtonEditorPanel';
 import { RelationEditorPanel } from './RelationEditorPanel';
 import { RollupEditorPanel } from './RollupEditorPanel';
+import { AutofillConfigPanel } from './AutofillConfigPanel';
 import { ActionButton, PropertyIconButton, IdFormatConfig, TYPE_OPTIONS, getPropIcon } from './propertyConfig/index';
 import {
   ArrowUp, ArrowDown, Filter, Group, EyeOff, PanelLeftClose,
@@ -185,6 +186,14 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       )}
 
       <div className={cn("h-px bg-surface-tertiary")} />
+
+      {/* ─── AI-filled select (shown only when the host can fill it) ─── */}
+      {property.type === 'select' && (
+        <>
+          <AutofillConfigPanel databaseId={databaseId} property={property} />
+          <div className={cn("h-px bg-surface-tertiary")} />
+        </>
+      )}
 
       {/* ─── Formula / Relation / Rollup / ID specific ─── */}
       {property.type === 'formula' && (

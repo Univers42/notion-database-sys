@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add an additive AI-filled `select`: optional `AutofillConfig` on the schema, optional `HostAdapters.autofill.read`, a read-only cell/pill, and config/add-property entries. Labels are never written into `state` (osionos M6, C155).
+
 ## 0.1.0 - 2026-05-06
 
 - Add initial ESM library package for `ObjectDatabase`.

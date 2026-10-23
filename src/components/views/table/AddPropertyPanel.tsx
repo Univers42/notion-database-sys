@@ -11,12 +11,20 @@
 /* ************************************************************************** */
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Sparkles, Search } from 'lucide-react';
 import { PropIcon } from '../../../constants/propertyIcons';
-import type { PropertyType } from '../../../types/database';
+import { useHostAdapters } from '../../../hooks/useHostAdapters';
+import type { PropertyType, SelectOption } from '../../../types/database';
 import { cn } from '../../../utils/cn';
 
 type TypeEntry = readonly [label: string, type: PropertyType];
+
+/** The closed labels of the sentiment model (C148), as select options. */
+export const SENTIMENT_OPTIONS: SelectOption[] = [
+  { id: 'negative', value: 'negative', color: 'bg-danger-surface-muted text-danger-text-tag' },
+  { id: 'neutral', value: 'neutral', color: 'bg-warning-surface-muted text-warning-text-tag' },
+  { id: 'positive', value: 'positive', color: 'bg-success-surface-muted text-success-text-tag' },
+];
 
 /** Preferred panel width — the anchor shrinks it to fit the page margin. */
 export const ADD_PANEL_WIDTH = 400;
@@ -57,7 +65,13 @@ function TypeGrid({ entries, onPick }: Readonly<{ entries: readonly TypeEntry[];
 
 /** Notion's add-property panel: "Select type" header + searchable sectioned
  *  two-column grid of property types. */
-export function AddPropertyPanel({ onPick }: Readonly<{ onPick: (label: string, type: PropertyType) => void }>) {
+export function AddPropertyPanel({ onPick, onPickSentiment }: Readonly<{
+  onPick: (label: string, type: PropertyType) => void;
+  /** Creates the configured AI-sentiment select; shown only when the host
+   *  provides the autofill adapter and the caller can name the title column. */
+  onPickSentiment?: () => void;
+}>) {
+  const hasAutofill = Boolean(useHostAdapters().autofill);
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
   const match = (entries: readonly TypeEntry[]) =>
@@ -66,7 +80,8 @@ export function AddPropertyPanel({ onPick }: Readonly<{ onPick: (label: string, 
   const basic = match(BASIC_TYPES);
   const advanced = match(ADVANCED_TYPES);
   const system = match(SYSTEM_TYPES);
-  const empty = basic.length + advanced.length + system.length === 0;
+  const showSentiment = hasAutofill && Boolean(onPickSentiment);
+  const empty = basic.length + advanced.length + system.length === 0 && !showSentiment;
 
   return (
     <div className={cn('flex max-h-[50vh] w-full flex-col overflow-y-auto p-2')}>
@@ -85,6 +100,13 @@ export function AddPropertyPanel({ onPick }: Readonly<{ onPick: (label: string, 
           <TypeGrid entries={basic} onPick={onPick} />
           {advanced.length > 0 && <div className={cn('my-1.5 h-px bg-surface-tertiary')} />}
           <TypeGrid entries={advanced} onPick={onPick} />
+          {showSentiment && (
+            <button type="button" onClick={onPickSentiment} data-testid="add-ai-sentiment"
+              className={cn('flex min-h-8 items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-ink-body hover:bg-hover-surface transition-colors')}>
+              <Sparkles className={cn('w-4 h-4 shrink-0 text-ink-muted')} />
+              <span className={cn('truncate')}>AI sentiment</span>
+            </button>
+          )}
           {system.length > 0 && <div className={cn('my-1.5 h-px bg-surface-tertiary')} />}
           <TypeGrid entries={system} onPick={onPick} />
         </>

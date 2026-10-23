@@ -19,6 +19,7 @@ import {
   ReadOnlyText, ReadOnlyTime, TextEditor, NumberEditor, SelectEditor,
   MultiSelectEditor, CheckboxEditor, DateEditor, PlaceEditor,
 } from './PropertyRowEditors';
+import { AutofillValue } from './views/table/cellRenderers/AutofillCellRenderer';
 import { cn } from '../utils/cn';
 
 /** Renders a single property label and its inline editor in the page modal. */
@@ -63,7 +64,9 @@ function renderPropertyEditor(
       return <NumberEditor value={val as number | null} onChange={update} />;
     case 'select':
     case 'status':
-      return <SelectEditor value={val as string} options={prop.options ?? []} onChange={update} />;
+      return prop.autofill
+        ? <AutofillValue prop={prop} recordId={page.id} databaseId={page.databaseId} />
+        : <SelectEditor value={val as string} options={prop.options ?? []} onChange={update} />;
     case 'multi_select':
       return <MultiSelectEditor value={val as string[]} options={(prop.options ?? []) as { id: string; value: string; color: string }[]} onChange={update} />;
     case 'date':
