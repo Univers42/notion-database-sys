@@ -80,7 +80,7 @@ export function AddPropertyPanel({ onPick, onPickSentiment }: Readonly<{
   const basic = match(BASIC_TYPES);
   const advanced = match(ADVANCED_TYPES);
   const system = match(SYSTEM_TYPES);
-  const showSentiment = hasAutofill && Boolean(onPickSentiment);
+  const showSentiment = hasAutofill && Boolean(onPickSentiment) && 'ai sentiment'.includes(q);
   const empty = basic.length + advanced.length + system.length === 0 && !showSentiment;
 
   return (

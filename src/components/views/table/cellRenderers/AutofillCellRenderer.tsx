@@ -8,10 +8,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { SchemaProperty } from '../../../../types/database';
 import type { CellRendererProps } from '../CellRenderer';
-import { useHostAdapters } from '../../../../hooks/useHostAdapters';
+import { useHostAdapters, type AutofillAdapter } from '../../../../hooks/useHostAdapters';
 import { cn } from '../../../../utils/cn';
 
 /** What a row with no score (or no adapter) shows. */
@@ -22,61 +22,88 @@ const REFRESH_MS = 15_000;
 
 type Labels = Record<string, string | null>;
 
-/**
- * One read per mount, then one every 15 s. A promise shared by the mount's
- * callers de-dupes the effect's replays (StrictMode, a re-render) without
- * holding anything past the account switch: the state is per mount.
- */
-function useAutofillLabel(databaseId: string, propertyId: string, recordId: string): string | null {
-  const adapter = useHostAdapters().autofill;
-  const [labels, setLabels] = useState<Labels | null>(null);
-  const request = useRef<{ key: string; promise: Promise<Labels> } | null>(null);
-
-  useEffect(() => {
-    if (!adapter) {
-      setLabels(null);
-      return;
-    }
-    const key = `${databaseId}:${propertyId}`;
-    let alive = true;
-
-    const load = (): void => {
-      let entry = request.current;
-      if (!entry || entry.key !== key) {
-        entry = { key, promise: adapter.read(databaseId, propertyId) };
-        request.current = entry;
-        void entry.promise.finally(() => {
-          if (request.current === entry) request.current = null;
-        });
-      }
-      entry.promise
-        .then((next) => { if (alive) setLabels(next); })
-        .catch(() => { if (alive) setLabels(null); });
-    };
-
-    load();
-    const timer = globalThis.setInterval(load, REFRESH_MS);
-    return () => {
-      alive = false;
-      globalThis.clearInterval(timer);
-    };
-  }, [adapter, databaseId, propertyId]);
-
-  return adapter ? labels?.[recordId] ?? null : null;
+interface AutofillRead {
+  labels: Labels | null;
+  request: Promise<Labels> | null;
+  listeners: Set<() => void>;
+  timer: ReturnType<typeof globalThis.setInterval> | null;
 }
 
-/** The read-only pill shared by the table cell and the page modal. */
-/**
- * The pill of a label. A select switched to AI-filled keeps its own option
- * ids, so the label is matched by id, then by name, then drawn plain.
- */
+const reads = new WeakMap<AutofillAdapter, Map<string, AutofillRead>>();
+
+/** Share reads and one 15 s refresh timer per adapter, database and property. */
+function useAutofillLabel(databaseId: string, propertyId: string, recordId: string): string | null {
+  const adapter = useHostAdapters().autofill;
+  const context = useMemo(() => ({ adapter, databaseId, propertyId, recordId }),
+    [adapter, databaseId, propertyId, recordId]);
+  const [value, setValue] = useState<{ context: typeof context; label: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!adapter) return;
+    let propertyReads = reads.get(adapter);
+    if (!propertyReads) {
+      propertyReads = new Map();
+      reads.set(adapter, propertyReads);
+    }
+    const key = JSON.stringify([databaseId, propertyId]);
+    let entry = propertyReads.get(key);
+    if (!entry) {
+      entry = { labels: null, request: null, listeners: new Set(), timer: null };
+      propertyReads.set(key, entry);
+    }
+    const shared = entry;
+    const cache = propertyReads;
+    const update = (): void => {
+      const label = shared.labels?.[recordId] ?? null;
+      setValue((previous) => previous?.context === context && previous.label === label
+        ? previous : { context, label });
+    };
+    const load = (): void => {
+      if (shared.request) return;
+      const pending = Promise.resolve().then(() => adapter.read(databaseId, propertyId));
+      shared.request = pending;
+      const finish = (labels: Labels | null): void => {
+        if (shared.request !== pending) return;
+        shared.request = null;
+        if (shared.listeners.size === 0) {
+          cache.delete(key);
+          return;
+        }
+        shared.labels = labels;
+        shared.listeners.forEach((listener) => listener());
+      };
+      void pending.then(finish, () => finish(null));
+    };
+
+    shared.listeners.add(update);
+    update();
+    if (shared.listeners.size === 1) {
+      load();
+      shared.timer = globalThis.setInterval(load, REFRESH_MS);
+    }
+    return () => {
+      shared.listeners.delete(update);
+      if (shared.listeners.size === 0) {
+        if (shared.timer !== null) globalThis.clearInterval(shared.timer);
+        shared.timer = null;
+        shared.labels = null;
+        if (!shared.request) cache.delete(key);
+      }
+    };
+  }, [adapter, databaseId, propertyId, recordId, context]);
+
+  return value?.context === context ? value.label : null;
+}
+
+/** Resolve a label by option id or name, preserving the schema's text and color. */
 export function autofillPill(prop: SchemaProperty, label: string | null): { text: string; color: string } | null {
   if (!label) return null;
   const option = prop.options?.find((candidate) => candidate.id === label)
-    ?? prop.options?.find((candidate) => candidate.value.toLowerCase() === label);
-  return { text: option?.value ?? label, color: option?.color ?? 'bg-surface-tertiary text-ink-body' };
+    ?? prop.options?.find((candidate) => candidate.value.toLowerCase() === label.toLowerCase());
+  return option ? { text: option.value, color: option.color } : null;
 }
 
+/** Render the read-only pill shared by table cells and the page modal. */
 export function AutofillValue({ prop, recordId, databaseId }: Readonly<{
   prop: SchemaProperty;
   recordId: string;

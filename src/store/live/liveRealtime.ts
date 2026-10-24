@@ -22,7 +22,7 @@
  * VITE_BAAS_REALTIME_TOKEN, else a NON-bridge app JWT mirrored from the
  * playground user store global (same decoupling rule as liveMountClient: never
  * import app feature modules). A bridge session JWT (iss 'osionos-bridge') is
- * NEVER offered to the gateway — it answers AUTH_FAILED — so with no baked
+ * NEVER offered to the gateway — it answers AUTH_FAILED — so without a usable baked
  * token the socket is opened through the app's minted-socket factory
  * (globalThis.__osionosTopicSocket), which asks the bridge for a token scoped
  * to this one topic. No token / repeat AUTH_FAILED / socket down → the
@@ -172,8 +172,8 @@ export class LiveRealtime {
     const topic = `table:${ref.dbId}:${ref.table}`;
     const onEvent = (frame: LiveRealtimeEventFrame) => this.handleEvent(frame);
     if (this.deps.token === null) return; // the caller asked for no socket at all
-    if (!baked && this.deps.token === undefined) {
-      // No BAKED token: ask the app for a socket on this topic — it mints a
+    if ((!baked || isBridgeSessionJwt(baked)) && this.deps.token === undefined) {
+      // No usable baked token: ask the app for a socket on this topic — it mints a
       // bridge token for it. The poll keeps covering the window until the first
       // event and every outage. A bridge session JWT is never offered to the
       // gateway (resolve refuses it); the factory is the only accepted path.

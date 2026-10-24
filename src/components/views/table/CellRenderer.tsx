@@ -37,6 +37,7 @@ import {
   renderCustom,
 } from './cellRenderers';
 import { AutofillSelectCell } from './cellRenderers/AutofillCellRenderer';
+import { useHostAdapters } from '../../../hooks/useHostAdapters';
 import { cn } from '../../../utils/cn';
 import { safeString } from '../../../utils/safeString';
 
@@ -57,6 +58,11 @@ export interface CellRendererProps {
   storeApi: DatabaseStoreApi;
 }
 
+function SelectCell(props: CellRendererProps): React.ReactNode {
+  const { autofill } = useHostAdapters();
+  return props.prop.autofill && autofill ? <AutofillSelectCell {...props} /> : renderSelect(props);
+}
+
 /** Dispatches cell rendering based on property type. */
 export function renderCellContent(props: CellRendererProps): React.ReactNode {
   const { prop, value, page, wrapContent } = props;
@@ -64,7 +70,7 @@ export function renderCellContent(props: CellRendererProps): React.ReactNode {
     case 'title':
     case 'text':            return renderTitleOrText(props);
     case 'number':          return renderNumber(props);
-    case 'select':          return prop.autofill ? <AutofillSelectCell {...props} /> : renderSelect(props);
+    case 'select':          return <SelectCell {...props} />;
     case 'status':          return renderStatus(props);
     case 'multi_select':    return renderMultiSelect(props);
     case 'date':            return renderDate(props);
