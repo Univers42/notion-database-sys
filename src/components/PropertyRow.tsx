@@ -20,7 +20,6 @@ import {
   MultiSelectEditor, CheckboxEditor, DateEditor, PlaceEditor,
 } from './PropertyRowEditors';
 import { AutofillValue } from './views/table/cellRenderers/AutofillCellRenderer';
-import { useHostAdapters } from '../hooks/useHostAdapters';
 import { cn } from '../utils/cn';
 
 /** Renders a single property label and its inline editor in the page modal. */
@@ -30,13 +29,12 @@ export function PropertyRow({ prop, page, pageId, database: _database }: Readonl
   pageId: string;
   database: DatabaseSchema;
 }>) {
-  const hasAutofill = Boolean(useHostAdapters().autofill);
   const storeApi = useStoreApi();
   const { updatePageProperty } = storeApi.getState();
   const val = page.properties[prop.id];
   const update = (v: unknown) => updatePageProperty(pageId, prop.id, v);
 
-  const editor = renderPropertyEditor(prop, val, page, update, storeApi, hasAutofill);
+  const editor = renderPropertyEditor(prop, val, page, update, storeApi);
 
   return (
     <div className={cn("flex items-center gap-3 py-1.5 group hover:bg-hover-surface -mx-3 px-3 rounded-lg transition-colors")}>
@@ -55,7 +53,6 @@ function renderPropertyEditor(
   page: Page,
   update: (v: unknown) => void,
   storeApi: ReturnType<typeof useStoreApi>,
-  hasAutofill: boolean,
 ): React.ReactNode {
   switch (prop.type) {
     case 'text':
@@ -67,7 +64,7 @@ function renderPropertyEditor(
       return <NumberEditor value={val as number | null} onChange={update} />;
     case 'select':
     case 'status':
-      return prop.autofill && hasAutofill
+      return prop.autofill
         ? <AutofillValue prop={prop} recordId={page.id} databaseId={page.databaseId} />
         : <SelectEditor value={val as string} options={prop.options ?? []} onChange={update} />;
     case 'multi_select':
