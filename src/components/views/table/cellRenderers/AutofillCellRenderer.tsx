@@ -95,12 +95,16 @@ function useAutofillLabel(databaseId: string, propertyId: string, recordId: stri
   return value?.context === context ? value.label : null;
 }
 
-/** Resolve a label by option id or name, preserving the schema's text and color. */
+/**
+ * The pill of a label. A select switched to AI-filled keeps its own option
+ * ids, so the label is matched by id, then by name, then drawn plain: a label
+ * the select has no option for is still the score, never hidden.
+ */
 export function autofillPill(prop: SchemaProperty, label: string | null): { text: string; color: string } | null {
   if (!label) return null;
   const option = prop.options?.find((candidate) => candidate.id === label)
     ?? prop.options?.find((candidate) => candidate.value.toLowerCase() === label.toLowerCase());
-  return option ? { text: option.value, color: option.color } : null;
+  return { text: option?.value ?? label, color: option?.color ?? 'bg-surface-tertiary text-ink-body' };
 }
 
 /** Render the read-only pill shared by table cells and the page modal. */
