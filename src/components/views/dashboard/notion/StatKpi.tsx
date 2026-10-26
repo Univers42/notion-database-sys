@@ -43,18 +43,24 @@ export function StatKpi({ viewId, stat, label }: Readonly<{
     : aggregate(stat.fn, numericValues(pages.map(page => getCellValue(page, stat.propertyId as string))));
   const provenance = kpiProvenance({ fn: stat.fn, matched: pages.length, total, propertyName: property?.name });
   const look = STAT_LOOK[STAT_FN_KIND[stat.fn]];
+  const shown = formatKpi(value);
+  // A bold digit is ~0.6em wide: cap the size so every character fits the
+  // tile's width instead of truncating the figure.
+  const widthCap = { '--kpi-w': `${Math.round(160 / Math.max(shown.length, 1))}cqw` } as React.CSSProperties;
 
   // The card is a size container: a stacked half-height card (~46px body) or
   // a narrow column (~80px) clipped fixed text. The number scales to its own
   // box; the chip leaves narrow tiles and the provenance leaves short ones.
+  // Caveat: the 0.6em digit width is an estimate — a figure of wide glyphs
+  // ("88.8M") can still lose a pixel or two to the truncate.
   return (
     <div className={cn("flex-1 min-h-0 flex items-center gap-3 px-4 py-2 [container-type:size]")}>
       <div className={cn("shrink-0 [@container(max-width:150px)]:hidden [@container(max-height:56px)]:hidden")}>
         <StatIconBadge color={look.color}>{look.icon}</StatIconBadge>
       </div>
-      <div className={cn("min-w-0 flex-1")} title={provenance}>
-        <div className={cn("text-[min(1.875rem,40cqh,22cqw)] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,22cqw)] font-bold tabular-nums text-ink leading-none truncate")}>
-          {formatKpi(value)}
+      <div className={cn("min-w-0 flex-1 [@container(max-width:150px)]:text-center")} title={provenance}>
+        <div style={widthCap} className={cn("text-[min(1.875rem,40cqh,var(--kpi-w))] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,var(--kpi-w))] font-bold tabular-nums text-ink leading-none truncate")}>
+          {shown}
         </div>
         {label && <div className={cn("mt-1 text-xs text-ink-secondary truncate [@container(max-height:40px)]:hidden")}>{label}</div>}
         <div className={cn("mt-0.5 text-[11px] text-ink-muted truncate [@container(max-height:80px)]:hidden")}>{provenance}</div>
