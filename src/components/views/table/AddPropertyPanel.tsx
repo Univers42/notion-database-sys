@@ -26,8 +26,8 @@ export const SENTIMENT_OPTIONS: SelectOption[] = [
   { id: 'positive', value: 'positive', color: 'bg-success-surface-muted text-success-text-tag' },
 ];
 
-/** Preferred panel width — the anchor shrinks it to fit the page margin. */
-export const ADD_PANEL_WIDTH = 400;
+/** Two columns of ~150px: wide enough for "Last edited time" on one line. */
+export const ADD_PANEL_WIDTH = 320;
 
 /** Notion's "Select type" sections: basic / advanced / system. */
 const BASIC_TYPES: readonly TypeEntry[] = [
@@ -54,8 +54,8 @@ function TypeGrid({ entries, onPick }: Readonly<{ entries: readonly TypeEntry[];
     <div className={cn('grid grid-cols-2 gap-0.5')}>
       {entries.map(([label, type]) => (
         <button key={type} type="button" onClick={() => onPick(label, type)}
-          className={cn('flex min-h-8 items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-ink-body hover:bg-hover-surface transition-colors')}>
-          <PropIcon type={type} className={cn('w-4 h-4 shrink-0 text-ink-muted')} />
+          className={cn('flex h-7 items-center gap-2 rounded-md px-2 text-left text-sm text-ink-body hover:bg-hover-surface focus-visible:bg-hover-surface outline-none')}>
+          <PropIcon type={type} className={cn('w-4 h-4 shrink-0 text-ink-secondary')} />
           <span className={cn('truncate')}>{label}</span>
         </button>
       ))}
@@ -84,33 +84,34 @@ export function AddPropertyPanel({ onPick, onPickSentiment }: Readonly<{
   const empty = basic.length + advanced.length + system.length === 0 && !showSentiment;
 
   return (
-    <div className={cn('flex max-h-[50vh] w-full flex-col overflow-y-auto p-2')}>
-      <div className={cn('mb-1 flex items-center justify-between px-1 pt-0.5')}>
-        <span className={cn('text-xs font-medium text-ink-muted')}>Select type</span>
-        <Search className={cn('w-3.5 h-3.5 text-ink-muted')} />
+    <div className={cn('flex max-h-[min(70vh,520px)] min-h-0 w-full flex-col')}>
+      <label className={cn('flex shrink-0 items-center gap-2 border-b border-line px-3 py-2')}>
+        <Search className={cn('w-4 h-4 shrink-0 text-ink-muted')} aria-hidden="true" />
+        <input value={query} onChange={e => setQuery(e.target.value)} autoFocus
+          placeholder="Search types…" aria-label="Search types" data-writing-surface
+          className={cn('min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-placeholder')} />
+      </label>
+      <div className={cn('min-h-0 flex-1 overflow-y-auto p-1.5')}>
+        {empty ? (
+          <p className={cn('px-2 py-4 text-center text-xs text-ink-muted')}>No matching types.</p>
+        ) : (
+          <>
+            <div className={cn('px-2 pb-1 pt-1 text-xs font-medium text-ink-muted')}>Select type</div>
+            <TypeGrid entries={basic} onPick={onPick} />
+            {advanced.length > 0 && <div className={cn('mx-2 my-1.5 h-px bg-line')} />}
+            <TypeGrid entries={advanced} onPick={onPick} />
+            {showSentiment && (
+              <button type="button" onClick={onPickSentiment} data-testid="add-ai-sentiment"
+                className={cn('flex h-7 items-center gap-2 rounded-md px-2 text-left text-sm text-ink-body hover:bg-hover-surface focus-visible:bg-hover-surface outline-none')}>
+                <Sparkles className={cn('w-4 h-4 shrink-0 text-ink-secondary')} />
+                <span className={cn('truncate')}>AI sentiment</span>
+              </button>
+            )}
+            {system.length > 0 && <div className={cn('mx-2 my-1.5 h-px bg-line')} />}
+            <TypeGrid entries={system} onPick={onPick} />
+          </>
+        )}
       </div>
-      <input value={query} onChange={e => setQuery(e.target.value)} autoFocus
-        placeholder="Search types…" aria-label="Search types"
-        className={cn('mb-2 w-full rounded-md border border-line bg-surface-secondary px-2 py-1.5 text-sm outline-none focus:border-focus-border placeholder:text-placeholder')} />
-
-      {empty ? (
-        <p className={cn('px-2 py-4 text-center text-xs text-ink-muted')}>No matching types.</p>
-      ) : (
-        <>
-          <TypeGrid entries={basic} onPick={onPick} />
-          {advanced.length > 0 && <div className={cn('my-1.5 h-px bg-surface-tertiary')} />}
-          <TypeGrid entries={advanced} onPick={onPick} />
-          {showSentiment && (
-            <button type="button" onClick={onPickSentiment} data-testid="add-ai-sentiment"
-              className={cn('flex min-h-8 items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-ink-body hover:bg-hover-surface transition-colors')}>
-              <Sparkles className={cn('w-4 h-4 shrink-0 text-ink-muted')} />
-              <span className={cn('truncate')}>AI sentiment</span>
-            </button>
-          )}
-          {system.length > 0 && <div className={cn('my-1.5 h-px bg-surface-tertiary')} />}
-          <TypeGrid entries={system} onPick={onPick} />
-        </>
-      )}
     </div>
   );
 }

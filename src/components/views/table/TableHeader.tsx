@@ -23,6 +23,7 @@ import {
 import * as Popover from '@radix-ui/react-popover';
 import { AddPropertyPanel, ADD_PANEL_WIDTH, SENTIMENT_OPTIONS } from './AddPropertyPanel';
 import { MIN_COL_WIDTH } from './useColumnResize';
+import { anchoredPanelFrame, type AnchoredFrame } from '../../../utils/geometry';
 import { cn } from '../../../utils/cn';
 
 interface TableHeaderProps {
@@ -54,24 +55,17 @@ export function TableHeader({
 }: Readonly<TableHeaderProps>) {
   const storeApi = useStoreApi();
   const { addProperty, togglePropertyVisibility, hideAllProperties } = storeApi.getState();
-  const [addPanel, setAddPanel] = React.useState<{ top: number; left: number; width: number } | null>(null);
+  const [addPanel, setAddPanel] = React.useState<AnchoredFrame | null>(null);
   const addBtnRef = React.useRef<HTMLButtonElement>(null);
 
+  // Notion parity: the panel hangs under the + itself, extending right into
+  // the free space past the last column; near the window's right edge it
+  // aligns its right edge with the + instead.
   const openAddPanel = () => {
     const btn = addBtnRef.current;
     if (!btn) return;
-    const bRect = btn.getBoundingClientRect();
-    const tRect = btn.closest('table')?.getBoundingClientRect() ?? bRect;
-    // Floats LEFT of the table, over the page margin/sidebar — never over the
-    // columns being edited. When that gap is narrower than the preferred
-    // width the panel SHRINKS to fit (down to 280px) instead of sliding
-    // right over the table; only a margin under ~300px overlaps at all.
-    const width = Math.min(ADD_PANEL_WIDTH, Math.max(280, tRect.left - 20));
-    setAddPanel({
-      top: bRect.bottom + 4,
-      left: Math.max(8, tRect.left - width - 12),
-      width,
-    });
+    setAddPanel(anchoredPanelFrame(btn.getBoundingClientRect(), ADD_PANEL_WIDTH,
+      { width: window.innerWidth, height: window.innerHeight }, 'start'));
   };
 
   const handleAddProperty = (label: string, type: PropertyType) => {
@@ -173,8 +167,8 @@ export function TableHeader({
             <>
               <button type="button" className={cn("fixed inset-0 z-40 appearance-none border-0 bg-transparent p-0 cursor-default")} onPointerDown={() => setAddPanel(null)} tabIndex={-1} aria-label="Close" />
               <div data-testid="add-property-panel" role="dialog" aria-label="Select type"
-                className={cn("fixed z-50 bg-surface-primary rounded-xl shadow-xl border border-line")}
-                style={{ top: addPanel.top, left: addPanel.left, width: addPanel.width, maxHeight: Math.max(160, window.innerHeight - addPanel.top - 12) }}
+                className={cn("odb-pop-in fixed z-50 flex flex-col bg-surface-primary rounded-[10px] shadow-xl border border-line overflow-hidden")}
+                style={{ top: addPanel.top, bottom: addPanel.bottom, left: addPanel.left, width: ADD_PANEL_WIDTH, maxHeight: addPanel.maxHeight }}
                 onKeyDown={e => { if (e.key === 'Escape') setAddPanel(null); }}>
                 <AddPropertyPanel onPick={handleAddProperty} onPickSentiment={handleAddSentiment} />
               </div>

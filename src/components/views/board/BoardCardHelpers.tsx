@@ -113,7 +113,7 @@ export function BoardCard({
     <div draggable={!editing}
       onDragStart={e => onDragStart(e, page.id)}
       style={{ cursor: CURSORS.grab, ...(accent ? { boxShadow: `inset 3px 0 0 0 ${accent}` } : {}) }}
-      className={cn('relative bg-surface-primary w-full min-w-0 rounded-lg border border-line-light overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-sm hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] group/card text-left')}>
+      className={cn('relative bg-surface-primary w-full min-w-0 rounded-[10px] border border-line-light shadow-sm overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-md hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] group/card text-left')}>
       <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} size={size} />
       <CardBody page={page} title={getPageTitle(page)} icon={page.icon} props={nonTitleGroupProps}
         databaseId={databaseId} wrap={wrapContent} className={size.pad} titleClass={size.title}
