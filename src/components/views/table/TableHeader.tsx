@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 15:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,9 +107,9 @@ export function TableHeader({
   return (
     <thead className={cn("sticky top-0 z-30")}>
       <tr className={cn("bg-surface-secondary [&>th]:border-b [&>th]:border-line")}>
-        <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>
-          {showRowNumbers ? '#' : ''}
-        </th>
+        {showRowNumbers && (
+          <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>#</th>
+        )}
         {visibleProps.map(prop => {
           // var() first: a resize drag moves the column per frame through one
           // CSS custom property on the table element (no store write per RAF);

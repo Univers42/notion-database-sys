@@ -23,13 +23,14 @@ interface TableCalculationRowProps {
   calculations: Readonly<Record<string, string>> | undefined;
   getColWidth: (propId: string) => number;
   showVerticalLines: boolean;
+  showRowNumbers: boolean;
 }
 
 const ITEM = 'flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer w-full text-left outline-none data-[highlighted]:bg-hover-surface';
 
 /** Footer row: one Calculate menu per visible column. */
 export function TableCalculationRow({
-  viewId, pages, visibleProps, calculations, getColWidth, showVerticalLines,
+  viewId, pages, visibleProps, calculations, getColWidth, showVerticalLines, showRowNumbers,
 }: Readonly<TableCalculationRowProps>) {
   const storeApi = useStoreApi();
 
@@ -53,7 +54,7 @@ export function TableCalculationRow({
   return (
     <tfoot className={cn('sticky bottom-0 z-20')}>
       <tr className={cn('bg-surface-primary [&>td]:border-t [&>td]:border-line')}>
-        <td className={cn('w-10')} />
+        {showRowNumbers && <td className={cn('w-10')} />}
         {visibleProps.map(prop => {
           const width = `var(${colWidthVar(prop.id)}, ${getColWidth(prop.id)}px)`;
           const fn = activeCalculation(prop, calculations?.[prop.id]);

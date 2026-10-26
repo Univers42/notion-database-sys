@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:38:28 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 15:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ export function TableView() {
   const subItems = useSubItems();
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
 
-  // Row drag-reorder (grip in the leading gutter): drop writes manualRowOrder
+  // Row drag-reorder (grip on row hover, see MemoTableRow): drop writes manualRowOrder
   // into view settings; getPagesForView applies it when no user sorts exist.
   const storeApi = useStoreApi();
   const dragRowRef = React.useRef<string | null>(null);
@@ -101,6 +101,7 @@ export function TableView() {
             getColWidth={getColWidth}
             titlePropId={database.titlePropertyId}
             colCount={colCount}
+            hasGutter={showRowNumbers}
           />
         ) : null
     : undefined;
@@ -193,7 +194,7 @@ export function TableView() {
           </tbody>
           <TableCalculationRow viewId={view.id} pages={pages} visibleProps={visibleProps}
             calculations={view.settings?.columnCalculations} getColWidth={getColWidth}
-            showVerticalLines={showVerticalLines} />
+            showVerticalLines={showVerticalLines} showRowNumbers={showRowNumbers} />
         </table>
       </div>
 

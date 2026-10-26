@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 15:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,9 @@ export function useTableViewState() {
   const showVerticalLines = settings.showVerticalLines !== false;
   const wrapContent = settings.wrapContent === true;
   const showRowNumbers = settings.showRowNumbers === true;
-  // +1: the leading control gutter (drag grip / expand / open) is ALWAYS rendered.
-  const colCount = visibleProps.length + 1 + 2;
+  // The leading gutter column exists only to hold row numbers; +2 trailing
+  // cells (row options, filler).
+  const colCount = visibleProps.length + (showRowNumbers ? 1 : 0) + 2;
   const isGrouped = !!view?.grouping;
   const groupedData = (isGrouped && view) ? getGroupedPages(view.id) : NO_GROUPS;
   // Rows a group has revealed past its cap this session, keyed `view:group`.
