@@ -247,7 +247,7 @@ export function TopBar({
 
       {showSortPanel && (
         <AnchoredPopover anchorRef={sortBtnRef} label="Sort" width={PANEL_WIDTH.SORT} onClose={() => setShowSortPanel(false)}>
-          <SortPanel database={database} view={view} />
+          <SortPanel database={database} view={view} onClose={() => setShowSortPanel(false)} />
         </AnchoredPopover>
       )}
 

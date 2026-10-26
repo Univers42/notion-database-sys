@@ -10,9 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { anchoredPanelFrame, Z, type AnchoredFrame } from '../../utils/geometry';
+import { Z } from '../../utils/geometry';
+import { useAnchoredFrame } from '../../hooks/useAnchoredFrame';
 import { cn } from '../../utils/cn';
 
 // A toolbar panel (View settings, Sort) belongs to ONE database, so it opens
@@ -30,40 +31,31 @@ export function AnchoredPopover({ anchorRef, label, width, onClose, children }: 
   children: React.ReactNode;
 }>) {
   const panelRef = useRef<HTMLDialogElement>(null);
-  const [frame, setFrame] = useState<AnchoredFrame | null>(null);
+  const frame = useAnchoredFrame(anchorRef, width);
   // Callers pass an inline closure; keyed on it, the open/close effect below
   // would re-run (and refocus the button) on every parent render.
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
-  const place = useCallback(() => {
-    const anchor = anchorRef.current;
-    if (!anchor) return;
-    setFrame(anchoredPanelFrame(anchor.getBoundingClientRect(), width,
-      { width: window.innerWidth, height: window.innerHeight }));
-  }, [anchorRef, width]);
-
-  useLayoutEffect(() => {
-    place();
-    window.addEventListener('resize', place);
-    window.addEventListener('scroll', place, true);
-    return () => {
-      window.removeEventListener('resize', place);
-      window.removeEventListener('scroll', place, true);
-    };
-  }, [place]);
-
   useEffect(() => {
     const anchor = anchorRef.current;
-    panelRef.current?.focus();
+    const panel = panelRef.current;
+    // A field that took focus on mount (the panel's search) keeps it.
+    if (!panel?.contains(document.activeElement)) panel?.focus();
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCloseRef.current(); };
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('keydown', onKey);
-      anchor?.focus();
+      // Focus goes back to the button only if closing lost it: a choice that
+      // opened another field (picking a filter opens its value) keeps it there.
+      // A panel still attached is StrictMode replaying this effect, not a close.
+      const active = document.activeElement;
+      if (!panel?.isConnected && (!active || active === document.body)) anchor?.focus();
     };
   }, [anchorRef]);
 
+  // Unplaced, the panel is transparent rather than hidden: a hidden field
+  // cannot take its autofocus, and placing happens before the first paint.
   return createPortal(
     <>
       <button type="button" tabIndex={-1} aria-label={`Close ${label.toLowerCase()}`} onClick={onClose}
@@ -71,8 +63,8 @@ export function AnchoredPopover({ anchorRef, label, width, onClose, children }: 
         style={{ zIndex: Z.DROPDOWN }} />
       <dialog open ref={panelRef} tabIndex={-1} aria-label={label}
         className={cn("fixed m-0 p-0 overflow-y-auto overflow-x-hidden bg-surface-primary border border-line rounded-xl shadow-xl outline-none")}
-        style={{ zIndex: Z.DROPDOWN + 1, width, left: frame?.left ?? 0, top: frame?.top,
-          bottom: frame?.bottom, maxHeight: frame?.maxHeight, visibility: frame ? 'visible' : 'hidden' }}
+        style={{ zIndex: Z.DROPDOWN + 1, width: frame?.width ?? width, left: frame?.left ?? 0, top: frame?.top,
+          bottom: frame?.bottom, maxHeight: frame?.maxHeight, opacity: frame ? 1 : 0 }}
         onClick={e => e.stopPropagation()}
         onKeyDown={e => { if (e.key === 'Escape') onClose(); e.stopPropagation(); }}>{/* NOSONAR */}
         {children}

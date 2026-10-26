@@ -35,10 +35,14 @@ export type SortPropertyPickerSlots = {
 };
 
 /** Renders a searchable property list for adding a new sort rule. */
-export function SortPropertyPicker({ properties, onSelect, onClose, slots }: Readonly<{
+export function SortPropertyPicker({ properties, onSelect, onClose, onBack, title = 'Sort by', slots }: Readonly<{
   properties: SchemaProperty[];
   onSelect: (propId: string) => void;
   onClose: () => void;
+  /** Shown as a back arrow when the picker replaced another screen. */
+  onBack?: () => void;
+  /** Empty when the screen around the picker already has a header. */
+  title?: string;
   slots?: Partial<SortPropertyPickerSlots>;
 }>) {
   const [search, setSearch] = useState('');
@@ -47,24 +51,27 @@ export function SortPropertyPicker({ properties, onSelect, onClose, slots }: Rea
   );
 
   return (
-    <div className={cn("flex flex-col", slots?.root)} style={{ minWidth: 290, maxWidth: 290, maxHeight: 300 }}>
-      <div className={cn("flex items-center px-3 pt-3.5 pb-1.5 h-[42px] shrink-0", slots?.header)}>
-        <button onClick={onClose}
-          className={cn("w-5 h-5 flex items-center justify-center rounded hover:bg-hover-surface2 mr-2 text-ink-secondary transition-colors", slots?.backButton)}>
-          <svg viewBox="0 0 16 16" width="16" height="16" fill="none">
-            <path d="M2.16 8.206q.046.13.148.236l4.32 4.32a.625.625 0 0 0 .884-.884L4.259 8.625h8.991a.625.625 0 1 0 0-1.25H4.259l3.253-3.253a.625.625 0 1 0-.884-.884l-4.32 4.32a.62.62 0 0 0-.148.648" fill="currentColor" />
-          </svg>
-        </button>
-        <span className={cn("flex-1 font-semibold text-sm truncate", slots?.title)}>New sort</span>
-        <button onClick={onClose}
+    <div className={cn("flex w-full flex-col", slots?.root)} style={{ maxHeight: 300 }}>
+      {title && <div className={cn("flex items-center px-3 pt-3.5 pb-1.5 h-[42px] shrink-0", slots?.header)}>
+        {onBack && (
+          <button type="button" onClick={onBack} aria-label="Back"
+            className={cn("w-5 h-5 flex items-center justify-center rounded hover:bg-hover-surface2 mr-2 text-ink-secondary transition-colors", slots?.backButton)}>
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden>
+              <path d="M2.16 8.206q.046.13.148.236l4.32 4.32a.625.625 0 0 0 .884-.884L4.259 8.625h8.991a.625.625 0 1 0 0-1.25H4.259l3.253-3.253a.625.625 0 1 0-.884-.884l-4.32 4.32a.62.62 0 0 0-.148.648" fill="currentColor" />
+            </svg>
+          </button>
+        )}
+        <span className={cn("flex-1 font-semibold text-sm truncate", slots?.title)}>{title}</span>
+        <button type="button" onClick={onClose} aria-label="Close"
           className={cn("w-6 h-6 flex items-center justify-center rounded-full bg-surface-tertiary hover:bg-hover-surface3 text-ink-muted transition-colors", slots?.closeButton)}>
           <X className={cn("w-3.5 h-3.5")} />
         </button>
-      </div>
+      </div>}
       <div className={cn("px-2 pt-2 pb-1", slots?.searchWrap)}>
-        <div className={cn("flex items-center rounded-md border border-line bg-surface-secondary h-7 px-1.5", slots?.searchInner)}>
-          <input type="text" placeholder="Sort by…" value={search}
-            onChange={e => setSearch(e.target.value)}
+        {/* The box shows focus; the field opts out of the host's own focus frame. */}
+        <div className={cn("flex items-center rounded-md border border-line bg-surface-secondary h-7 px-1.5 focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring", slots?.searchInner)}>
+          <input type="text" placeholder="Sort by…" value={search} aria-label="Sort by property"
+            data-writing-surface onChange={e => setSearch(e.target.value)}
             className={cn("flex-1 bg-transparent text-sm outline-none placeholder-placeholder", slots?.searchInput)} autoFocus />
         </div>
       </div>

@@ -95,7 +95,7 @@ export function positionBelowAnchor(
 export type AnchoredFrame = { left: number; top?: number; bottom?: number; maxHeight: number };
 
 const ANCHOR_GAP = 6;
-const VIEWPORT_MARGIN = 8;
+export const VIEWPORT_MARGIN = 8;
 const COMFORT_HEIGHT = 360;
 
 export function anchoredPanelFrame(

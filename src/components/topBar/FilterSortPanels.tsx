@@ -10,20 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useRef } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState } from 'react';
 import { useStoreApi } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty, Filter, DatabaseSchema, ViewConfig } from '../../types/database';
-import { getOperatorsForType, FilterPropertyPicker, FilterBar, AdvancedFilterGrid } from '../FilterComponents';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { cn } from '../../utils/cn';
-
-/** CSS class overrides for FilterSortPanels sub-elements. */
-export type FilterSortPanelsSlots = {
-  pickerWrap: string;
-  pickerPanel: string;
-  advancedWrap: string;
-};
+import { FilterPropertyPicker, FilterBar, AdvancedFilterGrid } from '../FilterComponents';
+import { addFilterRule } from '../filters/addFilterRule';
+import { AnchoredPopover } from './AnchoredPopover';
 
 /** Props for {@link FilterSortPanels}. */
 export interface FilterSortPanelsProps {
@@ -39,16 +31,24 @@ export interface FilterSortPanelsProps {
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-/** Renders the filter bar below the top bar, and the filter pickers. */
+// The picker's list is 290 wide inside the popover's 1px border.
+const PICKER_WIDTH = 292;
+const ADVANCED_WIDTH = 520;
+
+/**
+ * The filter bar under the toolbar, and the two panels the Filter button
+ * opens: the property picker and the advanced filter. Both hang off the Filter
+ * button and follow it. Picking a property adds its rule and opens that rule's
+ * value, so the rule is never left empty with nothing to type into.
+ */
 export function FilterSortPanels({
   showFilterPanel, showFilterPropertyPicker, setShowFilterPropertyPicker,
   showAdvancedFilter, setShowAdvancedFilter, setShowFilterPanel,
-  filters, database, view, filterBtnRef, slots,
-}: Readonly<FilterSortPanelsProps & { slots?: Partial<FilterSortPanelsSlots> }>) {
-  const advancedFilterRef = useRef<HTMLDivElement>(null);
-  const store = useStoreApi().getState();
-
-  useOutsideClick(advancedFilterRef, showAdvancedFilter, () => setShowAdvancedFilter(false));
+  filters, database, view, filterBtnRef,
+}: Readonly<FilterSortPanelsProps>) {
+  const storeApi = useStoreApi();
+  const [editingFilterId, setEditingFilterId] = useState<string | null>(null);
+  const addRule = (propId: string) => addFilterRule(storeApi, view.id, database.properties[propId]);
 
   return (
     <>
@@ -57,36 +57,32 @@ export function FilterSortPanels({
         <div className="odb-filter-bar">
           <FilterBar filters={filters} properties={database.properties}
             conjunction={view.filterConjunction || 'and'} viewId={view.id}
+            activeFilterId={editingFilterId} onActiveFilterChange={setEditingFilterId}
             onOpenAdvanced={() => setShowAdvancedFilter(true)} />
         </div>
       )}
-      {showFilterPropertyPicker && filterBtnRef.current && createPortal(
-        <div className={cn("fixed z-[9999]")}
-          style={{ top: filterBtnRef.current.getBoundingClientRect().bottom + 4, left: filterBtnRef.current.getBoundingClientRect().left }}>
-          <div className={cn("bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden", slots?.pickerPanel)}
-            ref={el => { if (!el) { return; } const handler = (e: MouseEvent) => { if (!el.contains(e.target as Node)) setShowFilterPropertyPicker(false); };
-              if (!el.dataset.listening) { el.dataset.listening = '1'; setTimeout(() => document.addEventListener('mousedown', handler), 0); } }}>
-            <FilterPropertyPicker properties={Object.values(database.properties) as SchemaProperty[]}
-              onSelect={propId => { const prop = database.properties[propId]; const ops = getOperatorsForType(prop?.type || 'text');
-                store.addFilter(view.id, { propertyId: propId, operator: ops[0].value, value: '' }); setShowFilterPropertyPicker(false); setShowFilterPanel(true); }}
-              onClose={() => setShowFilterPropertyPicker(false)}
-              onAdvancedFilter={() => { setShowFilterPropertyPicker(false); setShowAdvancedFilter(true); }} />
-          </div>
-        </div>, document.body
+      {showFilterPropertyPicker && (
+        <AnchoredPopover anchorRef={filterBtnRef} label="Add filter" width={PICKER_WIDTH} onClose={() => setShowFilterPropertyPicker(false)}>
+          <FilterPropertyPicker properties={Object.values(database.properties) as SchemaProperty[]}
+            onSelect={propId => {
+              setShowFilterPropertyPicker(false);
+              setShowFilterPanel(true);
+              setEditingFilterId(addRule(propId) ?? null);
+            }}
+            onClose={() => setShowFilterPropertyPicker(false)}
+            onAdvancedFilter={() => { setShowFilterPropertyPicker(false); setShowAdvancedFilter(true); }} />
+        </AnchoredPopover>
       )}
-      {showAdvancedFilter && createPortal(
-        <div ref={advancedFilterRef}
-          className={cn("fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-hidden", slots?.advancedWrap)}
-          style={{ top: 140, left: '50%', transform: 'translateX(-50%)', minWidth: 520 }}>
+      {showAdvancedFilter && (
+        <AnchoredPopover anchorRef={filterBtnRef} label="Advanced filter" width={ADVANCED_WIDTH} onClose={() => setShowAdvancedFilter(false)}>
           <AdvancedFilterGrid filters={filters} properties={database.properties}
             conjunction={view.filterConjunction || 'and'}
-            onAddFilter={propId => { const prop = database.properties[propId]; const ops = getOperatorsForType(prop?.type || 'text');
-              store.addFilter(view.id, { propertyId: propId, operator: ops[0].value, value: '' }); }}
-            onUpdateFilter={(filterId, updates) => store.updateFilter(view.id, filterId, updates)}
-            onRemoveFilter={filterId => store.removeFilter(view.id, filterId)}
-            onDeleteAll={() => { store.clearFilters(view.id); setShowAdvancedFilter(false); setShowFilterPanel(false); }}
+            onAddFilter={addRule}
+            onUpdateFilter={(filterId, updates) => storeApi.getState().updateFilter(view.id, filterId, updates)}
+            onRemoveFilter={filterId => storeApi.getState().removeFilter(view.id, filterId)}
+            onDeleteAll={() => { storeApi.getState().clearFilters(view.id); setShowAdvancedFilter(false); setShowFilterPanel(false); }}
             onClose={() => setShowAdvancedFilter(false)} />
-        </div>, document.body
+        </AnchoredPopover>
       )}
     </>
   );
