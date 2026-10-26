@@ -21,6 +21,11 @@
  * incoming slot simply becomes active (no re-mount, no flash) and the outgoing
  * unmounts. Pure transform/opacity + one CSS transition — no animation library.
  * Falls back to an instant swap under prefers-reduced-motion or a hidden tab.
+ *
+ * `flow` is for embeds that size to their content (an inline database in a
+ * page): the incoming pane stays in flow at its natural height and the stage
+ * height animates from the outgoing pane's to it, so the page below glides
+ * instead of jumping when the slide ends.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -76,6 +81,18 @@ export function retargetSlide(
   return { slots, keys, active: prev.active, incoming: inc, dir, run: false, lockH: measured };
 }
 
+/** Pure: the stage's inline style. A full-page stage pins the outgoing height
+ *  for the slide; a flow stage animates from it to the incoming pane's height
+ *  (`toH`, 0 until measured). Idle stages take no style: they size normally. */
+export function stageStyle(
+  s: Pick<SlideState, 'incoming' | 'run' | 'lockH'>, flow: boolean, toH: number,
+): React.CSSProperties | undefined {
+  if (s.incoming === null || s.lockH <= 0) return undefined;
+  if (!flow) return { height: s.lockH, flex: 'none' };
+  if (!s.run || toH <= 0) return { height: s.lockH, flex: 'none' };
+  return { height: toH, flex: 'none', transition: `height ${SLIDE_MS}ms ${EASE}` };
+}
+
 function prefersReducedMotion(): boolean {
   try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
   catch { return false; }
@@ -89,16 +106,20 @@ export interface ViewSlideStageProps {
   orderIndex: number;
   /** Renders a view's body, scoped to the given view id. */
   renderPane: (viewId: string) => React.ReactNode;
+  /** The host sizes to its content (an inline embed), not to a fixed height. */
+  flow?: boolean;
 }
 
-/** Full-page database body with an animated horizontal view transition. */
-export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<ViewSlideStageProps>) {
+/** Database body with an animated horizontal view transition. */
+export function ViewSlideStage({ viewId, orderIndex, renderPane, flow = false }: Readonly<ViewSlideStageProps>) {
   const [st, setSt] = useState<SlideState>(() => ({
     slots: [viewId, ''], keys: [0, 0], active: 0, incoming: null, dir: 1, run: false, lockH: 0,
   }));
   const lastIndex = useRef(orderIndex);
   const keySeq = useRef(0);
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const incomingRef = useRef<HTMLDivElement | null>(null);
+  const [toH, setToH] = useState(0);
 
   // A new target view id → start a slide (or an instant swap when motion is off).
   // Measure the stage BEFORE the slots go absolute: absolute slots have no
@@ -118,10 +139,13 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<View
   // transition and move both slots to rest so the browser animates the change.
   useEffect(() => {
     if (st.incoming === null || st.run) return;
-    const raf = requestAnimationFrame(() =>
-      setSt(s => (s.incoming === null || s.run ? s : { ...s, run: true })));
+    const raf = requestAnimationFrame(() => {
+      // The incoming pane has laid out at its natural height by now.
+      setToH(flow ? incomingRef.current?.offsetHeight ?? 0 : 0);
+      setSt(s => (s.incoming === null || s.run ? s : { ...s, run: true }));
+    });
     return () => cancelAnimationFrame(raf);
-  }, [st.incoming, st.run]);
+  }, [st.incoming, st.run, flow]);
 
   const commit = () =>
     setSt(s => (s.incoming === null ? s : { ...s, active: s.incoming, incoming: null }));
@@ -150,8 +174,13 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<View
       );
     }
     const live = slot === st.active || slot === st.incoming;
+    const inFlow = flow && slot === st.incoming;
+    let place = 'absolute inset-0 min-h-0';
+    if (inFlow) place = 'relative flex-none';
+    else if (flow) place = 'absolute inset-x-0 top-0';
     return (
-      <div key={st.keys[slot]} className={cn('absolute inset-0 flex flex-col min-h-0')}
+      <div key={st.keys[slot]} ref={inFlow ? incomingRef : undefined}
+        className={cn('flex flex-col', place)}
         style={{
           transform: `translate3d(${slideOffset(slot, st)}%, 0, 0)`,
           transition: st.run && transitioning ? `transform ${SLIDE_MS}ms ${EASE}` : 'none',
@@ -168,7 +197,7 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<View
   return (
     <div ref={stageRef}
       className={cn('relative flex-1 flex flex-col min-h-0', transitioning && 'overflow-hidden')}
-      style={transitioning && st.lockH > 0 ? { height: st.lockH, flex: 'none' } : undefined}>
+      style={stageStyle(st, flow, toH)}>
       {renderSlot(0)}
       {renderSlot(1)}
     </div>
