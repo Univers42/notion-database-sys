@@ -13,7 +13,6 @@
 import React from 'react';
 import { Image, ArrowUpRight } from 'lucide-react';
 import { CURSORS } from '../../ui/cursors';
-import { PropIcon } from '../../../constants/propertyIcons';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { CARD_COVER_GRADIENTS as COVER_COLORS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
@@ -98,8 +97,12 @@ interface BoardCardProps {
   accent?: string | null;
 }
 
-/** Draggable board card: optional cover/preview strip, title row, then one
- *  labeled row per visible property — every type renders, none throw. */
+/** Values that read on their own (a coloured chip, a person) flow in one row;
+ *  everything else needs its property name beside it to mean anything. */
+const CHIP_TYPES = new Set(['select', 'status', 'multi_select', 'user', 'person', 'assigned_to', 'created_by', 'last_edited_by']);
+
+/** Draggable board card: optional cover/preview strip, an ID kicker, the title,
+ *  then chips and labeled values — every type renders, none throw. */
 export function BoardCard({
   page, pageIdx, cardPreview, cardSize, wrapContent, databaseId,
   nonTitleGroupProps, openPage, getPageTitle, onDragStart, accent,
@@ -108,6 +111,12 @@ export function BoardCard({
   const size = sizeCfg(cardSize);
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];
   const shownProps = nonTitleGroupProps.filter(p => hasCardValue(p, page.properties[p.id]));
+  const idProps = shownProps.filter(p => p.type === 'id');
+  const chipProps = shownProps.filter(p => CHIP_TYPES.has(p.type));
+  const valueProps = shownProps.filter(p => p.type !== 'id' && !CHIP_TYPES.has(p.type));
+  const value = (prop: SchemaProperty) => (
+    <CardPropertyValue prop={prop} val={page.properties[prop.id]} page={page} databaseId={databaseId} wrap={wrapContent} />
+  );
 
   return (
     <button type="button" draggable
@@ -115,27 +124,38 @@ export function BoardCard({
       onClick={() => openPage(page.id)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
       style={{ cursor: CURSORS.grab, ...(accent ? { boxShadow: `inset 3px 0 0 0 ${accent}` } : {}) }}
-      className={cn('bg-surface-primary w-full min-w-0 rounded-xl shadow-sm border border-line overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-md hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-all group/card text-left')}>
+      className={cn('bg-surface-primary w-full min-w-0 rounded-lg border border-line-light overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-sm hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-[box-shadow,border-color] group/card text-left')}>
       <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} size={size} />
-      <div className={cn(`${size.pad} flex flex-col gap-1.5 min-w-0`)}>
-        <div className={cn('flex items-start gap-1')}>
-          <div className={cn(`font-medium ${size.title} text-ink flex-1 min-w-0 leading-snug ${wrapContent ? 'break-words' : 'truncate'}`)}>
+      <div className={cn(`${size.pad} flex flex-col gap-2 min-w-0`)}>
+        <div className={cn('flex flex-col gap-0.5 min-w-0')}>
+          {idProps.length > 0 && (
+            <div className={cn('flex items-center gap-2 min-w-0')} data-testid="board-card-id">
+              {idProps.map(prop => <React.Fragment key={prop.id}>{value(prop)}</React.Fragment>)}
+              <span
+                className={cn('ml-auto shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft opacity-0 group-hover/card:opacity-100 transition-opacity')}
+                aria-hidden="true">
+                <ArrowUpRight className={cn('w-2.5 h-2.5')} /> Open
+              </span>
+            </div>
+          )}
+          <div className={cn(`font-semibold ${size.title} text-ink min-w-0 leading-snug ${wrapContent ? 'break-words' : 'line-clamp-2'}`)}>
             {page.icon && <span className={cn('mr-1')}>{page.icon}</span>}
-            {title || <span className={cn('text-ink-muted')}>Untitled</span>}
+            {title || <span className={cn('text-ink-muted font-medium')}>Untitled</span>}
           </div>
-          <span
-            className={cn('shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity')}
-            aria-hidden="true">
-            <ArrowUpRight className={cn('w-2.5 h-2.5')} /> Open
-          </span>
         </div>
-        {shownProps.length > 0 && (
-          <div className={cn('flex flex-col gap-1 min-w-0')} data-testid="board-card-props">
-            {shownProps.map(prop => (
-              <div key={prop.id} title={prop.name} className={cn('flex items-center gap-1.5 min-w-0')}>
-                <PropIcon type={prop.type} className={cn('w-3 h-3 shrink-0 text-ink-disabled')} />
-                <CardPropertyValue prop={prop} val={page.properties[prop.id]} page={page}
-                  databaseId={databaseId} wrap={wrapContent} />
+        {(chipProps.length > 0 || valueProps.length > 0) && (
+          <div className={cn('flex flex-col gap-1.5 min-w-0')} data-testid="board-card-props">
+            {chipProps.length > 0 && (
+              <div className={cn('flex flex-wrap items-center gap-1 min-w-0')}>
+                {chipProps.map(prop => (
+                  <span key={prop.id} title={prop.name} className={cn('inline-flex min-w-0 max-w-full')}>{value(prop)}</span>
+                ))}
+              </div>
+            )}
+            {valueProps.map(prop => (
+              <div key={prop.id} className={cn('flex items-baseline gap-2 min-w-0')}>
+                <span className={cn('w-[38%] shrink-0 truncate text-[11px] text-ink-muted')}>{prop.name}</span>
+                {value(prop)}
               </div>
             ))}
           </div>
