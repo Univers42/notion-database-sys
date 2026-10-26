@@ -192,7 +192,15 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
             onMouseEnter={() => onCellMouseEnter(page.id, prop.id)}
             onClick={e => onCellClick(page.id, prop.id, prop.type, value, e.shiftKey)}
             onDoubleClick={() => onCellDoubleClick(page.id, prop.id, prop.type)}>
-            {renderCellContent(cellProps)}
+            {/* A wide table scrolls most columns out of view, yet every repaint
+                still recorded their cells: a column resize dropped 1 frame in 4
+                (31/118 > 16.7 ms on live). Skipping offscreen contents: 3/118.
+                The focused cell opts out, since containment clips its editor.
+                Caveat: a wrapped cell never shown keeps a 20 px height until it
+                scrolls into view, so a row can grow when it does. */}
+            <div className={cn(isFocused || isEditing ? undefined : '[content-visibility:auto] [contain-intrinsic-size:auto_20px]')}>
+              {renderCellContent(cellProps)}
+            </div>
             {colIdx === 0 && !showRowNumbers && !isEditing && controls}
             {isFocused && !isEditing && (
               <button type="button" className={cn("absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20 p-0 appearance-none outline-none")}
