@@ -69,9 +69,9 @@ export function CalendarEventChip({
       onPointerDown={onBodyPointerDown}
       onClick={handleClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
-      className={cn(`group/chip relative h-full flex items-center gap-1 px-1.5 rounded text-xs
-        cursor-grab active:cursor-grabbing select-none overflow-hidden transition-shadow hover:shadow-sm
-        ${color.tint ? 'text-ink-body' : color.className || 'bg-accent-soft text-accent-text'}
+      className={cn(`group/chip relative h-full flex items-center gap-1 px-1.5 rounded-md text-xs font-medium
+        cursor-grab active:cursor-grabbing select-none overflow-hidden transition-shadow hover:shadow-md
+        ${color.tint ? 'text-ink-body' : color.className || 'bg-surface-primary text-ink border border-line-light shadow-sm'}
         ${dimmed ? 'opacity-40' : ''}
         ${continuesLeft ? 'rounded-l-none' : ''} ${continuesRight ? 'rounded-r-none' : ''}`)}
       style={style}>
@@ -83,7 +83,7 @@ export function CalendarEventChip({
       )}
       <span className={cn(`min-w-0 flex-1 ${wrapTitle ? 'whitespace-pre-wrap break-words' : 'truncate'}`)}>
         {icon && <span className={cn("mr-0.5")}>{icon}</span>}
-        {timeLabel && <span className={cn("mr-1 opacity-70 tabular-nums")}>{timeLabel}</span>}
+        {timeLabel && <span className={cn("mr-1 font-normal opacity-70 tabular-nums")}>{timeLabel}</span>}
         {title || 'Untitled'}
       </span>
       {onEditDates && (

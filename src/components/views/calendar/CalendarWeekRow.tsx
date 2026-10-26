@@ -41,7 +41,7 @@ export interface GhostSegment {
 }
 
 export function CalendarWeekRow({
-  days, cols, weekNumber, showWeekNumber = false, wrapTitles = false,
+  days, cols, weekNumber, showWeekNumber = false, wrapTitles = false, maxLanes = MAX_VISIBLE_LANES,
   segments, chipData, ghosts = [], overflow, draggingPageId = null,
   onOpen, onEditDates, onQuickCreate, onExpandDay,
   onChipPointerDown, onHandlePointerDown, onEmptyPointerDown, suppressClickRef,
@@ -51,6 +51,7 @@ export function CalendarWeekRow({
   weekNumber: number;
   showWeekNumber?: boolean;
   wrapTitles?: boolean;
+  maxLanes?: number;
   segments: WeekSegment[];
   chipData: Map<string, ChipData>;
   ghosts?: GhostSegment[];
@@ -67,7 +68,7 @@ export function CalendarWeekRow({
 }>) {
   const laneCount = Math.min(
     Math.max(0, ...segments.map(s => s.lane + 1)),
-    MAX_VISIBLE_LANES,
+    maxLanes,
   );
   const minHeight = DAY_HEADER_HEIGHT + MAX_VISIBLE_LANES * LANE_HEIGHT + OVERFLOW_HEIGHT;
   const colWidth = `calc(100% / ${cols})`;

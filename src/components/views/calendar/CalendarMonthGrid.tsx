@@ -17,19 +17,23 @@ import { format } from 'date-fns';
 import { CalendarWeekRow } from './CalendarWeekRow';
 import type { ChipData, GhostSegment } from './CalendarWeekRow';
 import { WEEK_GUTTER_WIDTH } from './calendarConfig';
+import { MAX_VISIBLE_LANES } from './model/calendarTypes';
 import type { CalendarGrid, DayInfo, DayKey, WeekSegment } from './model/calendarTypes';
 import { cn } from '../../../utils/cn';
 
 export function CalendarMonthGrid({
-  grid, showWeekNumbers = false, wrapTitles = false, stretchRows = false,
+  grid, rowsRef, maxLanes = MAX_VISIBLE_LANES, showWeekNumbers = false, wrapTitles = false, stretchRows = false,
   segments, chipData, ghosts = [], overflow, draggingPageId,
   onOpen, onEditDates, onQuickCreate, onExpandDay,
   onChipPointerDown, onHandlePointerDown, onEmptyPointerDown, suppressClickRef,
 }: Readonly<{
   grid: CalendarGrid;
+  rowsRef?: React.Ref<HTMLDivElement>;
+  /** Event lanes each row shows before "+N more". */
+  maxLanes?: number;
   showWeekNumbers?: boolean;
   wrapTitles?: boolean;
-  /** Week mode: the single row grows to fill the pane. */
+  /** Rows grow to share the pane's height. */
   stretchRows?: boolean;
   segments: WeekSegment[];
   chipData: Map<string, ChipData>;
@@ -52,7 +56,7 @@ export function CalendarMonthGrid({
   return (
     <div data-cal-grid
       className={cn("flex-1 min-h-0 border border-line rounded-lg overflow-hidden flex flex-col")}>
-      <div className={cn("flex bg-surface-secondary border-b border-line shrink-0")}>
+      <div className={cn("flex border-b border-line shrink-0")}>
         {showWeekNumbers && (
           <div className={cn("shrink-0 border-r border-line")} style={{ width: WEEK_GUTTER_WIDTH }} />
         )}
@@ -60,17 +64,17 @@ export function CalendarMonthGrid({
           style={{ gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))` }}>
           {labels.map(label => (
             <div key={label}
-              className={cn("py-2 text-center text-xs font-medium text-ink-secondary border-r border-line last:border-r-0")}>
+              className={cn("py-1.5 text-center text-xs text-ink-muted")}>
               {label}
             </div>
           ))}
         </div>
       </div>
-      <div className={cn(`flex-1 min-h-0 overflow-y-auto flex flex-col
+      <div ref={rowsRef} className={cn(`flex-1 min-h-0 overflow-y-auto flex flex-col
         ${stretchRows ? '[&>*]:flex-1' : ''}`)}>
         {grid.weeks.map((days, weekIndex) => (
           <CalendarWeekRow key={days[0].key} days={days} cols={grid.cols}
-            weekNumber={grid.weekNumbers[weekIndex]} showWeekNumber={showWeekNumbers}
+            weekNumber={grid.weekNumbers[weekIndex]} showWeekNumber={showWeekNumbers} maxLanes={maxLanes}
             wrapTitles={wrapTitles}
             segments={segments.filter(s => s.weekIndex === weekIndex)}
             chipData={chipData}
