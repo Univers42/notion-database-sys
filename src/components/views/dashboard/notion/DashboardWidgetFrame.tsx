@@ -13,16 +13,19 @@
 // ─── DashboardWidgetFrame — one widget card: chrome + embedded view ─────────
 // The body is literally <DatabaseView viewId={...} compact /> — the widget IS
 // a database view (Notion model), scoped via DatabaseScopeProvider.
+// Reading mode drops the toolbar strip: a view gets a plain heading, a number
+// tile none (its label sits under the number); edit mode brings the strip back.
 
 import React, { useRef, useState } from 'react';
 import {
   MoreHorizontal, Settings2, Copy, Trash2, ArrowLeft, ArrowRight,
-  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2,
+  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2, Smile,
 } from 'lucide-react';
 import { DatabaseView } from '../../../DatabaseView';
 import { ViewSettingsPanel } from '../../../ViewSettingsPanel';
 import { DatabaseScopeProvider } from '../../../../hooks/useDatabaseScope';
 import { ErrorBoundary } from '../../../ErrorBoundary';
+import { IconPickerPopover } from '../../../ui/IconPickerPopover';
 import { useOutsideClick } from '../../../../hooks/useOutsideClick';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
@@ -41,6 +44,8 @@ export interface WidgetActions {
   onToggleHideTitle?: () => void;
   /** Swap between the embedded view and a Number/KPI tile (null → view). */
   onSetStat?: (stat: DashboardStatConfig | null) => void;
+  /** A Number tile's chip icon (null → the aggregate's default). */
+  onSetIcon?: (icon: string | null) => void;
   /** Pointer drag start from the grip handle (edit mode). */
   onDragStart?: (event: React.PointerEvent) => void;
 }
@@ -49,7 +54,7 @@ export interface WidgetActions {
 function WidgetCountBadge({ viewId }: Readonly<{ viewId: string }>) {
   const pages = useViewPages(viewId);
   return (
-    <span className={cn("text-[10px] text-ink-muted tabular-nums shrink-0")}>
+    <span className={cn("text-xs text-ink-muted tabular-nums shrink-0 opacity-0 transition-opacity group-hover/widget:opacity-100")}>
       {pages.length}
     </span>
   );
@@ -65,7 +70,9 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
   const [menuOpen, setMenuOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const [renaming, setRenaming] = useState<string | null>(null);
+  const [pickingIcon, setPickingIcon] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const configRef = useRef<HTMLDivElement>(null);
   useOutsideClick(menuRef, menuOpen, () => setMenuOpen(false));
   useOutsideClick(configRef, configOpen, () => setConfigOpen(false));
@@ -91,24 +98,27 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
     </button>
   );
 
-  const showHeader = editMode || !widget.hideTitle;
+  const title = widget.title ?? view.name;
+  const showHeader = editMode || (!widget.hideTitle && !widget.stat);
   return (
-    <div className={cn("odb-rise-in h-full min-w-0 flex flex-col rounded-xl border border-line bg-surface-primary overflow-hidden")}>
+    <div className={cn("group/widget odb-rise-in h-full min-w-0 flex flex-col rounded-xl border border-line bg-surface-primary overflow-hidden")}>
       {showHeader && (
-      <div className={cn("flex items-center gap-1.5 px-3 py-1.5 border-b border-line shrink-0")}>
+      <div className={cn(`flex items-center gap-1.5 shrink-0 ${editMode ? 'px-3 py-1.5 border-b border-line' : 'px-4 pt-3 pb-1'}`)}>
         {editMode && actions.onDragStart && (
           <button onPointerDown={actions.onDragStart} aria-label="Drag widget"
             className={cn("shrink-0 -ml-1 p-0.5 rounded text-ink-muted hover:bg-hover-surface cursor-grab touch-none")}>
             <GripVertical className={cn("w-3.5 h-3.5")} />
           </button>
         )}
-        <span className={cn("w-4 h-4 flex items-center justify-center text-ink-muted shrink-0")}>
-          {widget.stat ? <Hash className={cn("w-3.5 h-3.5")} /> : meta?.svgIcon}
-        </span>
+        {editMode && (
+          <span className={cn("w-4 h-4 flex items-center justify-center text-ink-muted shrink-0")}>
+            {widget.stat ? <Hash className={cn("w-3.5 h-3.5")} /> : meta?.svgIcon}
+          </span>
+        )}
         {renaming === null ? (
-          <span title={widget.title ?? view.name} data-dash-title
-            className={cn(`text-xs font-medium truncate ${widget.hideTitle ? 'text-ink-muted italic' : 'text-ink'}`)}>
-            {widget.title ?? view.name}
+          <span title={title} data-dash-title
+            className={cn(`truncate ${editMode ? 'text-xs font-medium' : 'text-sm font-semibold'} ${widget.hideTitle ? 'text-ink-muted italic' : 'text-ink'}`)}>
+            {title}
           </span>
         ) : (
           <input autoFocus value={renaming} onChange={e => setRenaming(e.target.value)}
@@ -120,17 +130,24 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
         {!editMode && !widget.stat && <span className={cn("ml-auto")}><WidgetCountBadge viewId={widget.viewId} /></span>}
         {editMode && (
           <div ref={menuRef} className={cn("relative ml-auto shrink-0")}>
-            <button onClick={() => setMenuOpen(o => !o)} aria-label="Widget actions"
+            <button ref={menuButtonRef} onClick={() => setMenuOpen(o => !o)} aria-label="Widget actions"
               className={cn("p-1 rounded-md hover:bg-hover-surface text-ink-muted")}>
               <MoreHorizontal className={cn("w-3.5 h-3.5")} />
             </button>
+            {pickingIcon && (
+              <IconPickerPopover anchorRef={menuButtonRef} align="right" value={widget.icon ?? null}
+                onSelect={name => { actions.onSetIcon?.(name); setPickingIcon(false); }}
+                onRemove={() => { actions.onSetIcon?.(null); setPickingIcon(false); }}
+                onClose={() => setPickingIcon(false)} />
+            )}
             {menuOpen && (
               <div className={cn("odb-pop-in absolute right-0 top-full mt-1 z-30 w-48 py-1 rounded-lg border border-line bg-surface-primary shadow-lg max-h-72 overflow-y-auto")}>
                 {menuItem(<Settings2 className={cn("w-3.5 h-3.5")} />, 'Configure view', () => setConfigOpen(true))}
-                {actions.onRename && menuItem(<Pencil className={cn("w-3.5 h-3.5")} />, 'Rename widget', () => setRenaming(widget.title ?? view.name))}
+                {actions.onRename && menuItem(<Pencil className={cn("w-3.5 h-3.5")} />, 'Rename widget', () => setRenaming(title))}
                 {actions.onToggleHideTitle && menuItem(
                   widget.hideTitle ? <Eye className={cn("w-3.5 h-3.5")} /> : <EyeOff className={cn("w-3.5 h-3.5")} />,
                   widget.hideTitle ? 'Show title' : 'Hide title', actions.onToggleHideTitle)}
+                {widget.stat && actions.onSetIcon && menuItem(<Smile className={cn("w-3.5 h-3.5")} />, 'Change icon', () => setPickingIcon(true))}
                 {actions.onSetStat && (
                   <>
                     <div className={cn("my-1 border-t border-line")} />
@@ -164,7 +181,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
       <div className={cn("relative flex-1 min-h-0 flex flex-col overflow-auto")}>
         <ErrorBoundary>
           {widget.stat
-            ? <StatKpi viewId={widget.viewId} stat={widget.stat} />
+            ? <StatKpi viewId={widget.viewId} stat={widget.stat} label={widget.hideTitle ? undefined : title} icon={widget.icon} />
             : <DatabaseView viewId={widget.viewId} compact />}
         </ErrorBoundary>
         {configOpen && (

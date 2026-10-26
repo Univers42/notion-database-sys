@@ -395,6 +395,8 @@ export interface DashboardViewWidget {
   hideTitle?: boolean;
   /** Present → render as a Number/KPI tile instead of the embedded view. */
   stat?: DashboardStatConfig;
+  /** Icon registry name for a Number tile's chip; absent → by aggregate. */
+  icon?: string;
   /** Own height in px. Absent → aligned to the row height (group-resizable). */
   height?: number;
 }

@@ -176,6 +176,7 @@ export default function DashboardNotionView() {
       patchWidget(widgetId, { hideTitle: !widget?.hideTitle });
     },
     onSetStat: (stat: DashboardStatConfig | null) => patchWidget(widgetId, { stat: stat ?? undefined }),
+    onSetIcon: (icon: string | null) => patchWidget(widgetId, { icon: icon ?? undefined }),
     onDragStart: (event: React.PointerEvent) => startDrag(widgetId, event),
   });
 
