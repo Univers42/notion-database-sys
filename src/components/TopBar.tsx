@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/10 00:36:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ import { ViewTabsRow } from './topBar/ViewTabsRow';
 import { FilterSortPanels } from './topBar/FilterSortPanels';
 import { TopBarActions } from './topBar/TopBarActions';
 import { InlineTitle } from './topBar/InlineTitle';
+import { ViewSettingsPopover } from './topBar/ViewSettingsPopover';
 import { orderedDatabaseViews } from '../lib/viewOrder';
 import { cn } from '../utils/cn';
 
@@ -77,6 +78,7 @@ export function TopBar({
   const titleRef = useRef<HTMLInputElement>(null);
   const topBarRef = useRef<HTMLDivElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
+  const settingsBtnRef = useRef<HTMLButtonElement>(null);
 
   const dbViews = database ? orderedDatabaseViews(views, database.id, database.viewOrder) : [];
   const rowCount = useDatabaseStore(s =>
@@ -195,7 +197,7 @@ export function TopBar({
           <TopBarActions
             variant={variant}
             onOpenFullPage={openOrigin}
-            filterBtnRef={filterBtnRef} filters={filters} sorts={sorts}
+            filterBtnRef={filterBtnRef} settingsBtnRef={settingsBtnRef} filters={filters} sorts={sorts}
             showFilterPropertyPicker={showFilterPropertyPicker} setShowFilterPropertyPicker={setShowFilterPropertyPicker}
             showFilterPanel={showFilterPanel} setShowFilterPanel={setShowFilterPanel}
             setShowAdvancedFilter={setShowAdvancedFilter}
@@ -243,12 +245,9 @@ export function TopBar({
       </div>
 
       {showViewSettings && (
-        <div className={cn("fixed inset-0 z-50 flex justify-end")}>
-          <button type="button" className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")} onClick={() => setShowViewSettings(false)} tabIndex={-1} aria-label="Close" />
-          <dialog open className={cn("relative z-[60] w-80 bg-surface-primary border-l border-line shadow-xl h-full overflow-auto")} onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>{/* NOSONAR */}
-            <ViewSettingsPanel key={settingsScreen ?? 'main'} initialScreen={settingsScreen} onClose={() => setShowViewSettings(false)} />
-          </dialog>
-        </div>
+        <ViewSettingsPopover anchorRef={settingsBtnRef} onClose={() => setShowViewSettings(false)}>
+          <ViewSettingsPanel key={settingsScreen ?? 'main'} initialScreen={settingsScreen} onClose={() => setShowViewSettings(false)} />
+        </ViewSettingsPopover>
       )}
 
     </>

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/07 00:51:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ export interface TopBarActionsProps {
   /** Navigate to the database's origin surface ("Open as full page"). */
   onOpenFullPage?: () => void;
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
+  /** The popover with the view settings pins itself to this button. */
+  settingsBtnRef: React.RefObject<HTMLButtonElement | null>;
   filters: FilterType[];
   sorts: Sort[];
   showFilterPropertyPicker: boolean;
@@ -67,7 +69,7 @@ export interface TopBarActionsProps {
 export function TopBarActions({
   variant = 'full',
   onOpenFullPage,
-  filterBtnRef, filters, sorts,
+  filterBtnRef, settingsBtnRef, filters, sorts,
   showFilterPropertyPicker, setShowFilterPropertyPicker,
   showFilterPanel, setShowFilterPanel, setShowAdvancedFilter,
   showSortPanel, setShowSortPanel,
@@ -136,7 +138,8 @@ export function TopBarActions({
         className={cn(`p-2 rounded-lg transition-colors ${!onOpenFullPage && isFullSize ? 'bg-surface-tertiary text-ink-body' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
         <Maximize2 className={cn("w-4 h-4")} />
       </button>
-      <button onClick={() => setShowViewSettings(!showViewSettings)} aria-label="View settings"
+      <button ref={settingsBtnRef} onClick={() => setShowViewSettings(!showViewSettings)} aria-label="View settings"
+        aria-haspopup="dialog" aria-expanded={showViewSettings}
         className={cn(`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${showViewSettings ? 'bg-surface-tertiary' : ''}`)}>
         <Settings2 className={cn("w-4 h-4")} />
       </button>

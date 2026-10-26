@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/03 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 13:16:02 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,4 +83,30 @@ export function positionBelowAnchor(
   gap = 4,
 ): { top: number; left: number } {
   return clampPanelPosition(anchorRect.bottom + gap, anchorRect.left, 400, panelWidth);
+}
+
+/** Where a popover anchored to a button sits: right edges aligned, below the
+ *  button, or above it when below is both cramped and smaller. `maxHeight` is
+ *  the room on the chosen side so the panel scrolls inside instead of leaving
+ *  the viewport. Exactly one of `top`/`bottom` is set. */
+export type AnchoredFrame = { left: number; top?: number; bottom?: number; maxHeight: number };
+
+const ANCHOR_GAP = 6;
+const VIEWPORT_MARGIN = 8;
+const COMFORT_HEIGHT = 360;
+
+export function anchoredPanelFrame(
+  anchor: Pick<DOMRect, 'top' | 'bottom' | 'right'>,
+  panelWidth: number,
+  viewport: { width: number; height: number },
+): AnchoredFrame {
+  const maxLeft = viewport.width - panelWidth - VIEWPORT_MARGIN;
+  const left = Math.max(VIEWPORT_MARGIN, Math.min(anchor.right - panelWidth, maxLeft));
+  // A button scrolled past an edge pins the panel to that edge instead.
+  const top = Math.max(VIEWPORT_MARGIN, anchor.bottom + ANCHOR_GAP);
+  const bottom = Math.max(VIEWPORT_MARGIN, viewport.height - anchor.top + ANCHOR_GAP);
+  const below = viewport.height - top - VIEWPORT_MARGIN;
+  const above = viewport.height - bottom - VIEWPORT_MARGIN;
+  if (below >= COMFORT_HEIGHT || below >= above) return { left, top, maxHeight: Math.max(0, below) };
+  return { left, bottom, maxHeight: Math.max(0, above) };
 }
