@@ -11,28 +11,16 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { Hash, TrendingUp, Activity, ArrowDownToLine, ArrowUpToLine, CheckCircle, Shapes } from 'lucide-react';
 import type { DashboardWidget, SchemaProperty } from '../../../../types/database';
 import { formatNumber } from '../constants';
-import { StatIconBadge } from '../StatComponents';
-import { resolveStatValue, statKind, type ComputedData, type StatKind } from '../dashboardAggregates';
+import { StatIconBadge, STAT_LOOK } from '../StatComponents';
+import { resolveStatValue, statKind, type ComputedData } from '../dashboardAggregates';
 import { cn } from '../../../../utils/cn';
 
 export type { ComputedData } from '../dashboardAggregates';
 
 /** Single chart data item with count, color class, and label. */
 export type ChartItem = { count: number; color: string; label: string };
-
-// By what the tile measures, so moving a tile keeps its icon.
-const STAT_LOOK: Record<StatKind, { icon: React.ReactNode; color: 'blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan' }> = {
-  count: { icon: <Hash className={cn("w-5 h-5")} />, color: 'blue' },
-  checked: { icon: <CheckCircle className={cn("w-5 h-5")} />, color: 'green' },
-  sum: { icon: <TrendingUp className={cn("w-5 h-5")} />, color: 'amber' },
-  average: { icon: <Activity className={cn("w-5 h-5")} />, color: 'purple' },
-  min: { icon: <ArrowDownToLine className={cn("w-5 h-5")} />, color: 'cyan' },
-  max: { icon: <ArrowUpToLine className={cn("w-5 h-5")} />, color: 'pink' },
-  distinct: { icon: <Shapes className={cn("w-5 h-5")} />, color: 'cyan' },
-};
 
 /** Renders a stat widget card with icon, value, title, and optional subtext. */
 export function renderStatWidget(widget: DashboardWidget, prop: SchemaProperty | null, data: ComputedData, total: number) {

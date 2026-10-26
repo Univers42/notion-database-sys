@@ -11,10 +11,26 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { BarChart3 } from 'lucide-react';
+import {
+  BarChart3, Hash, TrendingUp, Activity, ArrowDownToLine, ArrowUpToLine, CheckCircle, Shapes,
+} from 'lucide-react';
+import type { StatKind } from './dashboardAggregates';
 import { formatNumber } from '../../../utils/format';
 import { STAT_BG as COLOR_MAP } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
+
+type StatColor = 'blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan';
+
+// By what the tile measures, so moving a tile keeps its icon.
+export const STAT_LOOK: Record<StatKind, { icon: React.ReactNode; color: StatColor }> = {
+  count: { icon: <Hash className={cn("w-5 h-5")} />, color: 'blue' },
+  checked: { icon: <CheckCircle className={cn("w-5 h-5")} />, color: 'green' },
+  sum: { icon: <TrendingUp className={cn("w-5 h-5")} />, color: 'amber' },
+  average: { icon: <Activity className={cn("w-5 h-5")} />, color: 'purple' },
+  min: { icon: <ArrowDownToLine className={cn("w-5 h-5")} />, color: 'cyan' },
+  max: { icon: <ArrowUpToLine className={cn("w-5 h-5")} />, color: 'pink' },
+  distinct: { icon: <Shapes className={cn("w-5 h-5")} />, color: 'cyan' },
+};
 
 /** Renders a colored icon badge for stat cards. */
 export function StatIconBadge({ color, children }: Readonly<{ color: string; children: React.ReactNode }>) {
@@ -24,7 +40,7 @@ export function StatIconBadge({ color, children }: Readonly<{ color: string; chi
 /** Renders a stat card with icon, value, label, and optional subtext. */
 export function StatCard({ icon, label, value, subtext, color }: Readonly<{
   icon: React.ReactNode; label: string; value: number; subtext?: string;
-  color: 'blue' | 'purple' | 'green' | 'amber' | 'pink' | 'cyan';
+  color: StatColor;
 }>) {
   return (
     <div className={cn("bg-surface-primary rounded-xl border border-line p-4 flex items-start gap-3")}>
