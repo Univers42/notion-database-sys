@@ -110,10 +110,13 @@ export function DatabaseView({ viewId, compact = false }: Readonly<DatabaseViewP
     return body;
   };
 
-  // Inline/compact embeds flow with the page (no fixed height) — the absolute
-  // slide slots need a definite height, so those switch instantly.
+  // Inline/compact embeds flow with the page, so their stage sizes to content.
   if (compact) {
-    return <div className={cn('database-view-compact')}>{renderPane(resolvedViewId ?? '')}</div>;
+    return (
+      <div className={cn('database-view-compact')}>
+        <ViewSlideStage viewId={resolvedViewId ?? ''} orderIndex={orderIndex} renderPane={renderPane} flow />
+      </div>
+    );
   }
 
   return <ViewSlideStage viewId={resolvedViewId ?? ''} orderIndex={orderIndex} renderPane={renderPane} />;
