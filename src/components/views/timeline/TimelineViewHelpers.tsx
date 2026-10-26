@@ -25,7 +25,7 @@ export type {
   BarGeometry,
   MonthGroup,
   BarColorSet,
-  BarVerbosity,
+  BarLabel,
 } from './timelineHelperTypes';
 
 export { getTimelineConfig, getMonthGroups, findDateProperties, resolveTimelineProps } from './timelineConfig';
@@ -33,9 +33,10 @@ export { getBarGeometry } from './timelineBarGeometry';
 export {
   getBarColorSet,
   getBarColor,
-  computeBarVerbosity,
+  computeBarLabel,
   compactDateRange,
   getDayHeaderBg,
   getGridCellBg,
+  getDayRuleClass,
   clampDuration,
 } from './timelineBarStyles';

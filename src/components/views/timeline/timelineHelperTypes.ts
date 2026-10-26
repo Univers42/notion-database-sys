@@ -48,4 +48,4 @@ export interface BarColorSet {
   hex: string;
 }
 
-export type BarVerbosity = 'color-only' | 'status' | 'status+dates' | 'full';
+export type BarLabel = 'outside' | 'title' | 'title+dates';

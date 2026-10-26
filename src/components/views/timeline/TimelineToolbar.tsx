@@ -33,7 +33,7 @@ export function TimelineToolbar({
   onOffsetChange, onResetOffset, onZoom, children,
 }: TimelineToolbarProps) {
   return (
-    <div className={cn("flex items-center justify-between px-4 py-2 border-b border-line bg-surface-secondary shrink-0")}>
+    <div className={cn("flex items-center justify-between px-4 py-2 border-b border-line-light bg-surface-primary shrink-0")}>
       <div className={cn("flex items-center gap-2")}>
         <button
           onClick={() => onOffsetChange(-navStep)}
@@ -55,7 +55,7 @@ export function TimelineToolbar({
         >
           <ChevronRight className={cn("w-4 h-4")} />
         </button>
-        <span className={cn("text-xs font-medium text-ink-secondary ml-2")}>
+        <span className={cn("text-sm font-medium text-ink ml-2")}>
           {format(startDate, 'MMM d')} – {format(endDate, 'MMM d, yyyy')}
         </span>
       </div>
