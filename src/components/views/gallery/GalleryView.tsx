@@ -128,19 +128,20 @@ export function GalleryView() {
 
           const accent = colorForPage(page, settings.conditionalColors, database.properties, getCellValue)?.accent ?? null;
           return (
-            <button type="button" key={page.id} onClick={() => openPage(page.id)}
+            <div key={page.id}
               style={{
                 cursor: CURSORS.pointer,
                 ...(accent ? { boxShadow: `inset 0 3px 0 0 ${accent}` } : {}),
                 ...(isCarousel ? { width: carouselWidth, scrollSnapAlign: "start" } : {}),
               }}
-              className={cn("group/card border border-line-light rounded-lg overflow-hidden hover:shadow-sm hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-[box-shadow,border-color] bg-surface-primary text-left", isCarousel ? "shrink-0" : "w-full")}>
+              className={cn("relative group/card border border-line-light rounded-lg overflow-hidden hover:shadow-sm hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] bg-surface-primary text-left", isCarousel ? "shrink-0" : "w-full")}>
               {/* Cover / Preview */}
               {renderCover(page, idx)}
 
               <CardBody page={page} title={title} icon={showPageIcon ? page.icon : undefined} props={nonTitleProps}
-                databaseId={database.id} wrap={wrapContent} className="p-3" titleClass="text-sm" />
-            </button>
+                databaseId={database.id} wrap={wrapContent} className="p-3" titleClass="text-sm"
+                onOpen={() => openPage(page.id)} />
+            </div>
           );
   };
 
