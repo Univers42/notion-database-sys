@@ -19,12 +19,10 @@ import { CardAddProperty } from './CardAddProperty';
 import { CardCell, isCardEditable } from './CardCell';
 import { CardPropertyValue, hasCardValue } from './CardPropertyValue';
 
-/** Values that read on their own (a coloured chip, a person) flow in one row;
- *  everything else needs its property name beside it to mean anything. */
-const CHIP_TYPES = new Set(['select', 'status', 'multi_select', 'user', 'person', 'assigned_to', 'created_by', 'last_edited_by']);
-
-/** Board and gallery card body: an ID kicker, the title (two lines, not an
- *  ellipsis), then chips and labeled values, each editable in place.
+/** Board and gallery card body, Notion's layout: an ID kicker, the title (two
+ *  lines, not an ellipsis), then one line per visible value in the view's
+ *  property order, unlabeled (the name is the value's tooltip), each editable
+ *  in place.
  *
  *  The title button's ::after stretches over the whole card (the parent is
  *  `relative` and carries `group/card`), so a click anywhere opens the page
@@ -57,8 +55,7 @@ export function CardBody({ page, title, icon, props, databaseId, wrap, className
   const shown = props.filter(p => p.id === editingPropId || hasCardValue(p, page.properties[p.id]));
   const emptyProps = props.filter(p => !shown.includes(p) && isCardEditable(p));
   const idProps = shown.filter(p => p.type === 'id');
-  const chipProps = shown.filter(p => CHIP_TYPES.has(p.type));
-  const valueProps = shown.filter(p => p.type !== 'id' && !CHIP_TYPES.has(p.type));
+  const valueProps = shown.filter(p => p.type !== 'id');
   const cell = (prop: SchemaProperty, cellClass = '') => (
     <CardCell key={prop.id} prop={prop} page={page} databaseId={databaseId} wrap={wrap}
       editing={editingPropId === prop.id} onEdit={edit} cardRef={cardRef} className={cellClass}>
@@ -70,14 +67,14 @@ export function CardBody({ page, title, icon, props, databaseId, wrap, className
   const editingTitle = Boolean(titleProp) && editingPropId === titleProp?.id;
 
   return (
-    <div ref={cardRef} tabIndex={-1} className={cn(`flex flex-col gap-2 min-w-0 outline-none ${className}`)}>
+    <div ref={cardRef} tabIndex={-1} className={cn(`flex flex-col gap-1.5 min-w-0 outline-none ${className}`)}>
       <div className={cn('flex flex-col gap-0.5 min-w-0')}>
         {idProps.length > 0 && (
           <div className={cn('flex items-center gap-2 min-w-0')} data-testid="card-id">
             {idProps.map(prop => cell(prop))}
           </div>
         )}
-        <div className={cn(`flex items-start gap-1 min-w-0 font-semibold ${titleClass} text-ink leading-snug`)}>
+        <div className={cn(`flex items-start gap-1 min-w-0 font-medium ${titleClass} text-ink leading-normal`)}>
           {editingTitle && titleProp ? cell(titleProp, 'flex-1') : (
             <button type="button" onClick={onOpen}
               className={cn(`flex-1 min-w-0 text-left outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-2 focus-visible:after:ring-ring-accent-muted ${wrap ? 'break-words' : 'line-clamp-2'}`)}>
@@ -93,19 +90,9 @@ export function CardBody({ page, title, icon, props, databaseId, wrap, className
           )}
         </div>
       </div>
-      {(chipProps.length > 0 || valueProps.length > 0) && (
-        <div className={cn('flex flex-col gap-1.5 min-w-0')} data-testid="card-props">
-          {chipProps.length > 0 && (
-            <div className={cn('flex flex-wrap items-center gap-1 min-w-0')}>
-              {chipProps.map(prop => cell(prop))}
-            </div>
-          )}
-          {valueProps.map(prop => (
-            <div key={prop.id} className={cn('flex items-baseline gap-2 min-w-0')}>
-              <span className={cn('w-[38%] shrink-0 truncate text-[11px] text-ink-muted')}>{prop.name}</span>
-              {cell(prop, 'flex-1')}
-            </div>
-          ))}
+      {valueProps.length > 0 && (
+        <div className={cn('flex flex-col items-start gap-1 min-w-0')} data-testid="card-props">
+          {valueProps.map(prop => cell(prop, 'max-w-full'))}
         </div>
       )}
       <CardAddProperty emptyProps={emptyProps} databaseId={databaseId} onEdit={edit} />

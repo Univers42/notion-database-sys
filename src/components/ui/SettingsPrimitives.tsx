@@ -73,7 +73,7 @@ export function SettingsSectionLabel({ children, className }: Readonly<{ childre
   return (
     <div className={cn('relative pt-[6px] mt-1', className)}>
       <div className={cn("absolute top-0 left-4 right-4 h-px bg-surface-muted-soft2")} />
-      <div className={cn("flex px-2 mt-1.5 mb-2 text-xs font-medium leading-[1.2] text-ink-secondary select-none pt-1")}>
+      <div className={cn("flex px-4 mt-1.5 mb-1 text-xs font-medium leading-[1.2] text-ink-secondary select-none pt-1")}>
         <span className={cn("truncate")}>{children}</span>
       </div>
     </div>

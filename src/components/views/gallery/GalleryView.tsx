@@ -134,7 +134,7 @@ export function GalleryView() {
                 ...(accent ? { boxShadow: `inset 0 3px 0 0 ${accent}` } : {}),
                 ...(isCarousel ? { width: carouselWidth, scrollSnapAlign: "start" } : {}),
               }}
-              className={cn("relative group/card border border-line-light rounded-lg overflow-hidden hover:shadow-sm hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] bg-surface-primary text-left", isCarousel ? "shrink-0" : "w-full")}>
+              className={cn("relative group/card border border-line-light rounded-[10px] shadow-sm overflow-hidden hover:shadow-md hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] bg-surface-primary text-left", isCarousel ? "shrink-0" : "w-full")}>
               {/* Cover / Preview */}
               {renderCover(page, idx)}
 
@@ -159,7 +159,7 @@ export function GalleryView() {
           onClick={groupValue === undefined
             ? createRecord
             : () => { if (view.grouping) addPage(database.id, { [view.grouping.propertyId]: groupValue }); }}
-          className={cn("self-start h-10 border-2 border-dashed border-line rounded-xl flex items-center justify-center hover:border-hover-border-strong hover:bg-hover-surface transition-all duration-200", isCarousel ? "shrink-0" : "w-full")}
+          className={cn("min-h-24 border border-line-light rounded-[10px] flex items-center justify-center hover:bg-hover-surface transition-colors", isCarousel ? "shrink-0" : "w-full")}
           style={{ cursor: CURSORS.pointer, ...(isCarousel ? { width: carouselWidth } : {}) }}>
           <div className={cn("flex items-center gap-1.5 text-ink-muted")}>
             <Plus className={cn("w-4 h-4")} />

@@ -31,7 +31,7 @@ function OptionChip({ prop, id }: Readonly<{ prop: SchemaProperty; id: PropertyV
   // Unknown option id (live-mounted data): still show it, neutral chip.
   const label = opt ? opt.value : safeString(id);
   const color = opt?.color ?? 'bg-surface-tertiary text-ink-secondary';
-  return <span className={cn(`inline-block max-w-full truncate px-1.5 py-0.5 rounded text-xs font-medium ${color}`)}>{label}</span>;
+  return <span className={cn(`inline-block max-w-full truncate px-1.5 rounded-[3px] text-xs leading-[18px] ${color}`)}>{label}</span>;
 }
 
 function PersonBadge({ val }: Readonly<{ val: PropertyValue }>) {
@@ -54,7 +54,7 @@ function ComputedValue({ prop, page, databaseId }: Readonly<{ prop: SchemaProper
     : resolveRollup(databaseId, page, prop.id);
   const text = safeString(out);
   if (!text) return null;
-  return <span className={cn('text-xs text-ink-secondary tabular-nums truncate')}>{text}</span>;
+  return <span className={cn('text-xs text-ink-body tabular-nums truncate')}>{text}</span>;
 }
 
 interface CardPropertyValueProps {
@@ -86,7 +86,7 @@ export function CardPropertyValue({ prop, val, page, databaseId, wrap }: Readonl
     }
     case 'date':
     case 'due_date':
-      return <span className={cn('text-xs text-ink-secondary')}>{safeDateFormat(val, 'MMM d, yyyy') ?? safeString(val)}</span>;
+      return <span className={cn('text-xs text-ink-body')}>{safeDateFormat(val, 'MMM d, yyyy') ?? safeString(val)}</span>;
     case 'created_time':
     case 'last_edited_time':
       return <span className={cn('text-xs text-ink-muted')}>{safeDateFormat(val, 'MMM d, yyyy') ?? safeString(val)}</span>;
@@ -102,19 +102,19 @@ export function CardPropertyValue({ prop, val, page, databaseId, wrap }: Readonl
           <span className={cn(`w-3.5 h-3.5 rounded border shrink-0 ${val ? 'bg-accent border-accent-border' : 'border-line-medium'} flex items-center justify-center`)}>
             {val ? <span className={cn('text-ink-inverse text-[8px]')}>✓</span> : null}
           </span>
-          <span className={cn('text-xs text-ink-secondary')}>{prop.name}</span>
+          <span className={cn('text-xs text-ink-body')}>{prop.name}</span>
         </span>
       );
     case 'number': {
       const n = Number(val);
-      return <span className={cn('text-xs text-ink-secondary tabular-nums')}>{Number.isFinite(n) ? n.toLocaleString() : safeString(val)}</span>;
+      return <span className={cn('text-xs text-ink-body tabular-nums')}>{Number.isFinite(n) ? n.toLocaleString() : safeString(val)}</span>;
     }
     case 'url':
       return <span className={cn(`text-xs text-accent-text-soft underline decoration-line-medium underline-offset-2 ${textCls} min-w-0`)}>{safeString(val)}</span>;
     case 'files_media': {
       const count = Array.isArray(val) ? val.length : 1;
       return (
-        <span className={cn('inline-flex items-center gap-1 text-xs text-ink-secondary')}>
+        <span className={cn('inline-flex items-center gap-1 text-xs text-ink-body')}>
           <Paperclip className={cn('w-3 h-3 shrink-0 text-ink-muted')} />
           {count} {count === 1 ? 'file' : 'files'}
         </span>
@@ -122,7 +122,7 @@ export function CardPropertyValue({ prop, val, page, databaseId, wrap }: Readonl
     }
     case 'relation': {
       const count = Array.isArray(val) ? val.length : 1;
-      return <span className={cn('text-xs text-ink-secondary')}>{count} linked</span>;
+      return <span className={cn('text-xs text-ink-body')}>{count} linked</span>;
     }
     case 'formula':
     case 'rollup':
@@ -131,6 +131,6 @@ export function CardPropertyValue({ prop, val, page, databaseId, wrap }: Readonl
       return <span className={cn('text-xs font-mono text-ink-muted truncate')}>{safeString(val)}</span>;
     // text, email, phone, place, button and anything future: plain safe text.
     default:
-      return <span className={cn(`text-xs text-ink-secondary ${textCls} min-w-0`)}>{safeString(val)}</span>;
+      return <span className={cn(`text-xs text-ink-body ${textCls} min-w-0`)}>{safeString(val)}</span>;
   }
 }

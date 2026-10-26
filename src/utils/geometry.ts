@@ -85,8 +85,9 @@ export function positionBelowAnchor(
   return clampPanelPosition(anchorRect.bottom + gap, anchorRect.left, 400, panelWidth);
 }
 
-/** Where a popover anchored to a button sits: right edges aligned, below the
- *  button, or above it when below is both cramped and smaller. `maxHeight` is
+/** Where a popover anchored to a button sits: right edges aligned (or, with
+ *  `align: 'start'`, left edges aligned unless that would overflow the right
+ *  edge), below the button, or above it when below is both cramped and smaller. `maxHeight` is
  *  the room on the chosen side so the panel scrolls inside instead of leaving
  *  the viewport. Exactly one of `top`/`bottom` is set. */
 export type AnchoredFrame = { left: number; top?: number; bottom?: number; maxHeight: number };
@@ -96,12 +97,15 @@ const VIEWPORT_MARGIN = 8;
 const COMFORT_HEIGHT = 360;
 
 export function anchoredPanelFrame(
-  anchor: Pick<DOMRect, 'top' | 'bottom' | 'right'>,
+  anchor: Pick<DOMRect, 'top' | 'bottom' | 'right'> & { left?: number },
   panelWidth: number,
   viewport: { width: number; height: number },
+  align: 'start' | 'end' = 'end',
 ): AnchoredFrame {
   const maxLeft = viewport.width - panelWidth - VIEWPORT_MARGIN;
-  const left = Math.max(VIEWPORT_MARGIN, Math.min(anchor.right - panelWidth, maxLeft));
+  const startFits = align === 'start' && anchor.left !== undefined && anchor.left <= maxLeft;
+  const preferred = startFits ? (anchor.left as number) : anchor.right - panelWidth;
+  const left = Math.max(VIEWPORT_MARGIN, Math.min(preferred, maxLeft));
   // A button scrolled past an edge pins the panel to that edge instead.
   const top = Math.max(VIEWPORT_MARGIN, anchor.bottom + ANCHOR_GAP);
   const bottom = Math.max(VIEWPORT_MARGIN, viewport.height - anchor.top + ANCHOR_GAP);
