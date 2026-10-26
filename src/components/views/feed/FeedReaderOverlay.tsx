@@ -18,6 +18,7 @@
  */
 
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Clock, FileText, ExternalLink } from 'lucide-react';
 
 import { cn } from '../../../utils/cn';
@@ -48,7 +49,10 @@ export function FeedReaderOverlay({ article, onClose, onOpenFull }: Readonly<{
 
   const isImage = Boolean(article.cover) && !String(article.cover).startsWith('linear-gradient');
 
-  return (
+  // On <body>: inside the database, the host pane (`contain: paint`) or a
+  // layout cell (`transform`) became this fixed overlay's containing block, so
+  // it dimmed only that box and left the rest of the window clickable.
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -95,6 +99,7 @@ export function FeedReaderOverlay({ article, onClose, onOpenFull }: Readonly<{
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

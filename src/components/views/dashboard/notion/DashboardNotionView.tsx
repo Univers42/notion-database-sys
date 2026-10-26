@@ -15,6 +15,7 @@
 // arranges, View mode reads; global filters flow to widgets via context.
 
 import React, { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Pencil, Check, ListFilter } from 'lucide-react';
 import { useWidgetDrag } from './useWidgetDrag';
 import { useDatabaseStore, useStoreApi } from '../../../../store/dbms/hardcoded/useDatabaseStore';
@@ -232,9 +233,14 @@ export default function DashboardNotionView() {
 
       <DashboardFiltersProvider value={filters}>
         <div ref={containerRef} className={cn("flex-1 overflow-auto p-4 @container")}>
-          <div ref={indicatorRef} aria-hidden="true" data-dash-drop-indicator
-            className={cn("pointer-events-none fixed z-40 rounded bg-accent")}
-            style={{ display: 'none' }} />
+          {/* On <body>: it is placed with window coordinates, which a host pane
+              (`contain: paint`) or layout cell (`transform`) would offset. */}
+          {createPortal(
+            <div ref={indicatorRef} aria-hidden="true" data-dash-drop-indicator
+              className={cn("pointer-events-none fixed z-40 rounded bg-accent")}
+              style={{ display: 'none' }} />,
+            document.body,
+          )}
           {layout.rows.length === 0 && (
             <div className={cn("h-64 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line text-ink-muted")}>
               <p className={cn("text-sm font-medium")}>Build your dashboard</p>
