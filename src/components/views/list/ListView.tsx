@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:41 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/08 04:43:11 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 18:40:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,63 +14,15 @@ import React from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import { FileText, MoreHorizontal, Plus } from 'lucide-react';
-import type { Page, SchemaProperty } from '../../../types/database';
-import { safeDateFormat } from '../../../utils/format';
+import { FileText, Plus } from 'lucide-react';
+import type { Page } from '../../../types/database';
 import { cn } from '../../../utils/cn';
-import { safeString } from '../../../utils/safeString';
 import { useViewPages } from '../../../hooks/useViewPages';
 import { useViewPager, resolvePageSize } from '../../../hooks/useViewPager';
 import { ViewPaginationBar } from '../shared/ViewPaginationBar';
 import { useStackedGroups } from '../../../hooks/useViewGrouping';
 import { GroupSectionHeader } from '../shared/GroupSectionHeader';
-
-/** Renders a compact property tag for the list view row. */
-function renderListPropertyTag(prop: SchemaProperty, val: unknown): React.ReactNode {
-  if (val === undefined || val === null || val === '') return null;
-
-  if (prop.type === 'select' || prop.type === 'status') {
-    const opt = prop.options?.find(o => o.id === val);
-    return opt ? (
-      <span key={prop.id} className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
-    ) : null;
-  }
-  if (prop.type === 'multi_select') {
-    const ids: string[] = Array.isArray(val) ? val : [];
-    return (
-      <div key={prop.id} className={cn("flex gap-1")}>
-        {ids.slice(0, 2).map(id => {
-          const opt = prop.options?.find(o => o.id === id);
-          return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
-        })}
-        {ids.length > 2 && <span className={cn("text-xs text-ink-muted")}>+{ids.length - 2}</span>}
-      </div>
-    );
-  }
-  if (prop.type === 'date') {
-    return <span key={prop.id} className={cn("text-xs text-ink-secondary")}>{safeDateFormat(val, 'MMM d') ?? ''}</span>;
-  }
-  if (prop.type === 'user' || prop.type === 'person') {
-    return (
-      <div key={prop.id} className={cn("flex items-center gap-1")}>
-        <div className={cn("w-5 h-5 rounded-full bg-gradient-to-br from-gradient-accent-from to-gradient-accent-to text-ink-inverse flex items-center justify-center text-[10px] font-bold")}>
-          {safeString(val).charAt(0).toUpperCase()}
-        </div>
-      </div>
-    );
-  }
-  if (prop.type === 'checkbox') {
-    return (
-      <div key={prop.id} className={cn(`w-4 h-4 rounded border-2 flex items-center justify-center ${val ? 'bg-accent border-accent-border' : 'border-line-medium'}`)}>
-        {val && <span className={cn("text-ink-inverse text-[10px]")}>✓</span>}
-      </div>
-    );
-  }
-  if (prop.type === 'number') {
-    return <span key={prop.id} className={cn("text-xs text-ink-secondary tabular-nums")}>{Number(val).toLocaleString()}</span>;
-  }
-  return null;
-}
+import { CardPropertyValue, hasCardValue } from '../shared/CardPropertyValue';
 
 /** Renders a list view of database pages with optional grouping and inline property tags. */
 export function ListView() {
@@ -100,54 +52,45 @@ export function ListView() {
   const pageSize = resolvePageSize(settings.loadLimit);
   const hasGrouping = !!groups;
 
+  const listedProps = view.visibleProperties
+    .map(id => database.properties[id])
+    .filter(prop => prop && prop.id !== database.titlePropertyId);
+
+  // Notion's row: icon and title on the left, the page's set properties
+  // right-aligned in one line; the whole row opens the page.
   const renderPageRow = (page: Page) => {
     const title = getPageTitle(page);
-    const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
-    const openThisPage = () => openPage(page.id);
-
     return (
-      <div
+      <button
         key={page.id}
-        className={cn("flex items-center justify-between rounded-lg hover:bg-hover-surface group transition-colors text-left w-full")}
+        type="button"
+        onClick={() => openPage(page.id)}
+        className={cn("flex items-center gap-3 h-[34px] px-2 w-full rounded text-left text-sm hover:bg-hover-surface transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring-accent-muted")}
       >
-        <button
-          type="button"
-          onClick={openThisPage}
-          className={cn("flex min-w-0 flex-1 items-center justify-between py-2 pl-3 pr-2 text-left focus:outline-none focus:ring-2 focus:ring-accent/30")}
-        >
-          <span className={cn("flex items-center gap-2.5 overflow-hidden min-w-0")}>
-            {showPageIcon && (
-              page.icon
-                ? <span className={cn("text-base shrink-0")}>{page.icon}</span>
-                : <FileText className={cn("w-4 h-4 text-ink-muted shrink-0")} />
-            )}
-            <span className={cn("font-medium text-ink truncate")}>{title || <span className={cn("text-ink-muted")}>Untitled</span>}</span>
-          </span>
-
-          <span className={cn("flex items-center gap-3 shrink-0 ml-4")}>
-            {visibleProps.filter(p => p.id !== database.titlePropertyId).map(prop =>
-              renderListPropertyTag(prop, page.properties[prop.id])
-            )}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          className={cn("mr-2 p-1 text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity rounded hover:bg-hover-surface2")}
-          onClick={(event) => event.stopPropagation()}
-          aria-label={`Open actions for ${title || 'Untitled'}`}
-        >
-          <MoreHorizontal className={cn("w-4 h-4")} />
-        </button>
-      </div>
+        {showPageIcon && (
+          page.icon
+            ? <span className={cn("w-5 text-center text-base leading-none shrink-0")}>{page.icon}</span>
+            : <FileText className={cn("w-4 h-4 text-ink-muted shrink-0")} />
+        )}
+        <span className={cn("flex-1 min-w-0 truncate font-medium text-ink")}>
+          {title || <span className={cn("text-ink-muted")}>Untitled</span>}
+        </span>
+        <span className={cn("flex items-center justify-end gap-3 min-w-0 max-w-[60%] overflow-hidden")}>
+          {listedProps.filter(prop => hasCardValue(prop, page.properties[prop.id])).map(prop => (
+            <span key={prop.id} className={cn("flex min-w-0 max-w-40 shrink-0")}>
+              <CardPropertyValue prop={prop} val={page.properties[prop.id]} page={page} databaseId={database.id} wrap={false} />
+            </span>
+          ))}
+        </span>
+      </button>
     );
   };
 
   // Grouped rendering
   if (hasGrouping && groups) {
     return (
-      <div className={cn("flex-1 overflow-auto p-4 bg-surface-primary")}>
-        <div className={cn("max-w-4xl mx-auto flex flex-col gap-4")}>
+      <div className={cn("flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
+        <div className={cn("flex flex-col gap-4")}>
           {groups.map(group => (
             <div key={group.groupId} data-testid="list-group-section">
               <GroupSectionHeader label={group.groupLabel} color={group.groupColor}
@@ -164,7 +107,7 @@ export function ListView() {
                 const val = group.groupId === '__unassigned__' ? null : group.groupId;
                 addPage(database.id, { [groupPropId]: val });
               }}
-                className={cn("flex items-center gap-2 px-3 py-1.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded-lg transition-colors ml-3")}>
+                className={cn("flex items-center gap-2 h-[34px] px-2 w-full text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded transition-colors")}>
                 <Plus className={cn("w-3.5 h-3.5")} /> New in {group.groupLabel}
               </button>
             </div>
@@ -179,8 +122,8 @@ export function ListView() {
   return (
     <div className={cn("flex-1 flex flex-col min-h-0")}>
       <ViewPaginationBar pager={pager} />
-      <div className={cn("flex-1 overflow-auto p-4 bg-surface-primary")}>
-        <div className={cn("max-w-4xl mx-auto flex flex-col gap-0.5")}>
+      <div className={cn("flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
+        <div className={cn("flex flex-col")}>
           {pager.items.map(renderPageRow)}
           {pager.items.length === 0 && (
             <div className={cn("text-center py-16 text-ink-muted")}>
@@ -189,7 +132,7 @@ export function ListView() {
             </div>
           )}
           <button onClick={createRecord}
-            className={cn("flex items-center gap-2 px-3 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded-lg transition-colors")}>
+            className={cn("flex items-center gap-2 h-[34px] px-2 w-full text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded transition-colors")}>
             <Plus className={cn("w-4 h-4")} /> New page
           </button>
         </div>
