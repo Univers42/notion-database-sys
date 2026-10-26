@@ -20,6 +20,7 @@ import { Dropdown } from './topBar/index';
 import { ViewTabsRow } from './topBar/ViewTabsRow';
 import { FilterSortPanels } from './topBar/FilterSortPanels';
 import { TopBarActions } from './topBar/TopBarActions';
+import { SearchBar } from './topBar/SearchBar';
 import { InlineTitle } from './topBar/InlineTitle';
 import { AnchoredPopover } from './topBar/AnchoredPopover';
 import { SortPanel } from './sort/SortPanel';
@@ -48,7 +49,6 @@ export function TopBar({
   const activeViewId = useActiveViewId();
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
-  const searchQuery = useDatabaseStore(s => s.searchQuery);
   const storeApi = useStoreApi();
   const { addView, setActiveView: _setActiveView, deleteView, duplicateView,
     addPage, renameDatabase, updateDatabaseIcon, updateView, reorderViews } = storeApi.getState();
@@ -59,8 +59,6 @@ export function TopBar({
   const database = view ? databases[view.databaseId] : null;
 
   const [showSearch, setShowSearch] = useState(false);
-  const [localSearchValue, setLocalSearchValue] = useState(searchQuery);
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [showFilterPropertyPicker, setShowFilterPropertyPicker] = useState(false);
@@ -76,7 +74,7 @@ export function TopBar({
   const [showExtraActions, setShowExtraActions] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
 
-  const searchRef = useRef<HTMLInputElement>(null);
+  const searchBtnRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const topBarRef = useRef<HTMLDivElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
@@ -87,7 +85,6 @@ export function TopBar({
   const rowCount = useDatabaseStore(s =>
     database ? Object.values(s.pages).reduce((n, p) => n + (p.databaseId === database.id ? 1 : 0), 0) : 0);
 
-  useEffect(() => { if (showSearch && searchRef.current) searchRef.current.focus(); }, [showSearch]);
   useEffect(() => { if (isEditingTitle && titleRef.current) { titleRef.current.focus(); titleRef.current.select(); } }, [isEditingTitle]);
 
   if (!view || !database) return null;
@@ -205,10 +202,7 @@ export function TopBar({
             showFilterPanel={showFilterPanel} setShowFilterPanel={setShowFilterPanel}
             setShowAdvancedFilter={setShowAdvancedFilter}
             showSortPanel={showSortPanel} setShowSortPanel={setShowSortPanel}
-            showSearch={showSearch} setShowSearch={setShowSearch}
-            localSearchValue={localSearchValue} setLocalSearchValue={setLocalSearchValue}
-            searchRef={searchRef} searchDebounceRef={searchDebounceRef}
-            onSearchQueryChange={store.setSearchQuery}
+            searchBtnRef={searchBtnRef} showSearch={showSearch} setShowSearch={setShowSearch}
             isFullSize={isFullSize} setIsFullSize={setIsFullSize}
             showViewSettings={showViewSettings} setShowViewSettings={(v) => { setSettingsScreen(undefined); setShowViewSettings(v); }}
             onOpenAutomations={() => { setSettingsScreen('automations'); setShowViewSettings(true); }}
@@ -238,6 +232,10 @@ export function TopBar({
             onEditTitle={startTitleEdit} onEditLayout={() => setShowViewSettings(true)}
             onViewSource={openOrigin}
             onSetIcon={(icon) => updateDatabaseIcon(database.id, icon)} />
+        )}
+
+        {showSearch && !collapsed && (
+          <SearchBar viewId={view.id} onClose={() => { setShowSearch(false); searchBtnRef.current?.focus(); }} />
         )}
 
         <FilterSortPanels showFilterPanel={showFilterPanel} showFilterPropertyPicker={showFilterPropertyPicker}

@@ -13,7 +13,7 @@
 import React from 'react';
 import {
   Plus, Search, Filter, ArrowUpDown, Settings2,
-  X, Maximize2, Zap, ChevronDown,
+  Maximize2, Zap, ChevronDown,
 } from 'lucide-react';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { ExtraActionsMenu } from './MenuComponents';
@@ -43,13 +43,10 @@ export interface TopBarActionsProps {
   setShowAdvancedFilter: (v: boolean) => void;
   showSortPanel: boolean;
   setShowSortPanel: (v: boolean) => void;
+  /** The search row under the view tabs; focus returns here when it closes. */
+  searchBtnRef: React.RefObject<HTMLButtonElement | null>;
   showSearch: boolean;
   setShowSearch: (v: boolean) => void;
-  localSearchValue: string;
-  setLocalSearchValue: (v: string) => void;
-  searchRef: React.RefObject<HTMLInputElement | null>;
-  searchDebounceRef: React.RefObject<ReturnType<typeof setTimeout> | undefined>;
-  onSearchQueryChange: (query: string) => void;
   isFullSize: boolean;
   setIsFullSize: (v: boolean) => void;
   showViewSettings: boolean;
@@ -74,8 +71,7 @@ export function TopBarActions({
   showFilterPropertyPicker, setShowFilterPropertyPicker,
   showFilterPanel, setShowFilterPanel, setShowAdvancedFilter,
   showSortPanel, setShowSortPanel,
-  showSearch, setShowSearch, localSearchValue, setLocalSearchValue,
-  searchRef, searchDebounceRef, onSearchQueryChange,
+  searchBtnRef, showSearch, setShowSearch,
   isFullSize, setIsFullSize,
   showViewSettings, setShowViewSettings,
   onOpenAutomations, automationsCount,
@@ -115,22 +111,11 @@ export function TopBarActions({
         {automationsCount > 0 && <span className={cn("text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums")}>{automationsCount}</span>}
       </button>
 
-      {showSearch ? (
-        <div className={cn("flex items-center gap-1 bg-surface-tertiary rounded-lg px-2 py-1")}>
-          <Search className={cn("w-3.5 h-3.5 text-ink-muted")} />
-          <input ref={searchRef} type="text" placeholder="Search..." aria-label="Search database" value={localSearchValue}
-            onChange={e => { const v = e.target.value; setLocalSearchValue(v); clearTimeout(searchDebounceRef.current); searchDebounceRef.current = setTimeout(() => onSearchQueryChange(v), 200); }}
-            onKeyDown={e => { if (e.key === 'Escape') { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); } }}
-            className={cn("bg-transparent text-sm text-ink w-40 outline-none placeholder:text-placeholder")} />
-          <button aria-label="Clear search" onClick={() => { clearTimeout(searchDebounceRef.current); setLocalSearchValue(''); onSearchQueryChange(''); setShowSearch(false); }} className={cn("p-0.5 hover:bg-hover-surface3 rounded")}>
-            <X className={cn("w-3 h-3 text-ink-muted")} />
-          </button>
-        </div>
-      ) : (
-        <button onClick={() => setShowSearch(true)} aria-label="Search" className={cn("p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors")} title="Search">
-          <Search className={cn("w-4 h-4")} />
-        </button>
-      )}
+      <button ref={searchBtnRef} onClick={() => setShowSearch(!showSearch)} aria-label="Search" aria-pressed={showSearch} title="Search"
+        className={cn(`p-2 rounded-lg transition-colors ${showSearch
+          ? 'bg-accent-soft text-accent-text-light' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
+        <Search className={cn("w-4 h-4")} />
+      </button>
 
       <button
         onClick={onOpenFullPage ?? (() => setIsFullSize(!isFullSize))}
@@ -151,9 +136,9 @@ export function TopBarActions({
           <ThemeToggle />
         </>
       )}
-      <div className={cn("w-px h-5 bg-surface-muted mx-1")} />
+      <div className={cn("odb-topbar-divider w-px h-5 bg-surface-muted mx-1")} />
       {templates ? (
-        <div className={cn("relative")}>
+        <div className={cn("odb-topbar-new relative")}>
           {/* One seamless split control: shared rounded surface, equal-height
               segments (items-stretch), inset divider — no see-through gap. */}
           <div className={cn("flex items-stretch rounded-lg overflow-hidden shadow-sm")}>
@@ -173,7 +158,7 @@ export function TopBarActions({
         </div>
       ) : (
         <button onClick={onNewPage}
-          className={cn("flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm")}>
+          className={cn("odb-topbar-new flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm")}>
           <Plus className={cn("w-3.5 h-3.5")} /> New
         </button>
       )}
