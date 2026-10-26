@@ -176,7 +176,10 @@ export function TableHeader({
             document.body,
           )}
         </th>
-        <th className={cn("w-10 px-2 py-2 text-center bg-surface-secondary")}>
+        {/* w-full: this last column takes the table's slack. Without it the
+            min-w-full table stretched the property columns past their set
+            widths, so a resize edge lagged the pointer (+24 px for +80 px). */}
+        <th className={cn("w-full px-2 py-2 text-left bg-surface-secondary")}>
           <Popover.Root>
             <Popover.Trigger asChild>
               <button aria-label="Column options" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><MoreHorizontal className={cn("w-4 h-4")} /></button>
