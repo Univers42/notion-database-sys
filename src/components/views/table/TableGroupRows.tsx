@@ -19,6 +19,7 @@ import { MemoTableRow } from './MemoTableRow';
 import type { GroupRowItem } from './groupRowsLayout';
 import type { EditingCell } from './gridKeyboard';
 import { cn } from '../../../utils/cn';
+import { getDotColor } from '../../../utils/color';
 
 interface RenderPageRowsProps {
   visibleProps: SchemaProperty[];
@@ -212,7 +213,6 @@ interface GroupHeaderRowProps {
 }
 
 function GroupHeaderRow({ index, measureRow, colCount, label, color, count, collapsed, onToggle, onAdd }: Readonly<GroupHeaderRowProps>) {
-  const [bgColor = 'bg-surface-muted', textColor = 'text-ink-body'] = color.split(' ').filter(Boolean);
   return (
     <tr ref={measureRow} data-index={index} className={cn("group/hdr")}>
       <td colSpan={colCount} className={cn("p-0 border-b border-line bg-surface-secondary-soft2")}>
@@ -223,9 +223,10 @@ function GroupHeaderRow({ index, measureRow, colCount, label, color, count, coll
             className={cn("p-0.5 hover:bg-hover-surface3 rounded transition-colors shrink-0")}>
             <ChevronRight className={cn(`w-3.5 h-3.5 text-ink-secondary transition-transform duration-150 ${collapsed ? '' : 'rotate-90'}`)} />
           </button>
-          <span className={cn(`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${bgColor} ${textColor}`)}>
-            {label}
-          </span>
+          {/* Same identity as a board lane: the option colour as a dot, the
+              label as plain text, so the header doesn't read as one more cell chip. */}
+          <span className={cn(`w-2 h-2 rounded-full shrink-0 ${getDotColor(color)}`)} aria-hidden="true" />
+          <span className={cn("text-[13px] font-semibold text-ink truncate")}>{label}</span>
           <span className={cn("text-xs text-ink-muted tabular-nums")}>{count}</span>
           <button type="button" onClick={onAdd} aria-label={`Add page to ${label}`} title="Add page to group"
             className={cn("ml-auto p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors opacity-0 group-hover/hdr:opacity-100 focus-visible:opacity-100")}>

@@ -12,9 +12,19 @@
 
 import React, { useState, useCallback } from 'react';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import type { DatabaseState } from '../../../store/dbms/hardcoded/storeTypes';
 
 /** Narrowest a column can be dragged or keyed to. */
 export const MIN_COL_WIDTH = 80;
+
+/** A column nobody has resized yet. The title column carries each row's name,
+ *  so it starts wide enough to read one instead of an ellipsis. */
+export function columnWidth(s: Pick<DatabaseState, 'views' | 'databases'>, viewId: string | null, propId: string) {
+  const v = viewId ? s.views[viewId] : undefined;
+  const stored = v?.settings?.columnWidths?.[propId];
+  if (stored) return stored;
+  return v && s.databases[v.databaseId]?.titlePropertyId === propId ? 280 : 180;
+}
 
 function setCellWidth(cell: HTMLElement, px: string) {
   cell.style.width = px;
@@ -31,9 +41,7 @@ export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDi
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
-    const s = storeApi.getState();
-    const v = s.views[viewId];
-    const startWidth = v?.settings?.columnWidths?.[propId] || 180;
+    const startWidth = columnWidth(storeApi.getState(), viewId, propId);
 
     // The drag writes the width onto the column's own cells, found once. It
     // used to set one CSS custom property on the table container, but a custom
@@ -89,7 +97,6 @@ export function useColWidth() {
   const storeApi = useStoreApi();
   return useCallback((propId: string) => {
     const s = storeApi.getState();
-    const v = s.activeViewId ? s.views[s.activeViewId] : undefined;
-    return v?.settings?.columnWidths?.[propId] || 180;
+    return columnWidth(s, s.activeViewId, propId);
   }, [storeApi]);
 }
