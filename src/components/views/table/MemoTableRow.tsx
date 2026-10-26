@@ -75,8 +75,10 @@ export interface MemoTableRowProps {
   isDropTarget?: boolean;
 }
 
-/** Computes cell focus ring classes. */
-function focusRingClass(isFocused: boolean, inFillRange: boolean): string {
+/** Cell frame classes. Editing keeps the frame but drops the selection tint,
+ *  so a cell being typed into no longer looks the same as a selected one. */
+function focusRingClass(isFocused: boolean, inFillRange: boolean, isEditing: boolean): string {
+  if (isEditing) return 'ring-2 ring-ring-success ring-inset bg-surface-primary z-10';
   if (isFocused) return 'ring-2 ring-ring-success ring-inset bg-emerald-surface z-10 shadow-[inset_0_0_0_1px_var(--color-inset-success)]';
   if (inFillRange) return 'ring-1 ring-ring-success-soft ring-inset bg-emerald-surface2 z-[5]';
   return '';
@@ -163,7 +165,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         const isFocused = focusedPropId === prop.id;
         const isEditing = editingPropId === prop.id;
         const inSelection = colIdx >= selectedColStart && colIdx <= selectedColEnd;
-        const ring = focusRingClass(isFocused, fillRangePropId === prop.id || inSelection);
+        const ring = focusRingClass(isFocused, fillRangePropId === prop.id || inSelection, isEditing);
 
         const cellProps: CellRendererProps = {
           prop, page, value, isEditing, editSeed: isEditing ? editSeed : undefined, wrapContent, databaseId,

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ViewSettingsPopover.tsx                            :+:      :+:    :+:   */
+/*   AnchoredPopover.tsx                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,20 +12,20 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { anchoredPanelFrame, PANEL_WIDTH, Z, type AnchoredFrame } from '../../utils/geometry';
+import { anchoredPanelFrame, Z, type AnchoredFrame } from '../../utils/geometry';
 import { cn } from '../../utils/cn';
 
-// View settings belong to ONE database, so they open as a popover pinned to
-// that database's settings button, not as a sheet docked to the app's edge.
-// It follows the button on scroll/resize; it is not draggable. Portaled to body
-// because it is placed with window coordinates: in place, a host pane
+// A toolbar panel (View settings, Sort) belongs to ONE database, so it opens
+// as a popover pinned to the button that opened it, not docked to the app's
+// edge. It follows the button on scroll/resize; it is not draggable. Portaled
+// to body because it is placed with window coordinates: in place, a host pane
 // (`contain: paint`) or layout cell (`transform`) became its containing block,
 // shifting it by that box's offset and clipping it to that box, so next to a
 // full-width database it ended up off the pane and out of sight.
-const POPOVER_WIDTH = PANEL_WIDTH.SETTINGS + 2;
-
-export function ViewSettingsPopover({ anchorRef, onClose, children }: Readonly<{
+export function AnchoredPopover({ anchorRef, label, width, onClose, children }: Readonly<{
   anchorRef: React.RefObject<HTMLElement | null>;
+  label: string;
+  width: number;
   onClose: () => void;
   children: React.ReactNode;
 }>) {
@@ -39,9 +39,9 @@ export function ViewSettingsPopover({ anchorRef, onClose, children }: Readonly<{
   const place = useCallback(() => {
     const anchor = anchorRef.current;
     if (!anchor) return;
-    setFrame(anchoredPanelFrame(anchor.getBoundingClientRect(), POPOVER_WIDTH,
+    setFrame(anchoredPanelFrame(anchor.getBoundingClientRect(), width,
       { width: window.innerWidth, height: window.innerHeight }));
-  }, [anchorRef]);
+  }, [anchorRef, width]);
 
   useLayoutEffect(() => {
     place();
@@ -66,12 +66,12 @@ export function ViewSettingsPopover({ anchorRef, onClose, children }: Readonly<{
 
   return createPortal(
     <>
-      <button type="button" tabIndex={-1} aria-label="Close view settings" onClick={onClose}
+      <button type="button" tabIndex={-1} aria-label={`Close ${label.toLowerCase()}`} onClick={onClose}
         className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")}
         style={{ zIndex: Z.DROPDOWN }} />
-      <dialog open ref={panelRef} tabIndex={-1} aria-label="View settings"
+      <dialog open ref={panelRef} tabIndex={-1} aria-label={label}
         className={cn("fixed m-0 p-0 overflow-y-auto overflow-x-hidden bg-surface-primary border border-line rounded-xl shadow-xl outline-none")}
-        style={{ zIndex: Z.DROPDOWN + 1, width: POPOVER_WIDTH, left: frame?.left ?? 0, top: frame?.top,
+        style={{ zIndex: Z.DROPDOWN + 1, width, left: frame?.left ?? 0, top: frame?.top,
           bottom: frame?.bottom, maxHeight: frame?.maxHeight, visibility: frame ? 'visible' : 'hidden' }}
         onClick={e => e.stopPropagation()}
         onKeyDown={e => { if (e.key === 'Escape') onClose(); e.stopPropagation(); }}>{/* NOSONAR */}

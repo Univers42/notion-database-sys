@@ -72,6 +72,9 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
           if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(); tableRef.current?.focus(); }
           if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
         }}
+        // The cell's own frame already shows focus; the host's keyboard ring
+        // drew a second box inside it.
+        data-writing-surface
         className={cn(`block w-full bg-transparent outline-none text-sm resize-none ${className}`)}
         placeholder={placeholder}
       />
@@ -90,6 +93,7 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
         if (e.key === 'Enter') { e.preventDefault(); commit(); tableRef.current?.focus(); }
         if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
       }}
+      data-writing-surface
       className={cn(`block w-full bg-transparent outline-none text-sm ${className}`)}
       placeholder={placeholder}
     />

@@ -21,6 +21,7 @@
 
 import { useEffect, useState, type RefObject } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { observeCurrentElementOffset } from '../../../lib/virtualScroll';
 
 const ROW_ESTIMATE_PX = 34;
 // Overscan buys ~2 viewports of pre-rendered rows so a fast wheel/drag scroll
@@ -113,6 +114,7 @@ export function useTableVirtualizer({ count, scrollRef, enabled }: TableVirtuali
     estimateSize: () => ROW_ESTIMATE_PX,
     overscan: OVERSCAN_ROWS,
     scrollMargin,
+    observeElementOffset: observeCurrentElementOffset,
   });
 
   const items = virtualizer.getVirtualItems();

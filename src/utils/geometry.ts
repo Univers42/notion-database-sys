@@ -40,6 +40,8 @@ export const PANEL_WIDTH = {
   MEDIUM:  290,
   /** View settings panel */
   SETTINGS: 290,
+  /** Sort popover: a property picker and a direction button per row */
+  SORT: 360,
   /** Relation cell editor (expanded) */
   WIDE:    340,
   /** Formula editor full panel */

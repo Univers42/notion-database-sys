@@ -27,6 +27,7 @@ import { AutoDetectDashboard, useComputedData } from './DashboardAutoDetect';
 import { renderWidget } from '.';
 import type { ComputedData } from '.';
 import { cn } from '../../../utils/cn';
+import { PaneLoading } from '../../ViewSlideStage';
 
 const DashboardNotionView = React.lazy(() => import('./notion/DashboardNotionView'));
 
@@ -84,7 +85,9 @@ export function DashboardView() {
   if (view.settings?.dashboardRows) {
     return (
       <Suspense fallback={
-        <div className={cn("flex-1 flex items-center justify-center text-sm text-ink-muted animate-pulse")}>Loading dashboard…</div>
+        <PaneLoading>
+          <div className={cn("flex-1 flex items-center justify-center text-sm text-ink-muted animate-pulse")}>Loading dashboard…</div>
+        </PaneLoading>
       }>
         <DashboardNotionView />
       </Suspense>

@@ -65,12 +65,16 @@ export function CardCell({ prop, page, databaseId, wrap, editing, onEdit, cardRe
   };
 
   // The wrapper spans its row for the editor's anchor, but only the value
-  // itself takes clicks; the rest of the row still opens the page.
+  // itself takes clicks; the rest of the row still opens the page. The value
+  // hovers as a padded chip under a pointer: the card around it shows a grab
+  // cursor, and the old text-hugging bg-subtle tint read as no change at all.
+  // An inline editor gets the table's editing frame, its only sign of focus.
+  const frame = inline ? 'rounded ring-2 ring-ring-success bg-surface-primary -mx-1 px-1' : '';
   return (
-    <div data-cell-anchor className={cn(`relative z-[1] min-w-0 max-w-full pointer-events-none [&>*]:pointer-events-auto ${className}`)}>
+    <div data-cell-anchor className={cn(`relative z-[1] min-w-0 max-w-full pointer-events-none [&>*]:pointer-events-auto ${frame} ${className}`)}>
       {inline ? editor : (
         <button type="button" onClick={start} aria-label={`Edit ${prop.name}`} title={prop.name}
-          className={cn('flex max-w-full min-w-0 items-center rounded text-left hover:bg-hover-surface focus-visible:ring-2 focus-visible:ring-ring-accent-muted outline-none transition-colors')}>
+          className={cn('-mx-1 -my-0.5 flex max-w-[calc(100%+0.5rem)] min-w-0 cursor-pointer items-center rounded px-1 py-0.5 text-left hover:bg-hover-surface2 focus-visible:ring-2 focus-visible:ring-ring-accent-muted outline-none transition-colors')}>
           {children}
         </button>
       )}
