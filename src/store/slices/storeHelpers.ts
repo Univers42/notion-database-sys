@@ -71,6 +71,7 @@ export function buildGroups(
   pages: Page[],
   groupProp: SchemaProperty,
   grouping: { propertyId: string; hiddenGroups?: string[] },
+  readValue: (page: Page) => unknown = page => page.properties[grouping.propertyId],
 ): { groupId: string; groupLabel: string; groupColor: string; pages: Page[] }[] {
   if ((groupProp.type === 'select' || groupProp.type === 'status') && groupProp.options) {
     const groups = [
@@ -81,8 +82,11 @@ export function buildGroups(
     ];
     const gm = new Map(groups.map(g => [g.groupId, g]));
     for (const page of pages) {
-      const v = page.properties[grouping.propertyId];
-      (gm.get(v) ?? gm.get('__unassigned__'))?.pages.push(page);
+      const v = readValue(page);
+      // Sources that store the option LABEL (workspace / live tables) land in
+      // that option's group, not in "No <name>".
+      const byLabel = typeof v === 'string' ? groupProp.options.find(o => o.value === v)?.id : undefined;
+      (gm.get(v as string) ?? (byLabel ? gm.get(byLabel) : undefined) ?? gm.get('__unassigned__'))?.pages.push(page);
     }
     const hidden = grouping.hiddenGroups || [];
     return groups.filter(g => !hidden.includes(g.groupId));
@@ -92,7 +96,7 @@ export function buildGroups(
     const checked: Page[] = [];
     const unchecked: Page[] = [];
     for (const p of pages) {
-      (p.properties[grouping.propertyId] ? checked : unchecked).push(p);
+      (readValue(p) === true ? checked : unchecked).push(p);
     }
     return [
       { groupId: 'unchecked', groupLabel: 'Unchecked', groupColor: 'bg-surface-muted text-ink-body', pages: unchecked },
@@ -105,8 +109,9 @@ export function buildGroups(
   // the value (the drop handler maps '__unassigned__' → null), like the select path.
   const gm = new Map<string, Page[]>();
   for (const p of pages) {
-    const raw = p.properties[grouping.propertyId];
-    const v = (raw === null || raw === undefined || raw === '') ? '__unassigned__' : String(raw);
+    const raw = readValue(p);
+    const empty = raw === null || raw === undefined || raw === '' || (Array.isArray(raw) && raw.length === 0);
+    const v = empty ? '__unassigned__' : safeString(Array.isArray(raw) ? raw.join(', ') : raw);
     if (!gm.has(v)) gm.set(v, []);
     gm.get(v)?.push(p);
   }
@@ -117,26 +122,39 @@ export function buildGroups(
 
 /** Format a WASM formula engine result for display. */
 export function formatFormulaResult(result: unknown): unknown {
-  if (result instanceof Date) return result.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  if (typeof result === 'number' && Number.isFinite(result)) return Math.round(result * 100) / 100;
-  if (Array.isArray(result)) return result.join(', ');
+  if (result instanceof Date) {
+    return Number.isNaN(result.getTime())
+      ? undefined
+      : result.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  if (typeof result === 'number') return Number.isFinite(result) ? Math.round(result * 100) / 100 : undefined;
+  if (Array.isArray(result)) {
+    const parts = result.map(formatFormulaResult).filter(part => part !== undefined && part !== '');
+    return parts.length ? parts.map(part => safeString(part)).join(', ') : undefined;
+  }
   if (typeof result === 'boolean') return result;
   if (typeof result === 'string' && result !== '') return result;
+  const range = result as { start?: unknown; end?: unknown } | null;
+  if (range && typeof range === 'object' && range.start instanceof Date) {
+    return [formatFormulaResult(range.start), formatFormulaResult(range.end)].filter(Boolean).join(' → ');
+  }
   return undefined;
 }
 
-/** Compute a rollup aggregation over related pages. */
-export function computeRollup(fn: string, related: Page[], targetPropertyId: string): unknown {
-  const raw = related.map(p => p.properties[targetPropertyId]);
+/** Compute a rollup aggregation over the related pages' target values.
+ *  Multi-value targets (multi-select, relation) are flattened one level, so
+ *  "show original" lists labels and counts count labels, not arrays. */
+export function computeRollup(fn: string, values: readonly unknown[]): unknown {
+  const raw = values.flatMap(v => (Array.isArray(v) ? v : [v]));
   const nonEmpty = raw.filter(v => v !== undefined && v !== null && v !== '' && v !== false);
   const nums = nonEmpty.map(Number).filter(n => !Number.isNaN(n));
 
   switch (fn) {
     case 'show_original': return raw;
     case 'show_unique': return [...new Set(raw.filter(v => v !== undefined && v !== null))];
-    case 'count': case 'count_all': return related.length;
+    case 'count': case 'count_all': return values.length;
     case 'count_values': return nonEmpty.length;
-    case 'count_unique_values': return new Set(nonEmpty).size;
+    case 'count_unique_values': return new Set(nonEmpty.map(v => safeString(v))).size;
     case 'count_empty': return raw.length - nonEmpty.length;
     case 'count_not_empty': return nonEmpty.length;
     case 'percent_empty': return raw.length ? Math.round((raw.length - nonEmpty.length) / raw.length * 100) : 0;
