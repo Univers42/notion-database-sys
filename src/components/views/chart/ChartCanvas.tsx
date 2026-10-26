@@ -25,6 +25,8 @@ import { ChartDrilldown } from './ChartDrilldown';
 import type { DrilldownTarget, DrilldownPage } from './ChartDrilldown';
 import { heightFor, legendItems } from './ChartCanvasHelpers';
 import { cn } from '../../../utils/cn';
+import { useChartSize } from './useChartSize';
+import { donutLegendOnSide } from './chartLayout';
 
 export interface ChartCanvasProps {
   result: ChartResult;
@@ -52,12 +54,20 @@ export default function ChartCanvas({
   const legend = settings.showLegend !== false
     ? legendItems(result, settings, hiddenLabelFor)
     : [];
+  const size = useChartSize();
+  const isPie = chartType === 'donut' || chartType === 'pie';
+  const sideLegend = isPie && donutLegendOnSide(size.width, size.height || height);
+  // Side legend carries the numbers; the inline one stays plain.
+  const items = sideLegend
+    ? legend.map(item => ({ ...item, value: result.categories.find(c => c.key === item.key)?.total }))
+    : legend;
   const truncated = result.truncatedGroups || result.truncatedSeries;
 
   let chart: React.ReactNode = null;
   if (chartType === 'vertical_bar' || chartType === 'horizontal_bar') {
     chart = <ChartBarsChart result={result} settings={settings}
-      horizontal={chartType === 'horizontal_bar'} onSliceClick={setDrilldown} />;
+      horizontal={chartType === 'horizontal_bar'}
+      width={size.width} compact={size.compact} onSliceClick={setDrilldown} />;
   } else if (chartType === 'line') {
     chart = <ChartLineChart result={result} settings={settings} onSliceClick={setDrilldown} />;
   } else {
@@ -66,8 +76,10 @@ export default function ChartCanvas({
   }
 
   return (
-    <div className={cn("flex-1 flex flex-col items-stretch overflow-auto bg-surface-primary p-4")}>
-      <div className={cn("odb-chart-plot relative w-full")} style={{ '--odb-chart-h': `${height}px` } as React.CSSProperties}>
+    <div className={cn("flex-1 flex flex-col items-stretch overflow-auto bg-surface-primary p-3")}>
+      <div ref={size.ref} className={cn("flex flex-1 items-stretch gap-4", size.compact && 'min-h-0', sideLegend ? 'flex-row' : 'flex-col')}>
+      <div className={cn("odb-chart-plot relative min-w-0", sideLegend ? 'flex-1' : 'w-full')}
+        style={{ '--odb-chart-h': `${height}px` } as React.CSSProperties}>
         {chart}
         {drilldown && (
           <ChartDrilldown result={result} target={drilldown}
@@ -76,7 +88,8 @@ export default function ChartCanvas({
             onClose={() => setDrilldown(null)} />
         )}
       </div>
-      <ChartLegend items={legend} onToggle={onToggleGroup} />
+      <ChartLegend items={items} onToggle={onToggleGroup} side={sideLegend} total={result.total} />
+      </div>
       {truncated && (
         <div className={cn("text-center text-[11px] text-ink-muted pb-1")}>
           Showing the top {result.truncatedGroups ? '200 groups' : ''}
