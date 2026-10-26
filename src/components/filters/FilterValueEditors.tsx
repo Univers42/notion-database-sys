@@ -163,10 +163,12 @@ function TextFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
     <FilterEditorShell property={property} operator={operator} onOperatorChange={onOperatorChange} onDelete={onDelete}>
       {needsValue(operator) && (
         <div className={cn("p-2")}>
-          <input type={property.type === 'number' ? 'number' : 'text'} placeholder="Value"
+          {/* Its border shows focus; it opts out of the host's own focus frame. */}
+          <input type={property.type === 'number' ? 'number' : 'text'} placeholder="Value" aria-label="Filter value"
+            data-writing-surface
             value={typeof value === 'string' || typeof value === 'number' ? value : ''}
             onChange={e => onValueChange(property.type === 'number' && e.target.value ? Number(e.target.value) : e.target.value)}
-            className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary outline-none focus:border-focus-border-soft transition-colors")}
+            className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary outline-none focus:border-focus-border focus:ring-1 focus:ring-focus-ring transition-colors")}
             autoFocus />
         </div>
       )}

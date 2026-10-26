@@ -54,16 +54,17 @@ export function FilterPropertyPicker({ properties, onSelect, onClose, onAdvanced
       {title && (
         <div className={cn('flex items-center px-3 pt-3.5 pb-1.5 h-[42px] shrink-0', slots.header)}>
           <span className={cn('flex-1 font-semibold text-sm truncate', slots.headerTitle)}>{title}</span>
-          <button onClick={onClose}
+          <button type="button" onClick={onClose} aria-label="Close"
             className={cn('w-6 h-6 flex items-center justify-center rounded-full hover:bg-hover-surface2 text-ink-muted transition-colors', slots.closeButton)}>
             <X className={cn("w-4 h-4")} />
           </button>
         </div>
       )}
       <div className={cn('px-2 pt-2 pb-1', slots.searchWrap)}>
-        <div className={cn('flex items-center rounded-md border border-line bg-surface-secondary h-7 px-1.5', slots.searchInner)}>
-          <input type="text" placeholder="Filter by…" value={search}
-            onChange={e => setSearch(e.target.value)}
+        {/* The box shows focus; the field opts out of the host's own focus frame. */}
+        <div className={cn('flex items-center rounded-md border border-line bg-surface-secondary h-7 px-1.5 focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring', slots.searchInner)}>
+          <input type="text" placeholder="Filter by…" value={search} aria-label="Filter by property"
+            data-writing-surface onChange={e => setSearch(e.target.value)}
             className={cn('flex-1 bg-transparent text-sm outline-none placeholder-placeholder', slots.searchInput)} autoFocus />
         </div>
       </div>

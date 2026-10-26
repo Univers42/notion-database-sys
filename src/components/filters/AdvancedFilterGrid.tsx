@@ -23,7 +23,7 @@
 /* ************************************************************************** */
 
 import React, { useState, useRef } from 'react';
-import { ChevronDown, Plus, MoreHorizontal, Trash2 } from 'lucide-react';
+import { ChevronDown, Plus, Trash2, X } from 'lucide-react';
 import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
 import { getOperatorsForType, needsValue } from './constants';
 import { PropertyTypeIcon } from './PropertyTypeIcon';
@@ -82,8 +82,10 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
           const opLabel = operators.find(o => o.value === filter.operator)?.label || filter.operator;
 
           return (
+            // Fractions, not fixed widths: at 520px the row reads as before;
+            // on a phone it shrinks instead of running past the popover.
             <div key={filter.id} className={cn("grid gap-2 mb-2 items-start", slots?.row)}
-              style={{ gridTemplateColumns: '60px minmax(min-content, 120px) 110px auto 32px' }}>
+              style={{ gridTemplateColumns: '3.25rem minmax(0, 1fr) minmax(0, 1.6fr) 2rem' }}>
               <div className={cn("text-xs text-ink-muted text-right pr-1 leading-8 truncate", slots?.rowLabel)}>
                 {getFilterLabel(idx, conjunction)}
               </div>
@@ -94,18 +96,18 @@ export function AdvancedFilterGrid({ filters, properties, conjunction, onAddFilt
                 <span className={cn("truncate flex-1 text-left", slots?.propName)}>{prop.name}</span>
                 <ChevronDown className={cn("w-3 h-3 text-ink-muted shrink-0")} />
               </button>
-              <div className={cn("col-span-2 flex items-center gap-2")}>
+              <div className={cn("flex min-w-0 items-center gap-2")}>
                 <button ref={el => { opBtnRefs.current[filter.id] = el; }}
                   onClick={() => setOpenOperatorPicker(openOperatorPicker === filter.id ? null : filter.id)}
                   className={cn("flex items-center gap-1 h-8 px-2 border border-line rounded-lg text-sm text-ink-body hover:border-hover-border transition-colors shrink-0", slots?.opButton)}>
                   <span className={cn("truncate")}>{opLabel}</span>
                   <ChevronDown className={cn("w-3 h-3 text-ink-muted")} />
                 </button>
-                {needsValue(filter.operator) && renderInlineFilterValue(prop, filter, onUpdateFilter)}
+                {needsValue(filter.operator) && <div className={cn("min-w-0 flex-1")}>{renderInlineFilterValue(prop, filter, onUpdateFilter)}</div>}
               </div>
-              <button onClick={() => onRemoveFilter(filter.id)}
+              <button type="button" onClick={() => onRemoveFilter(filter.id)} aria-label="Remove rule" title="Remove rule"
                 className={cn("w-8 h-8 flex items-center justify-center rounded-lg hover:bg-hover-surface2 text-ink-muted transition-colors", slots?.removeButton)}>
-                <MoreHorizontal className={cn("w-4 h-4")} />
+                <X className={cn("w-4 h-4")} />
               </button>
 
               {openPropPicker === filter.id && propBtnRefs.current[filter.id] && (

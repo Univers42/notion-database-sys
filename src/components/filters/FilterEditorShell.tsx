@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React, { useState, useRef } from 'react';
-import { ChevronDown, MoreHorizontal, Trash2, Filter } from 'lucide-react';
+import { ChevronDown, MoreHorizontal, Trash2 } from 'lucide-react';
 import type { FilterOperator, SchemaProperty, PropertyValue } from '../../types/database';
 import { getOperatorsForType } from './constants';
 import { PortalDropdown } from './PortalDropdown';
@@ -37,7 +37,7 @@ function FilterOperatorPicker({ type, current, onSelect, onClose }: Readonly<{
       <div className={cn("overflow-y-auto flex-1 p-1")}>
         <div className={cn("flex flex-col gap-px")}>
           {getOperatorsForType(type).map(op => (
-            <button key={op.value} onClick={() => { onSelect(op.value); onClose(); }}
+            <button type="button" key={op.value} onClick={() => { onSelect(op.value); onClose(); }}
               className={cn(`w-full px-2 py-1.5 rounded-md text-sm text-left transition-colors ${
                 current === op.value ? 'bg-surface-tertiary font-medium text-ink-strong' : 'text-ink-body hover:bg-hover-surface'
               }`)}>{op.label}</button>
@@ -57,7 +57,6 @@ export type FilterEditorShellSlots = {
   moreButton: string;
   menuWrap: string;
   deleteButton: string;
-  advancedButton: string;
 };
 
 /** Wraps a filter value editor with operator picker and delete controls. */
@@ -79,12 +78,13 @@ export function FilterEditorShell({ property, operator, onOperatorChange, onDele
     <div className={cn("flex flex-col", slots?.root)} style={{ width: 260, maxHeight: '50vh' }}>
       <div className={cn("flex items-center gap-1 px-2 pt-1 pb-0.5 text-xs text-ink-muted shrink-0", slots?.header)}>
         <span className={cn("truncate flex-shrink", slots?.propName)}>{property.name}</span>
-        <button ref={operatorBtnRef} onClick={() => setShowOperatorMenu(true)}
+        <button type="button" ref={operatorBtnRef} onClick={() => setShowOperatorMenu(true)}
+          aria-label={`Operator: ${opDisplay.toLowerCase()}`} aria-haspopup="menu" aria-expanded={showOperatorMenu}
           className={cn("flex items-center gap-0.5 px-1 py-0.5 rounded text-xs text-ink-secondary font-medium hover:bg-hover-surface2 shrink-0", slots?.operatorButton)}>
           {opDisplay.toLowerCase()} <ChevronDown className={cn("w-2.5 h-2.5")} />
         </button>
         <div className={cn("flex-1")} />
-        <button ref={moreBtnRef} onClick={() => setShowMoreMenu(true)}
+        <button type="button" ref={moreBtnRef} onClick={() => setShowMoreMenu(true)} aria-label="Filter actions"
           className={cn("w-5 h-5 flex items-center justify-center rounded hover:bg-hover-surface2 text-ink-muted shrink-0", slots?.moreButton)}>
           <MoreHorizontal className={cn("w-3.5 h-3.5")} />
         </button>
@@ -101,13 +101,9 @@ export function FilterEditorShell({ property, operator, onOperatorChange, onDele
       {showMoreMenu && moreBtnRef.current && (
         <PortalDropdown anchorRef={moreBtnRef} onClose={() => setShowMoreMenu(false)} width={220}>
           <div className={cn("p-1 flex flex-col gap-px", slots?.menuWrap)}>
-            <button onClick={() => { onDelete(); setShowMoreMenu(false); }}
+            <button type="button" onClick={() => { onDelete(); setShowMoreMenu(false); }}
               className={cn("w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-danger-text hover:bg-hover-danger transition-colors", slots?.deleteButton)}>
               <Trash2 className={cn("w-4 h-4")} /> Delete filter
-            </button>
-            <button onClick={() => setShowMoreMenu(false)}
-              className={cn("w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-ink-body hover:bg-hover-surface transition-colors", slots?.advancedButton)}>
-              <Filter className={cn("w-4 h-4")} /> Add to advanced filter
             </button>
           </div>
         </PortalDropdown>
