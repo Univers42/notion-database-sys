@@ -20318,7 +20318,7 @@
           {
             "id": "w3",
             "type": "stat",
-            "title": "Total Revenue",
+            "title": "Catalog list value",
             "propertyId": "pp-price",
             "aggregation": "sum",
             "width": 1,
@@ -20327,7 +20327,7 @@
           {
             "id": "w4",
             "type": "stat",
-            "title": "Featured Count",
+            "title": "Featured",
             "propertyId": "pp-featured",
             "aggregation": "count",
             "width": 1,
@@ -20415,7 +20415,7 @@
           {
             "id": "wa1",
             "type": "stat",
-            "title": "Total Revenue",
+            "title": "Catalog list value",
             "propertyId": "pp-price",
             "aggregation": "sum",
             "width": 1,

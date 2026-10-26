@@ -27,7 +27,6 @@ export type { ComputedData } from './widgets/StatWidget';
  * Dispatches a dashboard widget to the appropriate renderer based on widget type.
  *
  * @param widget - Widget configuration
- * @param idx - Widget index for color cycling
  * @param pages - Database pages to render
  * @param propsMap - Property schema lookup
  * @param data - Pre-computed aggregation data
@@ -35,7 +34,7 @@ export type { ComputedData } from './widgets/StatWidget';
  * @param getPageTitle - Callback to resolve page title
  */
 export function renderWidget(
-  widget: DashboardWidget, idx: number,
+  widget: DashboardWidget,
   pages: { id: string; icon?: string; updatedAt: string; properties: Record<string, unknown> }[],
   propsMap: Record<string, SchemaProperty>,
   data: ComputedData,
@@ -44,7 +43,7 @@ export function renderWidget(
 ) {
   const prop = widget.propertyId ? propsMap[widget.propertyId] || null : null;
 
-  if (widget.type === 'stat') return renderStatWidget(widget, idx, prop, data, pages.length);
+  if (widget.type === 'stat') return renderStatWidget(widget, prop, data, pages.length);
 
   if (widget.type === 'chart') {
     if (!prop) return <EmptyWidget title={widget.title} message="No property configured" />;
