@@ -17,7 +17,9 @@ import { TableHeader } from './TableHeader';
 import { TableGroupRows, renderPageRows } from './TableGroupRows';
 import { TableRowContextMenu } from './TableRowContextMenu';
 import { ViewPaginationBar } from '../shared/ViewPaginationBar';
-import { ChevronDown, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { TableLoadMoreRow } from './TableLoadMoreRow';
+import { TableCalculationRow } from './TableCalculationRow';
 import { cn } from '../../../utils/cn';
 import { useTableViewState } from './useTableViewState';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
@@ -28,6 +30,9 @@ import type { Page } from '../../../types/database';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { buildManualRowOrder } from '../../../lib/manualRowOrder';
 import { cellDomId } from './gridKeyboard';
+import { groupPresetValue } from '../../../store/slices/storeHelpers';
+import { resolvePageSize } from '../../../hooks/useViewPager';
+import type { PropertyValue } from '../../../types/database';
 
 /** Renders the full table view with header, rows, grouping, pagination, and cell editing. */
 export function TableView() {
@@ -37,7 +42,7 @@ export function TableView() {
     searchQuery, setSearchQuery,
     dragColId, setDragColId,
     configPanel, setConfigPanel,
-    collapsedGroups, formulaEditor, setFormulaEditor,
+    formulaEditor, setFormulaEditor,
     tableRef, fillDrag, startFillDrag,
     resizingCol, handleResizeStart, getColWidth,
     visibleProps, filteredVisible, filteredHidden,
@@ -45,10 +50,10 @@ export function TableView() {
     pages, displayedPages, pager,
     handleCellClick, handleCellDoubleClick, handleUpdateProperty, handleStopEditing,
     handleOpenPage, handleFormulaEdit, handleRowMenu, handlePropertyConfig,
-    handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
+    handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown, clipboard,
     addPage, openPage, deletePage, duplicatePage,
     showVerticalLines, wrapContent, showRowNumbers,
-    colCount, isGrouped, groupedData,
+    colCount, isGrouped, groupLayout, showMoreInGroup,
     virtual,
   } = useTableViewState();
 
@@ -80,6 +85,12 @@ export function TableView() {
   }, [storeApi]);
 
   if (!view || !database) return null;
+
+  const groupProperty = view.grouping ? database.properties[view.grouping.propertyId] : undefined;
+  const addToGroup = (groupId: string) => {
+    const preset = groupProperty ? groupPresetValue(groupProperty, groupId) : undefined;
+    addPage(database.id, preset && groupProperty ? { [groupProperty.id]: preset.value as PropertyValue } : {});
+  };
 
   const renderAfterRow = subItems
     ? (page: Page): React.ReactNode =>
@@ -120,12 +131,20 @@ export function TableView() {
       {!isGrouped && <ViewPaginationBar pager={pager} />}
       <div className={cn("flex-1 overflow-auto bg-surface-primary outline-none [overflow-anchor:none]")}
         tabIndex={0} onKeyDown={handleKeyDown} onFocus={handleGridFocus} onMouseDown={handleGridMouseDown}
+        onKeyDownCapture={clipboard.onKeyDownCapture}
         ref={tableRef}
         role="grid"
-        aria-label={`${database.name || 'Database'} table — arrow keys to move, Enter to edit, Escape to exit`}
+        aria-label={`${database.name || 'Database'} table — arrows or Tab to move, type or Enter to edit, Ctrl+Enter to open, Shift+F10 for row menu, Escape to exit`}
         aria-activedescendant={focusedCell ? cellDomId(database.id, focusedCell.pageId, focusedCell.propId) : undefined}>
+        <textarea ref={clipboard.sinkRef} aria-hidden tabIndex={-1} value="" onChange={() => {}}
+          onCopy={clipboard.onCopy} onCut={clipboard.onCut} onPaste={clipboard.onPaste}
+          className={cn("fixed top-0 left-0 w-px h-px opacity-0 pointer-events-none resize-none")} />
         <div className={cn("inline-block min-w-full")}>
-        <table className={cn("min-w-full text-left border-collapse")}>
+        {/* Separate borders: collapsed ones are painted by the table as a whole,
+            so each row the virtualizer swaps in repainted every visible row
+            (12.9k → 3.2k paint ops over 25 scroll frames, measured). Row-level
+            borders do not render in this model — they live on the cells. */}
+        <table className={cn("min-w-full text-left border-separate border-spacing-0")}>
           <TableHeader
             visibleProps={visibleProps} showRowNumbers={showRowNumbers}
             showVerticalLines={showVerticalLines} getColWidth={getColWidth}
@@ -138,45 +157,39 @@ export function TableView() {
             onPropertyCreated={handlePropertyConfig}
           />
           <tbody>
-            {isGrouped ? (
+            {virtual.paddingTop > 0 && (
+              <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingTop }} className={cn("p-0 border-0")} /></tr>
+            )}
+            {groupLayout ? (
               <TableGroupRows
-                groupedData={groupedData} collapsedGroups={collapsedGroups}
-                toggleGroup={toggleGroup} colCount={colCount}
-                addPage={addPage} loadLimit={view.settings?.loadLimit} {...rowProps}
+                items={groupLayout.items.slice(virtual.firstIndex, virtual.lastIndex + 1)}
+                firstIndex={virtual.firstIndex} measureRow={virtual.measureRow}
+                colCount={colCount} pageSize={resolvePageSize(view.settings?.loadLimit)}
+                onToggleGroup={toggleGroup} onAddToGroup={addToGroup} onShowMore={showMoreInGroup}
+                {...rowProps}
               />
             ) : (
-              <>
-                {virtual.paddingTop > 0 && (
-                  <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingTop }} className={cn("p-0 border-0")} /></tr>
-                )}
-                {renderPageRows(displayedPages.slice(virtual.firstIndex, virtual.lastIndex + 1), rowProps, virtual.firstIndex, virtual.measureRow, renderAfterRow)}
-                {virtual.paddingBottom > 0 && (
-                  <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingBottom }} className={cn("p-0 border-0")} /></tr>
-                )}
-                {pager.hasNext && (
-                  <tr>
-                    <td colSpan={colCount} className={cn("p-0 border-b border-line")}>
-                      <button
-                        onClick={pager.goNext}
-                        className={cn("w-full text-left px-4 py-2 text-sm text-accent-text-soft hover:text-hover-accent-text-bold hover:bg-hover-surface-accent2 transition-colors flex items-center justify-between")}
-                      >
-                        <span className={cn("flex items-center gap-2")}><ChevronDown className={cn("w-4 h-4")} />Load more</span>
-                        <span className={cn("text-xs text-ink-muted tabular-nums")}>{pager.end} of {pager.total}</span>
-                      </button>
-                    </td>
-                  </tr>
-                )}
-                <tr>
-                  <td colSpan={colCount} className={cn("p-0")}>
-                    <button onClick={createRecord}
-                      className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
-                      <Plus className={cn("w-4 h-4")} /> New
-                    </button>
-                  </td>
-                </tr>
-              </>
+              renderPageRows(displayedPages.slice(virtual.firstIndex, virtual.lastIndex + 1), rowProps, virtual.firstIndex, virtual.measureRow, renderAfterRow)
             )}
+            {virtual.paddingBottom > 0 && (
+              <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingBottom }} className={cn("p-0 border-0")} /></tr>
+            )}
+            {!isGrouped && pager.hasNext && (
+              <TableLoadMoreRow colCount={colCount} shown={pager.end} total={pager.total}
+                onLoadMore={pager.loadMore} onShowAll={pager.showAll} />
+            )}
+            <tr>
+              <td colSpan={colCount} className={cn("p-0")}>
+                <button onClick={createRecord}
+                  className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
+                  <Plus className={cn("w-4 h-4")} /> New
+                </button>
+              </td>
+            </tr>
           </tbody>
+          <TableCalculationRow viewId={view.id} pages={pages} visibleProps={visibleProps}
+            calculations={view.settings?.columnCalculations} getColWidth={getColWidth}
+            showVerticalLines={showVerticalLines} />
         </table>
       </div>
 
@@ -190,7 +203,7 @@ export function TableView() {
       )}
       {rowMenu && (
         <TableRowContextMenu rowMenu={rowMenu} onClose={() => setRowMenu(null)}
-          openPage={openPage} duplicatePage={duplicatePage} deletePage={deletePage} />
+          openPage={openPage} duplicatePage={duplicatePage} deletePage={deletePage} returnFocusRef={tableRef} />
       )}
       </div>
     </div>

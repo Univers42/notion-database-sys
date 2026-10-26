@@ -487,6 +487,8 @@ export interface ViewSettings {
    *  unranked pages follow in creation order. Written by row drag-reorder. */
   manualRowOrder?: string[];
   columnWidths?: Record<string, number>;
+  /** Table footer calculation per property id (count_all, sum, earliest…). */
+  columnCalculations?: Record<string, string>;
   columnOrder?: string[];
   colorColumns?: boolean;
   cardPreview?: 'none' | 'page_cover' | 'page_properties' | 'page_content';

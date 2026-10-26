@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import { AddPropertyPanel, ADD_PANEL_WIDTH, SENTIMENT_OPTIONS } from './AddPropertyPanel';
-import { colWidthVar } from './useColumnResize';
+import { colWidthVar, MIN_COL_WIDTH } from './useColumnResize';
 import { cn } from '../../../utils/cn';
 
 interface TableHeaderProps {
@@ -106,7 +106,7 @@ export function TableHeader({
 
   return (
     <thead className={cn("sticky top-0 z-30")}>
-      <tr className={cn("bg-surface-secondary border-b border-line")}>
+      <tr className={cn("bg-surface-secondary [&>th]:border-b [&>th]:border-line")}>
         <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>
           {showRowNumbers ? '#' : ''}
         </th>
@@ -152,9 +152,17 @@ export function TableHeader({
               <ChevronDown className={cn("w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-ink-muted shrink-0")} />
             </button>
             <div // NOSONAR - custom resize separator
-              role="separator" tabIndex={0} aria-label="Resize column"
-              aria-orientation="vertical" aria-valuemin={60} aria-valuemax={600}
-              aria-valuenow={Math.min(600, Math.max(60, Math.round(getColWidth(prop.id))))}
+              role="separator" tabIndex={0} aria-label={`Resize ${prop.name} column`}
+              aria-orientation="vertical" aria-valuemin={MIN_COL_WIDTH} aria-valuemax={600}
+              onKeyDown={e => {
+                const step = { ArrowLeft: -16, ArrowRight: 16 }[e.key];
+                if (!step) return;
+                e.preventDefault();
+                const current = storeApi.getState().views[viewId]?.settings?.columnWidths;
+                const width = Math.min(600, Math.max(MIN_COL_WIDTH, (current?.[prop.id] || 180) + step));
+                storeApi.getState().updateViewSettings(viewId, { columnWidths: { ...current, [prop.id]: width } });
+              }}
+              aria-valuenow={Math.min(600, Math.max(MIN_COL_WIDTH, Math.round(getColWidth(prop.id))))}
               className={cn(`absolute top-0 right-0 w-1 h-full hover:bg-hover-accent-subtle transition-colors ${resizingCol === prop.id ? 'bg-accent' : ''}`)} // NOSONAR - resize separator needs tabIndex
               style={{ cursor: CURSORS.colResize }}
               onMouseDown={e => handleResizeStart(e, prop.id)} />

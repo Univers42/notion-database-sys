@@ -120,6 +120,32 @@ export function buildGroups(
   }));
 }
 
+/** The stored value that puts a page into `groupId` of `buildGroups`, or
+ *  `undefined` when no write can (a computed column, a joined multi-value key,
+ *  or "empty" on a non-nullable select). */
+export function groupPresetValue(groupProp: SchemaProperty, groupId: string): { value: unknown } | undefined {
+  const empty = groupId === '__unassigned__';
+  switch (groupProp.type) {
+    case 'select':
+    case 'status':
+      return empty && groupProp.nullable === false ? undefined : { value: empty ? null : groupId };
+    case 'checkbox':
+      return { value: groupId === 'checked' };
+    case 'number': {
+      if (empty) return { value: null };
+      const n = Number(groupId);
+      return Number.isFinite(n) ? { value: n } : undefined;
+    }
+    case 'text':
+    case 'url':
+    case 'email':
+    case 'phone':
+      return { value: empty ? '' : groupId };
+    default:
+      return undefined;
+  }
+}
+
 /** Format a WASM formula engine result for display. */
 export function formatFormulaResult(result: unknown): unknown {
   if (result instanceof Date) {

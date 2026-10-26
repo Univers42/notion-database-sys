@@ -29,6 +29,8 @@ export interface MemoTableRowProps {
   visibleProps: SchemaProperty[];
   focusedPropId: string | null;
   editingPropId: string | null;
+  /** Typed character that started the edit (type-to-edit); replaces the text. */
+  editSeed?: string;
   /** ANY fill drag is in progress — drives the crosshair cursor. Changes only
    *  at drag start/end, never per mousemove. */
   fillDragActive: boolean;
@@ -55,6 +57,9 @@ export interface MemoTableRowProps {
   tint?: string | null;
   /** Virtualizer row-measure ref (windowed body) — attaches to the <tr>. */
   measureRef?: (el: HTMLTableRowElement | null) => void;
+  /** The row's index in the virtualizer when it differs from `rowIdx`
+   *  (grouped bodies interleave header and footer rows). */
+  virtualIndex?: number;
   /** Row drag-reorder (manual order): off under user sorts / grouping. */
   canReorder?: boolean;
   onRowDragStart?: (pageId: string) => void;
@@ -75,7 +80,7 @@ function focusRingClass(isFocused: boolean, inFillRange: boolean): string {
 /** Memoized table row that only re-renders when its own data changes. */
 export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRowProps) {
   const {
-    page, rowIdx, visibleProps, focusedPropId, editingPropId,
+    page, rowIdx, visibleProps, focusedPropId, editingPropId, editSeed,
     fillDragActive, fillRangePropId, showRowNumbers, showVerticalLines, wrapContent,
     getColWidth, databaseId, onCellClick, onCellDoubleClick, onUpdateProperty, onStopEditing,
     onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
@@ -87,7 +92,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
 
   return (
-    <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={rowIdx} data-page-id={page.id}
+    <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={props.virtualIndex ?? rowIdx} data-page-id={page.id}
       role="row"
       className={cn(`group transition-colors duration-100 hover:bg-hover-surface-soft ${props.isDropTarget ? 'shadow-[inset_0_2px_0_0_var(--color-accent)]' : ''}`)}
       style={props.tint ? { backgroundColor: props.tint } : undefined}
@@ -104,7 +109,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         <div className={cn("absolute inset-0 flex items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100")}>
           {props.canReorder && (
             <button type="button" aria-label="Drag to reorder record" title="Drag to reorder"
-              draggable
+              draggable tabIndex={-1}
               className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
               onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; props.onRowDragStart?.(page.id); }}
               onDragEnd={e => { e.stopPropagation(); props.onRowDragEnd?.(); }}>
@@ -129,7 +134,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         const ring = focusRingClass(isFocused, inFill);
 
         const cellProps: CellRendererProps = {
-          prop, page, value, isEditing, wrapContent, databaseId,
+          prop, page, value, isEditing, editSeed: isEditing ? editSeed : undefined, wrapContent, databaseId,
           onUpdate: onUpdateProperty, onStopEditing, onOpenPage,
           onFormulaEdit, onPropertyConfig, tableRef, storeApi,
         };
@@ -168,7 +173,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
       })}
 
       <td className={cn("border-b border-line px-1")}>
-        <button aria-label="Row options" className={cn("p-1 min-h-[24px] min-w-[24px] text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2")}
+        <button aria-label="Row options" tabIndex={-1} className={cn("p-1 min-h-[24px] min-w-[24px] text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2")}
           onClick={e => { const r = e.currentTarget.getBoundingClientRect(); onRowMenu(page.id, r.left, r.bottom); }}>
           <MoreHorizontal className={cn("w-3.5 h-3.5")} />
         </button>

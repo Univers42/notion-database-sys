@@ -118,7 +118,7 @@ export function runButtonAction(prop: SchemaProperty, ctx?: ButtonActionContext)
 export function renderButton(p: CellRendererProps): React.ReactNode {
   const { prop, page, databaseId, storeApi } = p;
   return (
-    <button className={cn("px-2.5 py-0.5 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md")}
+    <button tabIndex={-1} className={cn("px-2.5 py-0.5 bg-surface-tertiary hover:bg-hover-surface3 text-xs font-medium text-ink-body rounded-md")}
       onClick={e => { e.stopPropagation(); runButtonAction(prop, { storeApi, page, databaseId }); }}>
       {prop.buttonConfig?.label || 'Click'}
     </button>
@@ -183,7 +183,7 @@ export function renderCustomEditor(dt: string, value: PropertyValue, onChange: (
       }}
       onBlur={onStop}
       onKeyDown={e => { if (e.key === 'Enter') { onStop(); tableRef.current?.focus(); } }}
-      className={cn("w-full bg-transparent outline-none text-sm font-mono")} />
+      className={cn("block w-full bg-transparent outline-none text-sm font-mono")} />
   );
 }
 
