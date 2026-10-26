@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Image } from 'lucide-react';
 import { CURSORS } from '../../ui/cursors';
 import type { Page, SchemaProperty } from '../../../types/database';
@@ -105,17 +105,19 @@ export function BoardCard({
 }: Readonly<BoardCardProps>) {
   const size = sizeCfg(cardSize);
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];
+  const [editing, setEditing] = useState(false);
 
+  // A div, not a button: the card holds its own value buttons. CardBody's
+  // title button stretches over the card to open the page.
   return (
-    <button type="button" draggable
+    <div draggable={!editing}
       onDragStart={e => onDragStart(e, page.id)}
-      onClick={() => openPage(page.id)}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
       style={{ cursor: CURSORS.grab, ...(accent ? { boxShadow: `inset 3px 0 0 0 ${accent}` } : {}) }}
-      className={cn('bg-surface-primary w-full min-w-0 rounded-lg border border-line-light overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-sm hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-[box-shadow,border-color] group/card text-left')}>
+      className={cn('relative bg-surface-primary w-full min-w-0 rounded-lg border border-line-light overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-sm hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] group/card text-left')}>
       <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} size={size} />
       <CardBody page={page} title={getPageTitle(page)} icon={page.icon} props={nonTitleGroupProps}
-        databaseId={databaseId} wrap={wrapContent} className={size.pad} titleClass={size.title} />
-    </button>
+        databaseId={databaseId} wrap={wrapContent} className={size.pad} titleClass={size.title}
+        onOpen={() => openPage(page.id)} onEditingChange={setEditing} />
+    </div>
   );
 }
