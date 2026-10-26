@@ -33,6 +33,7 @@ export interface TopBarActionsProps {
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
   /** The popover with the view settings pins itself to this button. */
   settingsBtnRef: React.RefObject<HTMLButtonElement | null>;
+  sortBtnRef: React.RefObject<HTMLButtonElement | null>;
   filters: FilterType[];
   sorts: Sort[];
   showFilterPropertyPicker: boolean;
@@ -69,7 +70,7 @@ export interface TopBarActionsProps {
 export function TopBarActions({
   variant = 'full',
   onOpenFullPage,
-  filterBtnRef, settingsBtnRef, filters, sorts,
+  filterBtnRef, settingsBtnRef, sortBtnRef, filters, sorts,
   showFilterPropertyPicker, setShowFilterPropertyPicker,
   showFilterPanel, setShowFilterPanel, setShowAdvancedFilter,
   showSortPanel, setShowSortPanel,
@@ -101,7 +102,7 @@ export function TopBarActions({
         <Filter className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Filter</span>
         {filters.length > 0 && <span className={cn("text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums")}>{filters.length}</span>}
       </button>
-      <button aria-label="Sort" title="Sort" onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
+      <button ref={sortBtnRef} aria-label="Sort" title="Sort" onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
         className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${sorts.length > 0
           ? 'bg-purple-surface text-purple-text font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
         <ArrowUpDown className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Sort</span>

@@ -21,7 +21,9 @@ import { ViewTabsRow } from './topBar/ViewTabsRow';
 import { FilterSortPanels } from './topBar/FilterSortPanels';
 import { TopBarActions } from './topBar/TopBarActions';
 import { InlineTitle } from './topBar/InlineTitle';
-import { ViewSettingsPopover } from './topBar/ViewSettingsPopover';
+import { AnchoredPopover } from './topBar/AnchoredPopover';
+import { SortPanel } from './sort/SortPanel';
+import { PANEL_WIDTH } from '../utils/geometry';
 import { orderedDatabaseViews } from '../lib/viewOrder';
 import { cn } from '../utils/cn';
 
@@ -79,6 +81,7 @@ export function TopBar({
   const topBarRef = useRef<HTMLDivElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
   const settingsBtnRef = useRef<HTMLButtonElement>(null);
+  const sortBtnRef = useRef<HTMLButtonElement>(null);
 
   const dbViews = database ? orderedDatabaseViews(views, database.id, database.viewOrder) : [];
   const rowCount = useDatabaseStore(s =>
@@ -197,7 +200,7 @@ export function TopBar({
           <TopBarActions
             variant={variant}
             onOpenFullPage={openOrigin}
-            filterBtnRef={filterBtnRef} settingsBtnRef={settingsBtnRef} filters={filters} sorts={sorts}
+            filterBtnRef={filterBtnRef} settingsBtnRef={settingsBtnRef} sortBtnRef={sortBtnRef} filters={filters} sorts={sorts}
             showFilterPropertyPicker={showFilterPropertyPicker} setShowFilterPropertyPicker={setShowFilterPropertyPicker}
             showFilterPanel={showFilterPanel} setShowFilterPanel={setShowFilterPanel}
             setShowAdvancedFilter={setShowAdvancedFilter}
@@ -240,14 +243,20 @@ export function TopBar({
         <FilterSortPanels showFilterPanel={showFilterPanel} showFilterPropertyPicker={showFilterPropertyPicker}
           setShowFilterPropertyPicker={setShowFilterPropertyPicker}
           showAdvancedFilter={showAdvancedFilter} setShowAdvancedFilter={setShowAdvancedFilter}
-          setShowFilterPanel={setShowFilterPanel} showSortPanel={showSortPanel}
+          setShowFilterPanel={setShowFilterPanel}
           filters={filters} database={database} view={view} filterBtnRef={filterBtnRef} />
       </div>
 
+      {showSortPanel && (
+        <AnchoredPopover anchorRef={sortBtnRef} label="Sort" width={PANEL_WIDTH.SORT} onClose={() => setShowSortPanel(false)}>
+          <SortPanel database={database} view={view} />
+        </AnchoredPopover>
+      )}
+
       {showViewSettings && (
-        <ViewSettingsPopover anchorRef={settingsBtnRef} onClose={() => setShowViewSettings(false)}>
+        <AnchoredPopover anchorRef={settingsBtnRef} label="View settings" width={PANEL_WIDTH.SETTINGS + 2} onClose={() => setShowViewSettings(false)}>
           <ViewSettingsPanel key={settingsScreen ?? 'main'} initialScreen={settingsScreen} onClose={() => setShowViewSettings(false)} />
-        </ViewSettingsPopover>
+        </AnchoredPopover>
       )}
 
     </>
