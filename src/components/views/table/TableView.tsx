@@ -29,7 +29,7 @@ import { colorForPage } from '../../../lib/conditionalColor';
 import type { Page } from '../../../types/database';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { buildManualRowOrder } from '../../../lib/manualRowOrder';
-import { cellDomId } from './gridKeyboard';
+import { cellDomId, GRID_KEY_SHORTCUTS } from './gridKeyboard';
 import { groupPresetValue } from '../../../store/slices/storeHelpers';
 import { resolvePageSize } from '../../../hooks/useViewPager';
 import type { PropertyValue } from '../../../types/database';
@@ -38,7 +38,7 @@ import type { PropertyValue } from '../../../types/database';
 export function TableView() {
   const {
     view, database,
-    focusedCell, editingCell,
+    focusedCell, editingCell, selection, clipboard,
     searchQuery, setSearchQuery,
     dragColId, setDragColId,
     configPanel, setConfigPanel,
@@ -48,9 +48,9 @@ export function TableView() {
     visibleProps, filteredVisible, filteredHidden,
     rowMenu, setRowMenu,
     pages, displayedPages, pager,
-    handleCellClick, handleCellDoubleClick, handleUpdateProperty, handleStopEditing,
-    handleOpenPage, handleFormulaEdit, handleRowMenu, handlePropertyConfig,
-    handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown, clipboard,
+    handleCellClick, handleCellDoubleClick, handleCellMouseDown, handleCellMouseEnter,
+    handleUpdateProperty, handleStopEditing, handleOpenPage, handleFormulaEdit, handleRowMenu, handlePropertyConfig,
+    handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
     addPage, openPage, deletePage, duplicatePage,
     showVerticalLines, wrapContent, showRowNumbers,
     colCount, isGrouped, groupLayout, showMoreInGroup,
@@ -107,9 +107,10 @@ export function TableView() {
 
   const colorRules = view.settings?.conditionalColors;
   const rowProps = {
-    visibleProps, focusedCell, editingCell, fillDrag,
+    visibleProps, focusedCell, editingCell, fillDrag, selection,
     showRowNumbers, showVerticalLines, wrapContent, getColWidth,
     databaseId: database.id, onCellClick: handleCellClick, onCellDoubleClick: handleCellDoubleClick,
+    onCellMouseDown: handleCellMouseDown, onCellMouseEnter: handleCellMouseEnter,
     onUpdateProperty: handleUpdateProperty, onStopEditing: handleStopEditing,
     onOpenPage: handleOpenPage, onFillDragStart: startFillDrag,
     onFormulaEdit: handleFormulaEdit, onRowMenu: handleRowMenu,
@@ -132,12 +133,15 @@ export function TableView() {
       <div className={cn("flex-1 overflow-auto bg-surface-primary outline-none [overflow-anchor:none]")}
         tabIndex={0} onKeyDown={handleKeyDown} onFocus={handleGridFocus} onMouseDown={handleGridMouseDown}
         onKeyDownCapture={clipboard.onKeyDownCapture}
+        onCopy={clipboard.onCopy} onCut={clipboard.onCut} onPaste={clipboard.onPaste}
         ref={tableRef}
         role="grid"
+        aria-multiselectable="true"
+        aria-keyshortcuts={GRID_KEY_SHORTCUTS}
         aria-label={`${database.name || 'Database'} table — arrows or Tab to move, type or Enter to edit, Ctrl+Enter to open, Shift+F10 for row menu, Escape to exit`}
         aria-activedescendant={focusedCell ? cellDomId(database.id, focusedCell.pageId, focusedCell.propId) : undefined}>
+        {/* Its copy/cut/paste events bubble to the grid's handlers above. */}
         <textarea ref={clipboard.sinkRef} aria-hidden tabIndex={-1} value="" onChange={() => {}}
-          onCopy={clipboard.onCopy} onCut={clipboard.onCut} onPaste={clipboard.onPaste}
           className={cn("fixed top-0 left-0 w-px h-px opacity-0 pointer-events-none resize-none")} />
         <div className={cn("inline-block min-w-full")}>
         {/* Separate borders: collapsed ones are painted by the table as a whole,

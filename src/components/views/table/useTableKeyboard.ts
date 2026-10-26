@@ -11,18 +11,19 @@
 /* ************************************************************************** */
 
 import React, { useCallback } from 'react';
-import { useStoreApi, type DatabaseStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
 import {
   type CellCoord,
-  clearValueFor,
+  type CellRange,
   directionForKey,
-  isClearableType,
   isGridEntryKey,
   nextFocusedCell,
   typeToEditSeed,
   type EditingCell,
 } from './gridKeyboard';
+import { planClear } from './gridClipboard';
+import { applyCellWrites } from './useGridClipboard';
 
 /** How many rows PageUp/PageDown jump (roughly one virtualized viewport). */
 const PAGE_STEP = 10;
@@ -48,17 +49,6 @@ function handleEditingKeys(
   }
 }
 
-function handleDeleteKey(
-  focusedCell: CellCoord,
-  database: DatabaseSchema,
-  storeApi: DatabaseStoreApi,
-): void {
-  const prop = database.properties[focusedCell.propId];
-  if (prop && isClearableType(prop.type)) {
-    storeApi.getState().updatePageProperty(focusedCell.pageId, focusedCell.propId, clearValueFor(prop.type));
-  }
-}
-
 interface KeyboardDeps {
   focusedCell: CellCoord | null;
   editingCell: EditingCell | null;
@@ -78,15 +68,22 @@ interface KeyboardDeps {
   onRowMenu: (pageId: string, x: number, y: number) => void;
   /** Ctrl/Cmd+Enter: open the selected record. */
   onOpenPage: (pageId: string) => void;
+  /** Fixed corner of a multi-cell selection; Shift+arrows move the other corner. */
+  selectionAnchor: CellCoord | null;
+  setSelectionAnchor: React.Dispatch<React.SetStateAction<CellCoord | null>>;
+  /** The selected cells (the focused cell alone when there is no anchor). */
+  selectionRange: CellRange | null;
 }
 
-/** Handles grid navigation (arrows, Tab, Home/End, PageUp/Down), cell activation
- *  (Enter/Space), clearing (Delete), and the Escape-out-of-grid step. */
+/** Handles grid navigation (arrows, Tab, Home/End, PageUp/Down; Shift extends
+ *  the selection), cell activation (Enter/Space), clearing the selection
+ *  (Delete), and the Escape steps: collapse the selection, then leave the grid. */
 export function useTableKeyboard(deps: KeyboardDeps) {
   const {
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
     onActivateCell, onExitGrid, scrollToIndex, onRowMenu, onOpenPage,
+    selectionAnchor, setSelectionAnchor, selectionRange,
   } = deps;
   const storeApi = useStoreApi();
 
@@ -153,6 +150,9 @@ export function useTableKeyboard(deps: KeyboardDeps) {
       if (e.key === 'Tab' && !next) return;
       own();
       if (next) {
+        // Shift+Tab is a move, not an extend.
+        if (e.shiftKey && e.key !== 'Tab') setSelectionAnchor(anchor => anchor ?? focusedCell);
+        else setSelectionAnchor(null);
         setFocusedCell(next);
         const nextPi = displayedPages.findIndex(p => p.id === next.pageId);
         if (nextPi >= 0 && nextPi !== pi) scrollToIndex?.(nextPi);
@@ -190,14 +190,15 @@ export function useTableKeyboard(deps: KeyboardDeps) {
         break;
       case 'Escape':
         own();
-        onExitGrid();
+        if (selectionAnchor) setSelectionAnchor(null);
+        else onExitGrid();
         break;
       case 'Delete':
       case 'Backspace':
-        // Claim it so Backspace/Delete clears the cell — not the host editor
+        // Claim it so Backspace/Delete clears the cells — not the host editor
         // deleting the whole database block.
         own();
-        handleDeleteKey(focusedCell, database, storeApi);
+        if (selectionRange) applyCellWrites(storeApi, planClear(selectionRange, displayedPages, visibleProps));
         break;
       default: {
         const type = database.properties[focusedCell.propId]?.type ?? '';
@@ -212,5 +213,6 @@ export function useTableKeyboard(deps: KeyboardDeps) {
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
     onActivateCell, onExitGrid, storeApi, scrollToIndex, onRowMenu, onOpenPage,
+    selectionAnchor, setSelectionAnchor, selectionRange,
   ]);
 }

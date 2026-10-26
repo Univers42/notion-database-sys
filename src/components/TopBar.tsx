@@ -134,10 +134,10 @@ export function TopBar({
               isEditing={isEditingTitle}
               titleValue={titleValue}
               setTitleValue={setTitleValue}
+              onStartEdit={startTitleEdit}
               onCommit={commitTitle}
               onCancel={cancelTitle}
               onOpen={openOrigin}
-              onRename={startTitleEdit}
             />
           ) : isSingleView ? (
             <div className={cn("flex min-w-0 items-center gap-2")}>
