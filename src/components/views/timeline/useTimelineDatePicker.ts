@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, parse,
   isSameDay, startOfWeek, endOfWeek,
@@ -71,16 +71,27 @@ export function useTimelineDatePicker(props: Readonly<TimelineDatePickerProps>) 
     if (merged) onChangeEnd(merged);
   }, [endDate, startDate, mergeTime, onChangeEnd]);
 
+  // Measured before paint, and again when the end date or time rows change it.
+  const [panelHeight, setPanelHeight] = useState(0);
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return undefined;
+    setPanelHeight(panel.offsetHeight);
+    const observer = new ResizeObserver(() => setPanelHeight(panel.offsetHeight));
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, []);
+
+  // Below the anchor when the panel fits there, else above it, growing upward
+  // from the anchor. It used to clamp its top into the window instead, which
+  // slid it up over the very cell it edits whenever the room below was short.
+  // Only a window too short for either side still lets it cover the anchor.
   const style = useMemo(() => {
-    const top = anchorRect.bottom + 4;
-    const left = anchorRect.left;
-    const maxLeft = window.innerWidth - 300;
-    const maxTop = window.innerHeight - 520;
-    return {
-      top: Math.min(top, Math.max(8, maxTop)),
-      left: Math.max(8, Math.min(left, maxLeft)),
-    };
-  }, [anchorRect]);
+    const left = Math.max(8, Math.min(anchorRect.left, window.innerWidth - 300));
+    if (window.innerHeight - anchorRect.bottom - 12 >= panelHeight) return { top: anchorRect.bottom + 4, left };
+    if (anchorRect.top - 12 >= panelHeight) return { bottom: window.innerHeight - anchorRect.top + 4, left };
+    return { top: Math.max(8, window.innerHeight - panelHeight - 8), left };
+  }, [anchorRect, panelHeight]);
 
   useEffect(() => {
     const d = selectingEnd ? endDate : startDate;
@@ -95,6 +106,10 @@ export function useTimelineDatePicker(props: Readonly<TimelineDatePickerProps>) 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        // One Escape closes one layer. Let through, it reached the table under
+        // the picker, which read it as "leave the grid" and dropped the cell
+        // selection the picker had just handed focus back to.
+        e.stopPropagation();
         if (showFormatDropdown) setShowFormatDropdown(false);
         else if (showRemindDropdown) setShowRemindDropdown(false);
         else onClose();
