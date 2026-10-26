@@ -164,7 +164,9 @@ export function TimelineView() {
             onAddPage={() => addPage(database.id, { [startProp.id]: today.toISOString() })}
           />
         )}
-        <div ref={scrollRef} className={cn("flex-1 overflow-x-auto overflow-y-auto flex flex-col")}
+        {/* isolate: as in TableView, the sticky day header and bar handles are
+            layered within this clipping box, never against the page. */}
+        <div ref={scrollRef} className={cn("isolate flex-1 overflow-x-auto overflow-y-auto flex flex-col")}
           onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={cancelDrag}
         >
           <TimelineDayHeaders monthGroups={monthGroups} days={days} config={config} zoomLevel={zoomLevel} />
