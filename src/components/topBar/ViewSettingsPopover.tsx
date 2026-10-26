@@ -11,13 +11,17 @@
 /* ************************************************************************** */
 
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { anchoredPanelFrame, PANEL_WIDTH, Z, type AnchoredFrame } from '../../utils/geometry';
 import { cn } from '../../utils/cn';
 
 // View settings belong to ONE database, so they open as a popover pinned to
 // that database's settings button, not as a sheet docked to the app's edge.
-// It follows the button on scroll/resize; it is not draggable. Rendered in
-// place (no portal) so the database's scoped theme still applies.
+// It follows the button on scroll/resize; it is not draggable. Portaled to body
+// because it is placed with window coordinates: in place, a host pane
+// (`contain: paint`) or layout cell (`transform`) became its containing block,
+// shifting it by that box's offset and clipping it to that box, so next to a
+// full-width database it ended up off the pane and out of sight.
 const POPOVER_WIDTH = PANEL_WIDTH.SETTINGS + 2;
 
 export function ViewSettingsPopover({ anchorRef, onClose, children }: Readonly<{
@@ -60,7 +64,7 @@ export function ViewSettingsPopover({ anchorRef, onClose, children }: Readonly<{
     };
   }, [anchorRef]);
 
-  return (
+  return createPortal(
     <>
       <button type="button" tabIndex={-1} aria-label="Close view settings" onClick={onClose}
         className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")}
@@ -73,6 +77,7 @@ export function ViewSettingsPopover({ anchorRef, onClose, children }: Readonly<{
         onKeyDown={e => { if (e.key === 'Escape') onClose(); e.stopPropagation(); }}>{/* NOSONAR */}
         {children}
       </dialog>
-    </>
+    </>,
+    document.body,
   );
 }
