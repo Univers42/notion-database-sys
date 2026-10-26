@@ -153,8 +153,7 @@ export function GalleryView() {
         style={isCarousel ? { scrollSnapType: "x proximity" } : undefined}
       >
         {list.map((page, idx) => renderCard(page, idx))}
-        {/* Add card — a short Notion-style bar, not a full-height ghost card
-            (self-start opts out of the grid row's stretch alignment). */}
+        {/* Add card — Notion's full-height tile: it stretches with its grid row. */}
         <button type="button" data-testid="gallery-new-page"
           onClick={groupValue === undefined
             ? createRecord
