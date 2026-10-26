@@ -131,7 +131,11 @@ export function TableView() {
   return (
     <div className={cn("flex-1 flex flex-col min-h-0")}>
       {!isGrouped && <ViewPaginationBar pager={pager} />}
-      <div className={cn("flex-1 overflow-auto bg-surface-primary outline-none [overflow-anchor:none]")}
+      {/* isolate: the sticky header (z-30), calculation bar (z-20) and selected
+          cells (z-10) are layered against each other only. Without it they
+          outranked page menus and the outline rail laid over the table. The
+          box already clips its content, so nothing inside can lose by it. */}
+      <div className={cn("isolate flex-1 overflow-auto bg-surface-primary outline-none [overflow-anchor:none]")}
         tabIndex={0} onKeyDown={handleKeyDown} onFocus={handleGridFocus} onMouseDown={handleGridMouseDown}
         onKeyDownCapture={clipboard.onKeyDownCapture}
         onCopy={clipboard.onCopy} onCut={clipboard.onCut} onPaste={clipboard.onPaste}
