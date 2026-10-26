@@ -89,7 +89,7 @@ export function TopBar({
   const filters = view.filters || [];
   const sorts = view.sorts || [];
 
-  const handleTitleDoubleClick = () => { setTitleValue(database.name); setIsEditingTitle(true); };
+  const startTitleEdit = () => { setTitleValue(database.name); setIsEditingTitle(true); };
   const commitTitle = () => {
     const next = titleValue.trim();
     if (next) { renameDatabase(database.id, next); onDatabaseRenamed?.(database.id, next); }
@@ -124,6 +124,7 @@ export function TopBar({
               isEditing={isEditingTitle}
               titleValue={titleValue}
               setTitleValue={setTitleValue}
+              onStartEdit={startTitleEdit}
               onCommit={commitTitle}
               onCancel={() => setIsEditingTitle(false)}
               onOpen={openOrigin}
@@ -169,10 +170,11 @@ export function TopBar({
                   onKeyDown={e => { if (e.key === 'Enter') { commitTitle(); } if (e.key === 'Escape') { setIsEditingTitle(false); } }}
                   className={cn("text-lg font-bold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]")} />
               ) : (
-                <h1 style={{ cursor: CURSORS.text }}
-                  className={cn("text-lg font-bold text-ink truncate hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors")}
-                  onDoubleClick={handleTitleDoubleClick} title="Double-click to rename">
-                  {database.name}
+                <h1 className={cn("min-w-0 text-lg font-bold text-ink")}>
+                  <button type="button" onClick={startTitleEdit} title="Rename" style={{ cursor: CURSORS.text }}
+                    className={cn("max-w-full truncate hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors")}>
+                    {database.name}
+                  </button>
                 </h1>
               )}
             </div>
@@ -217,7 +219,7 @@ export function TopBar({
           <ViewTabsRow dbViews={dbViews} activeViewId={activeViewId ?? ''} view={view} database={database}
             setActiveView={setActiveView} addView={addView} updateView={updateView}
             duplicateView={duplicateView} deleteView={deleteView} reorderViews={reorderViews}
-            onEditTitle={handleTitleDoubleClick} onEditLayout={() => setShowViewSettings(true)}
+            onEditTitle={startTitleEdit} onEditLayout={() => setShowViewSettings(true)}
             onViewSource={openOrigin}
             onSetIcon={(icon) => updateDatabaseIcon(database.id, icon)} />
         )}
