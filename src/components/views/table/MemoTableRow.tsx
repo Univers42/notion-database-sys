@@ -15,7 +15,6 @@ import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
 import { renderCellContent, CellRendererProps } from './CellRenderer';
-import { colWidthVar } from './useColumnResize';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useSubItems } from './subItemsContext';
 import { GripHandleIcon } from '../../ui/Icons';
@@ -177,12 +176,10 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         else if (isEditing) cellCursor = undefined;
         else cellCursor = CURSORS.cell;
 
-        // var() first so a column-resize drag can move every cell per frame by
-        // writing ONE CSS custom property on the table element (no store write,
-        // no re-render); the store-backed width is the resting fallback.
-        const width = `var(${colWidthVar(prop.id)}, ${getColWidth(prop.id)}px)`;
+        // A resize drag rewrites this width in place through data-col (useColumnResize).
+        const width = `${getColWidth(prop.id)}px`;
         return (
-          <td key={prop.id}
+          <td key={prop.id} data-col={prop.id}
             id={cellDomId(databaseId, page.id, prop.id)}
             role="gridcell"
             aria-selected={isFocused || inSelection}

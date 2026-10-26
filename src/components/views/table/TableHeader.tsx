@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import { AddPropertyPanel, ADD_PANEL_WIDTH, SENTIMENT_OPTIONS } from './AddPropertyPanel';
-import { colWidthVar, MIN_COL_WIDTH } from './useColumnResize';
+import { MIN_COL_WIDTH } from './useColumnResize';
 import { cn } from '../../../utils/cn';
 
 interface TableHeaderProps {
@@ -111,12 +111,10 @@ export function TableHeader({
           <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>#</th>
         )}
         {visibleProps.map(prop => {
-          // var() first: a resize drag moves the column per frame through one
-          // CSS custom property on the table element (no store write per RAF);
-          // the store-backed width is the resting fallback. See useColumnResize.
-          const width = `var(${colWidthVar(prop.id)}, ${getColWidth(prop.id)}px)`;
+          // A resize drag rewrites this width in place through data-col (useColumnResize).
+          const width = `${getColWidth(prop.id)}px`;
           return (
-          <th key={prop.id}
+          <th key={prop.id} data-col={prop.id}
             className={cn(`px-3 py-2 text-xs font-medium text-ink-secondary ${showVerticalLines ? 'border-r' : ''} border-line bg-surface-secondary group relative select-none transition-opacity ${dragColId === prop.id ? 'opacity-40' : ''}`)}
             style={{ width, minWidth: width, maxWidth: width, cursor: CURSORS.grab }}
             draggable
