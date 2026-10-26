@@ -37,7 +37,7 @@ export function GalleryView() {
   const databases = useDatabaseStore(s => s.databases);
   useDatabaseStore(s => s.searchQuery);
   const storeApi = useStoreApi();
-  const { openPage, getPageTitle, addPage } = storeApi.getState();
+  const { openPage, getPageTitle, addPage, getCellValue } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const pages = useViewPages(view?.id);
@@ -159,7 +159,7 @@ export function GalleryView() {
   const renderCard = (page: Page, idx: number) => {
           const title = getPageTitle(page);
 
-          const accent = colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null;
+          const accent = colorForPage(page, settings.conditionalColors, database.properties, getCellValue)?.accent ?? null;
           return (
             <button type="button" key={page.id} onClick={() => openPage(page.id)}
               style={{

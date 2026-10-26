@@ -38,7 +38,7 @@ export function BoardView() {
   useDatabaseStore(s => s.pages);
   useDatabaseStore(s => s.searchQuery);
   const storeApi = useStoreApi();
-  const { updatePageProperty, updateViewSettings, addPage, getPageTitle, openPage, getGroupedPages } = storeApi.getState();
+  const { updatePageProperty, updateViewSettings, addPage, getPageTitle, openPage, getGroupedPages, getCellValue } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const globalFilters = useDashboardFilters();
@@ -68,7 +68,7 @@ export function BoardView() {
 
   const rawGroups = getGroupedPages(view.id);
   const groups = globalFilters.length === 0 ? rawGroups : rawGroups.map(g => ({
-    ...g, pages: applyGlobalFilters(g.pages, globalFilters, database.properties),
+    ...g, pages: applyGlobalFilters(g.pages, globalFilters, database.properties, getCellValue),
   }));
   const settings = view.settings || {};
   const cardSize = settings.cardSize || 'medium';
@@ -198,7 +198,7 @@ export function BoardView() {
                     databaseId={database.id}
                     nonTitleGroupProps={nonTitleGroupProps} openPage={openPage}
                     getPageTitle={getPageTitle} onDragStart={handleDragStart}
-                    accent={colorForPage(page, settings.conditionalColors, database.properties)?.accent ?? null} />
+                    accent={colorForPage(page, settings.conditionalColors, database.properties, getCellValue)?.accent ?? null} />
                   {dropCard?.pageId === page.id && dropCard.after && (
                     <div className={cn("absolute -bottom-[5px] left-1 right-1 h-[3px] rounded-full bg-accent z-10 pointer-events-none")} data-testid="board-drop-line" />
                   )}

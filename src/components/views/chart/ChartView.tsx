@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { Suspense, useCallback } from 'react';
+import React, { Suspense, useCallback, useMemo } from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { BarChart3 } from 'lucide-react';
@@ -24,6 +24,7 @@ import { isLiveDatabaseId } from '../../../store/live/liveTypes';
 import type { DrilldownPage, DrilldownTarget } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
 import { useViewPages } from '../../../hooks/useViewPages';
+import { withComputedCells } from '../../../store/slices/cellValues';
 
 // Lazy boundary: everything recharts lives behind this import, so the chart
 // chunk only loads when a chart view is actually rendered.
@@ -62,11 +63,21 @@ export function ChartView() {
   const pagesMap = useDatabaseStore(s => s.pages);
   useDatabaseStore(s => s.searchQuery);
   const storeApi = useStoreApi();
-  const { openPage, getPageTitle, updateViewSettings } = storeApi.getState();
+  const { openPage, getPageTitle, updateViewSettings, getCellValue } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const settings = view?.settings || {};
-  const pages = useViewPages(view?.id);
+  const viewPages = useViewPages(view?.id);
+  // The chart engine reads page.properties, where formula / rollup / created-
+  // time columns keep nothing; resolve the axes it charts. Any page write (a
+  // related one included) gives getPagesForView a new array, so a rollup
+  // recomputes without depending on pagesMap.
+  const pages = useMemo(() => withComputedCells(viewPages, [
+    database?.properties[settings.xAxisProperty ?? ''],
+    database?.properties[settings.yAxisProperty ?? ''],
+    database?.properties[settings.yAxisGroupBy ?? ''],
+  ], getCellValue),
+  [viewPages, database, settings.xAxisProperty, settings.yAxisProperty, settings.yAxisGroupBy, getCellValue]);
 
   const labelResolver = useCallback((propId: string, key: string) => {
     const prop = database?.properties[propId];

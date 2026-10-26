@@ -104,7 +104,7 @@ export function TableView() {
     onFormulaEdit: handleFormulaEdit, onRowMenu: handleRowMenu,
     onPropertyConfig: handlePropertyConfig, tableRef,
     rowTint: colorRules?.length
-      ? (page: Page) => colorForPage(page, colorRules, database.properties)?.tint ?? null
+      ? (page: Page) => colorForPage(page, colorRules, database.properties, storeApi.getState().getCellValue)?.tint ?? null
       : undefined,
     // Manual reorder only makes sense without user sorts or grouping.
     canReorder: view.sorts.length === 0 && !isGrouped,

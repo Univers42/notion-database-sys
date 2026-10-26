@@ -21,7 +21,14 @@ import type { ConditionalColorRule } from '@notion-db/contract-types';
 import type { ChartResult } from './chart/chartTypes';
 import type { Page, SchemaProperty } from '../component/types';
 import type { ViewSettings } from '../types/database';
-import { evaluateFilter } from './filter/evaluateFilter';
+import { matchesFilterValue } from './filter/evaluateFilter';
+import { isIncompleteFilter } from './filter/filterHelpers';
+
+/** Reads the value a rule compares against; the store's getCellValue also
+ *  resolves formula / rollup / created-time columns. */
+export type CellReader = (page: Page, propertyId: string) => unknown;
+
+const storedValue: CellReader = (page, propertyId) => page.properties[propertyId];
 
 export interface ConditionalColorToken {
   id: string;
@@ -55,15 +62,19 @@ export function colorForPage(
   page: Page,
   rules: readonly ConditionalColorRule[] | undefined,
   properties: Record<string, SchemaProperty>,
+  readValue: CellReader = storedValue,
 ): ConditionalColorToken | null {
   for (const rule of rules ?? []) {
     const property = properties[rule.propertyId];
     if (!property) continue;
     const filter = { id: rule.id, propertyId: rule.propertyId, operator: rule.operator, value: rule.value };
-    if (evaluateFilter(page, filter, property)) return conditionalColorToken(rule.color);
+    // A rule still being typed (no value yet) colors nothing rather than all.
+    if (isIncompleteFilter(filter)) continue;
+    const value = readValue(page, rule.propertyId);
+    if (matchesFilterValue(value, filter)) return conditionalColorToken(rule.color);
     const option = property.options?.find((candidate) => candidate.id === rule.value);
     if (option && option.value !== rule.value
-      && evaluateFilter(page, { ...filter, value: option.value }, property)) {
+      && matchesFilterValue(value, { ...filter, value: option.value })) {
       return conditionalColorToken(rule.color);
     }
   }

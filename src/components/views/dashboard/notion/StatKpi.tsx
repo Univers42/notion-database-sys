@@ -1,6 +1,6 @@
 // ─── StatKpi — the Number widget body (Notion 2026 dashboards) ───────────────
 // A big glanceable metric over the widget's backing view: count of records or
-// sum/avg/min/max of a number property. Built on useViewPages, so the view's
+// sum/avg/min/max of a number-valued property (number, formula, rollup). Built on useViewPages, so the view's
 // own filters AND the dashboard's global filters shape the number live.
 
 import React from 'react';
@@ -28,6 +28,7 @@ export function StatKpi({ viewId, stat }: Readonly<{ viewId: string; stat: Dashb
   const pages = useViewPages(viewId);
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
+  const getCellValue = useDatabaseStore(s => s.getCellValue);
   const view = views[viewId];
   const database = view ? databases[view.databaseId] : null;
   const property = stat.propertyId && database ? database.properties[stat.propertyId] : null;
@@ -35,7 +36,10 @@ export function StatKpi({ viewId, stat }: Readonly<{ viewId: string; stat: Dashb
   let value = pages.length;
   if (stat.fn !== 'count' && stat.propertyId) {
     const numbers = pages
-      .map(page => Number(page.properties[stat.propertyId as string]))
+      .map(page => getCellValue(page, stat.propertyId as string))
+      // Number('') and Number(null) are 0 — an empty cell must not count as one.
+      .filter(v => v !== null && v !== undefined && v !== '' && typeof v !== 'boolean')
+      .map(Number)
       .filter(n => Number.isFinite(n));
     if (numbers.length === 0) value = 0;
     else if (stat.fn === 'sum') value = numbers.reduce((a, b) => a + b, 0);
