@@ -87,8 +87,11 @@ export function DatabaseView({ viewId, compact = false }: Readonly<DatabaseViewP
     const paneView = views[paneViewId];
     const PaneComponent = paneView ? VIEW_COMPONENTS[paneView.type] : null;
     if (!PaneComponent) return null;
+    // Keyed by view: a compact embed renders every view in one slot, so two views
+    // of the same type shared one component and its state (a group collapsed in
+    // one table stayed collapsed in the other).
     const body = (
-      <DatabaseScopeProvider value={paneViewId}>
+      <DatabaseScopeProvider key={paneViewId} value={paneViewId}>
         <ErrorBoundary>
           <PaneComponent />
         </ErrorBoundary>
