@@ -76,7 +76,7 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
               const pageVal = page ? formatValue(page.properties[prop.id]) : '';
               const text = isAnchor ? (pageVal || row.title || 'Untitled') : pageVal;
               return (
-                <td key={prop.id} style={style} className={cn("overflow-hidden border-r border-b border-line px-3 py-1.5 align-middle")}>
+                <td key={prop.id} data-col={prop.id} style={style} className={cn("overflow-hidden border-r border-b border-line px-3 py-1.5 align-middle")}>
                   <div className={cn("flex items-center gap-1.5 text-sm", isAnchor ? "pl-6 text-ink" : "text-ink-muted")}>
                     {isAnchor && <CornerDownRight className={cn("h-3 w-3 shrink-0 text-ink-muted")} />}
                     <span className={cn("truncate", isAnchor && "font-medium")}>{text}</span>

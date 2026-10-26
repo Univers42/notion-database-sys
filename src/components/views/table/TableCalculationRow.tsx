@@ -14,7 +14,6 @@ import {
   activeCalculation, calculateColumn, calculationsFor, CALCULATION_LABELS, CALCULATION_SHORT,
   type ColumnCalculation,
 } from './columnCalculation';
-import { colWidthVar } from './useColumnResize';
 
 interface TableCalculationRowProps {
   viewId: string;
@@ -56,10 +55,10 @@ export function TableCalculationRow({
       <tr className={cn('bg-surface-primary [&>td]:border-t [&>td]:border-line')}>
         {showRowNumbers && <td className={cn('w-10')} />}
         {visibleProps.map(prop => {
-          const width = `var(${colWidthVar(prop.id)}, ${getColWidth(prop.id)}px)`;
+          const width = `${getColWidth(prop.id)}px`;
           const fn = activeCalculation(prop, calculations?.[prop.id]);
           return (
-            <td key={prop.id} style={{ width, minWidth: width, maxWidth: width }}
+            <td key={prop.id} data-col={prop.id} style={{ width, minWidth: width, maxWidth: width }}
               className={cn(`p-0 group/calc ${showVerticalLines ? 'border-r' : ''} border-line`)}>
               <CalculationMenu prop={prop} active={fn} result={results.get(prop.id)} onChoose={next => choose(prop.id, next)} />
             </td>
