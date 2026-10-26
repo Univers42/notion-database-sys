@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 import type { FilterOperator } from '../../types/database';
+import { VALUELESS_OPERATORS } from '../../lib/filter/filterHelpers';
 
 const OP = {
   contains:                { label: 'Contains',             value: 'contains'              as FilterOperator },
@@ -50,6 +51,7 @@ export const FILTER_OPERATORS: Record<string, { label: string; value: FilterOper
   status:           pick('is', 'is_not', 'is_empty', 'is_not_empty'),
   multi_select:     pick('contains', 'not_contains', 'is_empty', 'is_not_empty'),
   date:             pick('is', 'is_before', 'is_after', 'is_on_or_before', 'is_on_or_after', 'is_between', 'is_relative_to_today', 'is_empty', 'is_not_empty'),
+  due_date:         pick('is', 'is_before', 'is_after', 'is_on_or_before', 'is_on_or_after', 'is_between', 'is_relative_to_today', 'is_empty', 'is_not_empty'),
   checkbox:         pick('is_checked', 'is_not_checked'),
   user:             pick('is', 'is_not', 'is_empty', 'is_not_empty'),
   person:           pick('is', 'is_not', 'is_empty', 'is_not_empty'),
@@ -58,6 +60,11 @@ export const FILTER_OPERATORS: Record<string, { label: string; value: FilterOper
   phone:            pick('equals', 'is_empty'),
   created_time:     pick('is_before', 'is_after', 'is_on_or_before', 'is_on_or_after'),
   last_edited_time: pick('is_before', 'is_after', 'is_on_or_before', 'is_on_or_after'),
+  // Computed columns yield a number, text or a boolean depending on the
+  // expression, so they offer every comparison that can apply to one.
+  formula:          pick('eq_symbol', 'neq_symbol', 'contains', 'not_contains', 'greater_than', 'less_than', 'greater_than_or_equal', 'less_than_or_equal', 'is_checked', 'is_not_checked', 'is_empty', 'is_not_empty'),
+  rollup:           pick('eq_symbol', 'neq_symbol', 'greater_than', 'less_than', 'greater_than_or_equal', 'less_than_or_equal', 'contains', 'is_empty', 'is_not_empty'),
+  relation:         pick('is_empty', 'is_not_empty'),
 };
 
 export function getOperatorsForType(type: string) {
@@ -65,7 +72,7 @@ export function getOperatorsForType(type: string) {
 }
 
 export function needsValue(op: FilterOperator) {
-  return !['is_empty', 'is_not_empty', 'is_checked', 'is_not_checked', 'is_relative_to_today'].includes(op);
+  return !VALUELESS_OPERATORS.has(op);
 }
 
 export const DATE_PRESETS = [

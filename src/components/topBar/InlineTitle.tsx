@@ -24,8 +24,9 @@ export interface InlineTitleProps {
   titleValue: string;
   setTitleValue: (v: string) => void;
   onStartEdit: () => void;
-  onCommit: () => void;
-  onCancel: () => void;
+  /** `refocus`: the edit ended from the keyboard, so focus returns to the title. */
+  onCommit: (refocus?: boolean) => void;
+  onCancel: (refocus?: boolean) => void;
   /** Navigate to the database's origin page. Absent → no open arrow. */
   onOpen?: () => void;
 }
@@ -48,8 +49,8 @@ export function InlineTitle({
         ref={inputRef}
         value={titleValue}
         onChange={e => setTitleValue(e.target.value)}
-        onBlur={onCommit}
-        onKeyDown={e => { if (e.key === 'Enter') onCommit(); if (e.key === 'Escape') onCancel(); }}
+        onBlur={() => onCommit()}
+        onKeyDown={e => { if (e.key === 'Enter') onCommit(true); if (e.key === 'Escape') onCancel(true); }}
         aria-label="Database title"
         className={cn('text-[1.25rem] font-semibold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]')}
       />
@@ -61,6 +62,7 @@ export function InlineTitle({
       {icon && <span className={cn('text-[1.1rem] leading-none shrink-0')}>{icon}</span>}
       <button
         type="button"
+        data-database-title
         onClick={onStartEdit}
         title="Rename"
         className={cn('min-w-[96px] max-w-full truncate rounded-md px-1 py-0.5 text-left text-[1.25rem] font-semibold leading-tight text-ink hover:bg-hover-surface2 transition-colors')}

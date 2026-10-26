@@ -16,40 +16,93 @@ import type { Page, Filter, SchemaProperty } from '../../types/database';
 import { containsValue, isEmpty } from './filterHelpers';
 import { safeString } from '../../utils/safeString';
 
-function isRelativeToToday(val: unknown): boolean {
-  if (typeof val !== 'string') return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const d = new Date(val);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime() === today.getTime();
+const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** Local-midnight epoch of a date-ish value, or null. Date filters compare
+ *  whole days: a stored `2026-10-19T22:00:00.000Z` (local midnight in UTC+2)
+ *  and a picked `2026-10-20` are the same day, which a raw `new Date()`
+ *  comparison (UTC vs local) or `===` on strings got wrong. */
+export function localDay(val: unknown): number | null {
+  if (val === null || val === undefined || val === '') return null;
+  let date: Date;
+  const only = typeof val === 'string' ? DATE_ONLY.exec(val) : null;
+  if (only) date = new Date(Number(only[1]), Number(only[2]) - 1, Number(only[3]));
+  else if (val instanceof Date) date = new Date(val.getTime());
+  else if (typeof val === 'string' || typeof val === 'number') date = new Date(val);
+  else return null;
+  if (Number.isNaN(date.getTime())) return null;
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+/** A finite number, or a numeric string read as one (CSV / API imports keep
+ *  numbers as text). Anything else is null. */
+function toNumber(val: unknown): number | null {
+  if (typeof val === 'number') return Number.isFinite(val) ? val : null;
+  if (typeof val === 'string' && val.trim() !== '') {
+    const n = Number(val);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+/** `equals` across the shapes a filter value can take: a number filter holds
+ *  a number while a formula cell may hold text, a checkbox formula holds a
+ *  boolean while the editor typed "true", a multi-value cell holds an array. */
+function looseEquals(val: unknown, fv: unknown): boolean {
+  if (Array.isArray(fv)) return fv.some(item => looseEquals(val, item));
+  if (Array.isArray(val)) return val.some(item => looseEquals(item, fv));
+  if (val === fv) return true;
+  if (typeof val === 'boolean' || typeof fv === 'boolean') return safeString(val) === safeString(fv);
+  const a = toNumber(val);
+  const b = toNumber(fv);
+  if (a !== null && b !== null) return a === b;
+  return typeof val === 'string' && typeof fv === 'string' && val.toLowerCase() === fv.toLowerCase();
+}
+
+function compareNumber(val: unknown, fv: unknown, test: (a: number, b: number) => boolean): boolean {
+  const a = toNumber(val);
+  const b = toNumber(fv);
+  return a !== null && b !== null && test(a, b);
+}
+
+function compareDay(val: unknown, fv: unknown, test: (a: number, b: number) => boolean): boolean {
+  const a = localDay(val);
+  const b = localDay(fv);
+  return a !== null && b !== null && test(a, b);
+}
+
+/** `is_between` bounds: the editor stores `{ start, end }`; older views
+ *  stored `[start, end]`. A missing bound leaves that side open. */
+function isBetween(val: unknown, fv: unknown): boolean {
+  const day = localDay(val);
+  if (day === null) return false;
+  const [start, end] = Array.isArray(fv)
+    ? [fv[0], fv[1]]
+    : [(fv as { start?: unknown } | null)?.start, (fv as { end?: unknown } | null)?.end];
+  const lo = localDay(start);
+  const hi = localDay(end);
+  if (lo === null && hi === null) return false;
+  return (lo === null || day >= lo) && (hi === null || day <= hi);
+}
+
+function isDateValue(val: unknown): boolean {
+  return val instanceof Date || (typeof val === 'string' && localDay(val) !== null && /^\d{4}-/.test(val));
 }
 
 /**
- * Evaluate a single filter against a page.
- *
- * @param page - The page whose property is being tested
- * @param filter - The filter condition to evaluate
- * @param property - The schema definition of the property (for type context)
- * @returns true if the page passes the filter
- *
- * @example
- * evaluateFilter(page, { id: '1', propertyId: 'p1', operator: 'equals', value: 'Done' }, prop)
- * // → true if page.properties.p1 === 'Done'
+ * Evaluate a filter against an already-resolved cell value. Views pass the
+ * computed value of formula / rollup / created-time columns here, which a
+ * raw `page.properties` read never held.
  */
-export function evaluateFilter(
-  page: Page,
-  filter: Filter,
-  _property: SchemaProperty | undefined,
-): boolean {
-  const val = page.properties[filter.propertyId];
+export function matchesFilterValue(val: unknown, filter: Pick<Filter, 'operator' | 'value'>): boolean {
   const fv = filter.value;
 
   switch (filter.operator) {
     case 'equals':
-      return val === fv;
+      return isDateValue(val) && localDay(fv) !== null ? compareDay(val, fv, (a, b) => a === b) : looseEquals(val, fv);
     case 'not_equals':
-      return val !== fv;
+      return isDateValue(val) && localDay(fv) !== null ? !compareDay(val, fv, (a, b) => a === b) : !looseEquals(val, fv);
     case 'contains':
       return containsValue(val, fv);
     case 'not_contains':
@@ -63,26 +116,25 @@ export function evaluateFilter(
     case 'is_not_empty':
       return !isEmpty(val);
     case 'greater_than':
-      return typeof val === 'number' && val > Number(fv);
+      return compareNumber(val, fv, (a, b) => a > b);
     case 'less_than':
-      return typeof val === 'number' && val < Number(fv);
+      return compareNumber(val, fv, (a, b) => a < b);
     case 'greater_than_or_equal':
-      return typeof val === 'number' && val >= Number(fv);
+      return compareNumber(val, fv, (a, b) => a >= b);
     case 'less_than_or_equal':
-      return typeof val === 'number' && val <= Number(fv);
+      return compareNumber(val, fv, (a, b) => a <= b);
     case 'is_before':
-      return typeof val === 'string' && new Date(val) < new Date(fv as string);
+      return compareDay(val, fv, (a, b) => a < b);
     case 'is_after':
-      return typeof val === 'string' && new Date(val) > new Date(fv as string);
+      return compareDay(val, fv, (a, b) => a > b);
     case 'is_on_or_before':
-      return typeof val === 'string' && new Date(val) <= new Date(fv as string);
+      return compareDay(val, fv, (a, b) => a <= b);
     case 'is_on_or_after':
-      return typeof val === 'string' && new Date(val) >= new Date(fv as string);
+      return compareDay(val, fv, (a, b) => a >= b);
     case 'is_between':
-      return typeof val === 'string' && Array.isArray(fv) && fv.length >= 2 &&
-        new Date(val) >= new Date(fv[0] as string) && new Date(val) <= new Date(fv[1] as string);
+      return isBetween(val, fv);
     case 'is_relative_to_today':
-      return isRelativeToToday(val);
+      return compareDay(val, new Date(), (a, b) => a === b);
     case 'is_checked':
       return val === true;
     case 'is_not_checked':
@@ -90,4 +142,19 @@ export function evaluateFilter(
     default:
       return true;
   }
+}
+
+/**
+ * Evaluate a single filter against a page's stored value.
+ *
+ * @example
+ * evaluateFilter(page, { id: '1', propertyId: 'p1', operator: 'equals', value: 'Done' }, prop)
+ * // → true if page.properties.p1 is 'Done'
+ */
+export function evaluateFilter(
+  page: Page,
+  filter: Filter,
+  _property: SchemaProperty | undefined,
+): boolean {
+  return matchesFilterValue(page.properties[filter.propertyId], filter);
 }

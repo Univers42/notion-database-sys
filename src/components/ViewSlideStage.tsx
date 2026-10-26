@@ -31,7 +31,7 @@ const EASE = 'cubic-bezier(0.22, 0.61, 0.36, 1)'; // decelerate — content sett
 
 type Slot = 0 | 1;
 
-interface SlideState {
+export interface SlideState {
   slots: [string, string]; // the viewId parked in each slot ('' = empty)
   keys: [number, number];  // remount key per slot (bumped only on (re)assignment)
   active: Slot;            // the slot currently showing
@@ -50,6 +50,30 @@ export function slideOffset(slot: Slot, s: Pick<SlideState, 'active' | 'incoming
   if (slot === s.incoming) return s.run ? 0 : enterFrom;
   if (slot === s.active) return s.run ? exitTo : 0;
   return enterFrom;
+}
+
+/** Pure: the stage state once the target view becomes `viewId`. Retargeting
+ *  mid-slide back to the outgoing view cancels the slide; before, it was a
+ *  no-op (the outgoing view still "showed"), so the slide landed on the view
+ *  the user had just left while the tab bar and store said otherwise. */
+export function retargetSlide(
+  prev: SlideState, viewId: string, dir: 1 | -1, instant: boolean, nextKey: () => number, measured: number,
+): SlideState {
+  if (viewId === prev.slots[prev.active]) {
+    return prev.incoming === null ? prev : { ...prev, incoming: null, run: false };
+  }
+  if (prev.incoming !== null && viewId === prev.slots[prev.incoming]) return prev;
+  const slots: [string, string] = [prev.slots[0], prev.slots[1]];
+  const keys: [number, number] = [prev.keys[0], prev.keys[1]];
+  if (instant) {
+    slots[prev.active] = viewId;
+    keys[prev.active] = nextKey();
+    return { ...prev, slots, keys, incoming: null, dir, run: false };
+  }
+  const inc: Slot = prev.active === 0 ? 1 : 0;
+  slots[inc] = viewId;
+  keys[inc] = nextKey();
+  return { slots, keys, active: prev.active, incoming: inc, dir, run: false, lockH: measured };
 }
 
 function prefersReducedMotion(): boolean {
@@ -83,20 +107,10 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane }: Readonly<View
   useEffect(() => {
     const measured = stageRef.current?.offsetHeight ?? 0;
     setSt(prev => {
-      if (viewId === prev.slots[prev.active]) return prev; // already showing it
       const dir: 1 | -1 = orderIndex >= lastIndex.current ? 1 : -1;
       lastIndex.current = orderIndex;
-      const slots: [string, string] = [prev.slots[0], prev.slots[1]];
-      const keys: [number, number] = [prev.keys[0], prev.keys[1]];
-      if (prefersReducedMotion() || (typeof document !== 'undefined' && document.hidden)) {
-        slots[prev.active] = viewId;
-        keys[prev.active] = ++keySeq.current;
-        return { ...prev, slots, keys, incoming: null, dir, run: false };
-      }
-      const inc: Slot = prev.active === 0 ? 1 : 0;
-      slots[inc] = viewId;
-      keys[inc] = ++keySeq.current;
-      return { slots, keys, active: prev.active, incoming: inc, dir, run: false, lockH: measured };
+      const instant = prefersReducedMotion() || (typeof document !== 'undefined' && document.hidden);
+      return retargetSlide(prev, viewId, dir, instant, () => ++keySeq.current, measured);
     });
   }, [viewId, orderIndex]);
 

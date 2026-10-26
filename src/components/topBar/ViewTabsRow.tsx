@@ -84,9 +84,22 @@ export function ViewTabsRow({
   const addViewBtnRef = useRef<HTMLButtonElement>(null);
   const viewDotsRef = useRef<HTMLDivElement>(null);
   const viewRenameRef = useRef<HTMLInputElement>(null);
+  const tabListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { if (renamingViewId && viewRenameRef.current) { viewRenameRef.current.focus(); viewRenameRef.current.select(); } }, [renamingViewId]);
   useOutsideClick(viewDotsRef, showViewDots, () => setShowViewDots(false));
+  // The remembered view can sit past the strip's right edge on a database
+  // with many views; scroll the strip itself (scrollIntoView would also
+  // scroll the page to an embed the reader has not reached).
+  useEffect(() => {
+    const list = tabListRef.current;
+    const tab = list?.querySelector<HTMLElement>(`[data-view-tab="${CSS.escape(activeViewId)}"]`);
+    if (!list || !tab) return;
+    const listBox = list.getBoundingClientRect();
+    const tabBox = tab.getBoundingClientRect();
+    if (tabBox.left < listBox.left) list.scrollLeft -= listBox.left - tabBox.left;
+    else if (tabBox.right > listBox.right) list.scrollLeft += tabBox.right - listBox.right;
+  }, [activeViewId]);
 
   const { dragViewId, dropTargetId, registerTab, tabDragProps } = useViewTabReorder(dbViews, database.id, reorderViews);
 
@@ -94,6 +107,15 @@ export function ViewTabsRow({
     if (toggle && tabMenu?.viewId === viewId) { setTabMenu(null); return; }
     const rect = el.getBoundingClientRect();
     setTabMenu({ viewId, top: rect.bottom + 4, left: rect.left });
+  };
+  // Enter/Escape hand focus back to the tab so a keyboard user keeps their
+  // place; a blur (click elsewhere) leaves focus where the click put it.
+  const finishViewRename = (viewId: string, commit: boolean, refocus: boolean) => {
+    const next = viewRenameValue.trim();
+    if (commit && next) updateView(viewId, { name: next });
+    setRenamingViewId(null);
+    if (refocus) requestAnimationFrame(() =>
+      tabListRef.current?.querySelector<HTMLElement>(`[data-view-tab="${CSS.escape(viewId)}"]`)?.focus());
   };
   const menuView = tabMenu ? dbViews.find(x => x.id === tabMenu.viewId) : undefined;
 
@@ -113,7 +135,7 @@ export function ViewTabsRow({
   return (
     <>
       <div className={cn("flex items-center px-4 py-1 border-t border-line-light", slots?.root)}>
-        <div className={cn("flex items-center gap-0.5 overflow-x-auto min-w-0 mr-1", slots?.tabList)}>
+        <div ref={tabListRef} className={cn("odb-view-tabs flex items-center gap-0.5 overflow-x-auto min-w-0 mr-1", slots?.tabList)}>
           {dbViews.map(v => (
             <div key={v.id} ref={registerTab(v.id)}
               className={cn("relative group", dragViewId === v.id && 'opacity-40', slots?.tabItem)}
@@ -127,8 +149,8 @@ export function ViewTabsRow({
                   {v.settings?.viewIcon ? <Icon name={v.settings.viewIcon} className={cn("w-4 h-4")} /> : VIEW_ICONS[v.type]}
                   <input ref={viewRenameRef} value={viewRenameValue} onChange={e => setViewRenameValue(e.target.value)}
                     aria-label={`Rename view ${v.name}`}
-                    onBlur={() => { if (viewRenameValue.trim()) { updateView(v.id, { name: viewRenameValue.trim() }); } setRenamingViewId(null); }}
-                    onKeyDown={e => { if (e.key === 'Enter') { if (viewRenameValue.trim()) { updateView(v.id, { name: viewRenameValue.trim() }); } setRenamingViewId(null); } if (e.key === 'Escape') { setRenamingViewId(null); } }}
+                    onBlur={() => finishViewRename(v.id, true, false)}
+                    onKeyDown={e => { if (e.key === 'Enter') finishViewRename(v.id, true, true); if (e.key === 'Escape') finishViewRename(v.id, false, true); }}
                     className={cn("text-sm font-medium text-ink bg-surface-primary border border-accent-border-light rounded px-1 py-0 outline-none w-28", slots?.tabEditInput)} />
                 </div>
               ) : (
@@ -148,7 +170,8 @@ export function ViewTabsRow({
                     e.preventDefault(); e.stopPropagation();
                     openTabMenu(v.id, e.currentTarget, false);
                   }}
-                  aria-label={v.name} title={v.name}
+                  onKeyDown={e => { if (e.key === 'F2') { e.preventDefault(); setViewRenameValue(v.name); setRenamingViewId(v.id); } }}
+                  data-view-tab={v.id} aria-label={v.name} title={`${v.name} — F2 to rename`}
                   className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg whitespace-nowrap transition-colors ${v.id === activeViewId
                     ? 'bg-surface-tertiary text-ink font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`, slots?.tabButton)}>
                   {(v.settings?.tabDisplay ?? 'text_icon') !== 'text' &&

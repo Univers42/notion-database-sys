@@ -31,6 +31,7 @@ import {
 } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
 import { applyStoredDbMeta } from './store/sources/dbMetaPersistence';
+import { rememberView, rememberedView } from './lib/lastViewMemory';
 import { normalizeDatabases } from './store/sources/normalizeDatabases';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import type { PanelSection } from './components/ui/ActionPanel';
@@ -254,11 +255,21 @@ function ObjectDatabaseInner({
 
   useEffect(() => {
     if (lastSelectionKeyRef.current === selectionKey || Object.keys(views).length === 0) return;
-    const nextView = resolveInitialView(views, databaseId, initialView);
+    const nextView = resolveInitialView(views, databaseId, preferredView(views, databaseId, initialView));
     if (!nextView) return;
     lastSelectionKeyRef.current = selectionKey;
     if (activeViewId !== nextView.id) setActiveView(nextView.id);
   }, [activeViewId, databaseId, initialView, selectionKey, setActiveView, views]);
+
+  // Only once this block's own view is selected, and only a view of its own
+  // database: a stale id from the previous selection must not be remembered.
+  const activeViewDatabaseId = view?.databaseId;
+  const blockDatabaseId = databaseId ?? (initialView ? views[initialView]?.databaseId : undefined);
+  useEffect(() => {
+    if (lastSelectionKeyRef.current !== selectionKey || !activeViewId) return;
+    if (blockDatabaseId && activeViewDatabaseId !== blockDatabaseId) return;
+    rememberView(selectionKey, activeViewId);
+  }, [activeViewDatabaseId, activeViewId, blockDatabaseId, selectionKey]);
 
   useEffect(() => {
     onPageOpen?.(openPageId);
@@ -544,7 +555,8 @@ async function loadAdapterState(
     // localStorage write-through even for live mounts that rebuild their
     // schema from the server on every load.
     const state = applyStoredDbMeta(withRequestedDatabase(loaded, opts.databaseId, opts.initialView, opts.databaseName));
-    const activeViewId = chooseActiveViewId(state, current.activeViewId, opts.databaseId, opts.initialView);
+    const activeViewId = chooseActiveViewId(
+      state, current.activeViewId, opts.databaseId, preferredView(state.views, opts.databaseId, opts.initialView));
     const source = 'adapter';
 
     storeApi.setState({
@@ -575,6 +587,16 @@ async function loadAdapterState(
 async function initFormulaEngineOnce(): Promise<void> {
   const { initFormulaEngine } = await import('./lib/engine/bridge');
   await initFormulaEngine();
+}
+
+/** The tab this block last showed, else its pinned view. */
+function preferredView(
+  views: NotionState['views'],
+  databaseId?: string,
+  initialView?: string | null,
+): string | null | undefined {
+  const owner = databaseId ?? (initialView ? views[initialView]?.databaseId : undefined);
+  return rememberedView(views, `${databaseId ?? ''}:${initialView ?? ''}`, owner) ?? initialView;
 }
 
 function resolveInitialView(

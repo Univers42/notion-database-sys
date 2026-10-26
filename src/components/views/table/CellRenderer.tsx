@@ -46,6 +46,8 @@ export interface CellRendererProps {
   page: Page;
   value: PropertyValue;
   isEditing: boolean;
+  /** Typed character that opened the editor; replaces the current text. */
+  editSeed?: string;
   wrapContent: boolean;
   databaseId: string;
   onUpdate: (pageId: string, propId: string, value: PropertyValue) => void;

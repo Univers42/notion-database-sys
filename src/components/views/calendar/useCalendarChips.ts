@@ -17,6 +17,7 @@
 import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { colorForPage } from '../../../lib/conditionalColor';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import type { ConditionalColorRule } from '@notion-db/contract-types';
 import type { DatabaseSchema, Page, SchemaProperty } from '../../../types/database';
 import type { ChipData } from './CalendarWeekRow';
@@ -31,7 +32,9 @@ export function useCalendarChips(
   conditionalColors: readonly ConditionalColorRule[] | undefined,
   getPageTitle: (page: Page) => string,
 ): Map<string, ChipData> {
+  const storeApi = useStoreApi();
   return useMemo(() => {
+    const { getCellValue } = storeApi.getState();
     const map = new Map<string, ChipData>();
     if (!database || !startProp) return map;
     const byId = new Map(pages.map(p => [p.id, p]));
@@ -40,7 +43,7 @@ export function useCalendarChips(
     for (const ev of events) {
       const page = byId.get(ev.pageId);
       if (!page) continue;
-      const token = colorForPage(page, conditionalColors, database.properties);
+      const token = colorForPage(page, conditionalColors, database.properties, getCellValue);
       const optId = selectProp ? page.properties[selectProp.id] : null;
       const opt = selectProp?.options?.find(o => o.id === optId);
       map.set(ev.pageId, {
@@ -57,5 +60,5 @@ export function useCalendarChips(
       });
     }
     return map;
-  }, [events, pages, database, startProp, conditionalColors, getPageTitle]);
+  }, [events, pages, database, startProp, conditionalColors, getPageTitle, storeApi]);
 }

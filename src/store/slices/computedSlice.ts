@@ -11,12 +11,12 @@
 /* ************************************************************************** */
 
 import type { Page } from '../../types/database';
-import { FORMULA_ENGINE_UNAVAILABLE, evalFormula, isWasmReady } from '../../lib/engine/bridge';
-import { getCachedFormula, setCachedFormula } from '../../lib/formula/formulaCache';
-import { evaluateFilter } from '../../lib/filter/evaluateFilter';
+import { matchesFilterValue } from '../../lib/filter/evaluateFilter';
+import { isIncompleteFilter } from '../../lib/filter/filterHelpers';
 import { compareValues } from '../../lib/filter/compareValues';
 import { compareWithManualOrder, manualOrderRank } from '../../lib/manualRowOrder';
-import { searchPage, buildGroups, formatFormulaResult, computeRollup } from './storeHelpers';
+import { searchPage, buildGroups, formatFormulaResult } from './storeHelpers';
+import { cellValue, formulaValue, rollupValue, sortKey } from './cellValues';
 
 import type { StoreSet, StoreGet } from '../dbms/hardcoded/storeTypes';
 
@@ -81,10 +81,13 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
         result = result.filter(page => searchPage(page, q, db, state));
       }
 
-      if (view.filters.length > 0) {
+      // A filter still waiting for its value, or on a deleted column, is
+      // skipped rather than hiding every row (Notion behaviour).
+      const filters = view.filters.filter(f => db.properties[f.propertyId] && !isIncompleteFilter(f));
+      if (filters.length > 0) {
         result = result.filter(page => {
-          const results = view.filters.map(f =>
-            evaluateFilter(page, f, db.properties[f.propertyId]),
+          const results = filters.map(f =>
+            matchesFilterValue(cellValue(state, page, db.properties[f.propertyId]), f),
           );
           return view.filterConjunction === 'or'
             ? results.some(Boolean)
@@ -92,14 +95,18 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
         });
       }
 
-      if (view.sorts.length > 0) {
+      const sorts = view.sorts.filter(sort => db.properties[sort.propertyId]);
+      if (sorts.length > 0) {
+        // Keys resolved once per row: a formula column would otherwise be
+        // evaluated O(n log n) times inside the comparator.
+        const keys = new Map(result.map(page => [
+          page.id, sorts.map(sort => sortKey(state, page, db.properties[sort.propertyId])),
+        ]));
         result.sort((a, b) => {
-          for (const sort of view.sorts) {
-            const cmp = compareValues(
-              a.properties[sort.propertyId],
-              b.properties[sort.propertyId],
-              sort.direction,
-            );
+          const aKeys = keys.get(a.id) ?? [];
+          const bKeys = keys.get(b.id) ?? [];
+          for (let i = 0; i < sorts.length; i++) {
+            const cmp = compareValues(aKeys[i], bKeys[i], sorts[i].direction);
             if (cmp !== 0) return cmp;
           }
           // Stable tiebreaker: creation order prevents shuffling
@@ -130,49 +137,40 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       if (cached) return cached;
       const groupProp = db.properties[view.grouping.propertyId];
       if (!groupProp) return [];
-      const groups = buildGroups(pages, groupProp, view.grouping);
+      const groups = buildGroups(pages, groupProp, view.grouping, page => cellValue(state, page, groupProp));
       pagesForViewCache.groups.set(viewId, groups);
       return groups;
     },
 
     resolveFormula: (databaseId: string, page: Page, expression: string) => {
-      const cached = getCachedFormula(expression, page.id, page.updatedAt);
-      if (cached !== undefined) return cached;
+      const state = get();
+      const db = state.databases[databaseId];
+      if (!db) return '#ERROR';
+      // The expression may be a draft from the formula editor, not the saved
+      // one, so it is evaluated as an ad-hoc formula column of this database.
+      const draft = { id: '__formula_preview__', name: '', type: 'formula' as const, formulaConfig: { expression } };
       try {
-        const db = get().databases[databaseId];
-        if (!db) return '#ERROR';
-        const props: Record<string, unknown> = {};
-        for (const sp of Object.values(db.properties)) {
-          props[sp.name] = page.properties[sp.id] ?? null;
-        }
-        try {
-          if (isWasmReady()) {
-            const result = evalFormula(expression, props);
-            const formatted = formatFormulaResult(result);
-            if (formatted !== undefined) {
-              setCachedFormula(expression, page.id, page.updatedAt, formatted);
-              return formatted;
-            }
-          }
-        } catch { /* WASM failed */ }
-        setCachedFormula(expression, page.id, page.updatedAt, FORMULA_ENGINE_UNAVAILABLE);
-        return FORMULA_ENGINE_UNAVAILABLE;
+        return formatFormulaResult(formulaValue(state, page, draft)) ?? null;
       } catch {
-        setCachedFormula(expression, page.id, page.updatedAt, '#ERROR');
         return '#ERROR';
       }
     },
 
     resolveRollup: (databaseId: string, page: Page, propertyId: string) => {
       const state = get();
-      const db = state.databases[databaseId];
-      if (!db) return null;
-      const prop = db.properties[propertyId];
+      const prop = state.databases[databaseId]?.properties[propertyId];
       if (!prop?.rollupConfig) return null;
-      const { relationPropertyId, targetPropertyId, function: fn } = prop.rollupConfig;
-      const ids: string[] = page.properties[relationPropertyId] || [];
-      const related = ids.map(id => state.pages[id]).filter(Boolean);
-      return computeRollup(fn, related, targetPropertyId);
+      const value = rollupValue(state, page, prop);
+      // "Show original" over a date column lists Dates; render them as dates.
+      return Array.isArray(value)
+        ? value.map(item => (item instanceof Date ? formatFormulaResult(item) : item))
+        : value;
+    },
+
+    getCellValue: (page: Page, propertyId: string) => {
+      const state = get();
+      const prop = state.databases[page.databaseId]?.properties[propertyId];
+      return prop ? cellValue(state, page, prop) : undefined;
     },
 
     getSmartDefaults: (databaseId: string) => {

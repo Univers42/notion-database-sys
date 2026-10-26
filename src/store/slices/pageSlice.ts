@@ -17,6 +17,20 @@ import { runLocalAutomations } from './pageAutomations';
 
 export type { PageSliceState, PageSliceActions, PageSlice } from './pageSliceTypes';
 
+/** Next free number of an ID column: the stored counter, but never one an
+ *  existing row already shows (imports and synced rows don't advance it). */
+export function nextIdNumber(prop: SchemaProperty, pages: Iterable<Page>): number {
+  let next = prop.autoIncrement || 1;
+  const prefix = prop.prefix || '';
+  for (const page of pages) {
+    const value = page.properties[prop.id];
+    if (typeof value !== 'string' || !value.startsWith(prefix)) continue;
+    const n = Number(value.slice(prefix.length));
+    if (Number.isInteger(n) && n >= next) next = n + 1;
+  }
+  return next;
+}
+
 /**
  * Creates the page CRUD and block mutation slice for the Zustand store.
  *
@@ -37,9 +51,10 @@ export function createPageSlice(set: StoreSet, get: StoreGet): PageSliceActions 
       }
 
       const dbUpdates: Record<string, SchemaProperty> = {};
+      const siblings = Object.values(get().pages).filter(p => p.databaseId === databaseId);
       for (const prop of Object.values(db.properties)) {
         if (prop.type === 'id' && !props[prop.id]) {
-          const counter = prop.autoIncrement || 1;
+          const counter = nextIdNumber(prop, siblings);
           props[prop.id] = `${prop.prefix || ''}${counter}`;
           dbUpdates[prop.id] = { ...prop, autoIncrement: counter + 1 };
         }

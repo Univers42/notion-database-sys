@@ -10,7 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, type RefObject } from 'react';
+import type { Page } from '../../../types/database';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 
 /** Tracks the current fill-drag operation state. */
@@ -20,8 +21,10 @@ export interface FillDragState {
   currentRowIdx: number;
 }
 
-/** Manages fill-handle drag interactions for copying cell values across rows. */
-export function useFillDrag(activeViewId: string | null) {
+/** Manages fill-handle drag interactions for copying cell values across rows.
+ *  `rowPagesRef` holds the rows as rendered — `rowIdx` indexes it, so a grouped
+ *  or paged table fills the rows the user dragged over, not the flat view order. */
+export function useFillDrag(rowPagesRef: RefObject<readonly Page[]>) {
   const [fillDrag, setFillDrag] = useState<FillDragState | null>(null);
   const storeApi = useStoreApi();
 
@@ -42,20 +45,19 @@ export function useFillDrag(activeViewId: string | null) {
     }
     const { sourcePropId, sourceRowIdx, currentRowIdx } = drag;
     const store = storeApi.getState();
-    const v = activeViewId ? store.views[activeViewId] : null;
-    if (v) {
-      const allPages = store.getPagesForView(v.id);
-      const sourceVal = allPages[sourceRowIdx]?.properties[sourcePropId];
+    const rows = rowPagesRef.current;
+    const source = rows[sourceRowIdx];
+    // Read the live value: the rendered page object may be a render behind.
+    const sourceVal = source ? store.pages[source.id]?.properties[sourcePropId] : undefined;
+    if (source) {
       const minR = Math.min(sourceRowIdx, currentRowIdx);
       const maxR = Math.max(sourceRowIdx, currentRowIdx);
       for (let i = minR; i <= maxR; i++) {
-        if (i !== sourceRowIdx && allPages[i]) {
-          store.updatePageProperty(allPages[i].id, sourcePropId, sourceVal);
-        }
+        if (i !== sourceRowIdx && rows[i]) store.updatePageProperty(rows[i].id, sourcePropId, sourceVal);
       }
     }
     setFillDrag(null);
-  }, [activeViewId, fillDrag, storeApi]);
+  }, [fillDrag, rowPagesRef, storeApi]);
 
   useEffect(() => {
     if (fillDrag) {

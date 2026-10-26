@@ -14,16 +14,18 @@
  * Pure copy / cut / paste for a cell range of the table grid. The clipboard
  * format is tab-separated text, the one spreadsheets read and write, so a range
  * round-trips through Excel or Google Sheets as well as within the grid.
- * Values travel as the labels a person sees ("Alpha, Beta", "Yes") and are
- * coerced back per column type on paste.
+ * Values travel as the labels a person sees ("Alpha, Beta", "Yes", a formula's
+ * result) and are coerced back per column type on paste.
  *
- * Caveat: relation, files, place and custom cells copy as text but never paste
- * from text (an id cannot be recovered from a title), so those cells are left
- * unchanged. A paste is clipped to the existing rows; it never adds rows.
+ * Caveat: relation, person, files, place, computed and custom cells copy as text
+ * but never paste from text (an id cannot be recovered from a title), so those
+ * cells are left unchanged. A paste is clipped to the existing rows; it never
+ * adds rows.
  */
 
 import type { Page, SchemaProperty } from '../../../types/database';
-import { CLEAR_VALUE_BY_TYPE, isClearableType, type CellRange } from './gridKeyboard';
+import { semanticValue, type CellValueSource } from '../../../store/slices/cellValues';
+import { clearValueFor, isClearableType, type CellRange } from './gridKeyboard';
 
 export interface CellWrite {
   pageId: string;
@@ -32,9 +34,6 @@ export interface CellWrite {
 }
 
 const NEEDS_QUOTES = /[\t\n\r"]/;
-const TEXT_PASTE_TYPES = new Set(['title', 'text', 'url', 'email', 'phone', 'person', 'user']);
-const CHECKED = new Set(['yes', 'true', '1', '✓', 'x', 'checked']);
-const UNCHECKED = new Set(['no', 'false', '0', '', 'unchecked']);
 
 function quoteCell(cell: string): string {
   return NEEDS_QUOTES.test(cell) ? `"${cell.replaceAll('"', '""')}"` : cell;
@@ -69,73 +68,89 @@ export function parseTsv(text: string): string[][] {
   return rows;
 }
 
-function optionLabel(id: unknown, prop: SchemaProperty): string {
-  const option = prop.options?.find(o => o.id === id);
-  return option ? option.value : String(id);
+const pad = (n: number) => String(n).padStart(2, '0');
+
+function dateText(d: Date): string {
+  if (Number.isNaN(d.getTime())) return '';
+  const day = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return d.getHours() || d.getMinutes() ? `${day} ${pad(d.getHours())}:${pad(d.getMinutes())}` : day;
 }
 
-function displayText(value: unknown): string {
+function valueText(value: unknown): string {
   if (value === null || value === undefined) return '';
-  if (Array.isArray(value)) return value.map(displayText).filter(Boolean).join(', ');
+  if (value instanceof Date) return dateText(value);
+  if (Array.isArray(value)) return value.map(valueText).filter(Boolean).join(', ');
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (typeof value === 'object') {
-    const named = value as { name?: unknown; title?: unknown; address?: unknown; url?: unknown };
-    const label = [named.name, named.title, named.address, named.url].find(v => typeof v === 'string');
-    return typeof label === 'string' ? label : '';
+    const named = value as { name?: unknown; url?: unknown };
+    return typeof named.name === 'string' ? named.name : typeof named.url === 'string' ? named.url : '';
   }
   return String(value);
 }
 
-/** The text a cell copies as: option labels, Yes/No, related page titles. */
-export function cellToText(value: unknown, prop: SchemaProperty, titleOf?: (pageId: string) => string): string {
-  if (value === null || value === undefined) return '';
-  switch (prop.type) {
-    case 'checkbox': return value ? 'Yes' : 'No';
-    case 'select':
-    case 'status': return value === '' ? '' : optionLabel(value, prop);
-    case 'multi_select': return (Array.isArray(value) ? value : [value]).map(id => optionLabel(id, prop)).join(', ');
-    case 'relation':
-      return titleOf ? (Array.isArray(value) ? value : [value]).map(id => titleOf(String(id))).filter(Boolean).join(', ') : displayText(value);
-    default: return displayText(value);
-  }
+/** The text a copied cell puts on the clipboard: what the cell shows, computed
+ *  values (formula, rollup, related titles) included. */
+export function cellCopyText(source: CellValueSource, page: Page, prop: SchemaProperty): string {
+  return valueText(semanticValue(source, page, prop));
 }
 
-function optionIdFor(label: string, prop: SchemaProperty): string | undefined {
-  const wanted = label.trim().toLowerCase();
-  return prop.options?.find(o => o.id === label.trim() || o.value.toLowerCase() === wanted)?.id;
+function optionId(prop: SchemaProperty, label: string): string | undefined {
+  const lower = label.toLowerCase();
+  return prop.options?.find(o => o.id === label || o.value.toLowerCase() === lower)?.id;
 }
 
-/** The value pasted text becomes in this column, or undefined to leave the
- *  cell unchanged (read-only column, or text that does not parse). */
-export function textToCellValue(text: string, prop: SchemaProperty): unknown {
-  if (!isClearableType(prop.type)) return undefined;
+const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/;
+const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})$/;
+
+function parseDate(text: string): string | undefined {
+  const day = ISO_DAY.exec(text);
+  const date = day
+    ? new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3]), Number(day[4] ?? 0), Number(day[5] ?? 0))
+    : ISO_INSTANT.test(text) ? new Date(text) : null;
+  return date && !Number.isNaN(date.getTime()) ? date.toISOString() : undefined;
+}
+
+const PASTABLE_TYPES = new Set(['title', 'text', 'email', 'url', 'phone', 'number', 'checkbox',
+  'select', 'status', 'multi_select', 'date', 'due_date']);
+
+/** The stored value pasted text becomes in `prop`, or undefined to leave the
+ *  cell unchanged (computed, read-only, or unparseable text). */
+export function parsePastedValue(text: string, prop: SchemaProperty): unknown {
   const trimmed = text.trim();
-  if (prop.type === 'checkbox') {
-    const word = trimmed.toLowerCase();
-    if (CHECKED.has(word)) return true;
-    return UNCHECKED.has(word) ? false : undefined;
-  }
-  if (trimmed === '') return CLEAR_VALUE_BY_TYPE[prop.type] ?? '';
+  if (!trimmed && PASTABLE_TYPES.has(prop.type)) return clearValueFor(prop.type);
   switch (prop.type) {
+    case 'title':
+    case 'text':
+      return text;
+    case 'email':
+    case 'url':
+    case 'phone':
+      return trimmed;
     case 'number': {
-      const n = Number(trimmed);
+      const n = Number(trimmed.replace(/[\s_]/g, ''));
       return Number.isFinite(n) ? n : undefined;
     }
-    case 'date':
-    case 'due_date': return Number.isNaN(Date.parse(trimmed)) ? undefined : trimmed;
+    case 'checkbox':
+      if (/^(yes|true|1|x|✓|✔|checked|on)$/i.test(trimmed)) return true;
+      return /^(no|false|0|unchecked|off)$/i.test(trimmed) ? false : undefined;
     case 'select':
-    case 'status': return prop.options?.length ? optionIdFor(trimmed, prop) : trimmed;
+    case 'status':
+      return optionId(prop, trimmed);
     case 'multi_select': {
-      const labels = trimmed.split(',').map(s => s.trim()).filter(Boolean);
-      if (!prop.options?.length) return labels;
-      const ids = labels.map(label => optionIdFor(label, prop)).filter((id): id is string => id !== undefined);
+      const ids = trimmed.split(/[,;\n]/).map(s => s.trim()).filter(Boolean)
+        .map(label => optionId(prop, label)).filter((id): id is string => id !== undefined);
       return ids.length ? [...new Set(ids)] : undefined;
     }
-    default: return TEXT_PASTE_TYPES.has(prop.type) ? text : undefined;
+    case 'date':
+    case 'due_date':
+      return parseDate(trimmed);
+    default:
+      return undefined;
   }
 }
 
 /** The range as spreadsheet text. */
-export function copyRange(range: CellRange, pages: Page[], props: SchemaProperty[], titleOf?: (pageId: string) => string): string {
+export function copyRange(range: CellRange, pages: readonly Page[], props: readonly SchemaProperty[], source: CellValueSource): string {
   const rows: string[][] = [];
   for (let r = range.rowStart; r <= range.rowEnd; r++) {
     const page = pages[r];
@@ -143,7 +158,7 @@ export function copyRange(range: CellRange, pages: Page[], props: SchemaProperty
     const row: string[] = [];
     for (let c = range.colStart; c <= range.colEnd; c++) {
       const prop = props[c];
-      if (prop) row.push(cellToText(page.properties[prop.id], prop, titleOf));
+      if (prop) row.push(cellCopyText(source, page, prop));
     }
     rows.push(row);
   }
@@ -152,7 +167,7 @@ export function copyRange(range: CellRange, pages: Page[], props: SchemaProperty
 
 /** The writes a paste makes. One copied value fills every selected cell;
  *  a larger block lands from the range's top-left cell, clipped to the grid. */
-export function planPaste(clipboard: string[][], range: CellRange, pages: Page[], props: SchemaProperty[]): CellWrite[] {
+export function planPaste(clipboard: readonly string[][], range: CellRange, pages: readonly Page[], props: readonly SchemaProperty[]): CellWrite[] {
   const single = clipboard.length === 1 && clipboard[0].length === 1;
   const rowEnd = single ? range.rowEnd : Math.min(pages.length - 1, range.rowStart + clipboard.length - 1);
   const writes: CellWrite[] = [];
@@ -163,7 +178,7 @@ export function planPaste(clipboard: string[][], range: CellRange, pages: Page[]
       const prop = props[c];
       const page = pages[r];
       if (!prop || !page) continue;
-      const value = textToCellValue(single ? source[0] : source[c - range.colStart], prop);
+      const value = parsePastedValue(single ? source[0] : source[c - range.colStart], prop);
       if (value !== undefined) writes.push({ pageId: page.id, propId: prop.id, value });
     }
   }
@@ -171,14 +186,14 @@ export function planPaste(clipboard: string[][], range: CellRange, pages: Page[]
 }
 
 /** The writes that empty every writable cell of the range (Delete, cut). */
-export function planClear(range: CellRange, pages: Page[], props: SchemaProperty[]): CellWrite[] {
+export function planClear(range: CellRange, pages: readonly Page[], props: readonly SchemaProperty[]): CellWrite[] {
   const writes: CellWrite[] = [];
   for (let r = range.rowStart; r <= range.rowEnd; r++) {
     for (let c = range.colStart; c <= range.colEnd; c++) {
       const prop = props[c];
       const page = pages[r];
       if (prop && page && isClearableType(prop.type)) {
-        writes.push({ pageId: page.id, propId: prop.id, value: CLEAR_VALUE_BY_TYPE[prop.type] ?? '' });
+        writes.push({ pageId: page.id, propId: prop.id, value: clearValueFor(prop.type) });
       }
     }
   }

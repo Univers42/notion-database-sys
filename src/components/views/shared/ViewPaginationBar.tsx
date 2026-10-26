@@ -12,7 +12,8 @@
 
 // ─── Record page navigator (shown above a view when a Limit is set) ─────────
 // Renders "26–50 of 200" + prev/next; numeric page buttons when the count is
-// small enough to fit. Hidden entirely when the limit doesn't hide any rows.
+// small enough to fit; load more / show all widen the window in place and
+// show less returns to one page. Hidden when the limit hides no rows.
 
 import React, { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -88,6 +89,15 @@ export function ViewPaginationBar({ pager }: Readonly<{ pager: ViewPager<unknown
         {pager.start + 1}&ndash;{pager.end} <span className={cn('text-ink-disabled')}>of</span> {pager.total}
       </span>
       <div className={cn('flex items-center gap-0.5')}>
+        {pager.hasNext && (
+          <>
+            <button type="button" onClick={pager.loadMore} className={cn(`${navBtn} px-2 text-xs`)}>Load more</button>
+            <button type="button" onClick={pager.showAll} className={cn(`${navBtn} px-2 text-xs`)}>Show all</button>
+          </>
+        )}
+        {pager.span > 1 && (
+          <button type="button" onClick={pager.showLess} className={cn(`${navBtn} px-2 text-xs`)}>Show less</button>
+        )}
         <button type="button" onClick={pager.goPrev} disabled={!pager.hasPrev}
           aria-label="Previous page" className={cn(navBtn)}>
           <ChevronLeft className={cn('w-4 h-4')} />

@@ -112,11 +112,14 @@ export function groupedWidgetViews(
   return { host, others };
 }
 
-/** Number-typed properties usable by a stat widget's sum/avg/min/max. */
+const NUMBER_VALUED_TYPES: ReadonlySet<string> = new Set(['number', 'formula', 'rollup']);
+
+/** Properties a stat widget or chart y-axis can sum/avg/min/max. A formula or
+ *  rollup may yield text; its non-numeric cells are skipped by the aggregate. */
 export function numberProperties(
-  properties: Record<string, SchemaProperty>,
+  properties: Record<string, SchemaProperty> | readonly SchemaProperty[],
 ): SchemaProperty[] {
-  return Object.values(properties).filter(p => p.type === 'number');
+  return Object.values(properties).filter(p => NUMBER_VALUED_TYPES.has(p.type));
 }
 
 /** Properties usable in the global filter bar (sorted by name). */

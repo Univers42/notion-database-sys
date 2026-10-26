@@ -13,16 +13,19 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import { SchemaProperty, PropertyValue } from '../../../types/database';
+import { SchemaProperty, PropertyValue, Page } from '../../../types/database';
 import { useFillDrag } from './useFillDrag';
 import { useColumnResize, useColWidth } from './useColumnResize';
 import { useTableKeyboard } from './useTableKeyboard';
-import { type CellCoord, rangeBetween, resolveCellActivation } from './gridKeyboard';
+import { type CellCoord, type EditingCell, rangeBetween, resolveCellActivation } from './gridKeyboard';
 import { useGridClipboard } from './useGridClipboard';
 import { runButtonAction } from './cellRenderers';
 import { useViewPages } from '../../../hooks/useViewPages';
-import { useViewPager } from '../../../hooks/useViewPager';
+import { useViewPager, resolvePageSize } from '../../../hooks/useViewPager';
 import { useTableVirtualizer } from './useTableVirtualizer';
+import { layoutGroupRows, type GroupData } from './groupRowsLayout';
+
+const NO_GROUPS: readonly GroupData[] = [];
 
 /** Encapsulates all state, memos, and callbacks for the TableView component. */
 export function useTableViewState() {
@@ -39,7 +42,7 @@ export function useTableViewState() {
   const database = view ? databases[view.databaseId] : null;
 
   const [focusedCell, setFocusedCell] = useState<{ pageId: string; propId: string } | null>(null);
-  const [editingCell, setEditingCell] = useState<{ pageId: string; propId: string } | null>(null);
+  const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
   // The fixed corner of a multi-cell selection; the focused cell is the moving
   // corner. Null means the selection is the focused cell alone.
   const [selectionAnchor, setSelectionAnchor] = useState<CellCoord | null>(null);
@@ -57,7 +60,9 @@ export function useTableViewState() {
   // Set on pointer-down so grid focusin can tell a click (which will select the
   // clicked cell itself) from a keyboard tab-in (which should select the first).
   const pointerDownRef = useRef(false);
-  const { fillDrag, startFillDrag } = useFillDrag(activeViewId);
+  // Fill-drag indexes the rows as rendered (grouped, paged), set below.
+  const rowPagesRef = useRef<Page[]>([]);
+  const { fillDrag, startFillDrag } = useFillDrag(rowPagesRef);
   const { resizingCol, handleResizeStart } = useColumnResize(view?.id ?? '', tableRef);
   const getColWidth = useColWidth();
   const [rowMenu, setRowMenu] = useState<{ pageId: string; x: number; y: number } | null>(null);
@@ -89,17 +94,6 @@ export function useTableViewState() {
   const pager = useViewPager(pages, view?.settings?.loadLimit, activeViewId);
   const displayedPages = pager.items;
 
-  const selectionRange = useMemo(
-    () => (focusedCell ? rangeBetween(selectionAnchor ?? focusedCell, focusedCell, displayedPages, visibleProps) : null),
-    [selectionAnchor, focusedCell, displayedPages, visibleProps],
-  );
-  // What rows render: the row ids and column span of a MULTI-cell selection
-  // (a single cell keeps the focus ring alone).
-  const selection = useMemo(() => {
-    if (!selectionRange || (selectionRange.rowStart === selectionRange.rowEnd && selectionRange.colStart === selectionRange.colEnd)) return null;
-    const rowIds = new Set(displayedPages.slice(selectionRange.rowStart, selectionRange.rowEnd + 1).map(p => p.id));
-    return { rowIds, colStart: selectionRange.colStart, colEnd: selectionRange.colEnd };
-  }, [selectionRange, displayedPages]);
 
   const settings = view?.settings || {};
   const showVerticalLines = settings.showVerticalLines !== false;
@@ -108,28 +102,61 @@ export function useTableViewState() {
   // +1: the leading control gutter (drag grip / expand / open) is ALWAYS rendered.
   const colCount = visibleProps.length + 1 + 2;
   const isGrouped = !!view?.grouping;
-  const groupedData = (isGrouped && view) ? getGroupedPages(view.id) : [];
+  const groupedData = (isGrouped && view) ? getGroupedPages(view.id) : NO_GROUPS;
+  // Rows a group has revealed past its cap this session, keyed `view:group`.
+  const [groupExtra, setGroupExtra] = useState<ReadonlyMap<string, number>>(new Map());
+  const groupCap = resolvePageSize(settings.loadLimit);
+  const groupLayout = useMemo(
+    () => (isGrouped
+      ? layoutGroupRows(groupedData, collapsedGroups, id => groupCap + (groupExtra.get(`${activeViewId}:${id}`) ?? 0))
+      : null),
+    [isGrouped, groupedData, collapsedGroups, groupCap, groupExtra, activeViewId],
+  );
+  const showMoreInGroup = useCallback((groupId: string, rows: number) => {
+    setGroupExtra(prev => {
+      const key = `${activeViewId}:${groupId}`;
+      return new Map(prev).set(key, (prev.get(key) ?? 0) + rows);
+    });
+  }, [activeViewId]);
+  const rowPages = groupLayout ? groupLayout.rowPages : displayedPages;
+  rowPagesRef.current = rowPages;
+  const selectionRange = useMemo(
+    () => (focusedCell ? rangeBetween(selectionAnchor ?? focusedCell, focusedCell, rowPages, visibleProps) : null),
+    [selectionAnchor, focusedCell, rowPages, visibleProps],
+  );
+  // What rows render: the row ids and column span of a MULTI-cell selection
+  // (a single cell keeps the focus ring alone).
+  const selection = useMemo(() => {
+    if (!selectionRange || (selectionRange.rowStart === selectionRange.rowEnd && selectionRange.colStart === selectionRange.colEnd)) return null;
+    const rowIds = new Set(rowPages.slice(selectionRange.rowStart, selectionRange.rowEnd + 1).map(p => p.id));
+    return { rowIds, colStart: selectionRange.colStart, colEnd: selectionRange.colEnd };
+  }, [selectionRange, rowPages]);
   const virtual = useTableVirtualizer({
-    count: displayedPages.length,
+    count: groupLayout ? groupLayout.items.length : displayedPages.length,
     scrollRef: tableRef,
-    enabled: !isGrouped,
+    enabled: true,
   });
+  const scrollToRow = groupLayout
+    ? (rowIdx: number) => virtual.scrollToIndex(groupLayout.itemIndexOfRow[rowIdx] ?? rowIdx)
+    : virtual.scrollToIndex;
 
   // Activate a cell per its type (Enter or double-click): text/select/date etc.
   // → edit; checkbox → toggle; button → run action; formula → open panel;
   // read-only/computed → no-op. One place, shared by mouse and keyboard.
+  // Reads the page from the store, not the rendered rows: depending on the row
+  // array re-created every cell handler per edit and re-rendered all rows.
   const activateCell = useCallback((cell: CellCoord) => {
     if (!database) return;
     const prop = database.properties[cell.propId];
     if (!prop) return;
     switch (resolveCellActivation(prop.type)) {
       case 'toggle': {
-        const page = displayedPages.find(p => p.id === cell.pageId);
+        const page = storeApi.getState().pages[cell.pageId];
         storeApi.getState().updatePageProperty(cell.pageId, cell.propId, !page?.properties[cell.propId]);
         break;
       }
       case 'button': {
-        const page = displayedPages.find(p => p.id === cell.pageId);
+        const page = storeApi.getState().pages[cell.pageId];
         if (page) runButtonAction(prop, { storeApi, page, databaseId: database.id });
         break;
       }
@@ -137,7 +164,7 @@ export function useTableViewState() {
       case 'edit': setEditingCell(cell); break;
       case 'readonly': break;
     }
-  }, [database, displayedPages, storeApi]);
+  }, [database, storeApi]);
 
   const lastClickRef = useRef<{ pageId: string; propId: string; time: number } | null>(null);
 
@@ -204,11 +231,11 @@ export function useTableViewState() {
     pointerDownRef.current = false;
     if (fresh && from && !grid?.contains(from)) previousFocusRef.current = from;
     if (fresh && !viaPointer) {
-      const first = displayedPages[0];
+      const first = rowPages[0];
       const firstProp = visibleProps[0];
       if (first && firstProp) setFocusedCell({ pageId: first.id, propId: firstProp.id });
     }
-  }, [focusedCell, displayedPages, visibleProps]);
+  }, [focusedCell, rowPages, visibleProps]);
   // Escape from a selected (not editing) cell: leave the grid, restoring the
   // focus that preceded it so the user lands back in the surrounding page.
   const handleExitGrid = useCallback(() => {
@@ -241,12 +268,13 @@ export function useTableViewState() {
 
   const handleKeyDown = useTableKeyboard({
     focusedCell, editingCell, setFocusedCell, setEditingCell,
-    displayedPages, visibleProps, database, tableRef,
+    displayedPages: rowPages, visibleProps, database, tableRef,
     onActivateCell: activateCell, onExitGrid: handleExitGrid,
-    scrollToIndex: virtual.scrollToIndex,
+    scrollToIndex: scrollToRow,
+    onRowMenu: handleRowMenu, onOpenPage: handleOpenPage,
     selectionAnchor, setSelectionAnchor, selectionRange,
   });
-  const clipboard = useGridClipboard({ editingCell, selectionRange, displayedPages, visibleProps, storeApi });
+  const clipboard = useGridClipboard({ editingCell, focusedCell, selectionRange, displayedPages: rowPages, visibleProps, storeApi });
 
   return {
     view, database,
@@ -265,7 +293,7 @@ export function useTableViewState() {
     handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
     addPage, openPage, deletePage, duplicatePage,
     showVerticalLines, wrapContent, showRowNumbers,
-    colCount, isGrouped, groupedData,
+    colCount, isGrouped, groupLayout, showMoreInGroup,
     virtual,
   };
 }
