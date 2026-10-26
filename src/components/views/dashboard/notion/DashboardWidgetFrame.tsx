@@ -106,7 +106,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
           {widget.stat ? <Hash className={cn("w-3.5 h-3.5")} /> : meta?.svgIcon}
         </span>
         {renaming === null ? (
-          <span title={widget.title ?? view.name}
+          <span title={widget.title ?? view.name} data-dash-title
             className={cn(`text-xs font-medium truncate ${widget.hideTitle ? 'text-ink-muted italic' : 'text-ink'}`)}>
             {widget.title ?? view.name}
           </span>

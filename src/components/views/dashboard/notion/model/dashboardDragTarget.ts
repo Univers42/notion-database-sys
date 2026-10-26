@@ -11,21 +11,21 @@
 
 /**
  * Pure hit-testing for widget drag-and-drop. The hook snapshots row/column/
- * card rects at drag start (and on scroll); every pointermove resolves to:
- *   · a STACK slot — the top/bottom band of a card, or the EMPTY SPACE below
- *     a short column (the hole a shrunk card leaves) → insert into that
- *     column's vertical stack;
- *   · a COLUMN slot inside a row (index between column midpoints);
- *   · the gutter under a row (→ new row).
+ * card rects at drag start (and on scroll); every pointermove resolves to
+ * the EDGE of the hovered card nearest the pointer, in pixels, so the bar
+ * never lands across the card from where the pointer is (Notion's block DnD):
+ *   · top / bottom edge → insert into that column's vertical stack;
+ *   · left / right edge → insert a column before / after it;
+ *   · the empty space below a short column → append to its stack;
+ *   · a gap between columns → insert a column there;
+ *   · the gutter under a row → new row.
  * Capacity is enforced HERE (4 columns/row net of a vacated source column,
- * 3 cards/stack) so the indicator can show "blocked" before the drop.
+ * 3 cards/stack); a blocked drop keeps its indicator geometry so the hook
+ * can paint it as refused instead of hiding it.
  */
 
 import { MAX_PER_ROW, STACK_DEPTH_MAX } from './dashboardLayout';
 import type { MoveTarget } from './dashboardLayoutMove';
-
-/** Vertical fraction of a card acting as its stack-above/below band. */
-const STACK_BAND = 0.28;
 
 export interface SlotRect {
   left: number;
@@ -48,76 +48,84 @@ export interface RowGeometry {
   sourceAloneColumn?: boolean;
 }
 
+export type DropIndicator = { kind: 'slot'; x: number; top: number; bottom: number }
+  | { kind: 'row'; y: number; left: number; right: number }
+  | { kind: 'stack'; y: number; left: number; right: number };
+
 export interface DropResolution {
   target: MoveTarget | null;
-  /** Pointer is over a row/stack that cannot take the widget. */
+  /** Pointer is over a row/stack that cannot take the widget; `indicator`
+   *  still names where the refused drop would have gone. */
   blocked: boolean;
   /** Indicator geometry in the same coordinate space as the rects. */
-  indicator: { kind: 'slot'; x: number; top: number; bottom: number }
-    | { kind: 'row'; y: number; left: number; right: number }
-    | { kind: 'stack'; y: number; left: number; right: number }
-    | null;
+  indicator: DropIndicator | null;
 }
 
 const NONE: DropResolution = { target: null, blocked: false, indicator: null };
-const BLOCKED: DropResolution = { target: null, blocked: true, indicator: null };
 
-function stackHit(row: RowGeometry, colIndex: number, at: number, y: number): DropResolution {
-  const slot = row.slots[colIndex];
-  return {
-    target: { rowId: row.rowId, index: 0, intoStack: { col: colIndex, at } },
-    blocked: false,
-    indicator: { kind: 'stack', y, left: slot.left + 4, right: slot.right - 4 },
-  };
+function cardsOf(row: RowGeometry, slot: SlotRect): { top: number; bottom: number }[] {
+  return slot.cards ?? [{ top: row.top, bottom: row.bottom }];
 }
 
-/** Stack zones of the column under x: card top/bottom bands + the hole
- *  below a short column. Returns null when the pointer is mid-card (→ the
- *  column-insert path decides). */
-function resolveStackZone(row: RowGeometry, x: number, y: number): DropResolution | null {
-  const colIndex = row.slots.findIndex(slot => x >= slot.left && x <= slot.right);
-  if (colIndex === -1) return null;
-  const slot = row.slots[colIndex];
-  const cards = slot.cards ?? [{ top: row.top, bottom: row.bottom }];
-  const full = !slot.containsSource && cards.length >= STACK_DEPTH_MAX;
+/** y of the bar for inserting at `at`: the gap midpoint between two cards. */
+function stackBarY(cards: readonly { top: number; bottom: number }[], at: number): number {
+  if (at <= 0) return cards[0].top;
+  if (at >= cards.length) return cards[cards.length - 1].bottom;
+  return (cards[at - 1].bottom + cards[at].top) / 2;
+}
 
-  const last = cards[cards.length - 1];
-  if (y > last.bottom) return full ? BLOCKED : stackHit(row, colIndex, cards.length, last.bottom + 4);
-  for (let j = 0; j < cards.length; j++) {
-    const card = cards[j];
-    if (y < card.top || y > card.bottom) continue;
-    const band = (card.bottom - card.top) * STACK_BAND;
-    if (y < card.top + band) return full ? BLOCKED : stackHit(row, colIndex, j, card.top);
-    if (y > card.bottom - band) return full ? BLOCKED : stackHit(row, colIndex, j + 1, card.bottom);
-    return null;
-  }
-  return null;
+function stackDrop(row: RowGeometry, col: number, at: number): DropResolution {
+  const slot = row.slots[col];
+  const cards = cardsOf(row, slot);
+  const indicator: DropIndicator = { kind: 'stack', y: stackBarY(cards, at), left: slot.left + 4, right: slot.right - 4 };
+  if (!slot.containsSource && cards.length >= STACK_DEPTH_MAX) return { target: null, blocked: true, indicator };
+  return { target: { rowId: row.rowId, index: 0, intoStack: { col, at } }, blocked: false, indicator };
+}
+
+function columnDrop(row: RowGeometry, index: number): DropResolution {
+  const { slots } = row;
+  let x = slots[index - 1]?.right ?? slots[0]?.left ?? row.left;
+  if (index > 0 && index < slots.length) x = (slots[index - 1].right + slots[index].left) / 2;
+  const indicator: DropIndicator = { kind: 'slot', x, top: row.top, bottom: row.bottom };
+  // Net columns after the move: a vacated single-card source column frees one.
+  const vacated = row.sourceAloneColumn ?? row.containsSource;
+  if (slots.length - (vacated ? 1 : 0) >= MAX_PER_ROW) return { target: null, blocked: true, indicator };
+  return { target: { rowId: row.rowId, index }, blocked: false, indicator };
+}
+
+/** Edge of a card nearest the pointer, in pixels; ties go to the side. */
+function nearestEdge(
+  left: number, right: number, top: number, bottom: number, x: number, y: number,
+): 'left' | 'right' | 'top' | 'bottom' {
+  const side = Math.min(x - left, right - x);
+  const vertical = Math.min(y - top, bottom - y);
+  if (vertical < side) return y - top < bottom - y ? 'top' : 'bottom';
+  return x - left < right - x ? 'left' : 'right';
 }
 
 function resolveInRow(row: RowGeometry, x: number, y: number): DropResolution {
-  const stackZone = resolveStackZone(row, x, y);
-  if (stackZone) return stackZone;
-
-  // Column insertion: net columns after the move (a vacated single-card
-  // source column frees a slot) must stay within the cap.
-  const vacated = row.sourceAloneColumn ?? row.containsSource;
-  if (row.slots.length - (vacated ? 1 : 0) >= MAX_PER_ROW) return BLOCKED;
-  let index = row.slots.length;
-  for (let i = 0; i < row.slots.length; i++) {
-    const slot = row.slots[i];
-    if (x < (slot.left + slot.right) / 2) {
-      index = i;
-      break;
-    }
+  const col = row.slots.findIndex(slot => x >= slot.left && x <= slot.right);
+  if (col === -1) {
+    // A gap between columns, or the slack after the last one.
+    const after = row.slots.findIndex(slot => slot.left > x);
+    return columnDrop(row, after === -1 ? row.slots.length : after);
   }
-  const edge = index === 0
-    ? row.slots[0]?.left ?? row.left
-    : row.slots[index - 1].right;
-  return {
-    target: { rowId: row.rowId, index },
-    blocked: false,
-    indicator: { kind: 'slot', x: edge, top: row.top, bottom: row.bottom },
-  };
+  const slot = row.slots[col];
+  const cards = cardsOf(row, slot);
+  const card = cards.findIndex(c => y >= c.top && y <= c.bottom);
+  if (card === -1) {
+    // Below the column's last card (the hole a shrunk card leaves), or the
+    // gap between two stacked cards.
+    const next = cards.findIndex(c => c.top > y);
+    return stackDrop(row, col, next === -1 ? cards.length : next);
+  }
+  const { top, bottom } = cards[card];
+  switch (nearestEdge(slot.left, slot.right, top, bottom, x, y)) {
+    case 'top': return stackDrop(row, col, card);
+    case 'bottom': return stackDrop(row, col, card + 1);
+    case 'left': return columnDrop(row, col);
+    default: return columnDrop(row, col + 1);
+  }
 }
 
 /** Resolves a pointer position against the row snapshot. Gutters (between

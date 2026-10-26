@@ -63,10 +63,11 @@ export default function DashboardNotionView() {
   // Pointer drag-and-drop: DOM-only during the gesture, ONE commit on drop.
   const containerRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
+  const ghostRef = useRef<HTMLDivElement>(null);
   const viewIdRef = useRef<string | null>(null);
   viewIdRef.current = view?.id ?? null;
   const { startDrag } = useWidgetDrag({
-    containerRef, indicatorRef,
+    containerRef, indicatorRef, ghostRef,
     onDrop: (widgetId, target) => {
       const id = viewIdRef.current;
       if (!id) return;
@@ -236,9 +237,14 @@ export default function DashboardNotionView() {
           {/* On <body>: it is placed with window coordinates, which a host pane
               (`contain: paint`) or layout cell (`transform`) would offset. */}
           {createPortal(
-            <div ref={indicatorRef} aria-hidden="true" data-dash-drop-indicator
-              className={cn("pointer-events-none fixed z-40 rounded bg-accent")}
-              style={{ display: 'none' }} />,
+            <>
+              <div ref={indicatorRef} aria-hidden="true" data-dash-drop-indicator
+                className={cn("pointer-events-none fixed z-40 rounded bg-accent data-[blocked=true]:bg-danger data-[blocked=true]:opacity-60")}
+                style={{ display: 'none' }} />
+              <div ref={ghostRef} aria-hidden="true"
+                className={cn("pointer-events-none fixed left-0 top-0 z-50 max-w-56 truncate rounded-md border border-line bg-surface-primary px-2 py-1 text-xs font-medium text-ink shadow-md")}
+                style={{ display: 'none' }} />
+            </>,
             document.body,
           )}
           {layout.rows.length === 0 && (
