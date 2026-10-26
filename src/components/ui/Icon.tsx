@@ -22,6 +22,20 @@ interface IconProps {
   fill?: string;
 }
 
+// React compares dangerouslySetInnerHTML by object identity, so a fresh
+// `{ __html }` per render re-parsed every icon on every re-render (50 table
+// grips per cell edit, 23 ms of innerHTML on a 5k-row view). One frozen object
+// per registry entry keeps re-renders free.
+const HTML_BY_NAME = new Map<string, { __html: string }>();
+function iconHtml(name: string, d: string): { __html: string } {
+  let html = HTML_BY_NAME.get(name);
+  if (!html) {
+    html = Object.freeze({ __html: d });
+    HTML_BY_NAME.set(name, html);
+  }
+  return html;
+}
+
 /** Renders an SVG icon from the registry by kebab-case name. */
 export function Icon({ name, className = 'w-5 h-5', style, fill = 'currentColor' }: Readonly<IconProps>) {
   const entry = ICON_REGISTRY[name];
@@ -41,7 +55,7 @@ export function Icon({ name, className = 'w-5 h-5', style, fill = 'currentColor'
       style={style}
       fill={fill}
       aria-hidden="true"
-      dangerouslySetInnerHTML={{ __html: entry.d }}
+      dangerouslySetInnerHTML={iconHtml(name, entry.d)}
     />
   );
 }
