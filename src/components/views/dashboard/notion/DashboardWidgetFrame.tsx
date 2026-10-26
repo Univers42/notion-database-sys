@@ -33,6 +33,7 @@ import { VIEW_META } from '../../../viewSettings/constants';
 import type { ViewConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
 import { numberProperties } from './model/dashboardViewOps';
 import { StatKpi, STAT_FN_LABEL } from './StatKpi';
+import { AskAiWidgetButton } from './AskAiWidgetButton';
 import { cn } from '../../../../utils/cn';
 
 export interface WidgetActions {
@@ -127,7 +128,12 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
             onKeyDown={e => { if (e.key === 'Enter') { actions.onRename?.(renaming.trim()); setRenaming(null); } }}
             className={cn("flex-1 min-w-0 rounded border border-line bg-transparent px-1 text-xs outline-none")} />
         )}
-        {!editMode && !widget.stat && <span className={cn("ml-auto")}><WidgetCountBadge viewId={widget.viewId} /></span>}
+        {!editMode && !widget.stat && (
+          <span className={cn("ml-auto flex items-center gap-1")}>
+            <AskAiWidgetButton viewId={widget.viewId} title={title} />
+            <WidgetCountBadge viewId={widget.viewId} />
+          </span>
+        )}
         {editMode && (
           <div ref={menuRef} className={cn("relative ml-auto shrink-0")}>
             <button ref={menuButtonRef} onClick={() => setMenuOpen(o => !o)} aria-label="Widget actions"

@@ -32,6 +32,11 @@ export interface HostAdapters {
    * only, it never renders Mermaid itself.
    */
   MermaidDiagram?: ComponentType<{ chart: string; codeTheme?: 'dark' | 'light' }>;
+  /**
+   * Hands what a dashboard widget shows (its title, its records as text) to
+   * the host's assistant. Absent → no "Ask AI" button.
+   */
+  onAskAI?: (request: { title: string; text: string }) => void;
 }
 
 const HostAdaptersContext = createContext<HostAdapters>({});
