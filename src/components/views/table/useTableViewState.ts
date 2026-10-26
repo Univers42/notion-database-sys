@@ -10,14 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { SchemaProperty, PropertyValue } from '../../../types/database';
 import { useFillDrag } from './useFillDrag';
 import { useColumnResize, useColWidth } from './useColumnResize';
 import { useTableKeyboard } from './useTableKeyboard';
-import { type CellCoord, resolveCellActivation } from './gridKeyboard';
+import { type CellCoord, rangeBetween, resolveCellActivation } from './gridKeyboard';
+import { useGridClipboard } from './useGridClipboard';
 import { runButtonAction } from './cellRenderers';
 import { useViewPages } from '../../../hooks/useViewPages';
 import { useViewPager } from '../../../hooks/useViewPager';
@@ -39,6 +40,10 @@ export function useTableViewState() {
 
   const [focusedCell, setFocusedCell] = useState<{ pageId: string; propId: string } | null>(null);
   const [editingCell, setEditingCell] = useState<{ pageId: string; propId: string } | null>(null);
+  // The fixed corner of a multi-cell selection; the focused cell is the moving
+  // corner. Null means the selection is the focused cell alone.
+  const [selectionAnchor, setSelectionAnchor] = useState<CellCoord | null>(null);
+  const dragOriginRef = useRef<CellCoord | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [dragColId, setDragColId] = useState<string | null>(null);
   const [configPanel, setConfigPanel] = useState<{ prop: SchemaProperty; position: { top: number; left: number } } | null>(null);
@@ -84,6 +89,18 @@ export function useTableViewState() {
   const pager = useViewPager(pages, view?.settings?.loadLimit, activeViewId);
   const displayedPages = pager.items;
 
+  const selectionRange = useMemo(
+    () => (focusedCell ? rangeBetween(selectionAnchor ?? focusedCell, focusedCell, displayedPages, visibleProps) : null),
+    [selectionAnchor, focusedCell, displayedPages, visibleProps],
+  );
+  // What rows render: the row ids and column span of a MULTI-cell selection
+  // (a single cell keeps the focus ring alone).
+  const selection = useMemo(() => {
+    if (!selectionRange || (selectionRange.rowStart === selectionRange.rowEnd && selectionRange.colStart === selectionRange.colEnd)) return null;
+    const rowIds = new Set(displayedPages.slice(selectionRange.rowStart, selectionRange.rowEnd + 1).map(p => p.id));
+    return { rowIds, colStart: selectionRange.colStart, colEnd: selectionRange.colEnd };
+  }, [selectionRange, displayedPages]);
+
   const settings = view?.settings || {};
   const showVerticalLines = settings.showVerticalLines !== false;
   const wrapContent = settings.wrapContent === true;
@@ -127,7 +144,9 @@ export function useTableViewState() {
   // Spreadsheet model: single click *selects* the cell (ring, no editor); a
   // checkbox is the one exception that toggles on a single click. Editing starts
   // on Enter / double-click (see handleCellDoubleClick) / — never a single click.
-  const handleCellClick = useCallback((pageId: string, propId: string, type: string, currentValue: PropertyValue) => {
+  const handleCellClick = useCallback((pageId: string, propId: string, type: string, currentValue: PropertyValue, shiftKey = false) => {
+    if (shiftKey) return; // mousedown already extended the selection
+    setSelectionAnchor(null);
     const now = Date.now();
     const prev = lastClickRef.current;
     lastClickRef.current = { pageId, propId, time: now };
@@ -140,6 +159,30 @@ export function useTableViewState() {
     setFocusedCell({ pageId, propId });
     if (type === 'checkbox') storeApi.getState().updatePageProperty(pageId, propId, !currentValue);
   }, [activateCell, storeApi]);
+  // Selection by mouse: press on a cell, drag across others (or Shift+press)
+  // to span a range. The press never starts on the cell being edited.
+  const handleCellMouseDown = useCallback((pageId: string, propId: string, shiftKey: boolean) => {
+    if (editingCell?.pageId === pageId && editingCell.propId === propId) return;
+    const cell = { pageId, propId };
+    if (shiftKey && focusedCell) {
+      setSelectionAnchor(anchor => anchor ?? focusedCell);
+      setFocusedCell(cell);
+      return;
+    }
+    dragOriginRef.current = cell;
+  }, [editingCell, focusedCell]);
+  const handleCellMouseEnter = useCallback((pageId: string, propId: string) => {
+    const origin = dragOriginRef.current;
+    if (!origin || (origin.pageId === pageId && origin.propId === propId)) return;
+    globalThis.getSelection?.()?.removeAllRanges();
+    setSelectionAnchor(origin);
+    setFocusedCell({ pageId, propId });
+  }, []);
+  useEffect(() => {
+    const endDrag = () => { dragOriginRef.current = null; };
+    document.addEventListener('mouseup', endDrag);
+    return () => document.removeEventListener('mouseup', endDrag);
+  }, []);
   const handleCellDoubleClick = useCallback((pageId: string, propId: string, type: string) => {
     setFocusedCell({ pageId, propId });
     if (type === 'checkbox') return; // the first click already toggled it
@@ -170,6 +213,7 @@ export function useTableViewState() {
   // focus that preceded it so the user lands back in the surrounding page.
   const handleExitGrid = useCallback(() => {
     setFocusedCell(null);
+    setSelectionAnchor(null);
     setEditingCell(null);
     const prev = previousFocusRef.current;
     previousFocusRef.current = null;
@@ -200,11 +244,13 @@ export function useTableViewState() {
     displayedPages, visibleProps, database, tableRef,
     onActivateCell: activateCell, onExitGrid: handleExitGrid,
     scrollToIndex: virtual.scrollToIndex,
+    selectionAnchor, setSelectionAnchor, selectionRange,
   });
+  const clipboard = useGridClipboard({ editingCell, selectionRange, displayedPages, visibleProps, storeApi });
 
   return {
     view, database,
-    focusedCell, editingCell,
+    focusedCell, editingCell, selection, clipboard,
     searchQuery, setSearchQuery,
     dragColId, setDragColId,
     configPanel, setConfigPanel,
@@ -214,7 +260,7 @@ export function useTableViewState() {
     visibleProps, filteredVisible, filteredHidden,
     rowMenu, setRowMenu,
     pages, displayedPages, pager,
-    handleCellClick, handleCellDoubleClick, handleUpdateProperty, handleStopEditing,
+    handleCellClick, handleCellDoubleClick, handleCellMouseDown, handleCellMouseEnter, handleUpdateProperty, handleStopEditing,
     handleOpenPage, handleFormulaEdit, handleRowMenu, handlePropertyConfig,
     handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
     addPage, openPage, deletePage, duplicatePage,

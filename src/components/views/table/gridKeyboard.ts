@@ -133,6 +133,37 @@ export function nextFocusedCell(
   }
 }
 
+/** A rectangle of cells by row/column index, bounds inclusive. */
+export interface CellRange {
+  rowStart: number;
+  rowEnd: number;
+  colStart: number;
+  colEnd: number;
+}
+
+/** The rectangle spanned by the selection anchor and the focused cell, in any
+ *  drag direction; null when either cell left the view. */
+export function rangeBetween(anchor: CellCoord, focus: CellCoord, pages: HasId[], props: HasId[]): CellRange | null {
+  const rows = [anchor.pageId, focus.pageId].map(id => pages.findIndex(p => p.id === id));
+  const cols = [anchor.propId, focus.propId].map(id => props.findIndex(p => p.id === id));
+  if (rows.includes(-1) || cols.includes(-1)) return null;
+  return {
+    rowStart: Math.min(...rows), rowEnd: Math.max(...rows),
+    colStart: Math.min(...cols), colEnd: Math.max(...cols),
+  };
+}
+
+/** The keys the grid handles itself, as `aria-keyshortcuts`. A host that
+ *  routes global shortcuts can read it and leave these keys to the grid. */
+export const GRID_KEY_SHORTCUTS = [
+  'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'Shift+ArrowUp', 'Shift+ArrowDown', 'Shift+ArrowLeft', 'Shift+ArrowRight',
+  'Home', 'End', 'Shift+Home', 'Shift+End', 'Control+Home', 'Control+End', 'Meta+Home', 'Meta+End',
+  'PageUp', 'PageDown', 'Shift+PageUp', 'Shift+PageDown',
+  'Enter', 'Shift+Enter', 'Space', 'Escape', 'Delete', 'Backspace',
+  'Control+C', 'Meta+C', 'Control+X', 'Meta+X', 'Control+V', 'Meta+V', 'Control+Shift+V', 'Meta+Shift+V',
+].join(' ');
+
 /** Keys that, pressed while the grid is focused but no cell is selected yet,
  *  should "enter" the grid by selecting the first cell. */
 export function isGridEntryKey(key: string): boolean {
