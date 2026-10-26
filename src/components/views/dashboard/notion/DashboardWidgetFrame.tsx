@@ -19,12 +19,13 @@
 import React, { useRef, useState } from 'react';
 import {
   MoreHorizontal, Settings2, Copy, Trash2, ArrowLeft, ArrowRight,
-  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2,
+  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2, Smile,
 } from 'lucide-react';
 import { DatabaseView } from '../../../DatabaseView';
 import { ViewSettingsPanel } from '../../../ViewSettingsPanel';
 import { DatabaseScopeProvider } from '../../../../hooks/useDatabaseScope';
 import { ErrorBoundary } from '../../../ErrorBoundary';
+import { IconPickerPopover } from '../../../ui/IconPickerPopover';
 import { useOutsideClick } from '../../../../hooks/useOutsideClick';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
@@ -43,6 +44,8 @@ export interface WidgetActions {
   onToggleHideTitle?: () => void;
   /** Swap between the embedded view and a Number/KPI tile (null → view). */
   onSetStat?: (stat: DashboardStatConfig | null) => void;
+  /** A Number tile's chip icon (null → the aggregate's default). */
+  onSetIcon?: (icon: string | null) => void;
   /** Pointer drag start from the grip handle (edit mode). */
   onDragStart?: (event: React.PointerEvent) => void;
 }
@@ -67,7 +70,9 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
   const [menuOpen, setMenuOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const [renaming, setRenaming] = useState<string | null>(null);
+  const [pickingIcon, setPickingIcon] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const configRef = useRef<HTMLDivElement>(null);
   useOutsideClick(menuRef, menuOpen, () => setMenuOpen(false));
   useOutsideClick(configRef, configOpen, () => setConfigOpen(false));
@@ -125,10 +130,16 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
         {!editMode && !widget.stat && <span className={cn("ml-auto")}><WidgetCountBadge viewId={widget.viewId} /></span>}
         {editMode && (
           <div ref={menuRef} className={cn("relative ml-auto shrink-0")}>
-            <button onClick={() => setMenuOpen(o => !o)} aria-label="Widget actions"
+            <button ref={menuButtonRef} onClick={() => setMenuOpen(o => !o)} aria-label="Widget actions"
               className={cn("p-1 rounded-md hover:bg-hover-surface text-ink-muted")}>
               <MoreHorizontal className={cn("w-3.5 h-3.5")} />
             </button>
+            {pickingIcon && (
+              <IconPickerPopover anchorRef={menuButtonRef} align="right" value={widget.icon ?? null}
+                onSelect={name => { actions.onSetIcon?.(name); setPickingIcon(false); }}
+                onRemove={() => { actions.onSetIcon?.(null); setPickingIcon(false); }}
+                onClose={() => setPickingIcon(false)} />
+            )}
             {menuOpen && (
               <div className={cn("odb-pop-in absolute right-0 top-full mt-1 z-30 w-48 py-1 rounded-lg border border-line bg-surface-primary shadow-lg max-h-72 overflow-y-auto")}>
                 {menuItem(<Settings2 className={cn("w-3.5 h-3.5")} />, 'Configure view', () => setConfigOpen(true))}
@@ -136,6 +147,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
                 {actions.onToggleHideTitle && menuItem(
                   widget.hideTitle ? <Eye className={cn("w-3.5 h-3.5")} /> : <EyeOff className={cn("w-3.5 h-3.5")} />,
                   widget.hideTitle ? 'Show title' : 'Hide title', actions.onToggleHideTitle)}
+                {widget.stat && actions.onSetIcon && menuItem(<Smile className={cn("w-3.5 h-3.5")} />, 'Change icon', () => setPickingIcon(true))}
                 {actions.onSetStat && (
                   <>
                     <div className={cn("my-1 border-t border-line")} />
@@ -169,7 +181,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
       <div className={cn("relative flex-1 min-h-0 flex flex-col overflow-auto")}>
         <ErrorBoundary>
           {widget.stat
-            ? <StatKpi viewId={widget.viewId} stat={widget.stat} label={widget.hideTitle ? undefined : title} />
+            ? <StatKpi viewId={widget.viewId} stat={widget.stat} label={widget.hideTitle ? undefined : title} icon={widget.icon} />
             : <DatabaseView viewId={widget.viewId} compact />}
         </ErrorBoundary>
         {configOpen && (

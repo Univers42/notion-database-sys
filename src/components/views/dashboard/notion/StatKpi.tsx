@@ -10,6 +10,7 @@ import type { DashboardStatConfig } from '../../../../types/database';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { StatIconBadge, STAT_LOOK } from '../StatComponents';
+import { Icon } from '../../../ui/Icon';
 import { aggregate, formatKpi, kpiProvenance, numericValues, STAT_FN_KIND } from './model/kpiModel';
 import { cn } from '../../../../utils/cn';
 
@@ -28,8 +29,8 @@ function useDatabaseRecordCount(databaseId: string | undefined): number {
 }
 
 /** Computes the metric over the view's (globally filtered) pages. */
-export function StatKpi({ viewId, stat, label }: Readonly<{
-  viewId: string; stat: DashboardStatConfig; label?: string;
+export function StatKpi({ viewId, stat, label, icon }: Readonly<{
+  viewId: string; stat: DashboardStatConfig; label?: string; icon?: string;
 }>) {
   const pages = useViewPages(viewId);
   const view = useDatabaseStore(s => s.views[viewId]);
@@ -56,7 +57,7 @@ export function StatKpi({ viewId, stat, label }: Readonly<{
   return (
     <div className={cn("flex-1 min-h-0 flex items-center gap-3 px-4 py-2 [container-type:size]")}>
       <div className={cn("shrink-0 [@container(max-width:150px)]:hidden [@container(max-height:56px)]:hidden")}>
-        <StatIconBadge color={look.color}>{look.icon}</StatIconBadge>
+        <StatIconBadge color={look.color}>{icon ? <Icon name={icon} className={cn("w-5 h-5")} /> : look.icon}</StatIconBadge>
       </div>
       <div className={cn("min-w-0 flex-1 [@container(max-width:150px)]:text-center")} title={provenance}>
         <div style={widthCap} className={cn("text-[min(1.875rem,40cqh,var(--kpi-w))] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,var(--kpi-w))] font-bold tabular-nums text-ink leading-none truncate")}>
