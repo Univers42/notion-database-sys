@@ -106,6 +106,9 @@ export interface DatabaseState {
   getGroupedPages: (viewId: string) => { groupId: string; groupLabel: string; groupColor: string; pages: Page[] }[];
   resolveFormula: (databaseId: string, page: Page, expression: string) => PropertyValue;
   resolveRollup: (databaseId: string, page: Page, propertyId: string) => PropertyValue;
+  /** Value filters / groups / charts compare against: stored, or computed for
+   *  formula, rollup and created/edited-time columns. */
+  getCellValue: (page: Page, propertyId: string) => unknown;
   getSmartDefaults: (databaseId: string) => {
     suggestedView: string;
     suggestedGroupBy?: string;

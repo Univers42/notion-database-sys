@@ -12,6 +12,7 @@
 
 import type { Block } from '@notion-db/contract-types';
 export type {
+  AutofillConfig,
   Block,
   BlockType,
   ButtonConfig,

@@ -25,6 +25,7 @@ export function safeString(val: unknown): string {
     return String(val);
   }
   if (val === null || val === undefined) return '';
-  if (val instanceof Date) return val.toISOString();
+  // An invalid Date (a cleared date cell, a bad import) throws on toISOString.
+  if (val instanceof Date) return Number.isNaN(val.getTime()) ? '' : val.toISOString();
   return JSON.stringify(val);
 }

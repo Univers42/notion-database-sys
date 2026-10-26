@@ -91,8 +91,16 @@ function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
   const presetBtnRef = useRef<HTMLButtonElement>(null);
 
   const showDateInput = needsValue(operator) && operator !== 'is_relative_to_today';
-  const isCustom = typeof value === 'string' && /^\d{4}-/.exec(value);
-  const displayVal = isCustom ? value : (value || 'Custom date');
+  const isBetween = operator === 'is_between';
+  // is_between keeps {start, end}; every other operator a single YYYY-MM-DD.
+  // Switching operator leaves the other shape behind, so both are read here.
+  const range = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as { start?: unknown; end?: unknown }
+    : { start: value, end: '' };
+  const single = isBetween ? range.start : (typeof value === 'string' ? value : range.start);
+  const singleDate = toDateInputValue(single);
+  const displayVal = singleDate || 'Custom date';
+  const setSingle = (day: string) => onValueChange(isBetween ? { start: day, end: toDateInputValue(range.end) } : day);
 
   const applyPreset = (preset: string) => {
     const today = new Date();
@@ -107,7 +115,8 @@ function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
       case 'One month from now': d = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate()); break;
       default: return;
     }
-    onValueChange(d.toISOString().slice(0, 10));
+    // Local calendar day: toISOString() is the UTC day, off by one near midnight.
+    setSingle(toDateInputValue(d));
     setShowPresetMenu(false);
   };
 
@@ -120,12 +129,13 @@ function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
             <span className={cn("truncate")}>{displayVal}</span>
             <ChevronDown className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
           </button>
-          <input type="date" value={isCustom ? toDateInputValue(value) : ''} onChange={e => onValueChange(e.target.value)}
+          <input type="date" aria-label={isBetween ? 'Start date' : 'Date'} value={singleDate}
+            onChange={e => setSingle(e.target.value)}
             className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary")} />
-          {operator === 'is_between' && (
-            <input type="date"
-              value={typeof value === 'object' && value?.end ? toDateInputValue(value.end) : ''}
-              onChange={e => onValueChange({ start: isCustom ? value : '', end: e.target.value })}
+          {isBetween && (
+            <input type="date" aria-label="End date"
+              value={toDateInputValue(range.end)}
+              onChange={e => onValueChange({ start: singleDate, end: e.target.value })}
               className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary")} />
           )}
         </div>
@@ -154,7 +164,7 @@ function TextFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
       {needsValue(operator) && (
         <div className={cn("p-2")}>
           <input type={property.type === 'number' ? 'number' : 'text'} placeholder="Value"
-            value={value || ''}
+            value={typeof value === 'string' || typeof value === 'number' ? value : ''}
             onChange={e => onValueChange(property.type === 'number' && e.target.value ? Number(e.target.value) : e.target.value)}
             className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary outline-none focus:border-focus-border-soft transition-colors")}
             autoFocus />

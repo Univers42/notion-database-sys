@@ -31,6 +31,7 @@ import {
 } from './store/useDatabaseStore';
 import { useDbSource } from './hooks/useDbSource';
 import { applyStoredDbMeta } from './store/sources/dbMetaPersistence';
+import { rememberView, rememberedView } from './lib/lastViewMemory';
 import { normalizeDatabases } from './store/sources/normalizeDatabases';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import type { PanelSection } from './components/ui/ActionPanel';
@@ -206,11 +207,16 @@ function ObjectDatabaseInner({
   );
   const lastSelectionKeyRef = useRef<string | null>(null);
   const selectionKey = `${databaseId ?? ''}:${initialView ?? ''}`;
+  // The name only seeds a database that does not exist yet. As an effect
+  // dependency it reloaded the whole state on every rename, and the reload read
+  // the adapter's not-yet-flushed old name back over the new one.
+  const databaseNameRef = useRef(databaseName);
+  useEffect(() => { databaseNameRef.current = databaseName; }, [databaseName]);
   const reloadFromAdapter = useCallback(
     async () => {
-      await loadAdapterState(storeApi, adapter, { silent: true, databaseId, initialView, databaseName });
+      await loadAdapterState(storeApi, adapter, { silent: true, databaseId, initialView, databaseName: databaseNameRef.current });
     },
-    [adapter, databaseId, databaseName, initialView, storeApi],
+    [adapter, databaseId, initialView, storeApi],
   );
 
   useEffect(() => {
@@ -236,7 +242,7 @@ function ObjectDatabaseInner({
   useEffect(() => {
     let cancelled = false;
 
-    loadAdapterState(storeApi, adapter, { databaseId, initialView, databaseName }).then((storeSource) => {
+    loadAdapterState(storeApi, adapter, { databaseId, initialView, databaseName: databaseNameRef.current }).then((storeSource) => {
       if (!cancelled && storeSource && storeSource !== activeSource) {
         setActiveSource(storeSource as DbSourceType);
       }
@@ -245,15 +251,25 @@ function ObjectDatabaseInner({
     return () => {
       cancelled = true;
     };
-  }, [adapter, activeSource, databaseId, databaseName, initialView, setActiveSource, storeApi]);
+  }, [adapter, activeSource, databaseId, initialView, setActiveSource, storeApi]);
 
   useEffect(() => {
     if (lastSelectionKeyRef.current === selectionKey || Object.keys(views).length === 0) return;
-    const nextView = resolveInitialView(views, databaseId, initialView);
+    const nextView = resolveInitialView(views, databaseId, preferredView(views, databaseId, initialView));
     if (!nextView) return;
     lastSelectionKeyRef.current = selectionKey;
     if (activeViewId !== nextView.id) setActiveView(nextView.id);
   }, [activeViewId, databaseId, initialView, selectionKey, setActiveView, views]);
+
+  // Only once this block's own view is selected, and only a view of its own
+  // database: a stale id from the previous selection must not be remembered.
+  const activeViewDatabaseId = view?.databaseId;
+  const blockDatabaseId = databaseId ?? (initialView ? views[initialView]?.databaseId : undefined);
+  useEffect(() => {
+    if (lastSelectionKeyRef.current !== selectionKey || !activeViewId) return;
+    if (blockDatabaseId && activeViewDatabaseId !== blockDatabaseId) return;
+    rememberView(selectionKey, activeViewId);
+  }, [activeViewDatabaseId, activeViewId, blockDatabaseId, selectionKey]);
 
   useEffect(() => {
     onPageOpen?.(openPageId);
@@ -495,24 +511,32 @@ function useAdapterStatePersistence(adapter: ObjectDatabaseAdapter, storeApi: Da
     // every changed row but the last — so snapshot the window's true baseline
     // once and reuse it until the timer fires.
     let baseline: Pick<NotionState, 'databases' | 'pages' | 'views'> | null = null;
+    let latest: Pick<NotionState, 'databases' | 'pages' | 'views'> | null = null;
+    const flush = () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      if (!latest || !baseline) return;
+      const next = latest;
+      const base = baseline;
+      latest = null;
+      baseline = null;
+      persistState(next, base);
+    };
     const unsubscribe = storeApi.subscribe((state, previous) => {
       if (state.activeDbmsSource !== 'adapter') return;
       if (state.databases === previous.databases && state.pages === previous.pages && state.views === previous.views) return;
-      if (!timer) baseline = { databases: previous.databases, pages: previous.pages, views: previous.views };
+      baseline ??= { databases: previous.databases, pages: previous.pages, views: previous.views };
+      latest = { databases: state.databases, pages: state.pages, views: state.views };
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = null;
-        const base = baseline ?? { databases: previous.databases, pages: previous.pages, views: previous.views };
-        baseline = null;
-        persistState(
-          { databases: state.databases, pages: state.pages, views: state.views },
-          base,
-        );
-      }, 150);
+      timer = setTimeout(flush, 150);
     });
+    // A reload, tab close or unmount inside the debounce window dropped the
+    // edit: a rename followed by a reload came back with the old name.
+    globalThis.addEventListener('beforeunload', flush);
 
     return () => {
-      if (timer) clearTimeout(timer);
+      globalThis.removeEventListener('beforeunload', flush);
+      flush();
       unsubscribe();
     };
   }, [adapter, storeApi]);
@@ -531,7 +555,8 @@ async function loadAdapterState(
     // localStorage write-through even for live mounts that rebuild their
     // schema from the server on every load.
     const state = applyStoredDbMeta(withRequestedDatabase(loaded, opts.databaseId, opts.initialView, opts.databaseName));
-    const activeViewId = chooseActiveViewId(state, current.activeViewId, opts.databaseId, opts.initialView);
+    const activeViewId = chooseActiveViewId(
+      state, current.activeViewId, opts.databaseId, preferredView(state.views, opts.databaseId, opts.initialView));
     const source = 'adapter';
 
     storeApi.setState({
@@ -562,6 +587,16 @@ async function loadAdapterState(
 async function initFormulaEngineOnce(): Promise<void> {
   const { initFormulaEngine } = await import('./lib/engine/bridge');
   await initFormulaEngine();
+}
+
+/** The tab this block last showed, else its pinned view. */
+function preferredView(
+  views: NotionState['views'],
+  databaseId?: string,
+  initialView?: string | null,
+): string | null | undefined {
+  const owner = databaseId ?? (initialView ? views[initialView]?.databaseId : undefined);
+  return rememberedView(views, `${databaseId ?? ''}:${initialView ?? ''}`, owner) ?? initialView;
 }
 
 function resolveInitialView(

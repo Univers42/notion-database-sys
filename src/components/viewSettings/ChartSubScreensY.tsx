@@ -16,6 +16,7 @@ import React from 'react';
 import { SubPanelHeader, OptionList, PropertyOptionList, Toggle } from './SubComponents';
 import type { ChartScreensProps } from './ChartSubScreens';
 import { cn } from '../../utils/cn';
+import { numberProperties } from '../views/dashboard/notion/model/dashboardViewOps';
 
 const AGGREGATIONS = [
   { id: 'sum', label: 'Sum' }, { id: 'average', label: 'Average' },
@@ -29,7 +30,7 @@ const AGGREGATIONS = [
  * Cumulative toggle (Notion parity).
  */
 export function YAxisWhatScreen({ setScreen, settings, updateSetting, allProps, onClose }: Readonly<ChartScreensProps>) {
-  const eligible = allProps.filter(p => p.type === 'number');
+  const eligible = numberProperties(allProps);
   return (
     <div className={cn("flex flex-col h-full")}>
       <SubPanelHeader title="Y-Axis: What to show" onBack={() => setScreen('editChart')} onClose={onClose} />

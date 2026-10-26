@@ -221,6 +221,15 @@ export interface CustomFieldConfig {
   maxLength?: number;
 }
 
+/** A select whose value the host's AI fills, read-only, from source text.
+ *  The label is never persisted into `state` (C155): a client without the
+ *  host adapter renders a plain select. */
+export interface AutofillConfig {
+  kind: 'sentiment';
+  /** Property ids whose text is scored, in order. Only title/text. */
+  sourcePropertyIds: string[];
+}
+
 /** Option metadata for select-like properties. */
 export interface SelectOption {
   id: string;
@@ -241,6 +250,8 @@ export interface SchemaProperty {
   rollupConfig?: RollupConfig;
   relationConfig?: RelationConfig;
   buttonConfig?: ButtonConfig;
+  /** AI-filled select: labels come from the host adapter at render time. */
+  autofill?: AutofillConfig;
   customConfig?: CustomFieldConfig;
   prefix?: string;
   autoIncrement?: number;
@@ -476,6 +487,8 @@ export interface ViewSettings {
    *  unranked pages follow in creation order. Written by row drag-reorder. */
   manualRowOrder?: string[];
   columnWidths?: Record<string, number>;
+  /** Table footer calculation per property id (count_all, sum, earliest…). */
+  columnCalculations?: Record<string, string>;
   columnOrder?: string[];
   colorColumns?: boolean;
   cardPreview?: 'none' | 'page_cover' | 'page_properties' | 'page_content';

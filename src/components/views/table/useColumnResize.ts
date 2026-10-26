@@ -22,6 +22,9 @@ export function colWidthVar(propId: string): string {
 }
 
 /** Manages column resize interactions via mouse drag with RAF-throttled updates. */
+/** Narrowest a column can be dragged or keyed to. */
+export const MIN_COL_WIDTH = 80;
+
 export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDivElement | null>) {
   const [resizingCol, setResizingCol] = useState<string | null>(null);
   const storeApi = useStoreApi();
@@ -38,7 +41,7 @@ export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDi
     let rafId = 0;
 
     const handleMove = (ev: MouseEvent) => {
-      latestWidth = Math.max(80, startWidth + ev.clientX - startX);
+      latestWidth = Math.max(MIN_COL_WIDTH, startWidth + ev.clientX - startX);
       if (!rafId) {
         rafId = requestAnimationFrame(() => {
           rafId = 0;

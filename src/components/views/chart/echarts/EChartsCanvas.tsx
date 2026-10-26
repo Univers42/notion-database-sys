@@ -98,8 +98,9 @@ export default function EChartsCanvas({ viewId, result, settings }: Readonly<ECh
   }, [result, settings]);
 
   return (
-    <div className="flex-1 min-h-0 bg-surface-primary p-2" data-chart-export-root data-engine="echarts">
-      <div ref={hostRef} style={{ width: '100%', height: heightFor(settings) }} role="img" aria-label="Chart" />
+    <div className="flex-1 min-h-0 flex flex-col bg-surface-primary p-2" data-chart-export-root data-engine="echarts">
+      <div ref={hostRef} className="odb-chart-plot w-full" style={{ '--odb-chart-h': `${heightFor(settings)}px` } as React.CSSProperties}
+        role="img" aria-label="Chart" />
     </div>
   );
 }

@@ -11,16 +11,19 @@
 /* ************************************************************************** */
 
 import React, { useCallback } from 'react';
-import { useStoreApi, type DatabaseStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
 import {
   type CellCoord,
-  CLEAR_VALUE_BY_TYPE,
+  type CellRange,
   directionForKey,
-  isClearableType,
   isGridEntryKey,
   nextFocusedCell,
+  typeToEditSeed,
+  type EditingCell,
 } from './gridKeyboard';
+import { planClear } from './gridClipboard';
+import { applyCellWrites } from './useGridClipboard';
 
 /** How many rows PageUp/PageDown jump (roughly one virtualized viewport). */
 const PAGE_STEP = 10;
@@ -46,23 +49,11 @@ function handleEditingKeys(
   }
 }
 
-function handleDeleteKey(
-  focusedCell: CellCoord,
-  database: DatabaseSchema,
-  storeApi: DatabaseStoreApi,
-): void {
-  const prop = database.properties[focusedCell.propId];
-  if (prop && isClearableType(prop.type)) {
-    const clearVal = CLEAR_VALUE_BY_TYPE[prop.type] ?? '';
-    storeApi.getState().updatePageProperty(focusedCell.pageId, focusedCell.propId, clearVal);
-  }
-}
-
 interface KeyboardDeps {
   focusedCell: CellCoord | null;
-  editingCell: CellCoord | null;
+  editingCell: EditingCell | null;
   setFocusedCell: (c: CellCoord | null) => void;
-  setEditingCell: (c: CellCoord | null) => void;
+  setEditingCell: (c: EditingCell | null) => void;
   displayedPages: Page[];
   visibleProps: SchemaProperty[];
   database: DatabaseSchema | null;
@@ -73,15 +64,26 @@ interface KeyboardDeps {
   onExitGrid: () => void;
   /** Scroll an off-screen row into view before focus lands on it (virtualized body). */
   scrollToIndex?: (index: number) => void;
+  /** Shift+F10 / ContextMenu: the row menu, anchored at the selected cell. */
+  onRowMenu: (pageId: string, x: number, y: number) => void;
+  /** Ctrl/Cmd+Enter: open the selected record. */
+  onOpenPage: (pageId: string) => void;
+  /** Fixed corner of a multi-cell selection; Shift+arrows move the other corner. */
+  selectionAnchor: CellCoord | null;
+  setSelectionAnchor: React.Dispatch<React.SetStateAction<CellCoord | null>>;
+  /** The selected cells (the focused cell alone when there is no anchor). */
+  selectionRange: CellRange | null;
 }
 
-/** Handles grid navigation (arrows, Tab, Home/End, PageUp/Down), cell activation
- *  (Enter/Space), clearing (Delete), and the Escape-out-of-grid step. */
+/** Handles grid navigation (arrows, Tab, Home/End, PageUp/Down; Shift extends
+ *  the selection), cell activation (Enter/Space), clearing the selection
+ *  (Delete), and the Escape steps: collapse the selection, then leave the grid. */
 export function useTableKeyboard(deps: KeyboardDeps) {
   const {
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
-    onActivateCell, onExitGrid, scrollToIndex,
+    onActivateCell, onExitGrid, scrollToIndex, onRowMenu, onOpenPage,
+    selectionAnchor, setSelectionAnchor, selectionRange,
   } = deps;
   const storeApi = useStoreApi();
 
@@ -95,6 +97,15 @@ export function useTableKeyboard(deps: KeyboardDeps) {
     // block, which is why only vertical moves froze). stopPropagation halts that
     // React bubble handler; preventDefault halts native scroll/caret.
     const own = () => { e.preventDefault(); e.stopPropagation(); };
+
+    // Header and footer controls (column menus, resize handles, calculations)
+    // own their keys: claiming Enter here cancelled their native click
+    // whenever a cell was selected.
+    if ((e.target as HTMLElement).closest('thead, tfoot')) { e.stopPropagation(); return; }
+    // A portaled menu (row options) bubbles through this handler in the React
+    // tree; claiming its arrows moved the cell and pulled focus out of the menu.
+    // Cell editors still route here: their Escape/Tab close the edit.
+    if (!editingCell && !e.currentTarget.contains(e.target as Node)) return;
 
     // Entered the grid (focus/tab) with no cell selected: the first navigation
     // or Enter key selects the first cell — the fix for "arrows do nothing".
@@ -133,9 +144,15 @@ export function useTableKeyboard(deps: KeyboardDeps) {
 
     const dir = directionForKey(e);
     if (dir) {
-      own();
       const next = nextFocusedCell(dir, focusedCell, displayedPages, visibleProps, PAGE_STEP);
+      // Tab past the first/last column leaves the grid, so keyboard users are
+      // never trapped in it.
+      if (e.key === 'Tab' && !next) return;
+      own();
       if (next) {
+        // Shift+Tab is a move, not an extend.
+        if (e.shiftKey && e.key !== 'Tab') setSelectionAnchor(anchor => anchor ?? focusedCell);
+        else setSelectionAnchor(null);
         setFocusedCell(next);
         const nextPi = displayedPages.findIndex(p => p.id === next.pageId);
         if (nextPi >= 0 && nextPi !== pi) scrollToIndex?.(nextPi);
@@ -150,10 +167,19 @@ export function useTableKeyboard(deps: KeyboardDeps) {
       return;
     }
 
+    if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
+      own();
+      const anchor = document.getElementById(tableRef.current?.getAttribute('aria-activedescendant') ?? '');
+      const r = anchor?.getBoundingClientRect();
+      onRowMenu(focusedCell.pageId, r?.left ?? 0, r?.bottom ?? 0);
+      return;
+    }
+
     switch (e.key) {
       case 'Enter':
         own();
         if (e.shiftKey) storeApi.getState().addPage(database.id);
+        else if (e.ctrlKey || e.metaKey) onOpenPage(focusedCell.pageId);
         else onActivateCell(focusedCell);
         break;
       case ' ': // Space toggles a checkbox (spreadsheet convention); else ignored.
@@ -164,19 +190,29 @@ export function useTableKeyboard(deps: KeyboardDeps) {
         break;
       case 'Escape':
         own();
-        onExitGrid();
+        if (selectionAnchor) setSelectionAnchor(null);
+        else onExitGrid();
         break;
       case 'Delete':
       case 'Backspace':
-        // Claim it so Backspace/Delete clears the cell — not the host editor
+        // Claim it so Backspace/Delete clears the cells — not the host editor
         // deleting the whole database block.
         own();
-        handleDeleteKey(focusedCell, database, storeApi);
+        if (selectionRange) applyCellWrites(storeApi, planClear(selectionRange, displayedPages, visibleProps));
         break;
+      default: {
+        const type = database.properties[focusedCell.propId]?.type ?? '';
+        const seed = e.nativeEvent.isComposing ? null : typeToEditSeed(e, type);
+        if (seed !== null) {
+          own();
+          setEditingCell({ ...focusedCell, seed });
+        }
+      }
     }
   }, [
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
-    onActivateCell, onExitGrid, storeApi, scrollToIndex,
+    onActivateCell, onExitGrid, storeApi, scrollToIndex, onRowMenu, onOpenPage,
+    selectionAnchor, setSelectionAnchor, selectionRange,
   ]);
 }

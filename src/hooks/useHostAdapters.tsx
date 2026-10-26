@@ -12,7 +12,15 @@ export interface CollaboratorEntry {
   name: string;
 }
 
+/** The host's AI-filled values: read on render, never written back. */
+export interface AutofillAdapter {
+  /** Read-only AI-filled values, keyed by record id. Never persisted. */
+  read(databaseId: string, propertyId: string): Promise<Record<string, string | null>>;
+}
+
 export interface HostAdapters {
+  /** Read-only AI-filled select labels, keyed by record id. Never persisted. */
+  autofill?: AutofillAdapter;
   /** People authorized on this workspace — proposed by person cells. */
   collaborators?: CollaboratorEntry[];
   /** Opens the host's invite/connect flow ("+ Invite" in the person editor). */

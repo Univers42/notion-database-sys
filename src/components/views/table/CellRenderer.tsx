@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
+import type { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import type { DatabaseStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import {
   renderTitleOrText,
@@ -36,6 +36,7 @@ import {
   renderDueDate,
   renderCustom,
 } from './cellRenderers';
+import { AutofillSelectCell } from './cellRenderers/AutofillCellRenderer';
 import { cn } from '../../../utils/cn';
 import { safeString } from '../../../utils/safeString';
 
@@ -45,6 +46,8 @@ export interface CellRendererProps {
   page: Page;
   value: PropertyValue;
   isEditing: boolean;
+  /** Typed character that opened the editor; replaces the current text. */
+  editSeed?: string;
   wrapContent: boolean;
   databaseId: string;
   onUpdate: (pageId: string, propId: string, value: PropertyValue) => void;
@@ -63,7 +66,7 @@ export function renderCellContent(props: CellRendererProps): React.ReactNode {
     case 'title':
     case 'text':            return renderTitleOrText(props);
     case 'number':          return renderNumber(props);
-    case 'select':          return renderSelect(props);
+    case 'select':          return prop.autofill ? <AutofillSelectCell {...props} /> : renderSelect(props);
     case 'status':          return renderStatus(props);
     case 'multi_select':    return renderMultiSelect(props);
     case 'date':            return renderDate(props);

@@ -29,6 +29,8 @@ export interface MemoTableRowProps {
   visibleProps: SchemaProperty[];
   focusedPropId: string | null;
   editingPropId: string | null;
+  /** Typed character that started the edit (type-to-edit); replaces the text. */
+  editSeed?: string;
   /** ANY fill drag is in progress — drives the crosshair cursor. Changes only
    *  at drag start/end, never per mousemove. */
   fillDragActive: boolean;
@@ -36,13 +38,19 @@ export interface MemoTableRowProps {
    *  null. Scalar (not the drag-state object, whose identity changes per
    *  mousemove) so React.memo holds for the rows the drag doesn't touch. */
   fillRangePropId: string | null;
+  /** Column span of a multi-cell selection when THIS row is in it, else -1/-1.
+   *  Scalars, so rows outside the selection keep their memo. */
+  selectedColStart: number;
+  selectedColEnd: number;
   showRowNumbers: boolean;
   showVerticalLines: boolean;
   wrapContent: boolean;
   getColWidth: (propId: string) => number;
   databaseId: string;
-  onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue) => void;
+  onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue, shiftKey?: boolean) => void;
   onCellDoubleClick: (pageId: string, propId: string, type: string) => void;
+  onCellMouseDown: (pageId: string, propId: string, shiftKey: boolean) => void;
+  onCellMouseEnter: (pageId: string, propId: string) => void;
   onUpdateProperty: (pageId: string, propId: string, value: PropertyValue) => void;
   onStopEditing: () => void;
   onOpenPage: (pageId: string) => void;
@@ -55,6 +63,9 @@ export interface MemoTableRowProps {
   tint?: string | null;
   /** Virtualizer row-measure ref (windowed body) — attaches to the <tr>. */
   measureRef?: (el: HTMLTableRowElement | null) => void;
+  /** The row's index in the virtualizer when it differs from `rowIdx`
+   *  (grouped bodies interleave header and footer rows). */
+  virtualIndex?: number;
   /** Row drag-reorder (manual order): off under user sorts / grouping. */
   canReorder?: boolean;
   onRowDragStart?: (pageId: string) => void;
@@ -75,9 +86,9 @@ function focusRingClass(isFocused: boolean, inFillRange: boolean): string {
 /** Memoized table row that only re-renders when its own data changes. */
 export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRowProps) {
   const {
-    page, rowIdx, visibleProps, focusedPropId, editingPropId,
-    fillDragActive, fillRangePropId, showRowNumbers, showVerticalLines, wrapContent,
-    getColWidth, databaseId, onCellClick, onCellDoubleClick, onUpdateProperty, onStopEditing,
+    page, rowIdx, visibleProps, focusedPropId, editingPropId, editSeed,
+    fillDragActive, fillRangePropId, selectedColStart, selectedColEnd, showRowNumbers, showVerticalLines, wrapContent,
+    getColWidth, databaseId, onCellClick, onCellDoubleClick, onCellMouseDown, onCellMouseEnter, onUpdateProperty, onStopEditing,
     onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu, onPropertyConfig, tableRef,
   } = props;
 
@@ -87,7 +98,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
 
   return (
-    <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={rowIdx} data-page-id={page.id}
+    <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={props.virtualIndex ?? rowIdx} data-page-id={page.id}
       role="row"
       className={cn(`group transition-colors duration-100 hover:bg-hover-surface-soft ${props.isDropTarget ? 'shadow-[inset_0_2px_0_0_var(--color-accent)]' : ''}`)}
       style={props.tint ? { backgroundColor: props.tint } : undefined}
@@ -104,7 +115,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         <div className={cn("absolute inset-0 flex items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100")}>
           {props.canReorder && (
             <button type="button" aria-label="Drag to reorder record" title="Drag to reorder"
-              draggable
+              draggable tabIndex={-1}
               className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
               onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; props.onRowDragStart?.(page.id); }}
               onDragEnd={e => { e.stopPropagation(); props.onRowDragEnd?.(); }}>
@@ -121,15 +132,15 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
         </div>
       </td>
 
-      {visibleProps.map(prop => {
+      {visibleProps.map((prop, colIdx) => {
         const value = page.properties[prop.id];
         const isFocused = focusedPropId === prop.id;
         const isEditing = editingPropId === prop.id;
-        const inFill = fillRangePropId === prop.id;
-        const ring = focusRingClass(isFocused, inFill);
+        const inSelection = colIdx >= selectedColStart && colIdx <= selectedColEnd;
+        const ring = focusRingClass(isFocused, fillRangePropId === prop.id || inSelection);
 
         const cellProps: CellRendererProps = {
-          prop, page, value, isEditing, wrapContent, databaseId,
+          prop, page, value, isEditing, editSeed: isEditing ? editSeed : undefined, wrapContent, databaseId,
           onUpdate: onUpdateProperty, onStopEditing, onOpenPage,
           onFormulaEdit, onPropertyConfig, tableRef, storeApi,
         };
@@ -147,13 +158,15 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
           <td key={prop.id}
             id={cellDomId(databaseId, page.id, prop.id)}
             role="gridcell"
-            aria-selected={isFocused}
+            aria-selected={isFocused || inSelection}
             className={cn(`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`)}
             style={{
               width, minWidth: width, maxWidth: width,
               cursor: cellCursor,
             }}
-            onClick={() => onCellClick(page.id, prop.id, prop.type, value)}
+            onMouseDown={e => { if (e.button === 0) onCellMouseDown(page.id, prop.id, e.shiftKey); }}
+            onMouseEnter={() => onCellMouseEnter(page.id, prop.id)}
+            onClick={e => onCellClick(page.id, prop.id, prop.type, value, e.shiftKey)}
             onDoubleClick={() => onCellDoubleClick(page.id, prop.id, prop.type)}>
             {renderCellContent(cellProps)}
             {isFocused && !isEditing && (
@@ -168,7 +181,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
       })}
 
       <td className={cn("border-b border-line px-1")}>
-        <button aria-label="Row options" className={cn("p-1 min-h-[24px] min-w-[24px] text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2")}
+        <button aria-label="Row options" tabIndex={-1} className={cn("p-1 min-h-[24px] min-w-[24px] text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 rounded hover:bg-hover-surface2")}
           onClick={e => { const r = e.currentTarget.getBoundingClientRect(); onRowMenu(page.id, r.left, r.bottom); }}>
           <MoreHorizontal className={cn("w-3.5 h-3.5")} />
         </button>

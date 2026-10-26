@@ -12,12 +12,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useDatabaseStore, useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import type { PropertyType, SchemaProperty } from '../types/database';
 import { FormulaEditorPanel } from './FormulaEditorPanel';
 import { ButtonEditorPanel } from './ButtonEditorPanel';
 import { RelationEditorPanel } from './RelationEditorPanel';
 import { RollupEditorPanel } from './RollupEditorPanel';
+import { AutofillConfigPanel } from './AutofillConfigPanel';
 import { ActionButton, PropertyIconButton, IdFormatConfig, TYPE_OPTIONS, getPropIcon } from './propertyConfig/index';
 import {
   ArrowUp, ArrowDown, Filter, Group, EyeOff, PanelLeftClose,
@@ -37,16 +38,18 @@ interface PropertyConfigPanelProps {
 
 /** Floating panel for configuring a database property (rename, change type, sort, filter, etc.). */
 export function PropertyConfigPanel({ property: propertySnapshot, databaseId, viewId, position, onClose }: Readonly<PropertyConfigPanelProps>) {
+  const storeApi = useStoreApi();
   const {
     updateProperty, deleteProperty, togglePropertyVisibility,
     addSort, addFilter, setGrouping, insertPropertyAt, duplicateProperty,
-    updateViewSettings, views, databases,
-  } = useDatabaseStore();
+    updateViewSettings,
+  } = storeApi.getState();
 
-  // The click handler captures a snapshot; read live so a type change (or any
-  // schema edit) reflects immediately in the open panel.
-  const property = databases[databaseId]?.properties[propertySnapshot.id] ?? propertySnapshot;
-  const viewSettings = views[viewId]?.settings ?? {};
+  // Selective: subscribing to the whole store re-rendered the open panel on
+  // every page edit anywhere. The click handler captures a snapshot; read the
+  // live property so a type change (or any schema edit) reflects immediately.
+  const property = useDatabaseStore(s => s.databases[databaseId]?.properties[propertySnapshot.id]) ?? propertySnapshot;
+  const viewSettings = useDatabaseStore(s => s.views[viewId]?.settings) ?? {};
 
   const [propName, setPropName] = useState(property.name);
   const [showTypeList, setShowTypeList] = useState(false);
@@ -58,25 +61,35 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
   const panelRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { nameRef.current?.select(); }, []);
+  // Hand focus back to the header that opened the panel: unmounting with focus
+  // inside dropped it on <body>, so the keyboard lost its place in the table.
+  useEffect(() => {
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const panel = panelRef.current;
+    nameRef.current?.select();
+    return () => {
+      const lost = document.activeElement === document.body || panel?.contains(document.activeElement);
+      if (lost && opener?.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, []);
+
+  // Typed name read through a ref so the document listeners register once,
+  // not on every keystroke.
+  const propNameRef = useRef(propName);
+  propNameRef.current = propName;
+  const commitName = () => {
+    const name = propNameRef.current.trim();
+    const live = storeApi.getState().databases[databaseId]?.properties[property.id];
+    if (name && live && name !== live.name) updateProperty(databaseId, property.id, { name });
+  };
+  const commitAndCloseRef = useRef(() => {});
+  commitAndCloseRef.current = () => { commitName(); onClose(); };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        if (propName.trim() && propName.trim() !== property.name) {
-          updateProperty(databaseId, property.id, { name: propName.trim() });
-        }
-        onClose();
-      }
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) commitAndCloseRef.current();
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (propName.trim() && propName.trim() !== property.name) {
-          updateProperty(databaseId, property.id, { name: propName.trim() });
-        }
-        onClose();
-      }
-    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') commitAndCloseRef.current(); };
     document.addEventListener('pointerdown', handler, true);
     document.addEventListener('mousedown', handler, true);
     document.addEventListener('keydown', onKey, true);
@@ -85,12 +98,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       document.removeEventListener('mousedown', handler, true);
       document.removeEventListener('keydown', onKey, true);
     };
-  }, [databaseId, onClose, propName, property.id, property.name, updateProperty]);
-
-  const commitName = () => {
-    if (propName.trim() && propName.trim() !== property.name)
-      updateProperty(databaseId, property.id, { name: propName.trim() });
-  };
+  }, []);
 
   const changeType = (newType: PropertyType) => {
     if (newType !== property.type) updateProperty(databaseId, property.id, { type: newType });
@@ -117,7 +125,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
   // makes them the containing block for position:fixed — rendering in place
   // would shift the panel by the page container's offset.
   return createPortal(
-    <div ref={panelRef} style={style} data-testid="property-config-panel"
+    <div ref={panelRef} style={style} data-testid="property-config-panel" role="dialog" aria-label={`${property.name} property`}
       className={cn("w-[280px] bg-surface-primary rounded-xl shadow-2xl border border-line overflow-y-auto overflow-x-hidden animate-in fade-in slide-in-from-top-2 duration-150")}>
 
       {/* ─── Property name + clickable icon ─── */}
@@ -126,7 +134,10 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
           <PropertyIconButton property={property} databaseId={databaseId} />
           <input ref={nameRef} value={propName}
             onChange={e => setPropName(e.target.value)} onBlur={commitName}
-            onKeyDown={e => { if (e.key === 'Enter') { commitName(); nameRef.current?.blur(); } }}
+            // preventDefault: focus is back on the header by keypress time, and
+            // Enter's keypress would click it and reopen this panel.
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); commitAndCloseRef.current(); } }}
+            aria-label="Property name"
             className={cn("flex-1 text-sm font-medium text-ink outline-none bg-transparent border-b border-transparent focus:border-focus-border-strong px-1 py-0.5 transition-colors")}
             placeholder="Property name" />
         </div>
@@ -186,6 +197,14 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
 
       <div className={cn("h-px bg-surface-tertiary")} />
 
+      {/* ─── AI-filled select (shown only when the host can fill it) ─── */}
+      {property.type === 'select' && (
+        <>
+          <AutofillConfigPanel databaseId={databaseId} property={property} />
+          <div className={cn("h-px bg-surface-tertiary")} />
+        </>
+      )}
+
       {/* ─── Formula / Relation / Rollup / ID specific ─── */}
       {property.type === 'formula' && (
         <><div className={cn("py-1 px-1")}><ActionButton icon={<Sigma className={cn("w-3.5 h-3.5")} />} label="Edit formula" onClick={() => setShowFormulaEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
@@ -224,7 +243,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       <div className={cn("py-1 px-1")}>
         <ActionButton icon={<PanelLeftClose className={cn("w-3.5 h-3.5")} />} label="Insert left"
           onClick={() => {
-            const view = views[viewId];
+            const view = storeApi.getState().views[viewId];
             const idx = view?.visibleProperties.indexOf(property.id) ?? 0;
             const prevPropId = idx > 0 ? view.visibleProperties[idx - 1] : null;
             insertPropertyAt(databaseId, 'New column', 'text', viewId, prevPropId);

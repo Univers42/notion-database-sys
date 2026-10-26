@@ -33,7 +33,7 @@ export function renderTitleOrText(p: CellRendererProps): React.ReactNode {
   const { prop, page, value, isEditing, wrapContent, onUpdate, onStopEditing, onOpenPage, tableRef } = p;
   if (isEditing) {
     return (
-      <InlineInput value={value || ''} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing}
+      <InlineInput value={p.editSeed ?? (value || '')} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing}
         tableRef={tableRef} multiline={prop.type === 'text'} />
     );
   }
@@ -43,7 +43,7 @@ export function renderTitleOrText(p: CellRendererProps): React.ReactNode {
         {value || <span className={cn("text-ink-muted")}>Empty</span>}
       </div>
       {prop.type === 'title' && (
-        <button className={cn("shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft hover:bg-hover-accent-muted px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap")}
+        <button tabIndex={-1} className={cn("shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft hover:bg-hover-accent-muted px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap")}
           onClick={e => { e.stopPropagation(); onOpenPage(page.id); }}>
           <ArrowUpRight className={cn("w-3 h-3")} /> OPEN
         </button>
@@ -57,7 +57,7 @@ export function renderNumber(p: CellRendererProps): React.ReactNode {
   const { page, prop, value, isEditing, onUpdate, onStopEditing, tableRef } = p;
   if (isEditing) {
     return (
-      <InlineInput type="number" value={value ?? ''}
+      <InlineInput type="number" value={p.editSeed ?? value ?? ''}
         onChange={v => onUpdate(page.id, prop.id, v)}
         onStop={onStopEditing} tableRef={tableRef} className={cn("tabular-nums text-ink")} />
     );
@@ -73,7 +73,7 @@ export function renderNumber(p: CellRendererProps): React.ReactNode {
 export function renderEmailUrlPhone(p: CellRendererProps): React.ReactNode {
   const { page, prop, value, isEditing, wrapContent, onUpdate, onStopEditing, tableRef } = p;
   if (isEditing) {
-    return <InlineInput value={value || ''} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing} tableRef={tableRef} />;
+    return <InlineInput value={p.editSeed ?? (value || '')} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing} tableRef={tableRef} />;
   }
   return value
     ? <span className={cn(`text-sm text-accent-text-light underline block ${wrapContent ? 'break-all' : 'truncate'}`)}>{value}</span>

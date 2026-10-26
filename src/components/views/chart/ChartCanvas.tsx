@@ -67,7 +67,7 @@ export default function ChartCanvas({
 
   return (
     <div className={cn("flex-1 flex flex-col items-stretch overflow-auto bg-surface-primary p-4")}>
-      <div className={cn("relative w-full")} style={{ height }}>
+      <div className={cn("odb-chart-plot relative w-full")} style={{ '--odb-chart-h': `${height}px` } as React.CSSProperties}>
         {chart}
         {drilldown && (
           <ChartDrilldown result={result} target={drilldown}

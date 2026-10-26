@@ -18,7 +18,8 @@ import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useDashboardFilters } from './useDashboardFilters';
 import { useGroupSliceStore, sidebarGroupingActive } from './useViewGrouping';
-import { evaluateFilter } from '../lib/filter/evaluateFilter';
+import { matchesFilterValue } from '../lib/filter/evaluateFilter';
+import { isIncompleteFilter } from '../lib/filter/filterHelpers';
 import type { DashboardGlobalFilter, Page, SchemaProperty } from '../types/database';
 
 /**
@@ -32,6 +33,7 @@ export function applyGlobalFilters(
   pages: readonly Page[],
   filters: readonly DashboardGlobalFilter[],
   properties: Record<string, SchemaProperty>,
+  readValue: (page: Page, propertyId: string) => unknown = (page, propertyId) => page.properties[propertyId],
 ): Page[] {
   const props = Object.values(properties);
   const bound = filters
@@ -39,10 +41,11 @@ export function applyGlobalFilters(
     .filter((x): x is { f: DashboardGlobalFilter; prop: SchemaProperty } => !!x.prop)
     .map(({ f, prop }) => {
       const opt = prop.options?.find(o => o.value === f.value || o.id === f.value);
-      return { prop, filter: { id: f.id, propertyId: prop.id, operator: f.operator, value: opt ? opt.id : f.value } };
-    });
+      return { id: f.id, propertyId: prop.id, operator: f.operator, value: opt ? opt.id : f.value };
+    })
+    .filter(filter => !isIncompleteFilter(filter));
   if (bound.length === 0) return [...pages];
-  return pages.filter(page => bound.every(({ prop, filter }) => evaluateFilter(page, filter, prop)));
+  return pages.filter(page => bound.every(filter => matchesFilterValue(readValue(page, filter.propertyId), filter)));
 }
 
 /** Pages for a view with the surrounding dashboard's global filters applied,
@@ -57,6 +60,7 @@ export function useViewPages(viewId: string | null | undefined): Page[] {
   useDatabaseStore(s => s.pages);
   const getPagesForView = useDatabaseStore(s => s.getPagesForView);
   const getGroupedPages = useDatabaseStore(s => s.getGroupedPages);
+  const getCellValue = useDatabaseStore(s => s.getCellValue);
   const slice = useGroupSliceStore(s => (viewId ? s.slices[viewId] ?? null : null));
   const pages = viewId ? getPagesForView(viewId) : [];
   return useMemo(() => {
@@ -71,7 +75,7 @@ export function useViewPages(viewId: string | null | undefined): Page[] {
     if (!viewId || extra.length === 0) return out;
     const database = view ? databases[view.databaseId] : null;
     if (!database) return out;
-    return applyGlobalFilters(out, extra, database.properties);
+    return applyGlobalFilters(out, extra, database.properties, getCellValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewId, pages, extra, views, databases, slice]);
+  }, [viewId, pages, extra, views, databases, slice, getCellValue]);
 }

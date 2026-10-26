@@ -27,6 +27,18 @@ import type { PropertyValue } from '../../../../types/database';
 import { cn } from '../../../../utils/cn';
 import { safeString } from '../../../../utils/safeString';
 
+// autoFocus leaves a textarea's caret at 0 in Chrome, so typing after Enter
+// prepended to the value. setSelectionRange throws on email/number/date inputs.
+const SELECTABLE_TYPES = new Set(['textarea', 'text', 'search', 'url', 'tel', 'password']);
+function focusAtEnd(el: HTMLInputElement | HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.focus();
+  if (SELECTABLE_TYPES.has(el.type)) el.setSelectionRange(el.value.length, el.value.length);
+}
+
+// `block`: an inline-block editor sits on the text baseline and adds a
+// descender gap, growing the row 35→39 px; every row below then shifts and the
+// whole grid repaints on each edit open/commit (1294 paints, ~20 ms measured).
 /** Inline input that buffers locally while the user types; commits on blur or
  *  Enter. `multiline` (text properties) renders a textarea instead: Shift+Enter
  *  inserts a newline and typing continues in the cell; plain Enter commits. */
@@ -53,14 +65,14 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
   if (multiline) {
     return (
       <textarea
-        autoFocus value={local} rows={Math.min(local.split('\n').length, 8)}
+        ref={focusAtEnd} value={local} rows={Math.min(local.split('\n').length, 8)}
         onChange={e => { committed.current = false; setLocal(e.target.value); }}
         onBlur={commit}
         onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(); tableRef.current?.focus(); }
           if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
         }}
-        className={cn(`w-full bg-transparent outline-none text-sm resize-none ${className}`)}
+        className={cn(`block w-full bg-transparent outline-none text-sm resize-none ${className}`)}
         placeholder={placeholder}
       />
     );
@@ -68,14 +80,14 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
 
   return (
     <input
-      autoFocus type={type} value={local} step={step}
+      ref={focusAtEnd} type={type} value={local} step={step}
       onChange={e => { committed.current = false; setLocal(e.target.value); }}
       onBlur={commit}
       onKeyDown={e => {
         if (e.key === 'Enter') { commit(); tableRef.current?.focus(); }
         if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
       }}
-      className={cn(`w-full bg-transparent outline-none text-sm ${className}`)}
+      className={cn(`block w-full bg-transparent outline-none text-sm ${className}`)}
       placeholder={placeholder}
     />
   );

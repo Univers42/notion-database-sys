@@ -75,6 +75,7 @@ export function TopBar({
 
   const searchRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const topBarRef = useRef<HTMLDivElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
 
   const dbViews = database ? orderedDatabaseViews(views, database.id, database.viewOrder) : [];
@@ -89,11 +90,20 @@ export function TopBar({
   const filters = view.filters || [];
   const sorts = view.sorts || [];
 
-  const handleTitleDoubleClick = () => { setTitleValue(database.name); setIsEditingTitle(true); };
-  const commitTitle = () => {
+  const startTitleEdit = () => { setTitleValue(database.name); setIsEditingTitle(true); };
+  // Enter/Escape hand focus back to the title so a keyboard user keeps their
+  // place; a blur (click elsewhere) leaves focus where the click put it.
+  const refocusTitle = () => requestAnimationFrame(() =>
+    topBarRef.current?.querySelector<HTMLElement>('[data-database-title]')?.focus());
+  const commitTitle = (refocus = false) => {
     const next = titleValue.trim();
     if (next) { renameDatabase(database.id, next); onDatabaseRenamed?.(database.id, next); }
     setIsEditingTitle(false);
+    if (refocus) refocusTitle();
+  };
+  const cancelTitle = (refocus = false) => {
+    setIsEditingTitle(false);
+    if (refocus) refocusTitle();
   };
   const isSingleView = variant === 'single-view';
   const isInlineChrome = variant === 'inline';
@@ -109,13 +119,13 @@ export function TopBar({
 
   return (
     <>
-      <div
+      <div ref={topBarRef}
         className={cn("odb-topbar bg-surface-primary border-b border-line flex flex-col group/header")}
         data-panels-open={panelsOpen || undefined}
         data-collapsed={collapsed || undefined}
       >
         {/* ─── Top row: Editable title + action buttons ─── */}
-        <div className={cn("flex items-center justify-between px-4 py-2")}>
+        <div className={cn("odb-topbar-row relative flex items-center justify-between px-4 py-2")}>
           {isInlineChrome ? (
             <InlineTitle
               name={database.name}
@@ -124,8 +134,9 @@ export function TopBar({
               isEditing={isEditingTitle}
               titleValue={titleValue}
               setTitleValue={setTitleValue}
+              onStartEdit={startTitleEdit}
               onCommit={commitTitle}
-              onCancel={() => setIsEditingTitle(false)}
+              onCancel={cancelTitle}
               onOpen={openOrigin}
             />
           ) : isSingleView ? (
@@ -165,14 +176,16 @@ export function TopBar({
               </div>
               {isEditingTitle ? (
                 <input ref={titleRef} value={titleValue} onChange={e => setTitleValue(e.target.value)}
-                  aria-label="Database name" onBlur={commitTitle}
-                  onKeyDown={e => { if (e.key === 'Enter') { commitTitle(); } if (e.key === 'Escape') { setIsEditingTitle(false); } }}
+                  aria-label="Database name" onBlur={() => commitTitle()}
+                  onKeyDown={e => { if (e.key === 'Enter') commitTitle(true); if (e.key === 'Escape') cancelTitle(true); }}
                   className={cn("text-lg font-bold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]")} />
               ) : (
-                <h1 style={{ cursor: CURSORS.text }}
-                  className={cn("text-lg font-bold text-ink truncate hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors")}
-                  onDoubleClick={handleTitleDoubleClick} title="Double-click to rename">
-                  {database.name}
+                <h1 className={cn("min-w-0")}>
+                  <button type="button" data-database-title onClick={startTitleEdit} style={{ cursor: CURSORS.text }}
+                    title="Rename database"
+                    className={cn("block max-w-full text-left text-lg font-bold text-ink truncate hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors outline-none focus-visible:ring-2 ring-ring-accent")}>
+                    {database.name}
+                  </button>
                 </h1>
               )}
             </div>
@@ -217,7 +230,7 @@ export function TopBar({
           <ViewTabsRow dbViews={dbViews} activeViewId={activeViewId ?? ''} view={view} database={database}
             setActiveView={setActiveView} addView={addView} updateView={updateView}
             duplicateView={duplicateView} deleteView={deleteView} reorderViews={reorderViews}
-            onEditTitle={handleTitleDoubleClick} onEditLayout={() => setShowViewSettings(true)}
+            onEditTitle={startTitleEdit} onEditLayout={() => setShowViewSettings(true)}
             onViewSource={openOrigin}
             onSetIcon={(icon) => updateDatabaseIcon(database.id, icon)} />
         )}

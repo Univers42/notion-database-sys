@@ -25,10 +25,12 @@ interface RelationCellEditorProps {
   databaseId: string;
   onUpdate: (v: PropertyValue) => void;
   onClose: () => void;
+  /** Opens a related page — Ctrl/Cmd+Enter on the highlighted row, or a chip. */
+  onOpenPage?: (pageId: string) => void;
 }
 
 /** Renders an inline editor for linking/unlinking pages via a relation property. */
-export function RelationCellEditor({ property, value, pageId, databaseId: _databaseId, onUpdate, onClose }: Readonly<RelationCellEditorProps>) {
+export function RelationCellEditor({ property, value, pageId, databaseId: _databaseId, onUpdate, onClose, onOpenPage }: Readonly<RelationCellEditorProps>) {
   const [search, setSearch] = useState('');
   const databases = useDatabaseStore(s => s.databases);
   const pages = useDatabaseStore(s => s.pages);
@@ -61,8 +63,14 @@ export function RelationCellEditor({ property, value, pageId, databaseId: _datab
     onUpdate(next);
   };
 
+  const openRelated = onOpenPage ? (rid: string) => { onClose(); onOpenPage(rid); } : undefined;
+
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
     if (onArrowKey(e)) return;
+    // Same chord as the table's open-row, so it reads as "open this one".
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && openRelated && filteredPages[hi]) {
+      e.preventDefault(); openRelated(filteredPages[hi].id); return;
+    }
     if (e.key === 'Enter' && filteredPages[hi]) { e.preventDefault(); toggleRelation(filteredPages[hi].id); }
     if (e.key === 'Escape') onClose();
   };
@@ -77,8 +85,8 @@ export function RelationCellEditor({ property, value, pageId, databaseId: _datab
 
   return (
     <CellPortal onClose={onClose} minWidth={340} maxWidth={560}>
-      <SearchBar search={search} setSearch={setSearch} onKeyDown={handleSearchKeyDown} targetDb={targetDb} />
-      <SelectedChips selectedIds={selectedIds} targetPages={targetPages} onRemove={rid => onUpdate(selectedIds.filter(id => id !== rid))} />
+      <SearchBar search={search} setSearch={setSearch} onKeyDown={handleSearchKeyDown} targetDb={targetDb} canOpen={Boolean(openRelated)} />
+      <SelectedChips selectedIds={selectedIds} targetPages={targetPages} onRemove={rid => onUpdate(selectedIds.filter(id => id !== rid))} onOpen={openRelated} />
       <PageList filteredPages={filteredPages} selectedIds={selectedIds} search={search} onToggle={toggleRelation}
         highlightIndex={hi} onHover={setHi} activeRef={activeRef} />
     </CellPortal>
@@ -95,14 +103,15 @@ function UnconfiguredRelation() {
   );
 }
 
-function SearchBar({ search, setSearch, onKeyDown, targetDb }: Readonly<{
+function SearchBar({ search, setSearch, onKeyDown, targetDb, canOpen }: Readonly<{
   search: string; setSearch: (s: string) => void; onKeyDown: (e: React.KeyboardEvent) => void; targetDb: { icon?: string; name: string };
+  canOpen: boolean;
 }>) {
   return (
     <div className={cn("flex items-center gap-2 px-3 py-2 border-b border-line-light bg-surface-secondary-soft")}>
       <Search className={cn("w-4 h-4 text-ink-muted shrink-0")} />
       <input autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
-        aria-label="Search pages to link" onKeyDown={onKeyDown}
+        aria-label={canOpen ? 'Search pages to link — Enter links or unlinks, Ctrl+Enter opens' : 'Search pages to link'} onKeyDown={onKeyDown}
         className={cn("flex-1 text-sm bg-transparent outline-none placeholder:text-placeholder")} placeholder="Link or create a page…" />
       <div className={cn("flex items-center gap-1 text-xs text-ink-muted shrink-0")}>
         <span>In</span>
@@ -115,8 +124,9 @@ function SearchBar({ search, setSearch, onKeyDown, targetDb }: Readonly<{
   );
 }
 
-function SelectedChips({ selectedIds, targetPages, onRemove }: Readonly<{
+function SelectedChips({ selectedIds, targetPages, onRemove, onOpen }: Readonly<{
   selectedIds: string[]; targetPages: { id: string; title: string }[]; onRemove: (rid: string) => void;
+  onOpen?: (rid: string) => void;
 }>) {
   if (selectedIds.length === 0) return null;
   return (
@@ -125,8 +135,18 @@ function SelectedChips({ selectedIds, targetPages, onRemove }: Readonly<{
         const tp = targetPages.find(p => p.id === rid);
         return (
           <span key={rid} className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent-soft text-accent-text text-xs font-medium")}>
-            <ArrowUpRight className={cn("w-2.5 h-2.5")} />
-            <span className={cn("max-w-[120px] truncate")}>{tp?.title || 'Untitled'}</span>
+            {onOpen ? (
+              <button onClick={() => onOpen(rid)} aria-label={`Open ${tp?.title || 'Untitled'}`}
+                className={cn("inline-flex items-center gap-1 min-w-0 hover:underline")}>
+                <ArrowUpRight className={cn("w-2.5 h-2.5 shrink-0")} />
+                <span className={cn("max-w-[120px] truncate")}>{tp?.title || 'Untitled'}</span>
+              </button>
+            ) : (
+              <>
+                <ArrowUpRight className={cn("w-2.5 h-2.5")} />
+                <span className={cn("max-w-[120px] truncate")}>{tp?.title || 'Untitled'}</span>
+              </>
+            )}
             <button onClick={() => onRemove(rid)} aria-label={`Remove ${tp?.title || 'Untitled'}`} className={cn("hover:text-hover-accent-text-bolder ml-0.5")}><X className={cn("w-3 h-3")} /></button>
           </span>
         );

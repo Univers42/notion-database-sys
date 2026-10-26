@@ -383,6 +383,64 @@
   contain: layout paint;
 }
 
+/* Chart plots take their height from the view's chartHeight setting… */
+.odb-chart-plot {
+  height: var(--odb-chart-h);
+  flex-shrink: 0;
+}
+
+/* …except in a dashboard widget, whose height the reader sets by resizing:
+   there the fixed plot plus legend overflowed the widget body and the legend
+   hid behind an inner scroll (live i4h "Distribución por estado": 379px of
+   content in 344px, 2026-10-26). The compact wrapper stays in the flex chain
+   and the plot takes what the legend leaves. */
+[data-dash-widget] .database-view-compact {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+}
+
+[data-dash-widget] .odb-chart-plot {
+  flex: 1 1 0%;
+  height: auto;
+  min-height: 8rem;
+}
+
+/* A database with more views than fit hid the rest behind a scrollbar-less
+   strip (live i4h dashboard: 612px shown of 2159px). Edge fades driven by the
+   strip's own scroll position show which side still has tabs; a strip that
+   fits has an inactive timeline, so no fade.
+   Caveat: needs scroll-driven animations (Chromium 115+, Safari 26); other
+   browsers keep a scrollable strip with no cue. */
+@property --odb-fade-start {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --odb-fade-end {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes odb-edge-fade {
+  0% { --odb-fade-start: 0px; --odb-fade-end: 2.5rem; }
+  8% { --odb-fade-start: 2.5rem; }
+  92% { --odb-fade-end: 2.5rem; }
+  100% { --odb-fade-start: 2.5rem; --odb-fade-end: 0px; }
+}
+
+@supports (animation-timeline: scroll()) {
+  .odb-view-tabs {
+    mask-image: linear-gradient(to right, transparent, #000 var(--odb-fade-start),
+      #000 calc(100% - var(--odb-fade-end)), transparent);
+    animation: odb-edge-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .odb-pop-in,
   .odb-rise-in {

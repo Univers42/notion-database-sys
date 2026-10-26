@@ -47,12 +47,12 @@ function WidgetGrid({ widgets, pages, propsMap, computedData, openPage, getPageT
       <div className={cn("max-w-7xl mx-auto")}>
         <div className={cn("grid grid-cols-4 gap-4 auto-rows-min",
           responsive && "@max-4xl:grid-cols-2 @max-2xl:grid-cols-1")}>
-          {widgets.map((widget, idx) => (
+          {widgets.map(widget => (
             <div key={widget.id}
               className={cn("bg-surface-primary rounded-xl border border-line overflow-hidden",
                 responsive && "@max-4xl:![grid-column:span_1]")}
               style={{ gridColumn: `span ${Math.min(widget.width, 4)}`, minHeight: widget.height === 2 ? '320px' : '140px' }}>
-              {renderWidget(widget, idx, pages, propsMap, computedData, openPage, getPageTitle)}
+              {renderWidget(widget, pages, propsMap, computedData, openPage, getPageTitle)}
             </div>
           ))}
         </div>

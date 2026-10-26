@@ -65,7 +65,7 @@ export function renderFormula(p: CellRendererProps): React.ReactNode {
   }
 
   return (
-    <button type="button" className={cn("text-sm text-ink-body tabular-nums truncate font-mono cursor-pointer group/formula text-left")}
+    <button type="button" tabIndex={-1} className={cn("text-sm text-ink-body tabular-nums truncate font-mono cursor-pointer group/formula text-left")}
       onClick={e => { e.stopPropagation(); onFormulaEdit(prop.id); }}
       title="Click to edit formula">
       <div className={cn("flex items-center gap-1.5")}>
@@ -150,7 +150,7 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
     return (
       <RelationCellEditor property={prop} value={value} pageId={page.id} databaseId={databaseId}
         onUpdate={v => onUpdate(page.id, prop.id, v)}
-        onClose={() => { onStopEditing(); tableRef.current?.focus(); }} />
+        onClose={() => { onStopEditing(); tableRef.current?.focus(); }} onOpenPage={onOpenPage} />
     );
   }
   if (relatedIds.length === 0) return <span className={cn("text-ink-muted text-sm")}>Empty</span>;
@@ -169,7 +169,7 @@ export function renderRelation(p: CellRendererProps): React.ReactNode {
           ? (titlePropId ? relPage.properties[titlePropId] : relPage.id)
           : (rid.includes(':') ? rid.slice(rid.lastIndexOf(':') + 1) : rid);
         return (
-          <button key={rid} onClick={e => { e.stopPropagation(); onOpenPage(rid); }}
+          <button key={rid} tabIndex={-1} onClick={e => { e.stopPropagation(); onOpenPage(rid); }}
             className={cn("inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-tertiary hover:bg-hover-surface3 text-xs text-ink-body font-medium shrink-0 max-w-[140px]")}>
             <ArrowUpRight className={cn("w-2.5 h-2.5 shrink-0")} /><span className={cn("truncate")}>{title || 'Untitled'}</span>
           </button>
