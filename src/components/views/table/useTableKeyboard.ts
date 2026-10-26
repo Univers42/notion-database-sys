@@ -11,16 +11,17 @@
 /* ************************************************************************** */
 
 import React, { useCallback } from 'react';
-import { useStoreApi, type DatabaseStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
 import {
   type CellCoord,
-  CLEAR_VALUE_BY_TYPE,
+  type CellRange,
   directionForKey,
-  isClearableType,
   isGridEntryKey,
   nextFocusedCell,
 } from './gridKeyboard';
+import { planClear } from './gridClipboard';
+import { applyCellWrites } from './useGridClipboard';
 
 /** How many rows PageUp/PageDown jump (roughly one virtualized viewport). */
 const PAGE_STEP = 10;
@@ -46,18 +47,6 @@ function handleEditingKeys(
   }
 }
 
-function handleDeleteKey(
-  focusedCell: CellCoord,
-  database: DatabaseSchema,
-  storeApi: DatabaseStoreApi,
-): void {
-  const prop = database.properties[focusedCell.propId];
-  if (prop && isClearableType(prop.type)) {
-    const clearVal = CLEAR_VALUE_BY_TYPE[prop.type] ?? '';
-    storeApi.getState().updatePageProperty(focusedCell.pageId, focusedCell.propId, clearVal);
-  }
-}
-
 interface KeyboardDeps {
   focusedCell: CellCoord | null;
   editingCell: CellCoord | null;
@@ -73,15 +62,22 @@ interface KeyboardDeps {
   onExitGrid: () => void;
   /** Scroll an off-screen row into view before focus lands on it (virtualized body). */
   scrollToIndex?: (index: number) => void;
+  /** Fixed corner of a multi-cell selection; Shift+arrows move the other corner. */
+  selectionAnchor: CellCoord | null;
+  setSelectionAnchor: React.Dispatch<React.SetStateAction<CellCoord | null>>;
+  /** The selected cells (the focused cell alone when there is no anchor). */
+  selectionRange: CellRange | null;
 }
 
-/** Handles grid navigation (arrows, Tab, Home/End, PageUp/Down), cell activation
- *  (Enter/Space), clearing (Delete), and the Escape-out-of-grid step. */
+/** Handles grid navigation (arrows, Tab, Home/End, PageUp/Down; Shift extends
+ *  the selection), cell activation (Enter/Space), clearing the selection
+ *  (Delete), and the Escape steps: collapse the selection, then leave the grid. */
 export function useTableKeyboard(deps: KeyboardDeps) {
   const {
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
     onActivateCell, onExitGrid, scrollToIndex,
+    selectionAnchor, setSelectionAnchor, selectionRange,
   } = deps;
   const storeApi = useStoreApi();
 
@@ -136,6 +132,8 @@ export function useTableKeyboard(deps: KeyboardDeps) {
       own();
       const next = nextFocusedCell(dir, focusedCell, displayedPages, visibleProps, PAGE_STEP);
       if (next) {
+        if (e.shiftKey) setSelectionAnchor(anchor => anchor ?? focusedCell);
+        else setSelectionAnchor(null);
         setFocusedCell(next);
         const nextPi = displayedPages.findIndex(p => p.id === next.pageId);
         if (nextPi >= 0 && nextPi !== pi) scrollToIndex?.(nextPi);
@@ -164,19 +162,21 @@ export function useTableKeyboard(deps: KeyboardDeps) {
         break;
       case 'Escape':
         own();
-        onExitGrid();
+        if (selectionAnchor) setSelectionAnchor(null);
+        else onExitGrid();
         break;
       case 'Delete':
       case 'Backspace':
-        // Claim it so Backspace/Delete clears the cell — not the host editor
+        // Claim it so Backspace/Delete clears the cells — not the host editor
         // deleting the whole database block.
         own();
-        handleDeleteKey(focusedCell, database, storeApi);
+        if (selectionRange) applyCellWrites(storeApi, planClear(selectionRange, displayedPages, visibleProps));
         break;
     }
   }, [
     focusedCell, editingCell, setFocusedCell, setEditingCell,
     displayedPages, visibleProps, database, tableRef,
     onActivateCell, onExitGrid, storeApi, scrollToIndex,
+    selectionAnchor, setSelectionAnchor, selectionRange,
   ]);
 }

@@ -31,13 +31,17 @@ interface RenderPageRowsProps {
   focusedCell: { pageId: string; propId: string } | null;
   editingCell: { pageId: string; propId: string } | null;
   fillDrag: FillDragState | null;
+  /** A multi-cell selection: its rows and column span, or null. */
+  selection: { rowIds: ReadonlySet<string>; colStart: number; colEnd: number } | null;
   showRowNumbers: boolean;
   showVerticalLines: boolean;
   wrapContent: boolean;
   getColWidth: (propId: string) => number;
   databaseId: string;
-  onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue) => void;
+  onCellClick: (pageId: string, propId: string, type: string, currentValue: PropertyValue, shiftKey?: boolean) => void;
   onCellDoubleClick: (pageId: string, propId: string, type: string) => void;
+  onCellMouseDown: (pageId: string, propId: string, shiftKey: boolean) => void;
+  onCellMouseEnter: (pageId: string, propId: string) => void;
   onUpdateProperty: (pageId: string, propId: string, value: PropertyValue) => void;
   onStopEditing: () => void;
   onOpenPage: (pageId: string) => void;
@@ -71,9 +75,9 @@ export function renderPageRows(
   renderAfterRow?: (page: Page) => React.ReactNode,
 ) {
   const {
-    visibleProps, focusedCell, editingCell, fillDrag,
+    visibleProps, focusedCell, editingCell, fillDrag, selection,
     showRowNumbers, showVerticalLines, wrapContent, getColWidth,
-    databaseId, onCellClick, onCellDoubleClick, onUpdateProperty, onStopEditing,
+    databaseId, onCellClick, onCellDoubleClick, onCellMouseDown, onCellMouseEnter, onUpdateProperty, onStopEditing,
     onOpenPage, onFillDragStart, onFormulaEdit, onRowMenu,
     onPropertyConfig, tableRef,
   } = props;
@@ -90,6 +94,7 @@ export function renderPageRows(
     const isEditingRow = editingCell?.pageId === page.id;
     const inFillRange = fillDrag !== null
       && rowIdx >= fillMin && rowIdx <= fillMax && rowIdx !== fillDrag.sourceRowIdx;
+    const inSelection = selection?.rowIds.has(page.id) ?? false;
     const row = (
       <MemoTableRow
         key={page.id}
@@ -100,6 +105,8 @@ export function renderPageRows(
         editingPropId={isEditingRow && editingCell ? editingCell.propId : null}
         fillDragActive={fillDrag !== null}
         fillRangePropId={inFillRange && fillDrag ? fillDrag.sourcePropId : null}
+        selectedColStart={inSelection && selection ? selection.colStart : -1}
+        selectedColEnd={inSelection && selection ? selection.colEnd : -1}
         showRowNumbers={showRowNumbers}
         showVerticalLines={showVerticalLines}
         wrapContent={wrapContent}
@@ -107,6 +114,8 @@ export function renderPageRows(
         databaseId={databaseId}
         onCellClick={onCellClick}
         onCellDoubleClick={onCellDoubleClick}
+        onCellMouseDown={onCellMouseDown}
+        onCellMouseEnter={onCellMouseEnter}
         onUpdateProperty={onUpdateProperty}
         onStopEditing={onStopEditing}
         onOpenPage={onOpenPage}
