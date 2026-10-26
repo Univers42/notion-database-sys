@@ -52,12 +52,15 @@ export function StatKpi({ viewId, stat }: Readonly<{ viewId: string; stat: Dashb
     ? `${pages.length === 1 ? 'record' : 'records'}`
     : `${STAT_FN_LABEL[stat.fn]} · ${property?.name ?? '—'}`;
 
+  // The card is a size container: a stacked half-height card (~46px body) or
+  // a narrow column (~80px) clipped a fixed text-4xl. The number scales to
+  // its own box and the subline gives way first when the box is short.
   return (
-    <div className={cn("flex-1 min-h-0 flex flex-col items-center justify-center gap-1 px-3 py-2")}>
-      <div className={cn("text-4xl font-semibold tabular-nums text-ink leading-none truncate max-w-full")}>
+    <div className={cn("flex-1 min-h-0 flex flex-col items-center justify-center gap-1 px-3 py-2 [container-type:size]")}>
+      <div className={cn("text-[min(2.25rem,55cqh,40cqw)] [@container(max-height:64px)]:text-[min(2.25rem,80cqh,40cqw)] font-semibold tabular-nums text-ink leading-none truncate max-w-full")}>
         {formatStat(value, stat.fn)}
       </div>
-      <div className={cn("text-xs text-ink-muted truncate max-w-full")}>{subline}</div>
+      <div className={cn("text-xs text-ink-muted truncate max-w-full [@container(max-height:64px)]:hidden")}>{subline}</div>
     </div>
   );
 }

@@ -89,7 +89,9 @@ export function buildGroups(
       (gm.get(v as string) ?? (byLabel ? gm.get(byLabel) : undefined) ?? gm.get('__unassigned__'))?.pages.push(page);
     }
     const hidden = grouping.hiddenGroups || [];
-    return groups.filter(g => !hidden.includes(g.groupId));
+    // An empty "No <name>" group is a header over nothing: every row has a
+    // value. It returns as soon as one row loses its value.
+    return groups.filter(g => !hidden.includes(g.groupId) && !(g.groupId === '__unassigned__' && g.pages.length === 0));
   }
 
   if (groupProp.type === 'checkbox') {
