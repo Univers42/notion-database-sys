@@ -15,12 +15,15 @@ import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/use
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus } from 'lucide-react';
 import { getColumnWidth, BoardCard } from './BoardCardHelpers';
+import { VirtualCardList } from './VirtualCardList';
 import { cn } from '../../../utils/cn';
 import { useDashboardFilters } from '../../../hooks/useDashboardFilters';
 import { applyGlobalFilters } from '../../../hooks/useViewPages';
 import { resolvePageSize } from '../../../hooks/useViewPager';
 import { colorForPage } from '../../../lib/conditionalColor';
 import { buildManualRowOrderAt } from '../../../lib/manualRowOrder';
+import { groupPresetValue } from '../../../store/slices/storeHelpers';
+import type { PropertyValue } from '../../../types/database';
 
 /** Property types that can't form board columns (identity/derived/per-row-unique). */
 const BOARD_UNGROUPABLE = new Set(['title', 'relation', 'formula', 'rollup', 'id', 'files', 'created_time', 'last_edited_time']);
@@ -46,6 +49,9 @@ export function BoardView() {
   const [_dragPageId, setDragPageId] = useState<string | null>(null); // NOSONAR
   // Card-level insertion point: which card the pointer is over, top or bottom half.
   const [dropCard, setDropCard] = useState<{ pageId: string; after: boolean } | null>(null);
+  // Cards shown past the view's cap, per column ("Load more" in place).
+  const [extraShown, setExtraShown] = useState<Record<string, number>>({});
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
 
   if (!view || !database || !view.grouping) {
     return (
@@ -87,10 +93,14 @@ export function BoardView() {
   const flatIds = rawGroups.flatMap(g => g.pages.map(p => p.id));
 
   const setGroupValue = (pageId: string, groupId: string): boolean => {
-    const newValue = groupId === '__unassigned__' ? null : groupId;
-    if (newValue === null && groupProperty.nullable === false) return false;
-    updatePageProperty(pageId, groupProperty.id, newValue);
+    const preset = groupPresetValue(groupProperty, groupId);
+    if (!preset) return false;
+    updatePageProperty(pageId, groupProperty.id, preset.value as PropertyValue);
     return true;
+  };
+  const addToGroup = (groupId: string) => {
+    const preset = groupPresetValue(groupProperty, groupId);
+    addPage(database.id, preset ? { [groupProperty.id]: preset.value as PropertyValue } : {});
   };
 
   const clearDrag = () => { setDragOverCol(null); setDragPageId(null); setDropCard(null); };
@@ -152,10 +162,12 @@ export function BoardView() {
   };
 
   return (
-    <div className={cn("flex-1 overflow-x-auto p-4 bg-surface-secondary flex gap-4 h-full")}>
+    <div ref={setScrollElement} className={cn("flex-1 overflow-auto p-4 bg-surface-secondary flex gap-4 h-full")}>
       {groups.map(group => {
         const isDragOver = dragOverCol === group.groupId;
-        const displayPages = group.pages.slice(0, pageSize);
+        const shownCap = pageSize + (extraShown[group.groupId] ?? 0);
+        const displayPages = shownCap >= group.pages.length ? group.pages : group.pages.slice(0, shownCap);
+        const hiddenCount = group.pages.length - displayPages.length;
 
         return (
           <div key={group.groupId} // NOSONAR - board column grouping pattern
@@ -173,10 +185,10 @@ export function BoardView() {
                 <span className={cn(`px-2.5 py-1 rounded-md text-xs font-semibold ${group.groupColor}`)}>
                   {group.groupLabel}
                 </span>
-                <span className={cn("text-xs text-ink-muted font-medium tabular-nums")}>{displayPages.length}</span>
+                <span className={cn("text-xs text-ink-muted font-medium tabular-nums")}>{group.pages.length}</span>
               </div>
               <button
-                onClick={() => addPage(database.id, { [groupProperty.id]: group.groupId === '__unassigned__' ? null : group.groupId })}
+                onClick={() => addToGroup(group.groupId)}
                 aria-label={`Add card to ${group.groupLabel}`}
                 className={cn("p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors")}>
                 <Plus className={cn("w-4 h-4")} />
@@ -185,29 +197,47 @@ export function BoardView() {
 
             {/* Cards */}
             <div className={cn(`flex flex-col gap-2 min-h-[120px] pb-10 px-1`)}>
-              {displayPages.map((page, pageIdx) => (
-                <div key={page.id} className={cn("relative")} data-board-card
-                  onDragOver={e => handleCardDragOver(e, page.id)}
-                  onDrop={e => handleCardDrop(e, page.id, group.groupId)}
-                  onDragEnd={clearDrag}>
-                  {dropCard?.pageId === page.id && !dropCard.after && (
-                    <div className={cn("absolute -top-[5px] left-1 right-1 h-[3px] rounded-full bg-accent z-10 pointer-events-none")} data-testid="board-drop-line" />
-                  )}
-                  <BoardCard page={page} pageIdx={pageIdx}
-                    cardPreview={cardPreview} cardSize={cardSize} wrapContent={wrapContent}
-                    databaseId={database.id}
-                    nonTitleGroupProps={nonTitleGroupProps} openPage={openPage}
-                    getPageTitle={getPageTitle} onDragStart={handleDragStart}
-                    accent={colorForPage(page, settings.conditionalColors, database.properties, getCellValue)?.accent ?? null} />
-                  {dropCard?.pageId === page.id && dropCard.after && (
-                    <div className={cn("absolute -bottom-[5px] left-1 right-1 h-[3px] rounded-full bg-accent z-10 pointer-events-none")} data-testid="board-drop-line" />
-                  )}
+              <VirtualCardList pages={displayPages} scrollElement={scrollElement} cardSize={cardSize}
+                renderCard={(page, pageIdx) => (
+                  <div className={cn("relative")} data-board-card
+                    onDragOver={e => handleCardDragOver(e, page.id)}
+                    onDrop={e => handleCardDrop(e, page.id, group.groupId)}
+                    onDragEnd={clearDrag}>
+                    {dropCard?.pageId === page.id && !dropCard.after && (
+                      <div className={cn("absolute -top-[5px] left-1 right-1 h-[3px] rounded-full bg-accent z-10 pointer-events-none")} data-testid="board-drop-line" />
+                    )}
+                    <BoardCard page={page} pageIdx={pageIdx}
+                      cardPreview={cardPreview} cardSize={cardSize} wrapContent={wrapContent}
+                      databaseId={database.id}
+                      nonTitleGroupProps={nonTitleGroupProps} openPage={openPage}
+                      getPageTitle={getPageTitle} onDragStart={handleDragStart}
+                      accent={colorForPage(page, settings.conditionalColors, database.properties, getCellValue)?.accent ?? null} />
+                    {dropCard?.pageId === page.id && dropCard.after && (
+                      <div className={cn("absolute -bottom-[5px] left-1 right-1 h-[3px] rounded-full bg-accent z-10 pointer-events-none")} data-testid="board-drop-line" />
+                    )}
+                  </div>
+                )} />
+
+              {hiddenCount > 0 && (
+                <div className={cn("flex items-center gap-1 text-xs text-ink-muted tabular-nums")}>
+                  <button
+                    onClick={() => setExtraShown(prev => ({ ...prev, [group.groupId]: (prev[group.groupId] ?? 0) + pageSize }))}
+                    aria-label={`Load ${Math.min(pageSize, hiddenCount)} more in ${group.groupLabel}`}
+                    className={cn("flex-1 hover:text-hover-text hover:bg-hover-surface-white-soft2 px-2 py-1.5 rounded-lg transition-colors text-left")}>
+                    Load {Math.min(pageSize, hiddenCount)} more · {hiddenCount} hidden
+                  </button>
+                  <button
+                    onClick={() => setExtraShown(prev => ({ ...prev, [group.groupId]: Infinity }))}
+                    aria-label={`Show all ${group.pages.length} in ${group.groupLabel}`}
+                    className={cn("hover:text-hover-text hover:bg-hover-surface-white-soft2 px-2 py-1.5 rounded-lg transition-colors")}>
+                    Show all
+                  </button>
                 </div>
-              ))}
+              )}
 
               {/* Add card button */}
               <button
-                onClick={() => addPage(database.id, { [groupProperty.id]: group.groupId === '__unassigned__' ? null : group.groupId })}
+                onClick={() => addToGroup(group.groupId)}
                 className={cn("flex items-center gap-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-white-soft2 p-2 rounded-lg transition-colors w-full")}>
                 <Plus className={cn("w-4 h-4")} /> New
               </button>
