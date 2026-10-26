@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, type PieLabelRenderProps } from 'recharts';
 import type { ChartResult } from '../../../lib/chart/chartTypes';
 import { VALUE_SERIES_KEY } from '../../../lib/chart/chartTypes';
 import type { ViewSettings } from '../../../types/database';
@@ -30,6 +30,25 @@ function sliceFill(result: ChartResult, settings: ViewSettings, index: number): 
 }
 
 /** Donut/pie chart: slices are x groups; optional total in the center. */
+// Notion's slice labels: muted text on a hairline leader; an empty slice
+// gets neither, so a zero category no longer prints "Name: 0" on the ring.
+function SliceLabel(p: PieLabelRenderProps) {
+  const value = Number(p.value ?? 0);
+  if (!value) return null;
+  return (
+    <text x={p.x} y={p.y} textAnchor={p.textAnchor} dominantBaseline="central"
+      fontSize={11} fill="var(--color-chart-label)">
+      {`${String(p.name ?? '')}: ${value.toLocaleString()}`}
+    </text>
+  );
+}
+
+function SliceLabelLine(p: { value?: number; points?: { x: number; y: number }[] }) {
+  const [from, to] = p.points ?? [];
+  if (!p.value || !from || !to) return <g />;
+  return <path d={`M${from.x},${from.y}L${to.x},${to.y}`} stroke="var(--color-chart-tick)" fill="none" />;
+}
+
 export function ChartDonutChart({ result, settings, isDonut, onSliceClick }: Readonly<{
   result: ChartResult;
   settings: ViewSettings;
@@ -47,10 +66,8 @@ export function ChartDonutChart({ result, settings, isDonut, onSliceClick }: Rea
           <Pie data={data} dataKey="value" nameKey="name"
             innerRadius={isDonut ? '62%' : 0} outerRadius="92%"
             paddingAngle={isDonut ? 1.5 : 0} isAnimationActive={false}
-            labelLine={!!settings.showDataLabels}
-            label={settings.showDataLabels
-              ? (entry: { name?: string; value?: number }) => `${entry.name}: ${(entry.value ?? 0).toLocaleString()}`
-              : undefined}
+            labelLine={settings.showDataLabels ? SliceLabelLine : false}
+            label={settings.showDataLabels ? SliceLabel : undefined}
             onClick={(_, index) => onSliceClick({ categoryIndex: index, seriesKey: VALUE_SERIES_KEY })}
             cursor="pointer">
             {data.map((entry, i) => (

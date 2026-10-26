@@ -13,7 +13,8 @@
 import React, { useRef } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell, LabelList, ReferenceLine,
+  ResponsiveContainer, Cell, LabelList, ReferenceLine, Text,
+  type XAxisTickContentProps,
 } from 'recharts';
 import type { ChartResult } from '../../../lib/chart/chartTypes';
 import { VALUE_SERIES_KEY } from '../../../lib/chart/chartTypes';
@@ -24,6 +25,24 @@ import { ChartTooltipContent } from './ChartTooltipContent';
 import { yAxisDomain } from './ChartCanvasHelpers';
 
 export interface BarsClick { categoryIndex: number; seriesKey: string }
+
+const AXIS_TICK = { fontSize: 11, fill: 'var(--color-chart-label)' };
+
+/** Every category keeps its label, cut to its band with an ellipsis (Text
+ *  measures it); recharts' default dropped every other label once they
+ *  collided. A horizontal chart's labels share the axis width instead. */
+function fittedCategoryTick(horizontal: boolean) {
+  return function CategoryTick(p: Omit<XAxisTickContentProps, 'orientation' | 'padding'>) {
+    const axis = Number(p.width) || 0;
+    const band = horizontal ? axis - 8 : axis / Math.max(1, p.visibleTicksCount) - 6;
+    return (
+      <Text x={p.x} y={p.y} textAnchor={p.textAnchor} verticalAnchor={p.verticalAnchor}
+        width={Math.max(band, 12)} maxLines={1} {...AXIS_TICK}>
+        {String(p.payload.value ?? '')}
+      </Text>
+    );
+  };
+}
 
 /** Per-bar fill: option color → palette index → value shading when enabled. */
 function categoryFill(
@@ -65,11 +84,13 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
   };
 
   const categoryAxis = (
-    <XAxis dataKey="label" type="category" tick={{ fontSize: 11 }} interval="preserveStartEnd"
+    <XAxis dataKey="label" type="category" tick={fittedCategoryTick(false)} interval={0}
+      tickLine={false} axisLine={{ stroke: 'var(--color-chart-grid)' }}
       label={settings.xAxisTitle ? { value: settings.xAxisTitle, position: 'insideBottom', offset: -4, fontSize: 11 } : undefined} />
   );
   const valueAxis = (
-    <YAxis type="number" tick={{ fontSize: 11 }} domain={domain} allowDataOverflow={!!domain}
+    <YAxis type="number" tick={AXIS_TICK} domain={domain} allowDataOverflow={!!domain}
+      tickLine={false} axisLine={false}
       label={settings.yAxisTitle ? { value: settings.yAxisTitle, angle: -90, position: 'insideLeft', fontSize: 11 } : undefined} />
   );
 
@@ -78,13 +99,15 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
       <BarChart data={rows} layout={horizontal ? 'vertical' : 'horizontal'}
         margin={{ top: 12, right: 16, bottom: 8, left: 8 }}
         onClick={chartClick} style={{ cursor: 'pointer' }}>
-        {grid && <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-grid, #e5e5e5)"
+        {grid && <CartesianGrid stroke="var(--color-chart-grid)"
           horizontal={!horizontal} vertical={horizontal} />}
         {horizontal
-          ? <XAxis type="number" tick={{ fontSize: 11 }} domain={domain} allowDataOverflow={!!domain} />
+          ? <XAxis type="number" tick={AXIS_TICK} domain={domain} allowDataOverflow={!!domain}
+              tickLine={false} axisLine={false} />
           : categoryAxis}
         {horizontal
-          ? <YAxis dataKey="label" type="category" tick={{ fontSize: 11 }} width={110} />
+          ? <YAxis dataKey="label" type="category" tick={fittedCategoryTick(true)} width={110}
+              interval={0} tickLine={false} axisLine={{ stroke: 'var(--color-chart-grid)' }} />
           : valueAxis}
         <Tooltip content={<ChartTooltipContent />} cursor={{ fill: 'var(--color-chart-cursor, rgba(0,0,0,0.04))' }} />
         {refLine && (
@@ -110,7 +133,7 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
                 <Cell key={result.categories[i].key} fill={categoryFill(result, settings, i)} />
               ))}
               {settings.showDataLabels && isTop && (
-                <LabelList dataKey={s.key} position={horizontal ? 'right' : 'top'} fontSize={10}
+                <LabelList dataKey={s.key} position={horizontal ? 'right' : 'top'} fontSize={11} fill="var(--color-chart-label)"
                   formatter={(v: React.ReactNode) => (typeof v === 'number' && v !== 0 ? v.toLocaleString() : '')} />
               )}
             </Bar>
