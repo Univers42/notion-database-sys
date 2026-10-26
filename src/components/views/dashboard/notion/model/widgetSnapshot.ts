@@ -27,6 +27,8 @@ function oneLine(text: string, max: number): string {
 /** A cell as words, or null when it is empty or holds ids. */
 export function snapshotValue(raw: unknown, property: SchemaProperty): string | null {
   if (ID_VALUED.has(property.type)) return null;
+  // Words, not the cell's ✓/— marks: an unchecked box is information too.
+  if (property.type === 'checkbox') return raw ? 'yes' : 'no';
   if (property.type === 'multi_select') {
     if (!Array.isArray(raw) || raw.length === 0) return null;
     const labels = raw.map(id => property.options?.find(option => option.id === id)?.value ?? String(id));
