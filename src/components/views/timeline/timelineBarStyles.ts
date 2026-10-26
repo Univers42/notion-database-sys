@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import { format } from 'date-fns';
-import type { BarColorSet, BarVerbosity } from './timelineHelperTypes';
+import type { BarColorSet, BarLabel } from './timelineHelperTypes';
 
 const STATUS_PALETTE: [string, BarColorSet][] = [
   ['green',  { bg: 'bg-emerald-500',  text: 'text-white',     hex: '#10b981' }],
@@ -45,16 +45,14 @@ export function getBarColor(statusOpt: { color: string } | undefined): string {
   return getBarColorSet(statusOpt).bg;
 }
 
-/** Determine the label verbosity a bar can afford based on its pixel width. */
-export function computeBarVerbosity(
-  barWidthPx: number,
-  cellWidth: number,
-): BarVerbosity {
-  // Rough breakpoints (in px)
-  if (barWidthPx < cellWidth * 1.3)  return 'color-only';
-  if (barWidthPx < cellWidth * 2.5)  return 'status';
-  if (barWidthPx < cellWidth * 5)    return 'status+dates';
-  return 'full';
+/** Where a bar's label goes. Notion keeps the title inside a bar only when
+ *  it fits and sets it to the right otherwise; the dates join a wide bar.
+ *  Caveat: thresholds assume a ~12-character title at text-sm — a longer one
+ *  still truncates inside a bar just over 120px. */
+export function computeBarLabel(barWidthPx: number): BarLabel {
+  if (barWidthPx < 120) return 'outside';
+  if (barWidthPx < 220) return 'title';
+  return 'title+dates';
 }
 
 /** Short date label: "3 Apr" or "3/4–10/4" etc. */
@@ -63,18 +61,22 @@ export function compactDateRange(start: Date, end: Date | null): string {
   return `${format(start, 'd/M')}–${format(end, 'd/M')}`;
 }
 
-/** Returns the background class for a day header cell based on today/weekend status. */
-export function getDayHeaderBg(isToday: boolean, isWeekend: boolean): string {
-  if (isToday) return 'bg-accent-soft';
-  if (isWeekend) return 'bg-surface-secondary-soft2';
-  return 'bg-surface-primary';
+/** Weekend shading for a day header cell. Today is marked by its number's
+ *  pill and the red line, not a tinted column (Notion parity). */
+export function getDayHeaderBg(isWeekend: boolean): string {
+  return isWeekend ? 'bg-surface-secondary-soft2' : '';
 }
 
-/** Returns the background class for a grid body cell based on today/weekend status. */
-export function getGridCellBg(isToday: boolean, isWeekend: boolean): string {
-  if (isToday) return 'bg-accent-soft5';
-  if (isWeekend) return 'bg-surface-secondary-soft4';
-  return '';
+/** Weekend shading for a grid body cell. */
+export function getGridCellBg(isWeekend: boolean): string {
+  return isWeekend ? 'bg-surface-secondary-soft4' : '';
+}
+
+/** Day columns get their own rule only at Day zoom; Week and Month draw one
+ *  per week (on Mondays) so the grid reads as weeks, not a spreadsheet. */
+export function getDayRuleClass(day: Date, zoomLevel: string): string {
+  if (zoomLevel === 'day') return 'border-r border-line-light';
+  return day.getDay() === 1 ? 'border-l border-line-light' : '';
 }
 
 /** Clamps a day range ensuring start ≤ end with a minimum 1-day span. */

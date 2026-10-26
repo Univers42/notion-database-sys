@@ -14,7 +14,7 @@ import React from 'react';
 import { addDays, format } from 'date-fns';
 import {
   getBarColorSet, compactDateRange,
-  type BarColorSet, type BarGeometry,
+  type BarColorSet, type BarGeometry, type BarLabel,
 } from './TimelineViewHelpers';
 import type { DragState } from './timelineTypes';
 import { cn } from '../../../utils/cn';
@@ -51,7 +51,7 @@ export function LiveDragLabel({ timelineStart, displayLeft, displayWidth, cellWi
 export function TodayMarker({ todayIdx, cellWidth }: Readonly<{ todayIdx: number; cellWidth: number }>) {
   return (
     <div
-      className={cn("absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none")}
+      className={cn("absolute top-0 bottom-0 w-px bg-danger-vivid z-20 pointer-events-none")}
       style={{ left: todayIdx * cellWidth + cellWidth / 2 }}
     />
   );
@@ -87,28 +87,30 @@ export function computeDragOverrides(
   return { isDragging, displayLeft, displayWidth };
 }
 
-/** Renders adaptive bar content based on available width. */
-export function BarContent({ verbosity, statusLabel, dateLabel, icon }: Readonly<{
-  verbosity: string; statusLabel: string; dateLabel: string; icon?: string;
+/** Bar label, Notion's: the page's title, led by its status colour; the
+ *  dates join it when the bar is wide. A short bar shows nothing inside:
+ *  BarOutsideTitle names it. */
+export function BarContent({ label, title, statusHex, dateLabel, icon }: Readonly<{
+  label: BarLabel; title: string; statusHex?: string; dateLabel: string; icon?: string;
 }>) {
-  if (verbosity === 'color-only') return null;
-  if (verbosity === 'status') {
-    return <span className={cn("text-[10px] font-semibold truncate px-1")}>{statusLabel || '\u25CF'}</span>;
-  }
-  if (verbosity === 'status+dates') {
-    return (
-      <div className={cn("flex items-center gap-1 px-1 min-w-0")}>
-        <span className={cn("text-[10px] font-semibold truncate")}>{statusLabel}</span>
-        <span className={cn("text-[9px] opacity-70 shrink-0")}>{dateLabel}</span>
-      </div>
-    );
-  }
+  if (label === 'outside') return null;
   return (
-    <div className={cn("flex items-center gap-1.5 px-1.5 min-w-0")}>
-      {icon && <span className={cn("text-xs shrink-0")}>{icon}</span>}
-      <span className={cn("text-[11px] font-semibold truncate")}>{statusLabel}</span>
-      <span className={cn("text-[9px] opacity-70 shrink-0 ml-auto")}>{dateLabel}</span>
+    <div className={cn("flex items-center gap-1.5 px-1 w-full min-w-0 text-sm")}>
+      {statusHex && <span className={cn("w-2 h-2 rounded-full shrink-0")} style={{ backgroundColor: statusHex }} />}
+      {icon && <span className={cn("shrink-0")}>{icon}</span>}
+      <span className={cn("truncate font-medium")}>{title || <span className={cn("text-ink-muted")}>Untitled</span>}</span>
+      {label === 'title+dates' && <span className={cn("text-xs text-ink-muted shrink-0 ml-auto")}>{dateLabel}</span>}
     </div>
+  );
+}
+
+/** The title of a narrow bar, set just right of it. */
+export function BarOutsideTitle({ title, icon }: Readonly<{ title: string; icon?: string }>) {
+  return (
+    <span className={cn("absolute left-full top-1/2 -translate-y-1/2 ml-2 whitespace-nowrap text-sm text-ink-secondary pointer-events-none")}>
+      {icon && <span className={cn("mr-1")}>{icon}</span>}
+      {title || 'Untitled'}
+    </span>
   );
 }
 

@@ -13,12 +13,15 @@
 import React from 'react';
 import type { Page } from '../../../types/database';
 import {
-  getBarGeometry, getGridCellBg, computeBarVerbosity,
+  getBarGeometry, getGridCellBg, getDayRuleClass, computeBarLabel,
   type TimelineConfig, type ZoomLevel, type BarGeometry,
 } from './TimelineViewHelpers';
 import type { DragKind, DragState } from './timelineTypes';
 import { RESIZE_HANDLE_WIDTH, BAR_V_PADDING } from './timelineTypes';
-import { computeBarMeta, computeDragOverrides, BarContent, BarTooltip, LiveDragLabel } from './TimelineBarComponents';
+import {
+  computeBarMeta, computeDragOverrides,
+  BarContent, BarOutsideTitle, BarTooltip, LiveDragLabel,
+} from './TimelineBarComponents';
 import { cn } from '../../../utils/cn';
 
 interface TimelineRowProps {
@@ -34,7 +37,6 @@ interface TimelineRowProps {
   readonly hoverRow: string | null;
   readonly setHoverRow: (id: string | null) => void;
   readonly days: Date[];
-  readonly todayIdx: number;
   /** Grab-and-slide on a dateless lane: draw this record's date range. */
   readonly onLaneDraw: (e: React.PointerEvent, pageId: string, dayIdx: number) => void;
   /** Keyboard alternative: Enter/Space on a cell sets a single-day date. */
@@ -46,7 +48,7 @@ interface TimelineRowProps {
 export function TimelineRow({
   page, startPropId, endPropId, startDate, config, zoomLevel,
   statusProp, getPageTitle, dragState, hoverRow, setHoverRow,
-  days, todayIdx, onLaneDraw, onLaneKeySet, handlePointerDown, openDatePicker,
+  days, onLaneDraw, onLaneKeySet, handlePointerDown, openDatePicker,
 }: TimelineRowProps) {
   const bar = getBarGeometry(page, startPropId, endPropId, startDate, config, zoomLevel);
   const { colorSet, statusLabel, dateLabel } = computeBarMeta(
@@ -56,14 +58,17 @@ export function TimelineRow({
   const { isDragging, displayLeft, displayWidth } = computeDragOverrides(page.id, dragState, bar);
   const isCreating = isDragging && dragState?.kind === 'create';
   const laneDrawable = !bar; // a dateless record: its lane is the create surface
-  const verbosity = computeBarVerbosity(displayWidth, config.cellWidth);
+  // A bar that starts before the range keeps its label on screen (Notion's
+  // sticky title): the hidden part pads the label and doesn't count as room.
+  const hiddenPx = Math.max(0, -displayLeft);
+  const label = computeBarLabel(displayWidth - hiddenPx);
   const barHeight = config.rowHeight - BAR_V_PADDING * 2;
 
   return (
     <div // NOSONAR - timeline row pattern requires role="row"
       role="row"
       tabIndex={0}
-      className={cn(`relative flex items-center border-b border-line-light transition-colors ${
+      className={cn(`relative flex items-center transition-colors ${
         hoverRow === page.id ? 'bg-hover-surface-soft' : ''
       }`)}
       style={{ height: config.rowHeight }}
@@ -78,9 +83,9 @@ export function TimelineRow({
             key={day.toISOString()}
             role={laneDrawable ? 'gridcell' : undefined}
             tabIndex={laneDrawable ? 0 : undefined}
-            className={cn(`shrink-0 border-r border-line-light h-full pointer-events-auto
+            className={cn(`shrink-0 h-full pointer-events-auto ${getDayRuleClass(day, zoomLevel)}
                         ${laneDrawable ? 'cursor-cell' : ''} ${
-              getGridCellBg(todayIdx === i, day.getDay() === 0 || day.getDay() === 6)
+              getGridCellBg(day.getDay() === 0 || day.getDay() === 6)
             }`)}
             style={{ width: config.cellWidth, touchAction: laneDrawable ? 'none' : undefined }}
             onPointerDown={e => { if (laneDrawable && e.button === 0) onLaneDraw(e, page.id, i); }}
@@ -93,11 +98,11 @@ export function TimelineRow({
         <div
           data-timeline-bar
           className={cn(`group/bar absolute z-10 flex items-center
-                      ${colorSet.bg} ${colorSet.text}
+                      bg-surface-primary text-ink
                       ${bar?.isPoint && !isDragging ? 'rounded-full' : 'rounded-md'}
                       ${isDragging ? 'opacity-80 ring-2 ring-accent-border' : ''}
-                      ${isCreating ? 'border-2 border-dashed border-accent-border' : ''}
-                      shadow-sm transition-shadow`)}
+                      ${isCreating ? 'border-2 border-dashed border-accent-border' : 'border border-line'}
+                      shadow-sm hover:shadow-md transition-shadow`)}
           style={{
             left: displayLeft,
             width: Math.max(displayWidth, barHeight),
@@ -118,10 +123,12 @@ export function TimelineRow({
             colorSet={colorSet}
           />
 
+          {label === 'outside' && !isDragging && <BarOutsideTitle title={title} icon={page.icon} />}
+
           {/* Left resize handle */}
           <div
             className={cn(`absolute left-0 top-0 bottom-0 cursor-col-resize z-20
-                       hover:bg-white/30 rounded-l-md transition-colors`)}
+                       hover:bg-hover-surface rounded-l-md transition-colors`)}
             style={{ width: RESIZE_HANDLE_WIDTH }}
             onPointerDown={e => bar && handlePointerDown(e, page.id, 'resize-left', bar)}
           />
@@ -130,13 +137,14 @@ export function TimelineRow({
           <button
             type="button"
             aria-label={`Edit dates for ${title || 'Untitled'}`}
-            className={cn(`flex-1 flex items-center justify-center overflow-hidden
+            className={cn(`flex-1 flex items-center overflow-hidden min-w-0
                         h-full ${bar?.isPoint && !isDragging
                           ? 'cursor-ew-resize'
                           : 'cursor-grab active:cursor-grabbing'}`)}
             style={{
               marginLeft: RESIZE_HANDLE_WIDTH,
               marginRight: RESIZE_HANDLE_WIDTH,
+              paddingLeft: hiddenPx,
             }}
             onPointerDown={e => {
               if (bar) {
@@ -152,13 +160,14 @@ export function TimelineRow({
             }}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const rect = e.currentTarget.getBoundingClientRect(); openDatePicker(page.id, rect); } }}
           >
-            <BarContent verbosity={verbosity} statusLabel={statusLabel} dateLabel={dateLabel} icon={page.icon} />
+            <BarContent label={label} title={title} statusHex={statusLabel ? colorSet.hex : undefined}
+              dateLabel={dateLabel} icon={page.icon} />
           </button>
 
           {/* Right resize handle */}
           <div
             className={cn(`absolute right-0 top-0 bottom-0 cursor-col-resize z-20
-                       hover:bg-white/30 rounded-r-md transition-colors`)}
+                       hover:bg-hover-surface rounded-r-md transition-colors`)}
             style={{ width: RESIZE_HANDLE_WIDTH }}
             onPointerDown={e => bar && handlePointerDown(e, page.id, 'resize-right', bar)}
           />

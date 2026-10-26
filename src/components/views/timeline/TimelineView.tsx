@@ -160,6 +160,7 @@ export function TimelineView() {
           <TimelineLeftPanel
             displayedPages={displayedPages} config={config} hoverRow={hoverRow}
             getPageTitle={getPageTitle} openPage={openPage} setHoverRow={setHoverRow}
+            titleLabel={database.properties[database.titlePropertyId]?.name ?? 'Name'}
             onAddPage={() => addPage(database.id, { [startProp.id]: today.toISOString() })}
           />
         )}
@@ -174,14 +175,14 @@ export function TimelineView() {
                 key={page.id} page={page} startPropId={startProp.id} endPropId={endProp?.id ?? null}
                 startDate={startDate} config={config} zoomLevel={zoomLevel} statusProp={statusProp}
                 getPageTitle={getPageTitle} dragState={dragState} hoverRow={hoverRow}
-                setHoverRow={setHoverRow} days={days} todayIdx={todayIdx}
+                setHoverRow={setHoverRow} days={days}
                 onLaneDraw={handleLaneDraw} onLaneKeySet={handleLaneKeySet}
                 handlePointerDown={handlePointerDown}
                 openDatePicker={openDatePicker}
               />
             ))}
             <button type="button"
-              className={cn(`flex items-center border-b border-line-light text-ink-muted
+              className={cn(`flex items-center text-ink-muted
                          hover:bg-hover-surface-soft cursor-pointer transition-colors text-left`)}
               style={{ height: config.rowHeight }}
               onClick={() => addPage(database.id, { [startProp.id]: today.toISOString() })}
