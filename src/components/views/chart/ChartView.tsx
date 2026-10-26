@@ -23,6 +23,7 @@ import { registerChartExport } from './chartExportRegistry';
 import { isLiveDatabaseId } from '../../../store/live/liveTypes';
 import type { DrilldownPage, DrilldownTarget } from './ChartDrilldown';
 import { cn } from '../../../utils/cn';
+import { PaneLoading } from '../../ViewSlideStage';
 import { useViewPages } from '../../../hooks/useViewPages';
 import { withComputedCells } from '../../../store/slices/cellValues';
 
@@ -45,9 +46,11 @@ function EmptyChartState() {
 
 function ChartLoading() {
   return (
-    <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
-      <div className={cn("text-sm text-ink-muted animate-pulse")}>Loading chart…</div>
-    </div>
+    <PaneLoading>
+      <div className={cn("flex-1 flex items-center justify-center p-8 bg-surface-primary")}>
+        <div className={cn("text-sm text-ink-muted animate-pulse")}>Loading chart…</div>
+      </div>
+    </PaneLoading>
   );
 }
 
