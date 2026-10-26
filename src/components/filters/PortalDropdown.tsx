@@ -30,7 +30,7 @@ export function PortalDropdown({ anchorRef, children, onClose, width, align = 'l
   slots?: Partial<PortalDropdownSlots>;
 }>) {
   const ref = useRef<HTMLDivElement>(null);
-  const frame = useAnchoredFrame(anchorRef, width || 220, align === 'right' ? 'end' : 'start');
+  const frame = useAnchoredFrame(anchorRef, width || 220, align === 'right' ? 'end' : 'start', ref);
   // A menu opened from this one (the operator list inside a filter editor) is
   // portaled outside it in the DOM but still inside it in React, where the
   // press bubbles through here first. Without this flag, choosing an operator
@@ -49,12 +49,19 @@ export function PortalDropdown({ anchorRef, children, onClose, width, align = 'l
     return () => document.removeEventListener('mousedown', handler);
   }, [onClose, anchorRef]);
 
-  if (!frame) return null;
-
+  // Rendered (transparent) before it is placed, so placing can read its
+  // height and its field can take autofocus; placing precedes the first paint.
   return createPortal(
     <div ref={ref} onMouseDown={() => { pressedInside.current = true; }}
+      onKeyDown={e => {
+        if (e.key !== 'Escape') return;
+        e.stopPropagation();
+        onClose();
+        anchorRef.current?.focus();
+      }}
       className={cn("fixed z-[9999] bg-surface-primary border border-line rounded-xl shadow-xl overflow-y-auto overflow-x-hidden", slots?.root)}
-      style={{ top: frame.top, bottom: frame.bottom, left: frame.left, maxHeight: frame.maxHeight, ...(width ? { width: frame.width } : {}) }}>
+      style={{ top: frame?.top, bottom: frame?.bottom, left: frame?.left ?? 0, maxHeight: frame?.maxHeight,
+        opacity: frame ? 1 : 0, ...(width ? { width: frame?.width ?? width } : {}) }}>
       {children}
     </div>,
     document.body

@@ -91,7 +91,9 @@ export function positionBelowAnchor(
  *  `align: 'start'`, left edges aligned unless that would overflow the right
  *  edge), below the button, or above it when below is both cramped and smaller. `maxHeight` is
  *  the room on the chosen side so the panel scrolls inside instead of leaving
- *  the viewport. Exactly one of `top`/`bottom` is set. */
+ *  the viewport. Exactly one of `top`/`bottom` is set. "Cramped" means less
+ *  room than `panelHeight` when the panel's height is known: a 70px filter
+ *  editor flipped above its chip, over the database title, for want of 360. */
 export type AnchoredFrame = { left: number; top?: number; bottom?: number; maxHeight: number };
 
 const ANCHOR_GAP = 6;
@@ -103,6 +105,7 @@ export function anchoredPanelFrame(
   panelWidth: number,
   viewport: { width: number; height: number },
   align: 'start' | 'end' = 'end',
+  panelHeight = COMFORT_HEIGHT,
 ): AnchoredFrame {
   const maxLeft = viewport.width - panelWidth - VIEWPORT_MARGIN;
   const startFits = align === 'start' && anchor.left !== undefined && anchor.left <= maxLeft;
@@ -113,6 +116,6 @@ export function anchoredPanelFrame(
   const bottom = Math.max(VIEWPORT_MARGIN, viewport.height - anchor.top + ANCHOR_GAP);
   const below = viewport.height - top - VIEWPORT_MARGIN;
   const above = viewport.height - bottom - VIEWPORT_MARGIN;
-  if (below >= COMFORT_HEIGHT || below >= above) return { left, top, maxHeight: Math.max(0, below) };
+  if (below >= Math.min(panelHeight, COMFORT_HEIGHT) || below >= above) return { left, top, maxHeight: Math.max(0, below) };
   return { left, bottom, maxHeight: Math.max(0, above) };
 }

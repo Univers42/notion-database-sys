@@ -26,6 +26,9 @@ export function useAnchoredFrame(
   anchorRef: React.RefObject<HTMLElement | null>,
   width: number,
   align: 'start' | 'end' = 'end',
+  /** The panel, when it renders before it is placed: a short one that fits
+   *  below its button stays there even when above has more room. */
+  panelRef?: React.RefObject<HTMLElement | null>,
 ): FittedFrame | null {
   const [frame, setFrame] = useState<FittedFrame | null>(null);
   // Callers often pass a fresh `{ current }` per render; keyed on it, placing
@@ -38,8 +41,9 @@ export function useAnchoredFrame(
     if (!element) return;
     const viewport = { width: window.innerWidth, height: window.innerHeight };
     const fitted = Math.min(width, viewport.width - 2 * VIEWPORT_MARGIN);
-    setFrame({ ...anchoredPanelFrame(element.getBoundingClientRect(), fitted, viewport, align), width: fitted });
-  }, [width, align]);
+    const height = panelRef?.current?.scrollHeight || undefined;
+    setFrame({ ...anchoredPanelFrame(element.getBoundingClientRect(), fitted, viewport, align, height), width: fitted });
+  }, [width, align, panelRef]);
 
   useLayoutEffect(() => {
     place();

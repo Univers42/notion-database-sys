@@ -31,7 +31,7 @@ export function AnchoredPopover({ anchorRef, label, width, onClose, children }: 
   children: React.ReactNode;
 }>) {
   const panelRef = useRef<HTMLDialogElement>(null);
-  const frame = useAnchoredFrame(anchorRef, width);
+  const frame = useAnchoredFrame(anchorRef, width, 'end', panelRef);
   // Callers pass an inline closure; keyed on it, the open/close effect below
   // would re-run (and refocus the button) on every parent render.
   const onCloseRef = useRef(onClose);
