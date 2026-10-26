@@ -12,9 +12,10 @@
 /**
  * Pointer drag for dashboard widgets. House rule (workspace-grid): NO store
  * writes during the drag — geometry is snapshotted from the DOM at start
- * (and on scroll), the indicator element is positioned with direct style
+ * (and on ANY scroll: the page scroller moves the cards as much as the
+ * dashboard's own), the indicator and ghost are positioned with direct style
  * writes, and the single store commit happens on pointer-up through the
- * pure moveWidget mutation.
+ * pure moveWidget mutation. Escape / pointercancel abandon the gesture.
  */
 
 import { useRef, useCallback } from 'react';
@@ -24,8 +25,15 @@ import type { MoveTarget } from './model/dashboardLayoutMove';
 interface WidgetDragOptions {
   containerRef: React.RefObject<HTMLDivElement | null>;
   indicatorRef: React.RefObject<HTMLDivElement | null>;
+  /** Title chip that follows the pointer. */
+  ghostRef?: React.RefObject<HTMLDivElement | null>;
   onDrop: (widgetId: string, target: MoveTarget) => void;
 }
+
+/** Distance from the scroller edge where autoscroll starts, and its peak
+ *  speed in px per frame. */
+const AUTOSCROLL_EDGE = 56;
+const AUTOSCROLL_MAX = 18;
 
 function collectGeometry(container: HTMLElement, widgetId: string): RowGeometry[] {
   return [...container.querySelectorAll<HTMLElement>('[data-dash-row]')].map((rowEl) => {
@@ -60,7 +68,7 @@ function paintIndicator(indicator: HTMLElement, resolution: DropResolution): voi
     indicator.style.display = 'none';
     return;
   }
-  indicator.style.display = 'block';
+  indicator.dataset.blocked = String(resolution.blocked);
   if (geometry.kind === 'slot') {
     indicator.style.left = `${geometry.x - 2}px`;
     indicator.style.top = `${geometry.top}px`;
@@ -73,10 +81,32 @@ function paintIndicator(indicator: HTMLElement, resolution: DropResolution): voi
     indicator.style.width = `${geometry.right - geometry.left}px`;
     indicator.style.height = '4px';
   }
+  indicator.style.display = 'block';
+}
+
+/** The element that actually scrolls the dashboard: its own container when
+ *  it overflows, else the nearest scrolling ancestor (an inline dashboard
+ *  scrolls with its page). */
+function scrollerOf(container: HTMLElement): HTMLElement {
+  for (let el: HTMLElement | null = container; el; el = el.parentElement) {
+    const { overflowY } = getComputedStyle(el);
+    if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight) return el;
+  }
+  return (document.scrollingElement as HTMLElement | null) ?? document.documentElement;
+}
+
+/** Signed autoscroll step for pointer y inside the scroller's visible box. */
+function autoscrollStep(scroller: HTMLElement, y: number): number {
+  const isRoot = scroller === document.scrollingElement || scroller === document.documentElement;
+  const top = isRoot ? 0 : scroller.getBoundingClientRect().top;
+  const bottom = isRoot ? window.innerHeight : scroller.getBoundingClientRect().bottom;
+  if (y < top + AUTOSCROLL_EDGE) return -AUTOSCROLL_MAX * Math.min(1, (top + AUTOSCROLL_EDGE - y) / AUTOSCROLL_EDGE);
+  if (y > bottom - AUTOSCROLL_EDGE) return AUTOSCROLL_MAX * Math.min(1, (y - bottom + AUTOSCROLL_EDGE) / AUTOSCROLL_EDGE);
+  return 0;
 }
 
 /** Returns a pointerdown starter for the widget drag handle. */
-export function useWidgetDrag({ containerRef, indicatorRef, onDrop }: WidgetDragOptions) {
+export function useWidgetDrag({ containerRef, indicatorRef, ghostRef, onDrop }: WidgetDragOptions) {
   const session = useRef<{ widgetId: string; rows: RowGeometry[]; resolution: DropResolution } | null>(null);
 
   const startDrag = useCallback((widgetId: string, event: React.PointerEvent) => {
@@ -84,42 +114,78 @@ export function useWidgetDrag({ containerRef, indicatorRef, onDrop }: WidgetDrag
     const indicator = indicatorRef.current;
     if (!container || !indicator) return;
     event.preventDefault();
+    const ghost = ghostRef?.current ?? null;
     const sourceCell = container.querySelector<HTMLElement>(`[data-dash-widget="${widgetId}"]`);
+    const scroller = scrollerOf(container);
+    const pointer = { x: event.clientX, y: event.clientY };
+    let frame = 0;
     session.current = {
       widgetId,
       rows: collectGeometry(container, widgetId),
       resolution: { target: null, blocked: false, indicator: null },
     };
     if (sourceCell) sourceCell.style.opacity = '0.45';
+    if (ghost) ghost.textContent = sourceCell?.querySelector('[data-dash-title]')?.textContent || 'Widget';
     document.body.style.cursor = 'grabbing';
 
-    const onMove = (move: PointerEvent) => {
+    const resolve = () => {
       const current = session.current;
       if (!current) return;
-      current.resolution = hitTestDropTarget(current.rows, move.clientX, move.clientY);
-      indicator.style.background = current.resolution.blocked ? 'var(--osio-danger, #e03131)' : '';
+      current.resolution = hitTestDropTarget(current.rows, pointer.x, pointer.y);
       paintIndicator(indicator, current.resolution);
+      document.body.style.cursor = current.resolution.blocked ? 'not-allowed' : 'grabbing';
+    };
+    const tick = () => {
+      const step = autoscrollStep(scroller, pointer.y);
+      // The scroll event re-snapshots geometry and re-resolves.
+      if (step !== 0) scroller.scrollBy(0, step);
+      frame = step === 0 ? 0 : requestAnimationFrame(tick);
+    };
+    const onMove = (move: PointerEvent) => {
+      pointer.x = move.clientX;
+      pointer.y = move.clientY;
+      if (ghost) {
+        ghost.style.transform = `translate(${pointer.x + 14}px, ${pointer.y + 14}px)`;
+        ghost.style.display = 'block';
+      }
+      resolve();
+      if (!frame) frame = requestAnimationFrame(tick);
     };
     const onScroll = () => {
       const current = session.current;
-      if (current) current.rows = collectGeometry(container, current.widgetId);
+      if (!current) return;
+      current.rows = collectGeometry(container, current.widgetId);
+      resolve();
     };
-    const onUp = () => {
+    const finish = (commit: boolean) => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
-      container.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('pointercancel', onCancel);
+      window.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('scroll', onScroll, true);
+      cancelAnimationFrame(frame);
       indicator.style.display = 'none';
+      if (ghost) ghost.style.display = 'none';
       document.body.style.cursor = '';
       if (sourceCell) sourceCell.style.opacity = '';
       const current = session.current;
       session.current = null;
       // The ONLY store write of the whole gesture.
-      if (current?.resolution.target) onDrop(current.widgetId, current.resolution.target);
+      if (commit && current?.resolution.target) onDrop(current.widgetId, current.resolution.target);
+    };
+    const onUp = () => finish(true);
+    const onCancel = () => finish(false);
+    const onKey = (key: KeyboardEvent) => {
+      if (key.key !== 'Escape') return;
+      key.stopPropagation();
+      finish(false);
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
-    container.addEventListener('scroll', onScroll, true);
-  }, [containerRef, indicatorRef, onDrop]);
+    window.addEventListener('pointercancel', onCancel);
+    window.addEventListener('keydown', onKey, true);
+    document.addEventListener('scroll', onScroll, true);
+  }, [containerRef, indicatorRef, ghostRef, onDrop]);
 
   return { startDrag };
 }
