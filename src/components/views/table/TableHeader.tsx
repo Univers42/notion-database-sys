@@ -157,7 +157,7 @@ export function TableHeader({
                 if (!step) return;
                 e.preventDefault();
                 const current = storeApi.getState().views[viewId]?.settings?.columnWidths;
-                const width = Math.min(600, Math.max(MIN_COL_WIDTH, (current?.[prop.id] || 180) + step));
+                const width = Math.min(600, Math.max(MIN_COL_WIDTH, getColWidth(prop.id) + step));
                 storeApi.getState().updateViewSettings(viewId, { columnWidths: { ...current, [prop.id]: width } });
               }}
               aria-valuenow={Math.min(600, Math.max(MIN_COL_WIDTH, Math.round(getColWidth(prop.id))))}
