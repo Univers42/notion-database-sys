@@ -16,7 +16,6 @@ import { useStoreApi } from '../../store/dbms/hardcoded/useDatabaseStore';
 import type { SchemaProperty, Filter, DatabaseSchema, ViewConfig } from '../../types/database';
 import { getOperatorsForType, FilterPropertyPicker, FilterBar, AdvancedFilterGrid } from '../FilterComponents';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { SortPanel } from '../sort/SortPanel';
 import { cn } from '../../utils/cn';
 
 /** CSS class overrides for FilterSortPanels sub-elements. */
@@ -24,8 +23,6 @@ export type FilterSortPanelsSlots = {
   pickerWrap: string;
   pickerPanel: string;
   advancedWrap: string;
-  sortWrap: string;
-  sortPanel: string;
 };
 
 /** Props for {@link FilterSortPanels}. */
@@ -36,18 +33,17 @@ export interface FilterSortPanelsProps {
   showAdvancedFilter: boolean;
   setShowAdvancedFilter: (v: boolean) => void;
   setShowFilterPanel: (v: boolean) => void;
-  showSortPanel: boolean;
   filters: Filter[];
   database: DatabaseSchema;
   view: ViewConfig;
   filterBtnRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-/** Renders filter bar, advanced filter grid, and sort panel below the top bar. */
+/** Renders the filter bar below the top bar, and the filter pickers. */
 export function FilterSortPanels({
   showFilterPanel, showFilterPropertyPicker, setShowFilterPropertyPicker,
   showAdvancedFilter, setShowAdvancedFilter, setShowFilterPanel,
-  showSortPanel, filters, database, view, filterBtnRef, slots,
+  filters, database, view, filterBtnRef, slots,
 }: Readonly<FilterSortPanelsProps & { slots?: Partial<FilterSortPanelsSlots> }>) {
   const advancedFilterRef = useRef<HTMLDivElement>(null);
   const store = useStoreApi().getState();
@@ -91,13 +87,6 @@ export function FilterSortPanels({
             onDeleteAll={() => { store.clearFilters(view.id); setShowAdvancedFilter(false); setShowFilterPanel(false); }}
             onClose={() => setShowAdvancedFilter(false)} />
         </div>, document.body
-      )}
-      {showSortPanel && (
-        <div className={cn("px-4 pb-2", slots?.sortWrap)}>
-          <div className={cn("bg-surface-primary border border-line rounded-xl shadow-lg w-full max-w-[420px]", slots?.sortPanel)}>
-            <SortPanel database={database} view={view} />
-          </div>
-        </div>
       )}
     </>
   );

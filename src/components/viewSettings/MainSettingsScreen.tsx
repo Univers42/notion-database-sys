@@ -24,7 +24,7 @@ import {
   ListIcon,
 } from '../ui/Icons';
 import {
-  SettingsRow, SettingsHeader, SettingsSectionLabel,
+  SettingsRow, SettingsHeader, SettingsSectionLabel, MenuDivider,
 } from '../ui/MenuPrimitives';
 import { ViewIdentityRow } from './SubComponents';
 import { copyViewLink } from '../../lib/viewLink';
@@ -91,13 +91,13 @@ export function MainSettingsScreen({
             <SettingsRow icon={<CopyLinkIcon className={cn('w-5 h-5')} />} label={copied ? 'Copied!' : 'Copy link to view'} showChevron={false} onClick={copyLink} />
           </div>
           <SettingsSectionLabel>Data source settings</SettingsSectionLabel>
-          <div className={cn('flex flex-col gap-px px-2 pb-2')}>
+          <div className={cn('flex flex-col gap-px px-2 pb-1')}>
             <SettingsRow icon={<SourceIcon />} label="Source" value={databaseName} onClick={() => setScreen('source')} />
             <SettingsRow icon={<ListIcon className={cn('w-5 h-5')} />} label="Edit properties" onClick={() => setScreen('editProperties')} />
             <SettingsRow icon={<LightningIcon />} label="Automations" onClick={() => setScreen('automations')} />
           </div>
-          <SettingsSectionLabel>&nbsp;</SettingsSectionLabel>
-          <div className={cn('flex flex-col gap-px px-2 pb-2')}>
+          <MenuDivider />
+          <div className={cn('flex flex-col gap-px px-2 py-1')}>
             <SettingsRow icon={<CollectionIcon />} label="Manage data sources" onClick={() => setScreen('manageSources')} />
             <SettingsRow icon={<LockIcon />} label="Lock database" value={locked ? 'On' : undefined} showChevron={false} onClick={toggleLock} />
           </div>

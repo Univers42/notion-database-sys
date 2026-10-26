@@ -19,7 +19,6 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
 import { DAY_HEADER_HEIGHT, LANE_HEIGHT } from './calendarConfig';
-import { MAX_VISIBLE_LANES } from './model/calendarTypes';
 import type { DayInfo } from './model/calendarTypes';
 import { cn } from '../../../utils/cn';
 
@@ -57,20 +56,21 @@ export function CalendarDayCell({
         ${day.isWeekend && day.inMonth ? 'bg-surface-secondary-soft' : ''}`)}>
       <div className={cn("flex items-center justify-between px-1 pt-0.5")}
         style={{ height: DAY_HEADER_HEIGHT }}>
-        <span className={cn(`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full
-          ${dayNumberStyle(isToday, day.inMonth)}`)}>
-          {format(day.date, 'd')}
-        </span>
         <button type="button" onClick={onQuickCreate}
           onPointerDown={e => e.stopPropagation()}
           aria-label={`Add page on ${format(day.date, 'MMMM d, yyyy')}`}
           className={cn(`p-0.5 text-ink-disabled hover:text-hover-text-muted hover:bg-hover-surface2
-            rounded opacity-0 group-hover/day:opacity-100 transition-opacity`)}>
+            rounded opacity-0 group-hover/day:opacity-100 focus-visible:opacity-100 transition-opacity`)}>
           <Plus className={cn("w-3 h-3")} />
         </button>
+        {/* Notion parity: the number sits top-right; the 1st names its month. */}
+        <span className={cn(`text-xs min-w-6 h-6 px-1.5 flex items-center justify-center rounded-full tabular-nums
+          ${dayNumberStyle(isToday, day.inMonth)}`)}>
+          {format(day.date, day.date.getDate() === 1 ? 'MMM d' : 'd')}
+        </span>
       </div>
       {/* Lane space: bars paint here from the overlay; this keeps cell height. */}
-      <div data-cal-day-body style={{ height: Math.min(laneCount, MAX_VISIBLE_LANES) * LANE_HEIGHT }} />
+      <div data-cal-day-body style={{ height: laneCount * LANE_HEIGHT }} />
       {overflowCount > 0 && (
         <button type="button"
           onPointerDown={e => e.stopPropagation()}

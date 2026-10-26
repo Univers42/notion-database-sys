@@ -40,7 +40,7 @@ function focusAtEnd(el: HTMLInputElement | HTMLTextAreaElement | null) {
 // descender gap, growing the row 35→39 px; every row below then shifts and the
 // whole grid repaints on each edit open/commit (1294 paints, ~20 ms measured).
 /** Inline input that buffers locally while the user types; commits on blur or
- *  Enter. `multiline` (text properties) renders a textarea instead: Shift+Enter
+ *  Enter. `multiline` (title and text properties) renders a textarea instead: Shift+Enter
  *  inserts a newline and typing continues in the cell; plain Enter commits. */
 export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, className = '', placeholder = 'Empty', step, multiline = false }: Readonly<{
   type?: string; value: PropertyValue; onChange: (v: PropertyValue) => void; onStop: () => void;
@@ -72,6 +72,9 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
           if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(); tableRef.current?.focus(); }
           if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
         }}
+        // The cell's own frame already shows focus; the host's keyboard ring
+        // drew a second box inside it.
+        data-writing-surface
         className={cn(`block w-full bg-transparent outline-none text-sm resize-none ${className}`)}
         placeholder={placeholder}
       />
@@ -84,9 +87,13 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
       onChange={e => { committed.current = false; setLocal(e.target.value); }}
       onBlur={commit}
       onKeyDown={e => {
-        if (e.key === 'Enter') { commit(); tableRef.current?.focus(); }
+        // preventDefault, as in the textarea path: the page editor around an
+        // inline database skips a claimed Enter, and an unclaimed one moved the
+        // caret into a page paragraph right after the commit.
+        if (e.key === 'Enter') { e.preventDefault(); commit(); tableRef.current?.focus(); }
         if (e.key === 'Escape') { committed.current = true; onStop(); tableRef.current?.focus(); }
       }}
+      data-writing-surface
       className={cn(`block w-full bg-transparent outline-none text-sm ${className}`)}
       placeholder={placeholder}
     />

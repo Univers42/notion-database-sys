@@ -6,25 +6,33 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:54 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 15:30:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 import React, { useState, useCallback } from 'react';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
+import type { DatabaseState } from '../../../store/dbms/hardcoded/storeTypes';
 
-/** CSS custom property carrying a column's live width during a resize drag —
- *  header + cells read `var(<this>, <store width>px)`. Sanitized because
- *  live-mount prop ids come from engine column names, which may contain
- *  characters invalid in a custom-property name. */
-export function colWidthVar(propId: string): string {
-  return `--col-w-${propId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-}
-
-/** Manages column resize interactions via mouse drag with RAF-throttled updates. */
 /** Narrowest a column can be dragged or keyed to. */
 export const MIN_COL_WIDTH = 80;
 
+/** A column nobody has resized yet. The title column carries each row's name,
+ *  so it starts wide enough to read one instead of an ellipsis. */
+export function columnWidth(s: Pick<DatabaseState, 'views' | 'databases'>, viewId: string | null, propId: string) {
+  const v = viewId ? s.views[viewId] : undefined;
+  const stored = v?.settings?.columnWidths?.[propId];
+  if (stored) return stored;
+  return v && s.databases[v.databaseId]?.titlePropertyId === propId ? 280 : 180;
+}
+
+function setCellWidth(cell: HTMLElement, px: string) {
+  cell.style.width = px;
+  cell.style.minWidth = px;
+  cell.style.maxWidth = px;
+}
+
+/** Column resize by mouse drag, one width write per animation frame. */
 export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDivElement | null>) {
   const [resizingCol, setResizingCol] = useState<string | null>(null);
   const storeApi = useStoreApi();
@@ -33,9 +41,19 @@ export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDi
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
-    const s = storeApi.getState();
-    const v = s.views[viewId];
-    const startWidth = v?.settings?.columnWidths?.[propId] || 180;
+    const startWidth = columnWidth(storeApi.getState(), viewId, propId);
+
+    // The drag writes the width onto the column's own cells, found once. It
+    // used to set one CSS custom property on the table container, but a custom
+    // property inherits, so every write restyled every descendant: 67 ms per
+    // frame on 8.4k nodes against 4.6 ms for the column's 85 cells (live
+    // School tracker, 2026-10-26). The store commits once, on mouseup.
+    // Caveat: a row the virtualizer mounts mid-drag shows the old width until mouseup.
+    const cells = [...(tableRef.current?.querySelectorAll<HTMLElement>(`[data-col="${CSS.escape(propId)}"]`) ?? [])];
+    const apply = (width: number) => {
+      const px = `${width}px`;
+      for (const cell of cells) setCellWidth(cell, px);
+    };
 
     let latestWidth = startWidth;
     let rafId = 0;
@@ -45,18 +63,15 @@ export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDi
       if (!rafId) {
         rafId = requestAnimationFrame(() => {
           rafId = 0;
-          // Visual-only during the drag: a store write per frame replaced
-          // state.views each RAF — busting the pages-for-view cache and
-          // re-rendering every windowed row per frame. One CSS var on the
-          // table element moves the whole column instead; the store commits
-          // once, on mouseup.
-          tableRef.current?.style.setProperty(colWidthVar(propId), `${latestWidth}px`);
+          apply(latestWidth);
         });
       }
     };
 
     const handleUp = () => {
       if (rafId) cancelAnimationFrame(rafId);
+      // The commit re-renders the same width; until then the cells must show it.
+      apply(latestWidth);
       setResizingCol(null);
       const store = storeApi.getState();
       const curView = store.views[viewId];
@@ -65,9 +80,6 @@ export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDi
           columnWidths: { ...curView.settings?.columnWidths, [propId]: latestWidth },
         });
       }
-      // The committed width now renders via the var() fallback — drop the drag
-      // var so later width changes (config panel, another view) aren't masked.
-      tableRef.current?.style.removeProperty(colWidthVar(propId));
       document.removeEventListener('mousemove', handleMove);
       document.removeEventListener('mouseup', handleUp);
     };
@@ -85,7 +97,6 @@ export function useColWidth() {
   const storeApi = useStoreApi();
   return useCallback((propId: string) => {
     const s = storeApi.getState();
-    const v = s.activeViewId ? s.views[s.activeViewId] : undefined;
-    return v?.settings?.columnWidths?.[propId] || 180;
+    return columnWidth(s, s.activeViewId, propId);
   }, [storeApi]);
 }

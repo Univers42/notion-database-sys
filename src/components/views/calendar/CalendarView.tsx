@@ -30,6 +30,7 @@ import { useCalendarChips } from './useCalendarChips';
 import { useCalendarDrag } from './useCalendarDrag';
 import { useCalendarEndProp } from './useCalendarEndProp';
 import { useCalendarKeyboard } from './useCalendarKeyboard';
+import { useMonthLaneCapacity } from './useMonthLaneCapacity';
 import { buildMonthGrid, buildWeekGrid, buildDayGrid } from './model/calendarGrid';
 import { resolveCalendarProps, pageToEvent, eventsOnDay } from './model/calendarEvents';
 import { segmentIntoWeeks, packWeekLanes, visibleSegments, overflowByDay } from './model/calendarLanes';
@@ -99,10 +100,13 @@ export function CalendarView() {
     () => packWeekLanes(segmentIntoWeeks(events, grid), events),
     [events, grid],
   );
-  const bars = useMemo(() => visibleSegments(packed, MAX_VISIBLE_LANES), [packed]);
+  const rowsRef = useRef<HTMLDivElement>(null);
+  const monthLanes = useMonthLaneCapacity(rowsRef, mode === 'month' ? grid.weeks.length : 0);
+  const maxLanes = mode === 'month' ? monthLanes : MAX_VISIBLE_LANES;
+  const bars = useMemo(() => visibleSegments(packed, maxLanes), [packed, maxLanes]);
   const overflow = useMemo(
-    () => overflowByDay(packed, grid, MAX_VISIBLE_LANES),
-    [packed, grid],
+    () => overflowByDay(packed, grid, maxLanes),
+    [packed, grid, maxLanes],
   );
 
   const chipData = useCalendarChips(
@@ -177,7 +181,7 @@ export function CalendarView() {
         onToday={() => setAnchor(new Date())}
         onModeChange={next => updateViewSettings(view.id, { calendarMode: next })} />
       {mode === 'month' && (
-        <CalendarMonthGrid grid={grid}
+        <CalendarMonthGrid grid={grid} rowsRef={rowsRef} maxLanes={maxLanes} stretchRows
           showWeekNumbers={!!settings.showWeekNumbers}
           wrapTitles={!!settings.wrapPageTitles}
           segments={bars} chipData={chipData} ghosts={ghosts} overflow={overflow}

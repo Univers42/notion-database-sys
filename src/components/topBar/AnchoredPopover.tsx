@@ -1,0 +1,83 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   AnchoredPopover.tsx                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/26 14:00:00 by dlesieur          #+#    #+#             */
+/*   Updated: 2026/10/26 14:00:00 by dlesieur         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { anchoredPanelFrame, Z, type AnchoredFrame } from '../../utils/geometry';
+import { cn } from '../../utils/cn';
+
+// A toolbar panel (View settings, Sort) belongs to ONE database, so it opens
+// as a popover pinned to the button that opened it, not docked to the app's
+// edge. It follows the button on scroll/resize; it is not draggable. Portaled
+// to body because it is placed with window coordinates: in place, a host pane
+// (`contain: paint`) or layout cell (`transform`) became its containing block,
+// shifting it by that box's offset and clipping it to that box, so next to a
+// full-width database it ended up off the pane and out of sight.
+export function AnchoredPopover({ anchorRef, label, width, onClose, children }: Readonly<{
+  anchorRef: React.RefObject<HTMLElement | null>;
+  label: string;
+  width: number;
+  onClose: () => void;
+  children: React.ReactNode;
+}>) {
+  const panelRef = useRef<HTMLDialogElement>(null);
+  const [frame, setFrame] = useState<AnchoredFrame | null>(null);
+  // Callers pass an inline closure; keyed on it, the open/close effect below
+  // would re-run (and refocus the button) on every parent render.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  const place = useCallback(() => {
+    const anchor = anchorRef.current;
+    if (!anchor) return;
+    setFrame(anchoredPanelFrame(anchor.getBoundingClientRect(), width,
+      { width: window.innerWidth, height: window.innerHeight }));
+  }, [anchorRef, width]);
+
+  useLayoutEffect(() => {
+    place();
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+    };
+  }, [place]);
+
+  useEffect(() => {
+    const anchor = anchorRef.current;
+    panelRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCloseRef.current(); };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      anchor?.focus();
+    };
+  }, [anchorRef]);
+
+  return createPortal(
+    <>
+      <button type="button" tabIndex={-1} aria-label={`Close ${label.toLowerCase()}`} onClick={onClose}
+        className={cn("fixed inset-0 appearance-none border-0 bg-transparent p-0 cursor-default")}
+        style={{ zIndex: Z.DROPDOWN }} />
+      <dialog open ref={panelRef} tabIndex={-1} aria-label={label}
+        className={cn("fixed m-0 p-0 overflow-y-auto overflow-x-hidden bg-surface-primary border border-line rounded-xl shadow-xl outline-none")}
+        style={{ zIndex: Z.DROPDOWN + 1, width, left: frame?.left ?? 0, top: frame?.top,
+          bottom: frame?.bottom, maxHeight: frame?.maxHeight, visibility: frame ? 'visible' : 'hidden' }}
+        onClick={e => e.stopPropagation()}
+        onKeyDown={e => { if (e.key === 'Escape') onClose(); e.stopPropagation(); }}>{/* NOSONAR */}
+        {children}
+      </dialog>
+    </>,
+    document.body,
+  );
+}

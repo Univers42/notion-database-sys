@@ -15,6 +15,7 @@ import { Plus } from 'lucide-react';
 import type { Page } from '../../../types/database';
 import type { TimelineConfig } from './TimelineViewHelpers';
 import { LEFT_PANEL_WIDTH } from './timelineTypes';
+import { PropIcon } from '../../../constants/propertyIcons';
 import { cn } from '../../../utils/cn';
 
 interface TimelineLeftPanelProps {
@@ -25,20 +26,24 @@ interface TimelineLeftPanelProps {
   readonly openPage: (pageId: string) => void;
   readonly setHoverRow: (id: string | null) => void;
   readonly onAddPage: () => void;
+  /** The title property's name — the panel's column header. */
+  readonly titleLabel: string;
 }
 
 export function TimelineLeftPanel({
   displayedPages, config, hoverRow,
-  getPageTitle, openPage, setHoverRow, onAddPage,
+  getPageTitle, openPage, setHoverRow, onAddPage, titleLabel,
 }: TimelineLeftPanelProps) {
   return (
     <div
-      className={cn("border-r border-line shrink-0 flex flex-col bg-surface-secondary")}
+      className={cn("border-r border-line shrink-0 flex flex-col bg-surface-primary")}
       style={{ width: LEFT_PANEL_WIDTH }}
     >
-      <div className={cn("h-[52px] border-b border-line flex items-end px-3 pb-2")}>
-        <span className={cn("font-medium text-xs text-ink-secondary uppercase tracking-wider")}>
-          Pages
+      {/* 51px = the chart header: 24px months + 26px days + its 1px border. */}
+      <div className={cn("h-[51px] border-b border-line flex items-end px-3 pb-2")}>
+        <span className={cn("flex items-center gap-1.5 text-xs text-ink-muted")}>
+          <PropIcon type="title" className={cn("w-3.5 h-3.5")} />
+          {titleLabel}
         </span>
       </div>
 
@@ -49,7 +54,7 @@ export function TimelineLeftPanel({
             <button
               type="button"
               key={page.id}
-              className={cn(`flex items-center px-3 text-sm border-b border-line-light
+              className={cn(`flex w-full items-center px-3 text-sm border-b border-line-light
                           cursor-pointer transition-colors text-left ${
                 hoverRow === page.id ? 'bg-hover-surface2' : 'hover:bg-hover-surface-soft'
               }`)}

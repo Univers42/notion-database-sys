@@ -24,5 +24,12 @@ export const WEEK_GUTTER_WIDTH = 28;
 export const HOUR_HEIGHT = 48;
 /** Height of the all-day band lane in the time grid (px). */
 export const ALLDAY_LANE_HEIGHT = 22;
+/** Event lanes a month row of `rowHeight` px shows above its "+N more"
+ *  line — never fewer than `minLanes`, so a short pane still scrolls. */
+export function lanesThatFit(rowHeight: number, minLanes: number): number {
+  const fit = Math.floor((rowHeight - DAY_HEADER_HEIGHT - OVERFLOW_HEIGHT) / LANE_HEIGHT);
+  return Number.isFinite(fit) ? Math.max(minLanes, fit) : minLanes;
+}
+
 /** Default agenda window (days ahead). */
 export const AGENDA_DAYS = 45;

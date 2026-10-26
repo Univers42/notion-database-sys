@@ -17,6 +17,7 @@ import { Plus } from 'lucide-react';
 import { getColumnWidth, BoardCard } from './BoardCardHelpers';
 import { VirtualCardList } from './VirtualCardList';
 import { cn } from '../../../utils/cn';
+import { getDotColor } from '../../../utils/color';
 import { useDashboardFilters } from '../../../hooks/useDashboardFilters';
 import { applyGlobalFilters } from '../../../hooks/useViewPages';
 import { resolvePageSize } from '../../../hooks/useViewPager';
@@ -179,20 +180,23 @@ export function BoardView() {
             onDragOver={e => handleDragOver(e, group.groupId)}
             onDragLeave={handleDragLeave}>
 
-            {/* Column Header */}
-            <div className={cn("flex items-center justify-between mb-3 px-2")}>
-              <div className={cn("flex items-center gap-2")}>
-                <span className={cn(`px-2.5 py-1 rounded-md text-xs font-semibold ${group.groupColor}`)}>
-                  {group.groupLabel}
-                </span>
-                <span className={cn("text-xs text-ink-muted font-medium tabular-nums")}>{group.pages.length}</span>
+            {/* The group's own colour is the lane's identity: a dot and a rule,
+                not a filled pill competing with the chips on every card. */}
+            <div className={cn("mb-3 px-1.5")}>
+              <div className={cn("flex items-center justify-between gap-2 pb-2")}>
+                <div className={cn("flex items-center gap-2 min-w-0")}>
+                  <span className={cn(`w-2 h-2 rounded-full shrink-0 ${getDotColor(group.groupColor)}`)} aria-hidden="true" />
+                  <span className={cn("text-[13px] font-semibold text-ink truncate")}>{group.groupLabel}</span>
+                  <span className={cn("text-xs text-ink-muted tabular-nums")}>{group.pages.length}</span>
+                </div>
+                <button
+                  onClick={() => addToGroup(group.groupId)}
+                  aria-label={`Add card to ${group.groupLabel}`}
+                  className={cn("p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors")}>
+                  <Plus className={cn("w-4 h-4")} />
+                </button>
               </div>
-              <button
-                onClick={() => addToGroup(group.groupId)}
-                aria-label={`Add card to ${group.groupLabel}`}
-                className={cn("p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors")}>
-                <Plus className={cn("w-4 h-4")} />
-              </button>
+              <div className={cn(`h-0.5 rounded-full opacity-70 ${getDotColor(group.groupColor)}`)} aria-hidden="true" />
             </div>
 
             {/* Cards */}

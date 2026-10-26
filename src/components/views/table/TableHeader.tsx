@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:38:48 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 15:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ import {
 } from 'lucide-react';
 import * as Popover from '@radix-ui/react-popover';
 import { AddPropertyPanel, ADD_PANEL_WIDTH, SENTIMENT_OPTIONS } from './AddPropertyPanel';
-import { colWidthVar, MIN_COL_WIDTH } from './useColumnResize';
+import { MIN_COL_WIDTH } from './useColumnResize';
+import { anchoredPanelFrame, type AnchoredFrame } from '../../../utils/geometry';
 import { cn } from '../../../utils/cn';
 
 interface TableHeaderProps {
@@ -54,24 +55,17 @@ export function TableHeader({
 }: Readonly<TableHeaderProps>) {
   const storeApi = useStoreApi();
   const { addProperty, togglePropertyVisibility, hideAllProperties } = storeApi.getState();
-  const [addPanel, setAddPanel] = React.useState<{ top: number; left: number; width: number } | null>(null);
+  const [addPanel, setAddPanel] = React.useState<AnchoredFrame | null>(null);
   const addBtnRef = React.useRef<HTMLButtonElement>(null);
 
+  // Notion parity: the panel hangs under the + itself, extending right into
+  // the free space past the last column; near the window's right edge it
+  // aligns its right edge with the + instead.
   const openAddPanel = () => {
     const btn = addBtnRef.current;
     if (!btn) return;
-    const bRect = btn.getBoundingClientRect();
-    const tRect = btn.closest('table')?.getBoundingClientRect() ?? bRect;
-    // Floats LEFT of the table, over the page margin/sidebar — never over the
-    // columns being edited. When that gap is narrower than the preferred
-    // width the panel SHRINKS to fit (down to 280px) instead of sliding
-    // right over the table; only a margin under ~300px overlaps at all.
-    const width = Math.min(ADD_PANEL_WIDTH, Math.max(280, tRect.left - 20));
-    setAddPanel({
-      top: bRect.bottom + 4,
-      left: Math.max(8, tRect.left - width - 12),
-      width,
-    });
+    setAddPanel(anchoredPanelFrame(btn.getBoundingClientRect(), ADD_PANEL_WIDTH,
+      { width: window.innerWidth, height: window.innerHeight }, 'start'));
   };
 
   const handleAddProperty = (label: string, type: PropertyType) => {
@@ -107,16 +101,14 @@ export function TableHeader({
   return (
     <thead className={cn("sticky top-0 z-30")}>
       <tr className={cn("bg-surface-secondary [&>th]:border-b [&>th]:border-line")}>
-        <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>
-          {showRowNumbers ? '#' : ''}
-        </th>
+        {showRowNumbers && (
+          <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>#</th>
+        )}
         {visibleProps.map(prop => {
-          // var() first: a resize drag moves the column per frame through one
-          // CSS custom property on the table element (no store write per RAF);
-          // the store-backed width is the resting fallback. See useColumnResize.
-          const width = `var(${colWidthVar(prop.id)}, ${getColWidth(prop.id)}px)`;
+          // A resize drag rewrites this width in place through data-col (useColumnResize).
+          const width = `${getColWidth(prop.id)}px`;
           return (
-          <th key={prop.id}
+          <th key={prop.id} data-col={prop.id}
             className={cn(`px-3 py-2 text-xs font-medium text-ink-secondary ${showVerticalLines ? 'border-r' : ''} border-line bg-surface-secondary group relative select-none transition-opacity ${dragColId === prop.id ? 'opacity-40' : ''}`)}
             style={{ width, minWidth: width, maxWidth: width, cursor: CURSORS.grab }}
             draggable
@@ -159,7 +151,7 @@ export function TableHeader({
                 if (!step) return;
                 e.preventDefault();
                 const current = storeApi.getState().views[viewId]?.settings?.columnWidths;
-                const width = Math.min(600, Math.max(MIN_COL_WIDTH, (current?.[prop.id] || 180) + step));
+                const width = Math.min(600, Math.max(MIN_COL_WIDTH, getColWidth(prop.id) + step));
                 storeApi.getState().updateViewSettings(viewId, { columnWidths: { ...current, [prop.id]: width } });
               }}
               aria-valuenow={Math.min(600, Math.max(MIN_COL_WIDTH, Math.round(getColWidth(prop.id))))}
@@ -175,8 +167,8 @@ export function TableHeader({
             <>
               <button type="button" className={cn("fixed inset-0 z-40 appearance-none border-0 bg-transparent p-0 cursor-default")} onPointerDown={() => setAddPanel(null)} tabIndex={-1} aria-label="Close" />
               <div data-testid="add-property-panel" role="dialog" aria-label="Select type"
-                className={cn("fixed z-50 bg-surface-primary rounded-xl shadow-xl border border-line")}
-                style={{ top: addPanel.top, left: addPanel.left, width: addPanel.width, maxHeight: Math.max(160, window.innerHeight - addPanel.top - 12) }}
+                className={cn("odb-pop-in fixed z-50 flex flex-col bg-surface-primary rounded-[10px] shadow-xl border border-line overflow-hidden")}
+                style={{ top: addPanel.top, bottom: addPanel.bottom, left: addPanel.left, width: ADD_PANEL_WIDTH, maxHeight: addPanel.maxHeight }}
                 onKeyDown={e => { if (e.key === 'Escape') setAddPanel(null); }}>
                 <AddPropertyPanel onPick={handleAddProperty} onPickSentiment={handleAddSentiment} />
               </div>
@@ -184,7 +176,10 @@ export function TableHeader({
             document.body,
           )}
         </th>
-        <th className={cn("w-10 px-2 py-2 text-center bg-surface-secondary")}>
+        {/* w-full: this last column takes the table's slack. Without it the
+            min-w-full table stretched the property columns past their set
+            widths, so a resize edge lagged the pointer (+24 px for +80 px). */}
+        <th className={cn("w-full px-2 py-2 text-left bg-surface-secondary")}>
           <Popover.Root>
             <Popover.Trigger asChild>
               <button aria-label="Column options" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><MoreHorizontal className={cn("w-4 h-4")} /></button>

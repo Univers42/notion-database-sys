@@ -45,6 +45,11 @@ export function CellPortal({ onClose, minWidth = 280, maxWidth, maxHeight = '70v
     return () => document.removeEventListener('keydown', onKey, true);
   }, [onClose, rect]);
 
+  // Anchored at the cell's left edge, but never past the window's right edge:
+  // a card in the last gallery column opened its 320px menu off-screen.
+  const width = rect ? Math.min(Math.max(rect.width, minWidth), maxWidth ?? Infinity) : 0;
+  const left = rect ? Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)) : 0;
+
   return (
     <>
       <div ref={measureRef} className={cn("w-full h-0")} />
@@ -54,7 +59,7 @@ export function CellPortal({ onClose, minWidth = 280, maxWidth, maxHeight = '70v
           <dialog // NOSONAR - dialog requires event handlers for propagation control
             open
             className={cn("odb-pop-in fixed bg-surface-primary shadow-xl border border-line rounded-lg overflow-hidden", className)}
-            style={{ top: rect.bottom + 2, left: rect.left, width: Math.max(rect.width, minWidth), maxWidth, maxHeight, zIndex: Z.CELL_EDITOR }}
+            style={{ top: rect.bottom + 2, left, width, maxHeight, zIndex: Z.CELL_EDITOR }}
             onClick={e => e.stopPropagation()}
             onKeyDown={e => { if (e.key === 'Escape') onClose(); }}>
             {children}

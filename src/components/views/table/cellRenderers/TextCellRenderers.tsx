@@ -34,7 +34,7 @@ export function renderTitleOrText(p: CellRendererProps): React.ReactNode {
   if (isEditing) {
     return (
       <InlineInput value={p.editSeed ?? (value || '')} onChange={v => onUpdate(page.id, prop.id, v)} onStop={onStopEditing}
-        tableRef={tableRef} multiline={prop.type === 'text'} />
+        tableRef={tableRef} multiline={prop.type === 'text' || prop.type === 'title'} />
     );
   }
   return (

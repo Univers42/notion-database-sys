@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/26 08:15:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/06/26 08:15:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 15:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ interface SubItemRowsProps {
   getColWidth: (propId: string) => number;
   titlePropId?: string;
   colCount: number;
+  /** The row-number gutter column is rendered. */
+  hasGutter: boolean;
 }
 
 function formatValue(value: unknown): string {
@@ -41,7 +43,7 @@ function formatValue(value: unknown): string {
 }
 
 export function SubItemRows(props: Readonly<SubItemRowsProps>) {
-  const { recordId, visibleProps, getColWidth, titlePropId, colCount } = props;
+  const { recordId, visibleProps, getColWidth, titlePropId, colCount, hasGutter } = props;
   const sub = useSubItems();
   const pages = useDatabaseStore((s) => s.pages);
   if (!sub) return null;
@@ -52,13 +54,13 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
   // hide the title column). `titlePropId` is read for that preference.
   const preferredId = titlePropId ?? visibleProps.find((p) => p.type === 'title')?.id;
   const anchorId = (preferredId && visibleProps.some((p) => p.id === preferredId)) ? preferredId : visibleProps[0]?.id;
-  const spanRest = colCount - 1; // the leading control gutter is always rendered
+  const spanRest = hasGutter ? colCount - 1 : colCount;
 
   return (
     <>
       {loading && rows.length === 0 && (
         <tr>
-          <td className={cn("w-10 border-r border-b border-line bg-surface-secondary-soft2")} />
+          {hasGutter && <td className={cn("w-10 border-r border-b border-line bg-surface-secondary-soft2")} />}
           <td colSpan={spanRest} className={cn("border-b border-line bg-surface-secondary-soft2 py-1.5 pl-10 text-sm text-ink-muted")}>Loading sub-items…</td>
         </tr>
       )}
@@ -66,7 +68,7 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
         const page = row.pageId ? pages[row.pageId] : undefined;
         return (
           <tr key={row.id} className={cn("group/sub cursor-pointer bg-surface-secondary-soft2 hover:bg-hover-surface-soft")} onClick={() => sub.open(row.id)}>
-            <td className={cn("w-10 border-r border-b border-line")} />
+            {hasGutter && <td className={cn("w-10 border-r border-b border-line")} />}
             {visibleProps.map((prop) => {
               const w = getColWidth(prop.id);
               const style = { width: w, minWidth: w, maxWidth: w };
@@ -74,7 +76,7 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
               const pageVal = page ? formatValue(page.properties[prop.id]) : '';
               const text = isAnchor ? (pageVal || row.title || 'Untitled') : pageVal;
               return (
-                <td key={prop.id} style={style} className={cn("overflow-hidden border-r border-b border-line px-3 py-1.5 align-middle")}>
+                <td key={prop.id} data-col={prop.id} style={style} className={cn("overflow-hidden border-r border-b border-line px-3 py-1.5 align-middle")}>
                   <div className={cn("flex items-center gap-1.5 text-sm", isAnchor ? "pl-6 text-ink" : "text-ink-muted")}>
                     {isAnchor && <CornerDownRight className={cn("h-3 w-3 shrink-0 text-ink-muted")} />}
                     <span className={cn("truncate", isAnchor && "font-medium")}>{text}</span>
@@ -88,7 +90,7 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
         );
       })}
       <tr className={cn("cursor-pointer hover:bg-hover-surface-accent3")} onClick={() => sub.create(recordId)}>
-        <td className={cn("w-10 border-r border-b border-line")} />
+        {hasGutter && <td className={cn("w-10 border-r border-b border-line")} />}
         <td colSpan={spanRest} className={cn("border-b border-line py-1.5")}>
           <div className={cn("flex items-center gap-1.5 pl-9 text-sm text-ink-muted hover:text-hover-text")}>
             <Plus className={cn("h-3.5 w-3.5")} /> New sub-item

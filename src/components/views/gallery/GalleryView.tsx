@@ -14,10 +14,11 @@ import React from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import { Plus, Image, MoreHorizontal, ArrowUpRight } from 'lucide-react';
+import { Plus, Image } from 'lucide-react';
 import type { Page, Block } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
-import { renderPropertyValue, coverColors } from './GalleryViewHelpers';
+import { CARD_COVER_GRADIENTS as coverColors } from '../../../utils/color';
+import { CardBody } from '../shared/CardBody';
 import { cn } from '../../../utils/cn';
 import { useViewPages } from '../../../hooks/useViewPages';
 import { useViewPager } from '../../../hooks/useViewPager';
@@ -82,11 +83,6 @@ export function GalleryView() {
   const renderCover = (page: Page, idx: number) => {
     const coverColor = coverColors[idx % coverColors.length];
 
-    if (cardPreview === 'none') {
-      // No cover area at all
-      return null;
-    }
-
     if (cardPreview === 'page_cover') {
       // Show page cover image, icon, or colored placeholder
       return (
@@ -107,10 +103,6 @@ export function GalleryView() {
             }
             return <Image className={cn("w-8 h-8 text-ink-disabled")} />;
           })()}
-          <span className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
-            aria-hidden="true">
-            <MoreHorizontal className={cn("w-4 h-4")} />
-          </span>
         </div>
       );
     }
@@ -122,37 +114,12 @@ export function GalleryView() {
         <div className={cn(`${coverHeight} ${coverColor} relative p-3 overflow-hidden`)}>
           <p className={cn("text-xs text-ink-secondary leading-relaxed line-clamp-5")}>{textContent || 'No content'}</p>
           <div className={cn("absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gradient-fade-from to-transparent")} />
-          <button aria-label="Card options" className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
-            onClick={(e) => { e.stopPropagation(); }}>
-            <MoreHorizontal className={cn("w-4 h-4")} />
-          </button>
         </div>
       );
     }
 
-    if (cardPreview === 'page_properties') {
-      // Show a compact property overview in the cover area
-      return (
-        <div className={cn(`${coverHeight} bg-surface-secondary relative p-3 overflow-hidden flex flex-col gap-1.5`)}>
-          {nonTitleProps.slice(0, 6).map(prop => {
-            const val = page.properties[prop.id];
-            const rendered = renderPropertyValue(prop, val, wrapContent);
-            if (!rendered) return null;
-            return (
-              <div key={prop.id} className={cn("flex items-center gap-2")}>
-                <span className={cn("text-[10px] uppercase text-ink-muted tracking-wide shrink-0 w-14 truncate")}>{prop.name}</span>
-                {rendered}
-              </div>
-            );
-          })}
-          <button aria-label="Card options" className={cn("absolute top-2 right-2 p-1 rounded bg-overlay-medium text-ink-muted hover:text-hover-text opacity-0 group-hover:opacity-100 transition-opacity shadow-sm")}
-            onClick={(e) => { e.stopPropagation(); }}>
-            <MoreHorizontal className={cn("w-4 h-4")} />
-          </button>
-        </div>
-      );
-    }
-
+    // 'none' and the legacy 'page_properties': properties live in the card
+    // body, as on the board.
     return null;
   };
 
@@ -161,45 +128,20 @@ export function GalleryView() {
 
           const accent = colorForPage(page, settings.conditionalColors, database.properties, getCellValue)?.accent ?? null;
           return (
-            <button type="button" key={page.id} onClick={() => openPage(page.id)}
+            <div key={page.id}
               style={{
                 cursor: CURSORS.pointer,
                 ...(accent ? { boxShadow: `inset 0 3px 0 0 ${accent}` } : {}),
                 ...(isCarousel ? { width: carouselWidth, scrollSnapAlign: "start" } : {}),
               }}
-              className={cn("group border border-line rounded-xl overflow-hidden hover:shadow-lg hover:border-hover-border transition-all duration-200 bg-surface-primary text-left", isCarousel ? "shrink-0" : "w-full")}>
+              className={cn("relative group/card border border-line-light rounded-[10px] shadow-sm overflow-hidden hover:shadow-md hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] bg-surface-primary text-left", isCarousel ? "shrink-0" : "w-full")}>
               {/* Cover / Preview */}
               {renderCover(page, idx)}
 
-              {/* Content */}
-              <div className={cn("p-3")}>
-                <div className={cn("flex items-center gap-1.5 mb-1.5")}>
-                  {showPageIcon && page.icon && <span className={cn("text-sm")}>{page.icon}</span>}
-                  <span className={cn(`font-semibold text-sm text-ink ${wrapContent ? 'break-words' : 'truncate'} flex-1 min-w-0`)}>{title || <span className={cn("text-ink-muted")}>Untitled</span>}</span>
-                  <span
-                    className={cn("shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity")}
-                    aria-hidden="true">
-                    <ArrowUpRight className={cn("w-3 h-3")} /> Open
-                  </span>
-                </div>
-                {/* Only show property rows when preview is NOT page_properties (avoid duplication) */}
-                {cardPreview !== 'page_properties' && nonTitleProps.length > 0 && (
-                  <div className={cn("flex flex-col gap-1.5 mt-2")}>
-                    {nonTitleProps.slice(0, 4).map(prop => {
-                      const val = page.properties[prop.id];
-                      const rendered = renderPropertyValue(prop, val, wrapContent);
-                      if (!rendered) return null;
-                      return (
-                        <div key={prop.id} className={cn("flex items-center gap-2")}>
-                          <span className={cn("text-[10px] uppercase text-ink-muted tracking-wide shrink-0 w-16 truncate")}>{prop.name}</span>
-                          {rendered}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </button>
+              <CardBody page={page} title={title} icon={showPageIcon ? page.icon : undefined} props={nonTitleProps}
+                databaseId={database.id} wrap={wrapContent} className="p-3" titleClass="text-sm"
+                onOpen={() => openPage(page.id)} />
+            </div>
           );
   };
 
@@ -211,13 +153,12 @@ export function GalleryView() {
         style={isCarousel ? { scrollSnapType: "x proximity" } : undefined}
       >
         {list.map((page, idx) => renderCard(page, idx))}
-        {/* Add card — a short Notion-style bar, not a full-height ghost card
-            (self-start opts out of the grid row's stretch alignment). */}
+        {/* Add card — Notion's full-height tile: it stretches with its grid row. */}
         <button type="button" data-testid="gallery-new-page"
           onClick={groupValue === undefined
             ? createRecord
             : () => { if (view.grouping) addPage(database.id, { [view.grouping.propertyId]: groupValue }); }}
-          className={cn("self-start h-10 border-2 border-dashed border-line rounded-xl flex items-center justify-center hover:border-hover-border-strong hover:bg-hover-surface transition-all duration-200", isCarousel ? "shrink-0" : "w-full")}
+          className={cn("min-h-24 border border-line-light rounded-[10px] flex items-center justify-center hover:bg-hover-surface transition-colors", isCarousel ? "shrink-0" : "w-full")}
           style={{ cursor: CURSORS.pointer, ...(isCarousel ? { width: carouselWidth } : {}) }}>
           <div className={cn("flex items-center gap-1.5 text-ink-muted")}>
             <Plus className={cn("w-4 h-4")} />

@@ -10,14 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import React from 'react';
-import { Image, ArrowUpRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Image } from 'lucide-react';
 import { CURSORS } from '../../ui/cursors';
-import { PropIcon } from '../../../constants/propertyIcons';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { CARD_COVER_GRADIENTS as COVER_COLORS } from '../../../utils/color';
 import { cn } from '../../../utils/cn';
-import { CardPropertyValue, hasCardValue } from '../shared/CardPropertyValue';
+import { CardBody } from '../shared/CardBody';
 
 /** Card-size axis: column width + cover height + body density scale together. */
 const CARD_SIZES = {
@@ -98,49 +97,27 @@ interface BoardCardProps {
   accent?: string | null;
 }
 
-/** Draggable board card: optional cover/preview strip, title row, then one
- *  labeled row per visible property — every type renders, none throw. */
+/** Draggable board card: optional cover/preview strip above the shared card
+ *  body — every property type renders, none throw. */
 export function BoardCard({
   page, pageIdx, cardPreview, cardSize, wrapContent, databaseId,
   nonTitleGroupProps, openPage, getPageTitle, onDragStart, accent,
 }: Readonly<BoardCardProps>) {
-  const title = getPageTitle(page);
   const size = sizeCfg(cardSize);
   const coverColor = COVER_COLORS[pageIdx % COVER_COLORS.length];
-  const shownProps = nonTitleGroupProps.filter(p => hasCardValue(p, page.properties[p.id]));
+  const [editing, setEditing] = useState(false);
 
+  // A div, not a button: the card holds its own value buttons. CardBody's
+  // title button stretches over the card to open the page.
   return (
-    <button type="button" draggable
+    <div draggable={!editing}
       onDragStart={e => onDragStart(e, page.id)}
-      onClick={() => openPage(page.id)}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPage(page.id); } }}
       style={{ cursor: CURSORS.grab, ...(accent ? { boxShadow: `inset 3px 0 0 0 ${accent}` } : {}) }}
-      className={cn('bg-surface-primary w-full min-w-0 rounded-xl shadow-sm border border-line overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-md hover:border-hover-border focus-visible:ring-2 focus-visible:ring-ring-accent-muted transition-all group/card text-left')}>
+      className={cn('relative bg-surface-primary w-full min-w-0 rounded-[10px] border border-line-light shadow-sm overflow-hidden flex flex-col active:cursor-grabbing hover:shadow-md hover:border-hover-border focus-within:border-hover-border transition-[box-shadow,border-color] group/card text-left')}>
       <BoardCardPreview cardPreview={cardPreview} coverColor={coverColor} page={page} size={size} />
-      <div className={cn(`${size.pad} flex flex-col gap-1.5 min-w-0`)}>
-        <div className={cn('flex items-start gap-1')}>
-          <div className={cn(`font-medium ${size.title} text-ink flex-1 min-w-0 leading-snug ${wrapContent ? 'break-words' : 'truncate'}`)}>
-            {page.icon && <span className={cn('mr-1')}>{page.icon}</span>}
-            {title || <span className={cn('text-ink-muted')}>Untitled</span>}
-          </div>
-          <span
-            className={cn('shrink-0 flex items-center gap-0.5 text-[10px] font-medium text-accent-text-soft bg-accent-soft px-1 py-0.5 rounded opacity-0 group-hover/card:opacity-100 transition-opacity')}
-            aria-hidden="true">
-            <ArrowUpRight className={cn('w-2.5 h-2.5')} /> Open
-          </span>
-        </div>
-        {shownProps.length > 0 && (
-          <div className={cn('flex flex-col gap-1 min-w-0')} data-testid="board-card-props">
-            {shownProps.map(prop => (
-              <div key={prop.id} title={prop.name} className={cn('flex items-center gap-1.5 min-w-0')}>
-                <PropIcon type={prop.type} className={cn('w-3 h-3 shrink-0 text-ink-disabled')} />
-                <CardPropertyValue prop={prop} val={page.properties[prop.id]} page={page}
-                  databaseId={databaseId} wrap={wrapContent} />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </button>
+      <CardBody page={page} title={getPageTitle(page)} icon={page.icon} props={nonTitleGroupProps}
+        databaseId={databaseId} wrap={wrapContent} className={size.pad} titleClass={size.title}
+        onOpen={() => openPage(page.id)} onEditingChange={setEditing} />
+    </div>
   );
 }

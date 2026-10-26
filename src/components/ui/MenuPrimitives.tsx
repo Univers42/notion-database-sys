@@ -131,7 +131,7 @@ export function SettingsRow({ icon, label, value, showChevron, onClick, slots = 
       className={cn('w-full flex rounded-md transition-colors text-ink-strong hover:bg-hover-surface-soft3', slots.root)}
       style={{ fill: 'currentColor' }}
     >
-      <div className={cn('flex items-center gap-0 w-full px-2 py-[6px]', slots.inner)}>
+      <div className={cn('flex items-center gap-0 w-full px-2 py-1', slots.inner)}>
         {/* Left icon */}
         <span className={cn('flex items-center justify-center shrink-0 w-5 h-5 text-ink-secondary', slots.icon)}>
           {icon}

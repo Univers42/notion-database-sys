@@ -8,6 +8,7 @@
 
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { observeCurrentElementOffset } from '../../../lib/virtualScroll';
 import type { Page } from '../../../types/database';
 import { cn } from '../../../utils/cn';
 
@@ -44,6 +45,7 @@ export function VirtualCardList({ pages, scrollElement, cardSize, renderCard }: 
     gap: CARD_GAP_PX,
     scrollMargin,
     getItemKey: index => pages[index].id,
+    observeElementOffset: observeCurrentElementOffset,
   });
 
   return (
