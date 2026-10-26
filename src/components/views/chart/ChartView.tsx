@@ -159,8 +159,9 @@ export function ChartView() {
 
   return (
     <div ref={containerRef} className={cn("relative flex-1 flex flex-col min-h-0")}>
+      {/* A widget already names its source; only a truncated read is worth saying there. */}
       {badge && (
-        <div className={cn("absolute top-2 right-4 z-10 text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-ink-muted border border-line select-none")}>
+        <div className={cn("absolute top-2 right-4 z-10 text-[10px] px-1.5 py-0.5 rounded bg-surface-secondary text-ink-muted border border-line select-none", isServerTruth && "[[data-dash-widget]_&]:hidden")}>
           {badge}
         </div>
       )}
