@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:37:50 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 16:30:13 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/26 15:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,47 @@ function focusRingClass(isFocused: boolean, inFillRange: boolean): string {
   return '';
 }
 
+interface RowControlsProps {
+  pageId: string;
+  canReorder?: boolean;
+  subItems: ReturnType<typeof useSubItems>;
+  expanded: boolean;
+  /** Overlay the first cell (no gutter column) instead of filling the gutter. */
+  floating: boolean;
+  onRowDragStart?: (pageId: string) => void;
+  onRowDragEnd?: () => void;
+}
+
+/** Drag grip + sub-item expand, revealed on row hover. */
+function RowControls({ pageId, canReorder, subItems, expanded, floating, onRowDragStart, onRowDragEnd }: Readonly<RowControlsProps>) {
+  if (!canReorder && !subItems) return null;
+  const place = floating
+    ? 'absolute left-0.5 top-1/2 -translate-y-1/2 z-10 rounded bg-surface-primary shadow-sm'
+    : 'absolute inset-0 justify-center';
+  return (
+    // Its own mousedown must not start a cell selection under it.
+    <div className={cn(`${place} flex items-center gap-0.5 opacity-0 group-hover:opacity-100`)}
+      onMouseDown={e => e.stopPropagation()}>
+      {canReorder && (
+        <button type="button" aria-label="Drag to reorder record" title="Drag to reorder"
+          draggable tabIndex={-1}
+          className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
+          onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; onRowDragStart?.(pageId); }}
+          onDragEnd={e => { e.stopPropagation(); onRowDragEnd?.(); }}>
+          <GripHandleIcon className={cn("w-[10px] h-[14px]")} />
+        </button>
+      )}
+      {subItems && (
+        <button type="button" aria-label={expanded ? "Collapse sub-items" : "Expand sub-items"}
+          className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
+          onClick={e => { e.stopPropagation(); subItems.toggle(pageId); }}>
+          <ChevronRight className={cn(`w-3 h-3 transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`)} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 /** Memoized table row that only re-renders when its own data changes. */
 export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRowProps) {
   const {
@@ -96,6 +137,10 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const subItems = useSubItems();
   const expanded = subItems?.isExpanded(page.id) ?? false;
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
+  const controls = (
+    <RowControls pageId={page.id} canReorder={props.canReorder} subItems={subItems} expanded={expanded}
+      floating={!showRowNumbers} onRowDragStart={props.onRowDragStart} onRowDragEnd={props.onRowDragEnd} />
+  );
 
   return (
     <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={props.virtualIndex ?? rowIdx} data-page-id={page.id}
@@ -104,33 +149,15 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
       style={props.tint ? { backgroundColor: props.tint } : undefined}
       onDragOver={props.canReorder ? e => { e.preventDefault(); props.onRowDragOver?.(page.id); } : undefined}
       onDrop={props.canReorder ? e => { e.preventDefault(); props.onRowDrop?.(page.id); } : undefined}>
-      {/* Leading control gutter — ALWAYS rendered (uniform w-10 so the cluster
-          never clips): drag grip + sub-item expand on row hover; the row number
-          only when enabled. Open-as-page lives on the title cell (OPEN pill)
-          and in the row-options menu — not here. */}
-      <td className={cn("w-10 px-1 py-1.5 border-r border-b border-line text-center align-middle relative")}>
-        {showRowNumbers && (
+      {/* The leading gutter is a real column only with row numbers; otherwise
+          the row controls float over the first cell's left edge on hover, so an
+          empty column never draws a border that group rows interrupt. */}
+      {showRowNumbers && (
+        <td className={cn("w-10 px-1 py-1.5 border-r border-b border-line text-center align-middle relative")}>
           <span className={cn("text-xs text-ink-muted tabular-nums group-hover:opacity-0")}>{rowIdx + 1}</span>
-        )}
-        <div className={cn("absolute inset-0 flex items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100")}>
-          {props.canReorder && (
-            <button type="button" aria-label="Drag to reorder record" title="Drag to reorder"
-              draggable tabIndex={-1}
-              className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
-              onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; props.onRowDragStart?.(page.id); }}
-              onDragEnd={e => { e.stopPropagation(); props.onRowDragEnd?.(); }}>
-              <GripHandleIcon className={cn("w-[10px] h-[14px]")} />
-            </button>
-          )}
-          {subItems && (
-            <button type="button" aria-label={expanded ? "Collapse sub-items" : "Expand sub-items"}
-              className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
-              onClick={e => { e.stopPropagation(); subItems.toggle(page.id); }}>
-              <ChevronRight className={cn(`w-3 h-3 transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`)} />
-            </button>
-          )}
-        </div>
-      </td>
+          {controls}
+        </td>
+      )}
 
       {visibleProps.map((prop, colIdx) => {
         const value = page.properties[prop.id];
@@ -169,6 +196,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
             onClick={e => onCellClick(page.id, prop.id, prop.type, value, e.shiftKey)}
             onDoubleClick={() => onCellDoubleClick(page.id, prop.id, prop.type)}>
             {renderCellContent(cellProps)}
+            {colIdx === 0 && !showRowNumbers && !isEditing && controls}
             {isFocused && !isEditing && (
               <button type="button" className={cn("absolute w-[7px] h-[7px] bg-emerald border border-surface-primary rounded-[1px] z-20 p-0 appearance-none outline-none")}
                 style={{ bottom: -3, right: -3, cursor: CURSORS.crosshair }}
