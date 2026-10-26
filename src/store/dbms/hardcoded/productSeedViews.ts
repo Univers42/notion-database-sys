@@ -86,8 +86,8 @@ export const productViews: Record<string, ViewConfig> = {
       widgets: [
         { id: 'w1', type: 'stat', title: 'Total Products', aggregation: 'count', width: 1, height: 1 },
         { id: 'w2', type: 'stat', title: 'Avg Price', propertyId: 'pp-price', aggregation: 'average', width: 1, height: 1 },
-        { id: 'w3', type: 'stat', title: 'Total Revenue', propertyId: 'pp-price', aggregation: 'sum', width: 1, height: 1 },
-        { id: 'w4', type: 'stat', title: 'Featured Count', propertyId: 'pp-featured', aggregation: 'count', width: 1, height: 1 },
+        { id: 'w3', type: 'stat', title: 'Catalog list value', propertyId: 'pp-price', aggregation: 'sum', width: 1, height: 1 },
+        { id: 'w4', type: 'stat', title: 'Featured', propertyId: 'pp-featured', aggregation: 'count', width: 1, height: 1 },
         { id: 'w5', type: 'chart', title: 'Category Distribution', propertyId: 'pp-category', chartStyle: 'stacked_bar', aggregation: 'count', width: 4, height: 1 },
         { id: 'w6', type: 'chart', title: 'By Category', propertyId: 'pp-category', chartStyle: 'donut', aggregation: 'count', width: 2, height: 2 },
         { id: 'w7', type: 'chart', title: 'Shipping Methods', propertyId: 'pp-shipping', chartStyle: 'horizontal_bar', aggregation: 'count', width: 2, height: 2 },
@@ -103,7 +103,7 @@ export const productViews: Record<string, ViewConfig> = {
     visibleProperties: ['pp-name', 'pp-category', 'pp-price', 'pp-cost', 'pp-stock', 'pp-rating', 'pp-shipping', 'pp-condition', 'pp-weight'],
     settings: {
       widgets: [
-        { id: 'wa1', type: 'stat', title: 'Total Revenue', propertyId: 'pp-price', aggregation: 'sum', width: 1, height: 1 },
+        { id: 'wa1', type: 'stat', title: 'Catalog list value', propertyId: 'pp-price', aggregation: 'sum', width: 1, height: 1 },
         { id: 'wa2', type: 'stat', title: 'Avg Cost', propertyId: 'pp-cost', aggregation: 'average', width: 1, height: 1 },
         { id: 'wa3', type: 'stat', title: 'Avg Weight', propertyId: 'pp-weight', aggregation: 'average', width: 1, height: 1 },
         { id: 'wa4', type: 'stat', title: 'Products', aggregation: 'count', width: 1, height: 1 },

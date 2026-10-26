@@ -18,49 +18,14 @@ import type { SchemaProperty } from '../../../types/database';
 import { Hash, TrendingUp, Users, CheckCircle, Clock, BarChart3 } from 'lucide-react';
 import { isThisWeek, parseISO } from 'date-fns';
 import { StatCard, BarChartWidget, NumberSummaryWidget, RecentList } from '.';
-import type { ComputedData } from '.';
+import { aggregatePages, type ComputedData } from './dashboardAggregates';
 import { cn } from '../../../utils/cn';
-
-type AggProperty = { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] };
-
-/** Aggregate number, select, and checkbox stats from all pages. */
-function aggregatePages(
-  pages: { properties: Record<string, unknown> }[],
-  allProps: AggProperty[],
-): Omit<ComputedData, 'recentCount'> {
-  let checked = 0, unchecked = 0;
-  const numberAggs: ComputedData['numberAggs'] = {};
-  const selectCounts: ComputedData['selectCounts'] = {};
-
-  pages.forEach(page => {
-    allProps.forEach(prop => {
-      const val = page.properties[prop.id];
-      if (prop.type === 'checkbox') { if (val) checked++; else unchecked++; }
-      if (prop.type === 'number' && typeof val === 'number') {
-        if (!numberAggs[prop.id]) numberAggs[prop.id] = { sum: 0, count: 0, min: Infinity, max: -Infinity };
-        numberAggs[prop.id].sum += val;
-        numberAggs[prop.id].count++;
-        numberAggs[prop.id].min = Math.min(numberAggs[prop.id].min, val);
-        numberAggs[prop.id].max = Math.max(numberAggs[prop.id].max, val);
-      }
-      if ((prop.type === 'select' || prop.type === 'status') && val) {
-        if (!selectCounts[prop.id]) selectCounts[prop.id] = {};
-        const opt = prop.options?.find(o => o.id === val);
-        const label = opt?.value || (val as string);
-        if (!selectCounts[prop.id][label]) selectCounts[prop.id][label] = { count: 0, color: opt?.color || '', label };
-        selectCounts[prop.id][label].count++;
-      }
-    });
-  });
-
-  return { numberAggs, selectCounts, checked, unchecked };
-}
 
 /** Memoized stats over the current pages (always call — rules of hooks). */
 export function useComputedData(pages: { updatedAt: string; properties: Record<string, unknown> }[], database: { properties: Record<string, { id: string; type: string; name: string; options?: { id: string; value: string; color: string }[] }> } | null): ComputedData {
   const allProps = useMemo(() => database ? Object.values(database.properties) : [], [database]);
   return useMemo(() => {
-    if (!database) return { numberAggs: {}, selectCounts: {}, checked: 0, unchecked: 0, recentCount: 0 };
+    if (!database) return { numberAggs: {}, selectCounts: {}, checkboxCounts: {}, recentCount: 0 };
 
     const recentCount = pages.filter(p => {
       try { return isThisWeek(parseISO(p.updatedAt)); } catch { return false; }
@@ -82,6 +47,7 @@ export function AutoDetectDashboard({ pages, allProps, computedData, openPage, g
   responsive?: boolean;
 }>) {
   const checkboxProps = allProps.filter(p => p.type === 'checkbox');
+  const doneCounts = checkboxProps[0] ? computedData.checkboxCounts[checkboxProps[0].id] : undefined;
   const numberProps = allProps.filter(p => p.type === 'number');
   const selectProps = allProps.filter(p => p.type === 'select' || p.type === 'status');
   const mainSelectProp = [...selectProps].sort((a, b) =>
@@ -99,9 +65,9 @@ export function AutoDetectDashboard({ pages, allProps, computedData, openPage, g
           : "grid grid-cols-2 md:grid-cols-4 gap-4")}>
           <StatCard icon={<Hash className={cn("w-5 h-5")} />} label="Total Records" value={pages.length} color="blue" />
           <StatCard icon={<Clock className={cn("w-5 h-5")} />} label="Updated This Week" value={computedData.recentCount} color="purple" />
-          {checkboxProps.length > 0 ? (
-            <StatCard icon={<CheckCircle className={cn("w-5 h-5")} />} label="Completed" value={computedData.checked}
-              subtext={`${pages.length > 0 ? Math.round((computedData.checked / Math.max(computedData.checked + computedData.unchecked, 1)) * 100) : 0}%`}
+          {doneCounts ? (
+            <StatCard icon={<CheckCircle className={cn("w-5 h-5")} />} label={checkboxProps[0].name} value={doneCounts.checked}
+              subtext={`${pages.length > 0 ? Math.round((doneCounts.checked / pages.length) * 100) : 0}% of ${pages.length}`}
               color="green" />
           ) : (
             <StatCard icon={<Users className={cn("w-5 h-5")} />} label="Properties" value={allProps.length} color="green" />
