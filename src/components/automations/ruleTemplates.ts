@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { AutomationRuleV2, DatabaseSchema, ProgramStep, SchemaProperty } from '../../types/database';
+import type { AutomationRuleV2, DatabaseSchema, ProgramStep, ProgramValue, SchemaProperty } from '../../types/database';
 
 interface TemplateContext {
   newId: () => string;
@@ -37,7 +37,7 @@ function statusCompleteOption(property: SchemaProperty | undefined): string | un
   return property.options?.find((option) => /done/i.test(option.value))?.id ?? property.options?.[property.options.length - 1]?.id;
 }
 
-function setStep(property: string, value: unknown): ProgramStep {
+function setStep(property: string, value: ProgramValue): ProgramStep {
   return { op: 'action', action: { type: 'set_property', property, value } };
 }
 

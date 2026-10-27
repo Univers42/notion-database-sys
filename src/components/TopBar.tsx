@@ -14,6 +14,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDatabaseStore, useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import { ViewSettingsPanel } from './ViewSettingsPanel';
+import { AutomationsSheet } from './automations/AutomationsSheet';
+import { databaseRules } from '../store/slices/pageAutomations';
+import { parseLiveDatabaseId } from '../store/live/liveTypes';
 import { CURSORS } from './ui/cursors';
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
 import { Dropdown } from './topBar/index';
@@ -64,6 +67,7 @@ export function TopBar({
   const [showFilterPropertyPicker, setShowFilterPropertyPicker] = useState(false);
   const [showSortPanel, setShowSortPanel] = useState(false);
   const [showViewSettings, setShowViewSettings] = useState(false);
+  const [showAutomationsSheet, setShowAutomationsSheet] = useState(false);
   // ⚡ opens the same panel pre-navigated to Automations; keyed remount below
   // resets the panel's internal screen state between the two entry points.
   const [settingsScreen, setSettingsScreen] = useState<'automations' | undefined>(undefined);
@@ -80,6 +84,7 @@ export function TopBar({
   const filterBtnRef = useRef<HTMLButtonElement>(null);
   const settingsBtnRef = useRef<HTMLButtonElement>(null);
   const sortBtnRef = useRef<HTMLButtonElement>(null);
+  const automationsBtnRef = useRef<HTMLButtonElement>(null);
 
   const dbViews = database ? orderedDatabaseViews(views, database.id, database.viewOrder) : [];
   const rowCount = useDatabaseStore(s =>
@@ -205,8 +210,15 @@ export function TopBar({
             searchBtnRef={searchBtnRef} showSearch={showSearch} setShowSearch={setShowSearch}
             isFullSize={isFullSize} setIsFullSize={setIsFullSize}
             showViewSettings={showViewSettings} setShowViewSettings={(v) => { setSettingsScreen(undefined); setShowViewSettings(v); }}
-            onOpenAutomations={() => { setSettingsScreen('automations'); setShowViewSettings(true); }}
-            automationsCount={view.settings?.automations?.length ?? 0}
+            onOpenAutomations={() => {
+              if (parseLiveDatabaseId(database.id)) { setSettingsScreen('automations'); setShowViewSettings(true); }
+              else setShowAutomationsSheet(true);
+            }}
+            automationsBtnRef={automationsBtnRef}
+            automationsCount={(() => {
+              if (parseLiveDatabaseId(database.id)) return 0;
+              return databaseRules(storeApi.getState(), database.id).length;
+            })()}
             showExtraActions={showExtraActions} setShowExtraActions={setShowExtraActions}
             showTemplates={showTemplates} setShowTemplates={setShowTemplates} databaseName={database.name}
             onNewPage={() => { const id = addPage(database.id); store.openPage(id); }}
@@ -253,8 +265,12 @@ export function TopBar({
 
       {showViewSettings && (
         <AnchoredPopover anchorRef={settingsBtnRef} label="View settings" width={PANEL_WIDTH.SETTINGS + 2} onClose={() => setShowViewSettings(false)}>
-          <ViewSettingsPanel key={settingsScreen ?? 'main'} initialScreen={settingsScreen} onClose={() => setShowViewSettings(false)} />
+          <ViewSettingsPanel key={settingsScreen ?? 'main'} initialScreen={settingsScreen} onClose={() => setShowViewSettings(false)} onOpenAutomationsSheet={() => { setShowViewSettings(false); setShowAutomationsSheet(true); }} />
         </AnchoredPopover>
+      )}
+
+      {showAutomationsSheet && database && (
+        <AutomationsSheet databaseId={database.id} anchorRef={automationsBtnRef} onClose={() => setShowAutomationsSheet(false)} />
       )}
 
     </>
