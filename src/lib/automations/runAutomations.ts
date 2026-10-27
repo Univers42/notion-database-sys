@@ -21,7 +21,7 @@
  * engine, and how an action is carried out.
  */
 
-import type { AutomationRuleV2 } from '../../types/database';
+import type { AutomationRuleV2, SchemaProperty } from '../../types/database';
 import { DESTRUCTIVE_PAGE_ACTIONS } from '../program/buttonProgram';
 import {
   runButtonProgram,
@@ -46,6 +46,8 @@ export type AutomationOutcome = ActionOutcome & { caused?: AutomationEventV2 };
 
 export interface AutomationHost {
   rules(databaseId: string): readonly AutomationRuleV2[];
+  /** The database's schema, so a select rule matches its option by id or text. */
+  properties?(databaseId: string): Readonly<Record<string, SchemaProperty>>;
   /** The values the program's formulas read for this row. */
   propsOf(event: AutomationEventV2): PropertyMap;
   evaluateFormula(formula: string, props: PropertyMap): unknown;
@@ -111,7 +113,7 @@ export async function runAutomations(event: AutomationEventV2, host: AutomationH
     for (const current of wave) {
       for (const rule of host.rules(current.page.databaseId)) {
         const key = `${rule.id}\u0000${current.page.id}`;
-        if (ran.has(key) || !ruleMatches(rule, current)) continue;
+        if (ran.has(key) || !ruleMatches(rule, current, host.properties?.(current.page.databaseId))) continue;
         ran.add(key);
         runs.push(await runRule(rule, current, depth, host, next));
       }

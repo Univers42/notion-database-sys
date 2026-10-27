@@ -107,6 +107,7 @@ function performAction(set: StoreSet, get: StoreGet, action: ResolvedAction, run
 function storeHost(set: StoreSet, get: StoreGet): AutomationHost {
   return {
     rules: (databaseId) => databaseRules(get(), databaseId),
+    properties: (databaseId) => get().databases[databaseId]?.properties ?? {},
     // Formulas read properties by name, as a formula column does.
     propsOf: (event) => {
       const state = get();
