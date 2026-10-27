@@ -53,6 +53,8 @@ export interface TopBarActionsProps {
   setShowViewSettings: (v: boolean) => void;
   /** Open View settings pre-navigated to the Automations screen. */
   onOpenAutomations: () => void;
+  /** Ref for the ⚡ button, used by the automations sheet to return focus. */
+  automationsBtnRef?: React.RefObject<HTMLButtonElement | null>;
   /** Local-rule count for the ⚡ pill (live mounts manage rules server-side → 0). */
   automationsCount: number;
   showExtraActions: boolean;
@@ -74,7 +76,7 @@ export function TopBarActions({
   searchBtnRef, showSearch, setShowSearch,
   isFullSize, setIsFullSize,
   showViewSettings, setShowViewSettings,
-  onOpenAutomations, automationsCount,
+  onOpenAutomations, automationsBtnRef, automationsCount,
   showExtraActions, setShowExtraActions,
   showTemplates, setShowTemplates, databaseName,
   onNewPage,
@@ -104,7 +106,7 @@ export function TopBarActions({
         <ArrowUpDown className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Sort</span>
         {sorts.length > 0 && <span className={cn("text-xs bg-purple-surface-muted text-purple-text-bold px-1.5 rounded-full tabular-nums")}>{sorts.length}</span>}
       </button>
-      <button aria-label="Automations" title="Automations" onClick={onOpenAutomations}
+      <button ref={automationsBtnRef} aria-label="Automations" title="Automations" onClick={onOpenAutomations}
         className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${automationsCount > 0
           ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
         <Zap className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Automations</span>
