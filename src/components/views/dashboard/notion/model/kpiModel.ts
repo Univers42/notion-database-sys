@@ -56,8 +56,10 @@ export function kpiProvenance({ fn, matched, total, propertyName, whereLabel }: 
   fn: StatFn; matched: number; total: number; propertyName?: string; whereLabel?: string;
 }>): string {
   const records = (n: number) => `${n.toLocaleString()} ${n === 1 ? 'record' : 'records'}`;
-  if (whereLabel) return `${STAT_FN_LABEL[fn]} where ${whereLabel} · ${matched} of ${total}`;
+  const share = total <= 0 || matched >= total
+    ? `All ${records(total > 0 ? total : matched)}`
+    : `${Math.round((matched / total) * 100)}% of ${records(total)}`;
+  if (whereLabel) return `${STAT_FN_LABEL[fn]} where ${whereLabel} · ${share}`;
   if (fn !== 'count') return `${STAT_FN_LABEL[fn]} of ${propertyName ?? '—'} · ${records(matched)}`;
-  if (total <= 0 || matched >= total) return `All ${records(total > 0 ? total : matched)}`;
-  return `${Math.round((matched / total) * 100)}% of ${records(total)}`;
+  return share;
 }
