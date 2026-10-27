@@ -18,8 +18,6 @@
 import React, { Suspense } from 'react';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import { FormulaAnalyticsDashboard } from './FormulaAnalyticsDashboard';
-import { RelationRollupDashboard } from '../relationRollup/RelationRollupDashboard';
 import { cn } from '../../../utils/cn';
 import { PaneLoading } from '../../ViewSlideStage';
 
@@ -33,8 +31,6 @@ export function DashboardView() {
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
-  if (view?.settings?.formulaAnalytics) return <FormulaAnalyticsDashboard />;
-  if (view?.settings?.relationAnalytics) return <RelationRollupDashboard />;
   if (!view || !database) return null;
 
   return (

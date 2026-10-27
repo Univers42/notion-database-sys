@@ -22,6 +22,7 @@ import { VIEW_META, LAYOUT_ORDER } from '../../../viewSettings/constants';
 import type { DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, SchemaProperty, ViewConfig, ViewType } from '../../../../types/database';
 import type { WidgetViewGroup } from './model/dashboardViewOps';
 import { statEntries as sharedStatEntries } from './model/statEntries';
+import { insightEntries as sharedInsightEntries } from './model/insightEntries';
 import { cn } from '../../../../utils/cn';
 
 /** New-view layouts offered in the picker (dashboard-in-dashboard excluded). */
@@ -35,10 +36,12 @@ interface AddWidgetPickerProps {
   checkboxProps?: SchemaProperty[];
   selectProps?: SchemaProperty[];
   dateProps?: SchemaProperty[];
+  properties?: Record<string, SchemaProperty> | SchemaProperty[];
   onPickExisting: (viewId: string) => void;
   onPickStat: (stat: DashboardStatConfig) => void;
   onPickChart: (chart: DashboardChartConfig) => void;
   onPickRecords: (records: DashboardRecordsConfig) => void;
+  onPickInsight?: (insight: 'formulas' | 'relations') => void;
   onCreateNew: (type: ViewType) => void;
   onClose: () => void;
 }
@@ -61,7 +64,8 @@ function ViewRow({ view, onPick }: Readonly<{ view: ViewConfig; onPick: () => vo
 /** Popover: numbers + existing views (all databases) + "new view" shortcuts. */
 export function AddWidgetPicker({
   hostViews, otherGroups, numberProps, checkboxProps = [], selectProps = [], dateProps = [],
-  onPickExisting, onPickStat, onPickChart, onPickRecords, onCreateNew, onClose,
+  properties = [],
+  onPickExisting, onPickStat, onPickChart, onPickRecords, onPickInsight, onCreateNew, onClose,
 }: Readonly<AddWidgetPickerProps>) {
   const ref = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
@@ -74,6 +78,8 @@ export function AddWidgetPicker({
     .map(group => ({ ...group, views: group.views.filter(v => matches(v.name) || matches(group.databaseName)) }))
     .filter(group => group.views.length > 0);
   const statEntries = sharedStatEntries([...numberProps, ...checkboxProps, ...selectProps])
+    .filter(entry => matches(entry.label));
+  const insightList = sharedInsightEntries(properties)
     .filter(entry => matches(entry.label));
 
   const chartEntries: { label: string; chart: DashboardChartConfig }[] = [...selectProps, ...dateProps].map((prop) => ({
@@ -136,6 +142,19 @@ export function AddWidgetPicker({
             <button key={entry.label} type="button" onClick={() => { onPickRecords(entry.records); onClose(); }}
               className={cn("w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left text-ink-body hover:bg-hover-surface-soft2 transition-colors")}>
               <List className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
+              <span className={cn("truncate flex-1")}>{entry.label}</span>
+            </button>
+          ))}
+        </>
+      )}
+
+      {insightList.length > 0 && onPickInsight && (
+        <>
+          <SectionLabel>Insights</SectionLabel>
+          {insightList.map(entry => (
+            <button key={entry.label} type="button" onClick={() => { onPickInsight(entry.insight); onClose(); }}
+              className={cn("w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left text-ink-body hover:bg-hover-surface-soft2 transition-colors")}>
+              <BarChart3 className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
               <span className={cn("truncate flex-1")}>{entry.label}</span>
             </button>
           ))}

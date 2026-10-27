@@ -148,6 +148,11 @@ export default function DashboardNotionView() {
       ?? addViewForWidget(storeApi, view.databaseId, 'table', 'All records');
     commit(addWidget(layout, backing, undefined, { ...addOptions(), records }));
   };
+  const handlePickInsight = (insight: 'formulas' | 'relations') => {
+    const backing = hostViewsAll.find(v => v.id !== view.id)?.id
+      ?? addViewForWidget(storeApi, view.databaseId, 'table', 'All records');
+    commit(addWidget(layout, backing, undefined, { ...addOptions(), insight }));
+  };
 
   /** One-click starter built purely from EXISTING views (view creation on
    *  adapter-backed surfaces races the host catalog): KPI row on top, the
@@ -188,9 +193,10 @@ export default function DashboardNotionView() {
       const widget = layout.widgets.find(w => w.id === widgetId);
       patchWidget(widgetId, { hideTitle: !widget?.hideTitle });
     },
-    onSetStat: (stat: DashboardStatConfig | null) => patchWidget(widgetId, { stat: stat ?? undefined, chart: undefined, records: undefined }),
-    onSetChart: (chart: DashboardChartConfig | null) => patchWidget(widgetId, { chart: chart ?? undefined, stat: undefined, records: undefined }),
-    onSetRecords: (records: DashboardRecordsConfig | null) => patchWidget(widgetId, { records: records ?? undefined, stat: undefined, chart: undefined }),
+    onSetStat: (stat: DashboardStatConfig | null) => patchWidget(widgetId, { stat: stat ?? undefined, chart: undefined, records: undefined, insight: undefined }),
+    onSetChart: (chart: DashboardChartConfig | null) => patchWidget(widgetId, { chart: chart ?? undefined, stat: undefined, records: undefined, insight: undefined }),
+    onSetRecords: (records: DashboardRecordsConfig | null) => patchWidget(widgetId, { records: records ?? undefined, stat: undefined, chart: undefined, insight: undefined }),
+    onSetInsight: (insight: 'formulas' | 'relations' | null) => patchWidget(widgetId, { insight: insight ?? undefined, stat: undefined, chart: undefined, records: undefined }),
     onSetIcon: (icon: string | null) => patchWidget(widgetId, { icon: icon ?? undefined }),
     onDragStart: (event: React.PointerEvent) => startDrag(widgetId, event),
   });
@@ -207,6 +213,8 @@ export default function DashboardNotionView() {
       onPickStat={handlePickStat}
       onPickChart={handlePickChart}
       onPickRecords={handlePickRecords}
+      onPickInsight={handlePickInsight}
+      properties={database.properties}
       onCreateNew={handleCreateNew}
       onClose={() => setPickerTarget(null)}
     />

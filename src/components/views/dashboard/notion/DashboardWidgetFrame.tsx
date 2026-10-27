@@ -34,9 +34,12 @@ import type { ViewConfig, DashboardChartConfig, DashboardRecordsConfig, Dashboar
 import { numberProperties } from './model/dashboardViewOps';
 import { isHostBacked } from './model/isHostBacked';
 import { statEntries as sharedStatEntries } from './model/statEntries';
+import { insightEntries as sharedInsightEntries } from './model/insightEntries';
 import { formatCellValue } from '../constants';
 import { StatKpi, STAT_FN_LABEL } from './StatKpi';
 import { ChartView } from '../../chart/ChartView';
+import { FormulaInsights } from '../FormulaInsights';
+import { RelationInsights } from '../RelationInsights';
 import { AskAiWidgetButton } from './AskAiWidgetButton';
 import { cn } from '../../../../utils/cn';
 
@@ -51,6 +54,7 @@ export interface WidgetActions {
   onSetStat?: (stat: DashboardStatConfig | null) => void;
   onSetChart?: (chart: DashboardChartConfig | null) => void;
   onSetRecords?: (records: DashboardRecordsConfig | null) => void;
+  onSetInsight?: (insight: 'formulas' | 'relations' | null) => void;
   /** A Number tile's chip icon (null → the aggregate's default). */
   onSetIcon?: (icon: string | null) => void;
   /** Pointer drag start from the grip handle (edit mode). */
@@ -167,7 +171,12 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
                   <>
                     <div className={cn("my-1 border-t border-line")} />
                     <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Show as</div>
-                    {widget.stat && !hostBacked && menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => actions.onSetStat?.(null))}
+                    {(widget.stat || widget.chart || widget.records || widget.insight) && !hostBacked && menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => {
+                      actions.onSetStat?.(null);
+                      actions.onSetChart?.(null);
+                      actions.onSetRecords?.(null);
+                      actions.onSetInsight?.(null);
+                    })}
                     {sharedStatEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).map(entry => (
                       menuItem(<Hash className={cn("w-3.5 h-3.5")} />, `Number · ${entry.label}`,
                         () => actions.onSetStat?.(entry.stat))
@@ -193,6 +202,16 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
                         ))}
                       </>
                     )}
+                    {actions.onSetInsight && sharedInsightEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).length > 0 && (
+                      <>
+                        <div className={cn("my-1 border-t border-line")} />
+                        <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Insights</div>
+                        {sharedInsightEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).map(entry =>
+                          menuItem(<BarChart3 className={cn("w-3.5 h-3.5")} />, entry.label,
+                            () => actions.onSetInsight?.(entry.insight))
+                        )}
+                      </>
+                    )}
                   </>
                 )}
                 <div className={cn("my-1 border-t border-line")} />
@@ -215,7 +234,11 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
               ? <DatabaseScopeProvider value={widget.viewId}><ChartView settingsOverride={widget.chart} /></DatabaseScopeProvider>
               : widget.records
                 ? <RecordsWidget widget={widget} view={view} />
-                : hostBacked
+                : widget.insight === 'formulas'
+                  ? <DatabaseScopeProvider value={widget.viewId}><FormulaInsights /></DatabaseScopeProvider>
+                  : widget.insight === 'relations'
+                    ? <DatabaseScopeProvider value={widget.viewId}><RelationInsights /></DatabaseScopeProvider>
+                    : hostBacked
                   ? <div className={cn("h-full flex items-center justify-center px-4 text-center text-xs text-ink-muted")}>
                       This widget shows the dashboard's own records; pick Number, Chart or Records
                     </div>
