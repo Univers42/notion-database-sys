@@ -17,6 +17,7 @@ import { BarChart3 } from 'lucide-react';
 import type { ChartType } from './useChartData';
 import type { ViewSettings } from '../../../types/database';
 import type { DashboardChartConfig } from '../../../types/database';
+import type { ChartResult } from '../../../lib/chart/chartTypes';
 import { useServerChartData } from './useServerChartData';
 import { fetchServerDrilldownRows } from './chartServerDrilldown';
 import { applyConditionalChartColors } from '../../../lib/conditionalColor';
@@ -57,7 +58,11 @@ function ChartLoading() {
 }
 
 /** Renders the chart view: number type inline, the rest via the lazy canvas. */
-export function ChartView({ settingsOverride }: Readonly<{ settingsOverride?: Partial<ViewSettings> | DashboardChartConfig }> = {}) {
+export function ChartView({ settingsOverride, onResult }: Readonly<{
+  settingsOverride?: Partial<ViewSettings> | DashboardChartConfig;
+  /** Receives every result drawn: a dashboard widget quotes it to its "Ask AI". */
+  onResult?: (result: ChartResult) => void;
+}> = {}) {
   const activeViewId = useActiveViewId();
   // Narrow selectors (MapView's fixed idiom): a bare useDatabaseStore() re-
   // rendered the chart on EVERY store write in this database. pagesMap is a
@@ -101,6 +106,7 @@ export function ChartView({ settingsOverride }: Readonly<{ settingsOverride?: Pa
   const containerRef = React.useRef<HTMLDivElement>(null);
   const resultRef = React.useRef(result);
   resultRef.current = result;
+  React.useEffect(() => { onResult?.(result); }, [onResult, result]);
   const viewIdForExport = view?.id;
   React.useEffect(() => {
     if (!viewIdForExport) return undefined;

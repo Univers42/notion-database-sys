@@ -7,24 +7,35 @@ import { Sparkles } from 'lucide-react';
 import { useHostAdapters } from '../../../../hooks/useHostAdapters';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
-import { widgetSnapshot } from './model/widgetSnapshot';
+import type { DashboardViewWidget } from '../../../../types/database';
+import type { ChartResult } from '../../../../lib/chart/chartTypes';
+import { widgetQuote } from './model/widgetSnapshot';
 import { cn } from '../../../../utils/cn';
 
 type AskAI = (request: { title: string; text: string }) => void;
 
-function AskAiButton({ viewId, title, onAskAI }: Readonly<{ viewId: string; title: string; onAskAI: AskAI }>) {
-  const pages = useViewPages(viewId);
-  const view = useDatabaseStore(s => s.views[viewId]);
+interface AskAiWidgetProps {
+  widget: DashboardViewWidget;
+  title: string;
+  /** What the widget's chart drew, filled by its ChartView. */
+  chartResult: { readonly current: ChartResult | null };
+}
+
+function AskAiButton({ widget, title, chartResult, onAskAI }: Readonly<AskAiWidgetProps & { onAskAI: AskAI }>) {
+  const pages = useViewPages(widget.viewId);
+  const view = useDatabaseStore(s => s.views[widget.viewId]);
   const properties = useDatabaseStore(s => (view ? s.databases[view.databaseId]?.properties : undefined));
   const getPageTitle = useDatabaseStore(s => s.getPageTitle);
   const getCellValue = useDatabaseStore(s => s.getCellValue);
   if (!view || !properties) return null;
   const askAI = () => onAskAI({
     title,
-    text: widgetSnapshot({
-      visibleProperties: view.visibleProperties,
+    text: widgetQuote({
+      widget,
+      view,
       properties,
-      records: pages,
+      pages,
+      chartResult: chartResult.current,
       titleOf: getPageTitle,
       valueOf: getCellValue,
     }),
@@ -37,7 +48,7 @@ function AskAiButton({ viewId, title, onAskAI }: Readonly<{ viewId: string; titl
   );
 }
 
-export function AskAiWidgetButton({ viewId, title }: Readonly<{ viewId: string; title: string }>) {
+export function AskAiWidgetButton(props: Readonly<AskAiWidgetProps>) {
   const { onAskAI } = useHostAdapters();
-  return onAskAI ? <AskAiButton viewId={viewId} title={title} onAskAI={onAskAI} /> : null;
+  return onAskAI ? <AskAiButton {...props} onAskAI={onAskAI} /> : null;
 }

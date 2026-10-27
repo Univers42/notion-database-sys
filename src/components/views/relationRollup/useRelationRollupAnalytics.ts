@@ -123,5 +123,5 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
       relationTargets, totalLinks, linkedDbs,
       rollupResults, fnDist, displayDist,
     };
-  }, [db, databases, pages, resolveRollup]);
+  }, [db, databases, pages, resolveRollup, activeViewId, getPagesForView]);
 }

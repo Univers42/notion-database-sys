@@ -19,7 +19,6 @@ import { ruleSentence } from './ruleSentence';
 import { ruleTemplates } from './ruleTemplates';
 import { ToggleSwitch } from '../ui/ToggleSwitch';
 import { RuleEditor } from './RuleEditor';
-import { parseLiveDatabaseId } from '../../store/live/liveTypes';
 import type { AutomationRuleV2 } from '../../types/database';
 import { cn } from '../../utils/cn';
 
@@ -56,7 +55,8 @@ export function AutomationsSheet({ databaseId, anchorRef, onClose }: Readonly<Pr
   }, []);
 
   useEffect(() => {
-    return () => { anchorRef?.current?.focus(); };
+    const anchor = anchorRef?.current;
+    return () => { anchor?.focus(); };
   }, [anchorRef]);
 
   useEffect(() => {
