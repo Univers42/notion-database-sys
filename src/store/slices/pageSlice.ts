@@ -13,7 +13,7 @@
 import type { Page, Block, DatabaseSchema, SchemaProperty } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 import type { PageSliceActions } from './pageSliceTypes';
-import { runLocalAutomations } from './pageAutomations';
+import { runStoreAutomations } from './pageAutomations';
 
 export type { PageSliceState, PageSliceActions, PageSlice } from './pageSliceTypes';
 
@@ -82,7 +82,7 @@ export function createPageSlice(set: StoreSet, get: StoreGet): PageSliceActions 
           : state.databases;
         return { pages: { ...state.pages, [id]: newPage }, databases: updatedDb };
       });
-      runLocalAutomations(set, get, { type: 'row_added', page: newPage });
+      void runStoreAutomations(set, get, { type: 'row_added', page: newPage });
       return id;
     },
 

@@ -13,7 +13,7 @@
 import type { ExtendedDatabaseState } from './dbmsStoreTypes';
 import { createDatabaseSlice } from './slices/databaseSlice';
 import { createPageSlice } from './slices/pageSlice';
-import { runLocalAutomations } from './slices/pageAutomations';
+import { runStoreAutomations } from './slices/pageAutomations';
 import type { SchemaProperty } from '../types/database';
 import { validatePropertyValue } from './validation';
 import {
@@ -113,15 +113,11 @@ export function createDbmsActions(set: SetState, get: GetState) {
       });
       // 2) Persist to DBMS backend (fire-and-forget)
       get().persistPageProperty(pageId, propertyId, coerced);
-      // 3) Local automations (row_updated). Loop-safe: planned writes are
-      // applied by runLocalAutomations in one direct set (never back through
-      // this action), so rules cannot chain. Their writes still need the
-      // same fire-and-forget persistence as the user's edit.
+      // 3) Automations. Their writes go straight into the store (never back
+      // through this action) and persist the same way; the runner bounds
+      // the chains they start.
       const updated = get().pages[pageId];
-      if (updated) {
-        const plan = runLocalAutomations(set, get, { type: 'row_updated', page: updated, changedPropertyId: propertyId });
-        for (const w of plan.writes) get().persistPageProperty(w.pageId, w.propertyId, w.value);
-      }
+      if (updated) void runStoreAutomations(set, get, { type: 'property_changed', page: updated, before: page, changed: [propertyId] });
     },
 
     addPage: (databaseId: string, properties: Record<string, unknown> = {}) => {
@@ -141,9 +137,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
       const page = get().pages[pageId];
       const sliceActions = createPageSlice(set, get);
       sliceActions.deletePage(pageId);
-      // row_deleted automations see the page as it was (planner refuses
-      // set_property on deletes — only notify/webhook apply).
-      if (page) runLocalAutomations(set, get, { type: 'row_deleted', page });
+      // row_deleted automations see the row as it was; a write to it is skipped.
+      if (page) void runStoreAutomations(set, get, { type: 'row_deleted', page });
       // Persist full state immediately (page removed from state)
       if (get().activeDbmsSource !== 'adapter') flushState(get);
       if (page && get().activeDbmsSource !== 'adapter') {
