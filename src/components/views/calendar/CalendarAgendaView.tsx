@@ -23,6 +23,7 @@ import { fromDayKey, toDayKey } from './model/calendarGrid';
 import type { CalEvent } from './model/calendarTypes';
 import { AGENDA_DAYS } from './calendarConfig';
 import { cn } from '../../../utils/cn';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 
 export function CalendarAgendaView({
   events, chipData, anchor, onOpen, onQuickCreate,
@@ -33,6 +34,7 @@ export function CalendarAgendaView({
   onOpen: (pageId: string) => void;
   onQuickCreate: (date: Date) => void;
 }>) {
+  const canCreate = useCanCreateRecords();
   const sections = useMemo(
     () => buildAgenda(events, toDayKey(anchor), AGENDA_DAYS),
     [events, anchor],
@@ -43,10 +45,10 @@ export function CalendarAgendaView({
       {sections.length === 0 && (
         <div className={cn("h-40 flex flex-col items-center justify-center gap-2 text-ink-muted")}>
           <p className={cn("text-sm")}>Nothing scheduled in the next {AGENDA_DAYS} days.</p>
-          <button type="button" onClick={() => onQuickCreate(anchor)}
+          {canCreate && <button type="button" onClick={() => onQuickCreate(anchor)}
             className={cn("flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-accent-soft text-accent-text hover:bg-accent-soft3 transition-colors")}>
             <Plus className={cn("w-3.5 h-3.5")} /> New event
-          </button>
+          </button>}
         </div>
       )}
       {sections.map(section => {

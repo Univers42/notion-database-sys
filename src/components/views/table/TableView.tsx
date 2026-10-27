@@ -53,7 +53,7 @@ export function TableView() {
     handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
     addPage, openPage, deletePage, duplicatePage,
     showVerticalLines, wrapContent, showRowNumbers,
-    colCount, isGrouped, groupLayout, showMoreInGroup,
+    colCount, isGrouped, groupLayout, showMoreInGroup, canCreate,
     virtual,
   } = useTableViewState();
 
@@ -174,7 +174,7 @@ export function TableView() {
                 items={groupLayout.items.slice(virtual.firstIndex, virtual.lastIndex + 1)}
                 firstIndex={virtual.firstIndex} measureRow={virtual.measureRow}
                 colCount={colCount} pageSize={resolvePageSize(view.settings?.loadLimit)}
-                onToggleGroup={toggleGroup} onAddToGroup={addToGroup} onShowMore={showMoreInGroup}
+                onToggleGroup={toggleGroup} onAddToGroup={canCreate ? addToGroup : undefined} onShowMore={showMoreInGroup}
                 {...rowProps}
               />
             ) : (
@@ -187,14 +187,14 @@ export function TableView() {
               <TableLoadMoreRow colCount={colCount} shown={pager.end} total={pager.total}
                 onLoadMore={pager.loadMore} onShowAll={pager.showAll} />
             )}
-            <tr>
+            {canCreate && <tr>
               <td colSpan={colCount} className={cn("p-0")}>
                 <button onClick={createRecord}
                   className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
                   <Plus className={cn("w-4 h-4")} /> New
                 </button>
               </td>
-            </tr>
+            </tr>}
           </tbody>
           <TableCalculationRow viewId={view.id} pages={pages} visibleProps={visibleProps}
             calculations={view.settings?.columnCalculations} getColWidth={getColWidth}

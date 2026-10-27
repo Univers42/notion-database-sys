@@ -13,6 +13,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 import { addDays, startOfWeek, eachDayOfInterval, isToday as isTodayFn } from 'date-fns';
 import { Plus } from 'lucide-react';
 import {
@@ -39,6 +40,7 @@ export function TimelineView() {
     openPage, addPage, getPageTitle,
   } = useDatabaseStore();
   const storeApi = useStoreApi();
+  const canCreate = useCanCreateRecords();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
 
@@ -161,7 +163,7 @@ export function TimelineView() {
             displayedPages={displayedPages} config={config} hoverRow={hoverRow}
             getPageTitle={getPageTitle} openPage={openPage} setHoverRow={setHoverRow}
             titleLabel={database.properties[database.titlePropertyId]?.name ?? 'Name'}
-            onAddPage={() => addPage(database.id, { [startProp.id]: today.toISOString() })}
+            onAddPage={canCreate ? () => addPage(database.id, { [startProp.id]: today.toISOString() }) : undefined}
           />
         )}
         {/* isolate: as in TableView, the sticky day header and bar handles are
@@ -183,7 +185,7 @@ export function TimelineView() {
                 openDatePicker={openDatePicker}
               />
             ))}
-            <button type="button"
+            {canCreate && <button type="button"
               className={cn(`flex items-center text-ink-muted
                          hover:bg-hover-surface-soft cursor-pointer transition-colors text-left`)}
               style={{ height: config.rowHeight }}
@@ -192,7 +194,7 @@ export function TimelineView() {
               <div className={cn("flex items-center gap-1 px-3 text-xs")}>
                 <Plus className={cn("w-3.5 h-3.5")} /><span>New</span>
               </div>
-            </button>
+            </button>}
           </div>
         </div>
       </div>

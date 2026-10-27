@@ -13,6 +13,7 @@
 import React from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus, Image } from 'lucide-react';
 import type { Page, Block } from '../../../types/database';
@@ -46,6 +47,7 @@ export function GalleryView() {
   // Notion-mode grouping: stacked, collapsible sections (null when inactive).
   const { groups, collapsed, toggleCollapse } = useStackedGroups(view?.id);
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
+  const canCreate = useCanCreateRecords();
 
   if (!view || !database) return null;
 
@@ -154,7 +156,7 @@ export function GalleryView() {
       >
         {list.map((page, idx) => renderCard(page, idx))}
         {/* Add card — Notion's full-height tile: it stretches with its grid row. */}
-        <button type="button" data-testid="gallery-new-page"
+        {canCreate && <button type="button" data-testid="gallery-new-page"
           onClick={groupValue === undefined
             ? createRecord
             : () => { if (view.grouping) addPage(database.id, { [view.grouping.propertyId]: groupValue }); }}
@@ -164,7 +166,7 @@ export function GalleryView() {
             <Plus className={cn("w-4 h-4")} />
             <span className={cn("text-sm")}>New page</span>
           </div>
-        </button>
+        </button>}
       </div>
   );
 

@@ -12,7 +12,7 @@
 
 import React, { useCallback } from 'react';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
-import { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
+import type { SchemaProperty, Page, DatabaseSchema } from '../../../types/database';
 import {
   type CellCoord,
   type CellRange,

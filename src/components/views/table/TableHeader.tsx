@@ -13,7 +13,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
-import { SchemaProperty, PropertyType } from '../../../types/database';
+import type { SchemaProperty, PropertyType } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { PropIcon } from '../../../constants/propertyIcons';
 import {

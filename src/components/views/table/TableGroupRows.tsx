@@ -13,7 +13,7 @@
 import React from 'react';
 import { ChevronRight, Plus } from 'lucide-react';
 import { TableLoadMoreRow } from './TableLoadMoreRow';
-import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
+import type { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import type { FillDragState } from './useFillDrag';
 import { MemoTableRow } from './MemoTableRow';
 import type { GroupRowItem } from './groupRowsLayout';
@@ -147,7 +147,8 @@ interface TableGroupRowsProps extends RenderPageRowsProps {
   /** The per-group cap one "Load more" reveals. */
   pageSize: number;
   onToggleGroup: (groupId: string) => void;
-  onAddToGroup: (groupId: string) => void;
+  /** Absent → the records are read-only: no add controls. */
+  onAddToGroup?: (groupId: string) => void;
   onShowMore: (groupId: string, rows: number) => void;
 }
 
@@ -169,7 +170,7 @@ export function TableGroupRows({
           case 'header':
             return <GroupHeaderRow key={key} index={index} measureRow={measureRow} colCount={colCount}
               label={group.groupLabel} color={group.groupColor} count={group.pages.length} collapsed={item.collapsed}
-              onToggle={() => onToggleGroup(group.groupId)} onAdd={() => onAddToGroup(group.groupId)} />;
+              onToggle={() => onToggleGroup(group.groupId)} onAdd={onAddToGroup && (() => onAddToGroup(group.groupId))} />;
           case 'more':
             return <TableLoadMoreRow key={key} index={index} measureRow={measureRow} colCount={colCount}
               shown={item.shown} total={group.pages.length} indented
@@ -183,7 +184,7 @@ export function TableGroupRows({
               </tr>
             );
           case 'new':
-            return (
+            return onAddToGroup && (
               <tr key={key} ref={measureRow} data-index={index}>
                 <td colSpan={colCount} className={cn("p-0 border-b border-line-light")}>
                   <button type="button" onClick={() => onAddToGroup(group.groupId)}
@@ -209,7 +210,7 @@ interface GroupHeaderRowProps {
   count: number;
   collapsed: boolean;
   onToggle: () => void;
-  onAdd: () => void;
+  onAdd?: () => void;
 }
 
 function GroupHeaderRow({ index, measureRow, colCount, label, color, count, collapsed, onToggle, onAdd }: Readonly<GroupHeaderRowProps>) {
@@ -228,10 +229,10 @@ function GroupHeaderRow({ index, measureRow, colCount, label, color, count, coll
           <span className={cn(`w-2 h-2 rounded-full shrink-0 ${getDotColor(color)}`)} aria-hidden="true" />
           <span className={cn("text-[13px] font-semibold text-ink truncate")}>{label}</span>
           <span className={cn("text-xs text-ink-muted tabular-nums")}>{count}</span>
-          <button type="button" onClick={onAdd} aria-label={`Add page to ${label}`} title="Add page to group"
+          {onAdd && <button type="button" onClick={onAdd} aria-label={`Add page to ${label}`} title="Add page to group"
             className={cn("ml-auto p-1 hover:bg-hover-surface3 rounded text-ink-muted hover:text-hover-text transition-colors opacity-0 group-hover/hdr:opacity-100 focus-visible:opacity-100")}>
             <Plus className={cn("w-3.5 h-3.5")} />
-          </button>
+          </button>}
         </div>
       </td>
     </tr>

@@ -13,6 +13,7 @@
 import React from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { FileText, Clock } from 'lucide-react';
 import { parseISO, formatDistanceToNow } from 'date-fns';
@@ -98,6 +99,7 @@ export function FeedView() {
   // Notion-mode grouping: stacked, collapsible sections (null when inactive).
   const { groups, collapsed, toggleCollapse } = useStackedGroups(view?.id);
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
+  const canCreate = useCanCreateRecords();
   // Distraction-free reader overlay (the card's own data; null = closed).
   const [reader, setReader] = React.useState<ReaderArticle | null>(null);
 
@@ -263,10 +265,10 @@ export function FeedView() {
             <div className={cn("text-center py-20 text-ink-muted")}>
               <FileText className={cn("w-10 h-10 mx-auto mb-3 text-ink-disabled")} />
               <p className={cn("text-sm mb-3")}>No pages to display</p>
-              <button onClick={createRecord}
+              {canCreate && <button onClick={createRecord}
                 className={cn("text-sm text-accent-text-soft hover:text-hover-accent-text font-medium")}>
                 Create a page
-              </button>
+              </button>}
             </div>
           )}
         </div>

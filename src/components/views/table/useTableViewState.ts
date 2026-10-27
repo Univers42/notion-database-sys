@@ -13,7 +13,7 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
-import { SchemaProperty, PropertyValue, Page } from '../../../types/database';
+import type { SchemaProperty, PropertyValue, Page } from '../../../types/database';
 import { useFillDrag } from './useFillDrag';
 import { useColumnResize, useColWidth } from './useColumnResize';
 import { useTableKeyboard } from './useTableKeyboard';
@@ -24,6 +24,7 @@ import { useViewPages } from '../../../hooks/useViewPages';
 import { useViewPager, resolvePageSize } from '../../../hooks/useViewPager';
 import { useTableVirtualizer } from './useTableVirtualizer';
 import { layoutGroupRows, type GroupData } from './groupRowsLayout';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 
 const NO_GROUPS: readonly GroupData[] = [];
 
@@ -107,11 +108,12 @@ export function useTableViewState() {
   // Rows a group has revealed past its cap this session, keyed `view:group`.
   const [groupExtra, setGroupExtra] = useState<ReadonlyMap<string, number>>(new Map());
   const groupCap = resolvePageSize(settings.loadLimit);
+  const canCreate = useCanCreateRecords();
   const groupLayout = useMemo(
     () => (isGrouped
-      ? layoutGroupRows(groupedData, collapsedGroups, id => groupCap + (groupExtra.get(`${activeViewId}:${id}`) ?? 0))
+      ? layoutGroupRows(groupedData, collapsedGroups, id => groupCap + (groupExtra.get(`${activeViewId}:${id}`) ?? 0), canCreate)
       : null),
-    [isGrouped, groupedData, collapsedGroups, groupCap, groupExtra, activeViewId],
+    [isGrouped, groupedData, collapsedGroups, groupCap, groupExtra, activeViewId, canCreate],
   );
   const showMoreInGroup = useCallback((groupId: string, rows: number) => {
     setGroupExtra(prev => {
@@ -294,7 +296,7 @@ export function useTableViewState() {
     handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
     addPage, openPage, deletePage, duplicatePage,
     showVerticalLines, wrapContent, showRowNumbers,
-    colCount, isGrouped, groupLayout, showMoreInGroup,
+    colCount, isGrouped, groupLayout, showMoreInGroup, canCreate,
     virtual,
   };
 }

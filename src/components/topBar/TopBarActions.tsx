@@ -20,6 +20,7 @@ import { ExtraActionsMenu } from './MenuComponents';
 import { DbSourceDropdown } from '../DbSourceDropdown';
 import { TemplatesDropdown } from './TemplatesDropdown';
 import { useTemplatesController } from './templatesContext';
+import { useCanCreateRecords } from '../../hooks/useHostAdapters';
 import { cn } from '../../utils/cn';
 import type { Filter as FilterType, Sort } from '../../types/database';
 
@@ -82,6 +83,7 @@ export function TopBarActions({
   onNewPage,
 }: Readonly<TopBarActionsProps>) {
   const templates = useTemplatesController();
+  const canCreate = useCanCreateRecords();
   const defaultTemplateId = templates?.list.find((t) => t.isDefault)?.id;
   const handlePrimaryNew = () => {
     if (templates && defaultTemplateId) templates.onCreateFrom(defaultTemplateId);
@@ -138,8 +140,8 @@ export function TopBarActions({
           <ThemeToggle />
         </>
       )}
-      <div className={cn("odb-topbar-divider w-px h-5 bg-surface-muted mx-1")} />
-      {templates ? (
+      {canCreate && <div className={cn("odb-topbar-divider w-px h-5 bg-surface-muted mx-1")} />}
+      {canCreate && (templates ? (
         <div className={cn("odb-topbar-new relative")}>
           {/* One seamless split control: shared rounded surface, equal-height
               segments (items-stretch), inset divider — no see-through gap. */}
@@ -163,7 +165,7 @@ export function TopBarActions({
           className={cn("odb-topbar-new flex items-center gap-1.5 px-3 py-1.5 bg-accent text-ink-inverse text-sm font-medium rounded-lg hover:bg-hover-accent transition-colors shadow-sm")}>
           <Plus className={cn("w-3.5 h-3.5")} /> New
         </button>
-      )}
+      ))}
     </div>
   );
 }

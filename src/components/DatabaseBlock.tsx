@@ -19,6 +19,7 @@ import { EngineTemplatesProvider } from "./topBar/EngineTemplatesProvider";
 import { orderedDatabaseViews } from "../lib/viewOrder";
 import { Plus, FileText } from "lucide-react";
 import { cn } from "../utils/cn";
+import { useCanCreateRecords } from "../hooks/useHostAdapters";
 
 /** Props for {@link DatabaseBlock}. */
 export interface DatabaseBlockProps {
@@ -193,6 +194,7 @@ export function DatabaseBlock({
 
 function InlineFooter({ databaseId }: Readonly<{ databaseId: string }>) {
   const addPage = useDatabaseStore((s) => s.addPage);
+  const canCreate = useCanCreateRecords();
   const pages = useDatabaseStore((s) => s.pages);
   const count = Object.values(pages).filter(
     (p) => p.databaseId === databaseId,
@@ -200,7 +202,7 @@ function InlineFooter({ databaseId }: Readonly<{ databaseId: string }>) {
 
   return (
     <>
-      <button
+      {canCreate && <button
         onClick={() => addPage(databaseId)}
         className={cn(
           "w-full flex items-center gap-2 px-4 py-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface transition-colors border-t border-line-light",
@@ -208,7 +210,7 @@ function InlineFooter({ databaseId }: Readonly<{ databaseId: string }>) {
       >
         <Plus className={cn("w-4 h-4")} />
         <span>New</span>
-      </button>
+      </button>}
       <div
         className={cn(
           "px-4 py-1.5 border-t border-line-light bg-surface-secondary-soft text-xs text-ink-muted flex items-center justify-between",

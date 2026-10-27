@@ -15,6 +15,7 @@ import { MapPin, Plus, FileText, Layers, ArrowUpRight } from 'lucide-react';
 import type * as Leaflet from 'leaflet';
 import type { Page, SchemaProperty } from '../../../types/database';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 import { cn } from '../../../utils/cn';
 import { optionColorToCss } from '../../../utils/color';
 import { escapeHtml } from './mapModes';
@@ -105,6 +106,7 @@ export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, onFoc
   databaseId: string;
 }>) {
   const createRecord = useDefaultTemplateCreate(() => addPage(databaseId));
+  const canCreate = useCanCreateRecords();
   return (
     <div className={cn("w-72 border-l border-line flex flex-col min-h-0 bg-surface-primary shrink-0")}>
       <div className={cn("px-4 py-3 border-b border-line flex items-center justify-between shrink-0")}>
@@ -151,12 +153,12 @@ export function MapSidebar({ mappablePages, pages, getPageTitle, openPage, onFoc
           </div>
         )}
       </div>
-      <div className={cn("border-t border-line p-2")}>
+      {canCreate && <div className={cn("border-t border-line p-2")}>
         <button onClick={createRecord}
           className={cn("flex items-center gap-2 w-full px-3 py-2 text-sm text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors")}>
           <Plus className={cn("w-4 h-4")} /> New page
         </button>
-      </div>
+      </div>}
     </div>
   );
 }

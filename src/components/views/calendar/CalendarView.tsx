@@ -39,6 +39,7 @@ import type { CalendarAction, CalendarMode, CalEvent, DayInfo } from './model/ca
 import type { GhostSegment } from './CalendarWeekRow';
 import { AGENDA_DAYS } from './calendarConfig';
 import { cn } from '../../../utils/cn';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 
 const NAV_STEP: Record<CalendarMode, (d: Date, dir: number) => Date> = {
   month: (d, dir) => addMonths(d, dir),
@@ -63,6 +64,7 @@ export function CalendarView() {
   const updateViewSettings = useDatabaseStore(s => s.updateViewSettings);
   const openPage = useDatabaseStore(s => s.openPage);
   const addPage = useDatabaseStore(s => s.addPage);
+  const canCreate = useCanCreateRecords();
   const getPageTitle = useDatabaseStore(s => s.getPageTitle);
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
@@ -136,7 +138,7 @@ export function CalendarView() {
   }, [drag, grid]);
 
   const quickCreate = (day: DayInfo | Date): void => {
-    if (!database || !startProp) return;
+    if (!canCreate || !database || !startProp) return;
     const date = day instanceof Date ? day : day.date;
     addPage(database.id, { [startProp.id]: date.toISOString() });
   };
@@ -192,7 +194,7 @@ export function CalendarView() {
           onExpandDay={(day, anchorRect) => setDayPopover({ day, anchorRect })}
           onChipPointerDown={chipDown}
           onHandlePointerDown={handleDown}
-          onEmptyPointerDown={(e, day) => begin(e, 'create', day.key, null)}
+          onEmptyPointerDown={canCreate ? (e, day) => begin(e, 'create', day.key, null) : undefined}
           suppressClickRef={suppressClickRef} />
       )}
       {(mode === 'week' || mode === 'day') && (

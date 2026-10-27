@@ -24,6 +24,7 @@ import { Z } from '../../../utils/geometry';
 import type { ChipData } from './CalendarWeekRow';
 import type { CalEvent, DayInfo } from './model/calendarTypes';
 import { cn } from '../../../utils/cn';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 
 const PANEL_WIDTH = 260;
 
@@ -38,6 +39,7 @@ export function CalendarDayPopover({
   onQuickCreate: () => void;
   onClose: () => void;
 }>) {
+  const canCreate = useCanCreateRecords();
   const left = Math.max(8, Math.min(
     anchorRect.left + anchorRect.width / 2 - PANEL_WIDTH / 2,
     window.innerWidth - PANEL_WIDTH - 8,
@@ -78,11 +80,11 @@ export function CalendarDayPopover({
             <div className={cn("text-xs text-ink-muted text-center py-3")}>No events</div>
           )}
         </div>
-        <button type="button" onClick={() => { onQuickCreate(); onClose(); }}
+        {canCreate && <button type="button" onClick={() => { onQuickCreate(); onClose(); }}
           className={cn(`w-full flex items-center gap-1.5 px-3 py-2 border-t border-line text-xs
             text-ink-secondary hover:bg-hover-surface transition-colors`)}>
           <Plus className={cn("w-3.5 h-3.5")} /> New
-        </button>
+        </button>}
       </dialog>
     </>,
     document.body,

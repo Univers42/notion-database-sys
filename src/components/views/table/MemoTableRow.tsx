@@ -11,10 +11,10 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
+import type { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
-import { renderCellContent, CellRendererProps } from './CellRenderer';
+import { renderCellContent, type CellRendererProps } from './CellRenderer';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useSubItems } from './subItemsContext';
 import { GripHandleIcon } from '../../ui/Icons';
