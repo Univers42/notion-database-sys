@@ -51,7 +51,7 @@ export type RelationRollupAnalytics = {
 /** Compute relation link stats, rollup results, and distribution metrics for the active view. */
 export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
   const activeViewId = useActiveViewId();
-  const { views, databases, pages, resolveRollup } = useDatabaseStore();
+  const { views, databases, pages, resolveRollup, getPagesForView } = useDatabaseStore();
   const view = activeViewId ? views[activeViewId] : null;
   const db = view ? databases[view.databaseId] : null;
 
@@ -61,7 +61,8 @@ export function useRelationRollupAnalytics(): RelationRollupAnalytics | null {
     const allProps = Object.values(db.properties);
     const relationProps = allProps.filter(p => p.type === 'relation');
     const rollupProps = allProps.filter(p => p.type === 'rollup');
-    const dbPages = Object.values(pages).filter(p => p.databaseId === db.id);
+    const scoped = activeViewId ? getPagesForView(activeViewId) : null;
+    const dbPages = scoped && scoped.length >= 0 ? scoped : Object.values(pages).filter(p => p.databaseId === db.id);
 
     const relationTargets: RelationTarget[] = relationProps.map(rp => ({
       prop: rp,
