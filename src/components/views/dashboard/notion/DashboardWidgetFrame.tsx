@@ -19,7 +19,7 @@
 import React, { useRef, useState } from 'react';
 import {
   MoreHorizontal, Settings2, Copy, Trash2, ArrowLeft, ArrowRight,
-  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2, Smile,
+  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2, Smile, BarChart3, List,
 } from 'lucide-react';
 import { DatabaseView } from '../../../DatabaseView';
 import { ViewSettingsPanel } from '../../../ViewSettingsPanel';
@@ -30,9 +30,11 @@ import { useOutsideClick } from '../../../../hooks/useOutsideClick';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import { VIEW_META } from '../../../viewSettings/constants';
-import type { ViewConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
+import type { ViewConfig, DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
 import { numberProperties } from './model/dashboardViewOps';
+import { formatCellValue } from '../constants';
 import { StatKpi, STAT_FN_LABEL } from './StatKpi';
+import { ChartView } from '../../chart/ChartView';
 import { AskAiWidgetButton } from './AskAiWidgetButton';
 import { cn } from '../../../../utils/cn';
 
@@ -45,6 +47,8 @@ export interface WidgetActions {
   onToggleHideTitle?: () => void;
   /** Swap between the embedded view and a Number/KPI tile (null → view). */
   onSetStat?: (stat: DashboardStatConfig | null) => void;
+  onSetChart?: (chart: DashboardChartConfig | null) => void;
+  onSetRecords?: (records: DashboardRecordsConfig | null) => void;
   /** A Number tile's chip icon (null → the aggregate's default). */
   onSetIcon?: (icon: string | null) => void;
   /** Pointer drag start from the grip handle (edit mode). */
@@ -79,6 +83,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
   useOutsideClick(configRef, configOpen, () => setConfigOpen(false));
   const databases = useDatabaseStore(s => s.databases);
   const widgetNumberProps = view ? numberProperties(databases[view.databaseId]?.properties ?? {}) : [];
+  const widgetChartProps = view ? Object.values(databases[view.databaseId]?.properties ?? {}).filter(p => p.type === 'select' || p.type === 'status' || p.type === 'date') : [];
 
   if (!view) {
     return (
@@ -170,6 +175,27 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
                           () => actions.onSetStat?.({ fn, propertyId: prop.id }),
                         ))
                     ))}
+                    {actions.onSetChart && (
+                      <>
+                        <div className={cn("my-1 border-t border-line")} />
+                        <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Chart</div>
+                        {widgetChartProps.slice(0, 5).map(prop => (
+                          menuItem(<BarChart3 className={cn("w-3.5 h-3.5")} />, `Chart · ${prop.name}`,
+                            () => actions.onSetChart?.({ chartType: 'vertical_bar', xAxisProperty: prop.id, yAxisAggregation: 'count' }))
+                        ))}
+                      </>
+                    )}
+                    {actions.onSetRecords && (
+                      <>
+                        <div className={cn("my-1 border-t border-line")} />
+                        <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Records</div>
+                        {menuItem(<List className={cn("w-3.5 h-3.5")} />, 'Recently edited', () => actions.onSetRecords?.({ direction: 'desc', limit: 10 }))}
+                        {widgetNumberProps.slice(0, 3).map(prop => menuItem(
+                          <List className={cn("w-3.5 h-3.5")} />, `Top by ${prop.name}`,
+                          () => actions.onSetRecords?.({ sortPropertyId: prop.id, direction: 'desc', limit: 10, showPropertyId: prop.id })
+                        ))}
+                      </>
+                    )}
                   </>
                 )}
                 <div className={cn("my-1 border-t border-line")} />
@@ -188,7 +214,11 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
         <ErrorBoundary>
           {widget.stat
             ? <StatKpi viewId={widget.viewId} stat={widget.stat} label={widget.hideTitle ? undefined : title} icon={widget.icon} />
-            : <DatabaseView viewId={widget.viewId} compact />}
+            : widget.chart
+              ? <DatabaseScopeProvider value={widget.viewId}><ChartView settingsOverride={widget.chart} /></DatabaseScopeProvider>
+              : widget.records
+                ? <RecordsWidget widget={widget} view={view} />
+                : <DatabaseView viewId={widget.viewId} compact />}
         </ErrorBoundary>
         {configOpen && (
           <div ref={configRef} className={cn("absolute top-1 right-1 z-30 max-h-[95%] overflow-auto rounded-xl border border-line bg-surface-primary shadow-xl")}>
@@ -197,6 +227,58 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
             </DatabaseScopeProvider>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+
+/** Compact record list for a records-presentation widget. */
+function RecordsWidget({ widget, view }: Readonly<{ widget: DashboardViewWidget; view: ViewConfig | null }>) {
+  const pages = useViewPages(widget.viewId);
+  const getCellValue = useDatabaseStore(s => s.getCellValue);
+  const getPageTitle = useDatabaseStore(s => s.getPageTitle);
+  const openPage = useDatabaseStore(s => s.openPage);
+  const databases = useDatabaseStore(s => s.databases);
+  const database = view ? databases[view.databaseId] : undefined;
+  const records = widget.records!;
+  const sorted = React.useMemo(() => {
+    const list = [...pages];
+    list.sort((a, b) => {
+      if (records.sortPropertyId) {
+        const va = getCellValue(a, records.sortPropertyId);
+        const vb = getCellValue(b, records.sortPropertyId);
+        if (typeof va === 'number' && typeof vb === 'number') {
+          return records.direction === 'asc' ? va - vb : vb - va;
+        }
+        const sa = String(va ?? '');
+        const sb = String(vb ?? '');
+        return records.direction === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa);
+      }
+      return records.direction === 'asc'
+        ? a.updatedAt.localeCompare(b.updatedAt)
+        : b.updatedAt.localeCompare(a.updatedAt);
+    });
+    return list.slice(0, records.limit);
+  }, [pages, records, getCellValue]);
+
+  const showProp = records.showPropertyId && database ? database.properties[records.showPropertyId] : null;
+
+  return (
+    <div className={cn("flex-1 min-h-0 overflow-auto p-3")}>
+      <div className={cn("flex flex-col gap-1")}>
+        {sorted.map(page => (
+          <button type="button" key={page.id} onClick={() => openPage(page.id)}
+            className={cn("flex items-center justify-between py-1.5 px-2 hover:bg-hover-surface rounded-lg cursor-pointer text-left w-full")}>
+            <span className={cn("text-sm text-ink truncate")}>{getPageTitle(page) || 'Untitled'}</span>
+            {showProp && (
+              <span className={cn("text-xs text-ink-muted tabular-nums shrink-0 ml-2")}>
+                {formatCellValue(page.properties[showProp.id], showProp)}
+              </span>
+            )}
+          </button>
+        ))}
+        {sorted.length === 0 && <p className={cn("text-sm text-ink-muted py-4 text-center")}>No records</p>}
       </div>
     </div>
   );

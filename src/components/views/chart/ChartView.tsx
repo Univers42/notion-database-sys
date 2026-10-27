@@ -15,6 +15,8 @@ import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/use
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { BarChart3 } from 'lucide-react';
 import type { ChartType } from './useChartData';
+import type { ViewSettings } from '../../../types/database';
+import type { DashboardChartConfig } from '../../../types/database';
 import { useServerChartData } from './useServerChartData';
 import { fetchServerDrilldownRows } from './chartServerDrilldown';
 import { applyConditionalChartColors } from '../../../lib/conditionalColor';
@@ -55,7 +57,7 @@ function ChartLoading() {
 }
 
 /** Renders the chart view: number type inline, the rest via the lazy canvas. */
-export function ChartView() {
+export function ChartView({ settingsOverride }: Readonly<{ settingsOverride?: Partial<ViewSettings> | DashboardChartConfig }> = {}) {
   const activeViewId = useActiveViewId();
   // Narrow selectors (MapView's fixed idiom): a bare useDatabaseStore() re-
   // rendered the chart on EVERY store write in this database. pagesMap is a
@@ -69,7 +71,7 @@ export function ChartView() {
   const { openPage, getPageTitle, updateViewSettings, getCellValue } = storeApi.getState();
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
-  const settings = view?.settings || {};
+  const settings = { ...(view?.settings || {}), ...(settingsOverride || {}) };
   const viewPages = useViewPages(view?.id);
   // The chart engine reads page.properties, where formula / rollup / created-
   // time columns keep nothing; resolve the axes it charts. Any page write (a

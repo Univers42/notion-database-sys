@@ -104,3 +104,5 @@ export function AutoDetectDashboard({ pages, allProps, computedData, openPage, g
     </div>
   );
 }
+
+export { autoDetectedWidgets } from '../dashboard/notion/model/autoDetectedWidgets';
