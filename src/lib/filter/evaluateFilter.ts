@@ -154,7 +154,32 @@ export function matchesFilterValue(val: unknown, filter: Pick<Filter, 'operator'
 export function evaluateFilter(
   page: Page,
   filter: Filter,
-  _property: SchemaProperty | undefined,
+  property: SchemaProperty | undefined,
 ): boolean {
-  return matchesFilterValue(page.properties[filter.propertyId], filter);
+  return matchesPropertyFilter(page.properties[filter.propertyId], filter, property);
+}
+
+const OPTION_TYPES: ReadonlySet<string> = new Set(['select', 'status', 'multi_select']);
+
+/** A select-like value as its option id. Seeded databases store option ids, while
+ *  `sys:` and workspace databases store the option's text; the filter UI stores ids. */
+function toOptionId(value: unknown, property: SchemaProperty): unknown {
+  if (Array.isArray(value)) return value.map(item => toOptionId(item, property));
+  const option = property.options?.find(o => o.id === value || o.value === value);
+  return option ? option.id : value;
+}
+
+/**
+ * `matchesFilterValue` for a known column: a select-like cell and the filter value
+ * are both compared as option ids, so either side may carry the id or the text.
+ */
+export function matchesPropertyFilter(
+  value: unknown,
+  filter: Pick<Filter, 'operator' | 'value'>,
+  property: SchemaProperty | undefined,
+): boolean {
+  if (!property || !OPTION_TYPES.has(property.type) || !property.options?.length) {
+    return matchesFilterValue(value, filter);
+  }
+  return matchesFilterValue(toOptionId(value, property), { ...filter, value: toOptionId(filter.value, property) as Filter['value'] });
 }

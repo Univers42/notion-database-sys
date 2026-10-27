@@ -12,7 +12,7 @@ import { evaluateFilter } from '../../../../lib/filter/evaluateFilter';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { StatIconBadge, STAT_LOOK } from '../StatComponents';
 import { Icon } from '../../../ui/Icon';
-import { aggregate, distinctCount, formatKpi, kpiProvenance, numericValues, STAT_FN_KIND } from './model/kpiModel';
+import { aggregate, distinctCount, formatKpi, kpiProvenance, numericValues, STAT_FN_KIND, whereFilterLabel } from './model/kpiModel';
 import { cn } from '../../../../utils/cn';
 
 export { STAT_FN_LABEL } from './model/kpiModel';
@@ -49,15 +49,7 @@ export function StatKpi({ viewId, stat, label, icon }: Readonly<{
     : stat.fn === 'count' || !stat.propertyId
       ? basePages.length
       : aggregate(stat.fn as Exclude<typeof stat.fn, 'count' | 'distinct'>, numericValues(basePages.map(page => getCellValue(page, stat.propertyId as string))));
-  const whereLabel = whereFilters.length > 0
-    ? whereFilters.map(filter => {
-        const p = database?.properties[filter.propertyId];
-        const name = p?.name ?? filter.propertyId;
-        if (filter.operator === 'is_checked') return `${name} is checked`;
-        if (filter.operator === 'is_not_checked') return `${name} is not checked`;
-        return `${name} ${filter.operator} ${String(filter.value ?? '')}`.trim();
-      }).join(' and ')
-    : undefined;
+  const whereLabel = whereFilterLabel(whereFilters, database?.properties ?? {});
   const provenance = kpiProvenance({ fn: stat.fn, matched: basePages.length, total, propertyName: property?.name, whereLabel });
   const look = STAT_LOOK[STAT_FN_KIND[stat.fn]];
   const shown = formatKpi(value);
@@ -75,8 +67,8 @@ export function StatKpi({ viewId, stat, label, icon }: Readonly<{
       <div className={cn("shrink-0 [@container(max-width:150px)]:hidden [@container(max-height:56px)]:hidden")}>
         <StatIconBadge color={look.color}>{icon ? <Icon name={icon} className={cn("w-5 h-5")} /> : look.icon}</StatIconBadge>
       </div>
-      <div className={cn("min-w-0 flex-1 [@container(max-width:150px)]:text-center")} title={provenance}>
-        <div style={widthCap} className={cn("text-[min(1.875rem,40cqh,var(--kpi-w))] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,var(--kpi-w))] font-bold tabular-nums text-ink leading-none truncate")}>
+      <div data-dash-kpi className={cn("min-w-0 flex-1 [@container(max-width:150px)]:text-center")} title={provenance}>
+        <div data-dash-kpi-value style={widthCap} className={cn("text-[min(1.875rem,40cqh,var(--kpi-w))] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,var(--kpi-w))] font-bold tabular-nums text-ink leading-none truncate")}>
           {shown}
         </div>
         {label && <div className={cn("mt-1 text-xs text-ink-secondary truncate [@container(max-height:40px)]:hidden")}>{label}</div>}

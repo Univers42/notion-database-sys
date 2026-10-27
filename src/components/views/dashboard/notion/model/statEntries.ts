@@ -36,7 +36,13 @@ export function statEntries(properties: Record<string, SchemaProperty> | readonl
         stat: { fn: 'count', where: [{ id: `f-${prop.id}`, propertyId: prop.id, operator: 'is_not_checked', value: true }] },
       },
     ])),
-    ...selects.map((prop): StatEntry => ({ label: `Distinct ${prop.name}`, stat: { fn: 'distinct', propertyId: prop.id } })),
+    ...selects.flatMap((prop): StatEntry[] => [
+      { label: `Distinct ${prop.name}`, stat: { fn: 'distinct', propertyId: prop.id } },
+      ...(prop.options ?? []).map((option): StatEntry => ({
+        label: `Count where ${prop.name} is ${option.value}`,
+        stat: { fn: 'count', where: [{ id: `f-${prop.id}`, propertyId: prop.id, operator: 'equals', value: option.id }] },
+      })),
+    ]),
     ...numberProperties(all).flatMap((prop): StatEntry[] => ([
       { label: `Sum of ${prop.name}`, stat: { fn: 'sum', propertyId: prop.id } },
       { label: `Average ${prop.name}`, stat: { fn: 'avg', propertyId: prop.id } },

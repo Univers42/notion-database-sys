@@ -23,6 +23,7 @@ import type { DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig,
 import type { WidgetViewGroup } from './model/dashboardViewOps';
 import { statEntries as sharedStatEntries } from './model/statEntries';
 import { insightEntries as sharedInsightEntries } from './model/insightEntries';
+import { chartEntries as sharedChartEntries, recordEntries as sharedRecordEntries } from './model/widgetEntries';
 import { cn } from '../../../../utils/cn';
 
 /** New-view layouts offered in the picker (dashboard-in-dashboard excluded). */
@@ -31,12 +32,8 @@ const NEW_VIEW_TYPES: ViewType[] = LAYOUT_ORDER.filter(t => t !== 'dashboard');
 interface AddWidgetPickerProps {
   hostViews: ViewConfig[];
   otherGroups: WidgetViewGroup[];
-  /** Number properties of the host database (Number widget shortcuts). */
-  numberProps: SchemaProperty[];
-  checkboxProps?: SchemaProperty[];
-  selectProps?: SchemaProperty[];
-  dateProps?: SchemaProperty[];
-  properties?: Record<string, SchemaProperty> | SchemaProperty[];
+  /** The host database's columns: every Number, Chart, Records and Insight entry comes from them. */
+  properties: Record<string, SchemaProperty> | SchemaProperty[];
   onPickExisting: (viewId: string) => void;
   onPickStat: (stat: DashboardStatConfig) => void;
   onPickChart: (chart: DashboardChartConfig) => void;
@@ -63,8 +60,7 @@ function ViewRow({ view, onPick }: Readonly<{ view: ViewConfig; onPick: () => vo
 
 /** Popover: numbers + existing views (all databases) + "new view" shortcuts. */
 export function AddWidgetPicker({
-  hostViews, otherGroups, numberProps, checkboxProps = [], selectProps = [], dateProps = [],
-  properties = [],
+  hostViews, otherGroups, properties,
   onPickExisting, onPickStat, onPickChart, onPickRecords, onPickInsight, onCreateNew, onClose,
 }: Readonly<AddWidgetPickerProps>) {
   const ref = useRef<HTMLDivElement>(null);
@@ -77,23 +73,12 @@ export function AddWidgetPicker({
   const groupsFiltered = otherGroups
     .map(group => ({ ...group, views: group.views.filter(v => matches(v.name) || matches(group.databaseName)) }))
     .filter(group => group.views.length > 0);
-  const statEntries = sharedStatEntries([...numberProps, ...checkboxProps, ...selectProps])
-    .filter(entry => matches(entry.label));
+  const statEntries = sharedStatEntries(properties).filter(entry => matches(entry.label));
   const insightList = sharedInsightEntries(properties)
     .filter(entry => matches(entry.label));
 
-  const chartEntries: { label: string; chart: DashboardChartConfig }[] = [...selectProps, ...dateProps].map((prop) => ({
-    label: `Chart · ${prop.name}`,
-    chart: { chartType: 'vertical_bar', xAxisProperty: prop.id, yAxisAggregation: 'count' } as DashboardChartConfig,
-  })).filter(entry => matches(entry.label));
-
-  const recordEntries: { label: string; records: DashboardRecordsConfig }[] = [
-    { label: 'Recently edited', records: { direction: 'desc', limit: 10 } as DashboardRecordsConfig },
-    ...numberProps.map((prop) => ({
-      label: `Top by ${prop.name}`,
-      records: { sortPropertyId: prop.id, direction: 'desc', limit: 10, showPropertyId: prop.id } as DashboardRecordsConfig,
-    })),
-  ].filter(entry => matches(entry.label));
+  const chartEntries = sharedChartEntries(properties).filter(entry => matches(entry.label));
+  const recordEntries = sharedRecordEntries(properties).filter(entry => matches(entry.label));
   const newTypes = NEW_VIEW_TYPES.filter(type => matches(VIEW_META[type]?.label ?? type));
 
   return (
