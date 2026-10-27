@@ -36,7 +36,7 @@ import { isHostBacked } from './model/isHostBacked';
 import { statEntries as sharedStatEntries } from './model/statEntries';
 import { insightEntries as sharedInsightEntries } from './model/insightEntries';
 import { chartEntries as sharedChartEntries, recordEntries as sharedRecordEntries } from './model/widgetEntries';
-import { StatKpi, STAT_FN_LABEL } from './StatKpi';
+import { StatKpi } from './StatKpi';
 import { ChartView } from '../../chart/ChartView';
 import { FormulaInsights } from '../FormulaInsights';
 import { RelationInsights } from '../RelationInsights';
