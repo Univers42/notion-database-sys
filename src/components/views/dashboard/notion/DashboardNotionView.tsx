@@ -314,6 +314,7 @@ export default function DashboardNotionView() {
                 return (
                   <DashboardWidgetFrame widget={widget}
                     view={views[widget.viewId] ?? null} editMode={editMode}
+                    hostViewId={view.id}
                     actions={widgetActions(widgetId, row.id, colIndex)} />
                 );
               }} />

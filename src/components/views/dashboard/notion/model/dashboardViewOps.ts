@@ -130,3 +130,6 @@ export function filterableProperties(
     .filter(p => p.type !== 'button')
     .sort((a, b) => a.name.localeCompare(b.name));
 }
+
+export { isHostBacked } from "./isHostBacked";
+export { statEntries, buildStatEntries, dashboardStatEntries, widgetStatEntries, statWidgetEntries, showAsEntries, kpiEntries, type StatEntry } from "./statEntries";

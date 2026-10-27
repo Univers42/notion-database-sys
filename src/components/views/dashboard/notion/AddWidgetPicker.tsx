@@ -21,6 +21,7 @@ import { useOutsideClick } from '../../../../hooks/useOutsideClick';
 import { VIEW_META, LAYOUT_ORDER } from '../../../viewSettings/constants';
 import type { DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, SchemaProperty, ViewConfig, ViewType } from '../../../../types/database';
 import type { WidgetViewGroup } from './model/dashboardViewOps';
+import { statEntries as sharedStatEntries } from './model/statEntries';
 import { cn } from '../../../../utils/cn';
 
 /** New-view layouts offered in the picker (dashboard-in-dashboard excluded). */
@@ -72,27 +73,11 @@ export function AddWidgetPicker({
   const groupsFiltered = otherGroups
     .map(group => ({ ...group, views: group.views.filter(v => matches(v.name) || matches(group.databaseName)) }))
     .filter(group => group.views.length > 0);
-  const checkboxList = checkboxProps;
-  const selectList = selectProps;
-  const statEntries: { label: string; stat: DashboardStatConfig }[] = [
-    { label: 'Count of records', stat: { fn: 'count' } satisfies DashboardStatConfig },
-    ...checkboxList.map((prop): { label: string; stat: DashboardStatConfig } => ({
-      label: `Count where ${prop.name} is checked`,
-      stat: { fn: 'count', where: [{ id: `f-${prop.id}`, propertyId: prop.id, operator: 'is_checked', value: true }] },
-    })),
-    ...selectList.map((prop): { label: string; stat: DashboardStatConfig } => ({
-      label: `Distinct ${prop.name}`,
-      stat: { fn: 'distinct', propertyId: prop.id },
-    })),
-    ...numberProps.flatMap((prop): { label: string; stat: DashboardStatConfig }[] => ([
-      { label: `Sum of ${prop.name}`, stat: { fn: 'sum', propertyId: prop.id } },
-      { label: `Average ${prop.name}`, stat: { fn: 'avg', propertyId: prop.id } },
-      { label: `Min of ${prop.name}`, stat: { fn: 'min', propertyId: prop.id } },
-      { label: `Max of ${prop.name}`, stat: { fn: 'max', propertyId: prop.id } },
-    ])),
-  ].filter(entry => matches(entry.label));
+  const statEntries = sharedStatEntries({ numberProps, checkboxProps, selectProps })
+    .map(entry => ({ label: entry.label, stat: entry.stat }))
+    .filter(entry => matches(entry.label));
 
-  const chartEntries: { label: string; chart: DashboardChartConfig }[] = [...selectList, ...dateProps].map((prop) => ({
+  const chartEntries: { label: string; chart: DashboardChartConfig }[] = [...selectProps, ...dateProps].map((prop) => ({
     label: `Chart · ${prop.name}`,
     chart: { chartType: 'vertical_bar', xAxisProperty: prop.id, yAxisAggregation: 'count' } as DashboardChartConfig,
   })).filter(entry => matches(entry.label));

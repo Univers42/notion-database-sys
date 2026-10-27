@@ -32,6 +32,8 @@ import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseSt
 import { VIEW_META } from '../../../viewSettings/constants';
 import type { ViewConfig, DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
 import { numberProperties } from './model/dashboardViewOps';
+import { isHostBacked } from './model/isHostBacked';
+import { statEntries as sharedStatEntries } from './model/statEntries';
 import { formatCellValue } from '../constants';
 import { StatKpi, STAT_FN_LABEL } from './StatKpi';
 import { ChartView } from '../../chart/ChartView';
@@ -66,11 +68,12 @@ function WidgetCountBadge({ viewId }: Readonly<{ viewId: string }>) {
 }
 
 /** Card chrome around an embedded view; edit mode reveals the action menu. */
-export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readonly<{
+export function DashboardWidgetFrame({ widget, view, editMode, actions, hostViewId }: Readonly<{
   widget: DashboardViewWidget;
   view: ViewConfig | null;
   editMode: boolean;
   actions: WidgetActions;
+  hostViewId?: string;
 }>) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
@@ -84,6 +87,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
   const databases = useDatabaseStore(s => s.databases);
   const widgetNumberProps = view ? numberProperties(databases[view.databaseId]?.properties ?? {}) : [];
   const widgetChartProps = view ? Object.values(databases[view.databaseId]?.properties ?? {}).filter(p => p.type === 'select' || p.type === 'status' || p.type === 'date') : [];
+  const hostBacked = hostViewId != null && isHostBacked(widget, hostViewId);
 
   if (!view) {
     return (
@@ -153,7 +157,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
             )}
             {menuOpen && (
               <div className={cn("odb-pop-in absolute right-0 top-full mt-1 z-30 w-48 py-1 rounded-lg border border-line bg-surface-primary shadow-lg max-h-72 overflow-y-auto")}>
-                {menuItem(<Settings2 className={cn("w-3.5 h-3.5")} />, 'Configure view', () => setConfigOpen(true))}
+                {!hostBacked && menuItem(<Settings2 className={cn("w-3.5 h-3.5")} />, 'Configure view', () => setConfigOpen(true))}
                 {actions.onRename && menuItem(<Pencil className={cn("w-3.5 h-3.5")} />, 'Rename widget', () => setRenaming(title))}
                 {actions.onToggleHideTitle && menuItem(
                   widget.hideTitle ? <Eye className={cn("w-3.5 h-3.5")} /> : <EyeOff className={cn("w-3.5 h-3.5")} />,
@@ -163,17 +167,10 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
                   <>
                     <div className={cn("my-1 border-t border-line")} />
                     <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Show as</div>
-                    {widget.stat && menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => actions.onSetStat?.(null))}
-                    {(!widget.stat || widget.stat.fn !== 'count') &&
-                      menuItem(<Hash className={cn("w-3.5 h-3.5")} />, 'Number · Count', () => actions.onSetStat?.({ fn: 'count' }))}
-                    {widgetNumberProps.slice(0, 3).flatMap(prop => (
-                      (['sum', 'avg'] as const)
-                        .filter(fn => !(widget.stat?.fn === fn && widget.stat?.propertyId === prop.id))
-                        .map(fn => menuItem(
-                          <Hash className={cn("w-3.5 h-3.5")} />,
-                          `Number · ${STAT_FN_LABEL[fn]} of ${prop.name}`,
-                          () => actions.onSetStat?.({ fn, propertyId: prop.id }),
-                        ))
+                    {widget.stat && !hostBacked && menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => actions.onSetStat?.(null))}
+                    {sharedStatEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).map(entry => (
+                      menuItem(<Hash className={cn("w-3.5 h-3.5")} />, `Number · ${entry.label}`,
+                        () => actions.onSetStat?.(entry.stat))
                     ))}
                     {actions.onSetChart && (
                       <>
@@ -218,9 +215,13 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
               ? <DatabaseScopeProvider value={widget.viewId}><ChartView settingsOverride={widget.chart} /></DatabaseScopeProvider>
               : widget.records
                 ? <RecordsWidget widget={widget} view={view} />
-                : <DatabaseView viewId={widget.viewId} compact />}
+                : hostBacked
+                  ? <div className={cn("h-full flex items-center justify-center px-4 text-center text-xs text-ink-muted")}>
+                      This widget shows the dashboard's own records; pick Number, Chart or Records
+                    </div>
+                  : <DatabaseView viewId={widget.viewId} compact />}
         </ErrorBoundary>
-        {configOpen && (
+        {!hostBacked && configOpen && (
           <div ref={configRef} className={cn("absolute top-1 right-1 z-30 max-h-[95%] overflow-auto rounded-xl border border-line bg-surface-primary shadow-xl")}>
             <DatabaseScopeProvider value={widget.viewId}>
               <ViewSettingsPanel onClose={() => setConfigOpen(false)} />
@@ -273,7 +274,7 @@ function RecordsWidget({ widget, view }: Readonly<{ widget: DashboardViewWidget;
             <span className={cn("text-sm text-ink truncate")}>{getPageTitle(page) || 'Untitled'}</span>
             {showProp && (
               <span className={cn("text-xs text-ink-muted tabular-nums shrink-0 ml-2")}>
-                {formatCellValue(page.properties[showProp.id], showProp)}
+                {formatCellValue(getCellValue(page, showProp.id), showProp)}
               </span>
             )}
           </button>
