@@ -31,6 +31,7 @@ import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import { VIEW_META } from '../../../viewSettings/constants';
 import type { ViewConfig, DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
+import type { ChartResult } from '../../../../lib/chart/chartTypes';
 import { isHostBacked } from './model/isHostBacked';
 import { statEntries as sharedStatEntries } from './model/statEntries';
 import { insightEntries as sharedInsightEntries } from './model/insightEntries';
@@ -86,6 +87,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const configRef = useRef<HTMLDivElement>(null);
+  const chartResultRef = useRef<ChartResult | null>(null);
   useOutsideClick(menuRef, menuOpen, () => setMenuOpen(false));
   useOutsideClick(configRef, configOpen, () => setConfigOpen(false));
   const databases = useDatabaseStore(s => s.databases);
@@ -113,6 +115,8 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
   );
 
   const title = widget.title ?? view.name;
+  // Insights and the host-backed placeholder draw no records: nothing to quote.
+  const quotable = Boolean(widget.chart || widget.records) || !(widget.insight || hostBacked);
   const showHeader = editMode || (!widget.hideTitle && !widget.stat);
   return (
     <div className={cn("group/widget odb-rise-in h-full min-w-0 flex flex-col rounded-xl border border-line bg-surface-primary overflow-hidden")}>
@@ -143,7 +147,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
         )}
         {!editMode && !widget.stat && (
           <span className={cn("ml-auto flex items-center gap-1")}>
-            <AskAiWidgetButton viewId={widget.viewId} title={title} />
+            {quotable && <AskAiWidgetButton widget={widget} title={title} chartResult={chartResultRef} />}
             <WidgetCountBadge viewId={widget.viewId} />
           </span>
         )}
@@ -225,7 +229,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
           {widget.stat
             ? <StatKpi viewId={widget.viewId} stat={widget.stat} label={widget.hideTitle ? undefined : title} icon={widget.icon} />
             : widget.chart
-              ? <DatabaseScopeProvider value={widget.viewId}><ChartView settingsOverride={widget.chart} /></DatabaseScopeProvider>
+              ? <DatabaseScopeProvider value={widget.viewId}><ChartView settingsOverride={widget.chart} onResult={result => { chartResultRef.current = result; }} /></DatabaseScopeProvider>
               : widget.records
                 ? <RecordsWidget widget={widget} view={view} />
                 : widget.insight === 'formulas'
