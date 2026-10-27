@@ -36,7 +36,7 @@ import {
   addViewForWidget, duplicateViewForWidget, filterableProperties,
   groupedWidgetViews, numberProperties,
 } from './model/dashboardViewOps';
-import type { DashboardStatConfig, ViewType } from '../../../../types/database';
+import type { DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, ViewType } from '../../../../types/database';
 import { cn } from '../../../../utils/cn';
 
 /** Where a picked widget should land (toolbar/bottom-strip/row `+`). */
@@ -73,7 +73,7 @@ export default function DashboardNotionView() {
       if (!id) return;
       const current = storeApi.getState().views[id];
       if (!current) return;
-      const currentLayout = layoutFromSettings(current.settings || {});
+      const currentLayout = layoutFromSettings(current.settings || {}, id, storeApi.getState().databases[current.databaseId]?.properties);
       const next = moveWidget(currentLayout, widgetId, target);
       if (next !== currentLayout) {
         updateViewSettings(id, { dashboardRows: next.rows, dashboardWidgets: next.widgets });
@@ -84,7 +84,7 @@ export default function DashboardNotionView() {
   if (!view || !database) return null;
   const locked = Boolean(database.locked || view.settings?.locked);
   const settings = view.settings || {};
-  const layout = layoutFromSettings(settings);
+  const layout = layoutFromSettings(settings, view.id, database.properties);
   const filters = settings.dashboardFilters ?? [];
   const usedWidgetIds = new Set(layout.widgets.map(w => w.viewId));
   const { host: hostViewsAll, others: otherGroupsAll } = groupedWidgetViews(views, databases, view.databaseId);
@@ -93,6 +93,9 @@ export default function DashboardNotionView() {
     .map(group => ({ ...group, views: group.views.filter(v => !usedWidgetIds.has(v.id)) }))
     .filter(group => group.views.length > 0);
   const hostNumberProps = numberProperties(database.properties);
+  const hostCheckboxProps = Object.values(database.properties).filter(p => p.type === 'checkbox');
+  const hostSelectProps = Object.values(database.properties).filter(p => p.type === 'select' || p.type === 'status');
+  const hostDateProps = Object.values(database.properties).filter(p => p.type === 'date' || p.type === 'created_time' || p.type === 'last_edited_time');
   // Cards with their own height (detached from their row's group bar).
   const cellHeights = Object.fromEntries(
     layout.widgets.flatMap(w => (w.height != null ? [[w.id, w.height] as const] : [])),
@@ -135,6 +138,16 @@ export default function DashboardNotionView() {
       ?? addViewForWidget(storeApi, view.databaseId, 'table', 'All records');
     commit(addWidget(layout, backing, undefined, { ...addOptions(), stat }));
   };
+  const handlePickChart = (chart: DashboardChartConfig) => {
+    const backing = hostViewsAll.find(v => v.id !== view.id)?.id
+      ?? addViewForWidget(storeApi, view.databaseId, 'table', 'All records');
+    commit(addWidget(layout, backing, undefined, { ...addOptions(), chart }));
+  };
+  const handlePickRecords = (records: DashboardRecordsConfig) => {
+    const backing = hostViewsAll.find(v => v.id !== view.id)?.id
+      ?? addViewForWidget(storeApi, view.databaseId, 'table', 'All records');
+    commit(addWidget(layout, backing, undefined, { ...addOptions(), records }));
+  };
 
   /** One-click starter built purely from EXISTING views (view creation on
    *  adapter-backed surfaces races the host catalog): KPI row on top, the
@@ -175,7 +188,9 @@ export default function DashboardNotionView() {
       const widget = layout.widgets.find(w => w.id === widgetId);
       patchWidget(widgetId, { hideTitle: !widget?.hideTitle });
     },
-    onSetStat: (stat: DashboardStatConfig | null) => patchWidget(widgetId, { stat: stat ?? undefined }),
+    onSetStat: (stat: DashboardStatConfig | null) => patchWidget(widgetId, { stat: stat ?? undefined, chart: undefined, records: undefined }),
+    onSetChart: (chart: DashboardChartConfig | null) => patchWidget(widgetId, { chart: chart ?? undefined, stat: undefined, records: undefined }),
+    onSetRecords: (records: DashboardRecordsConfig | null) => patchWidget(widgetId, { records: records ?? undefined, stat: undefined, chart: undefined }),
     onSetIcon: (icon: string | null) => patchWidget(widgetId, { icon: icon ?? undefined }),
     onDragStart: (event: React.PointerEvent) => startDrag(widgetId, event),
   });
@@ -185,8 +200,13 @@ export default function DashboardNotionView() {
       hostViews={hostViews}
       otherGroups={otherGroups}
       numberProps={hostNumberProps}
+      checkboxProps={hostCheckboxProps}
+      selectProps={hostSelectProps}
+      dateProps={hostDateProps}
       onPickExisting={handlePickExisting}
       onPickStat={handlePickStat}
+      onPickChart={handlePickChart}
+      onPickRecords={handlePickRecords}
       onCreateNew={handleCreateNew}
       onClose={() => setPickerTarget(null)}
     />
@@ -294,6 +314,7 @@ export default function DashboardNotionView() {
                 return (
                   <DashboardWidgetFrame widget={widget}
                     view={views[widget.viewId] ?? null} editMode={editMode}
+                    hostViewId={view.id}
                     actions={widgetActions(widgetId, row.id, colIndex)} />
                 );
               }} />

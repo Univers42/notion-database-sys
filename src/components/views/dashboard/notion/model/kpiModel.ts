@@ -14,11 +14,12 @@ export const STAT_FN_LABEL: Record<StatFn, string> = {
   avg: 'Average',
   min: 'Min',
   max: 'Max',
+  distinct: 'Distinct',
 };
 
 /** The legacy tile look is keyed by what the tile measures. */
 export const STAT_FN_KIND: Record<StatFn, StatKind> = {
-  count: 'count', sum: 'sum', avg: 'average', min: 'min', max: 'max',
+  count: 'count', sum: 'sum', avg: 'average', min: 'min', max: 'max', distinct: 'distinct',
 };
 
 /** Cell values → finite numbers; an empty cell is not a zero. */
@@ -38,6 +39,12 @@ export function aggregate(fn: Exclude<StatFn, 'count'>, numbers: readonly number
   return fn === 'min' ? Math.min(...numbers) : Math.max(...numbers);
 }
 
+/** Distinct (non-empty) values in a list. */
+export function distinctCount(values: readonly unknown[]): number {
+  const set = new Set(values.filter(v => v !== null && v !== undefined && v !== ''));
+  return set.size;
+}
+
 /** Compact from 10K up (12.4K, 1.4M); below that at most two decimals. */
 export function formatKpi(value: number): string {
   if (Math.abs(value) >= 10_000) return formatNumber(value);
@@ -45,10 +52,11 @@ export function formatKpi(value: number): string {
 }
 
 /** The line under the label: where the number comes from. */
-export function kpiProvenance({ fn, matched, total, propertyName }: Readonly<{
-  fn: StatFn; matched: number; total: number; propertyName?: string;
+export function kpiProvenance({ fn, matched, total, propertyName, whereLabel }: Readonly<{
+  fn: StatFn; matched: number; total: number; propertyName?: string; whereLabel?: string;
 }>): string {
   const records = (n: number) => `${n.toLocaleString()} ${n === 1 ? 'record' : 'records'}`;
+  if (whereLabel) return `${STAT_FN_LABEL[fn]} where ${whereLabel} · ${matched} of ${total}`;
   if (fn !== 'count') return `${STAT_FN_LABEL[fn]} of ${propertyName ?? '—'} · ${records(matched)}`;
   if (total <= 0 || matched >= total) return `All ${records(total > 0 ? total : matched)}`;
   return `${Math.round((matched / total) * 100)}% of ${records(total)}`;

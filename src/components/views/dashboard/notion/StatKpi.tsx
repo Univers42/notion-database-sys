@@ -8,10 +8,11 @@
 import React from 'react';
 import type { DashboardStatConfig } from '../../../../types/database';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
+import { evaluateFilter } from '../../../../lib/filter/evaluateFilter';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { StatIconBadge, STAT_LOOK } from '../StatComponents';
 import { Icon } from '../../../ui/Icon';
-import { aggregate, formatKpi, kpiProvenance, numericValues, STAT_FN_KIND } from './model/kpiModel';
+import { aggregate, distinctCount, formatKpi, kpiProvenance, numericValues, STAT_FN_KIND } from './model/kpiModel';
 import { cn } from '../../../../utils/cn';
 
 export { STAT_FN_LABEL } from './model/kpiModel';
@@ -39,10 +40,25 @@ export function StatKpi({ viewId, stat, label, icon }: Readonly<{
   const total = useDatabaseRecordCount(view?.databaseId);
   const property = stat.propertyId && database ? database.properties[stat.propertyId] : null;
 
-  const value = stat.fn === 'count' || !stat.propertyId
-    ? pages.length
-    : aggregate(stat.fn, numericValues(pages.map(page => getCellValue(page, stat.propertyId as string))));
-  const provenance = kpiProvenance({ fn: stat.fn, matched: pages.length, total, propertyName: property?.name });
+  const whereFilters = stat.where ?? [];
+  const basePages = whereFilters.length > 0
+    ? pages.filter(page => whereFilters.every(filter => evaluateFilter(page, filter, database?.properties[filter.propertyId])))
+    : pages;
+  const value = stat.fn === 'distinct'
+    ? distinctCount(basePages.map(page => getCellValue(page, stat.propertyId as string)))
+    : stat.fn === 'count' || !stat.propertyId
+      ? basePages.length
+      : aggregate(stat.fn as Exclude<typeof stat.fn, 'count' | 'distinct'>, numericValues(basePages.map(page => getCellValue(page, stat.propertyId as string))));
+  const whereLabel = whereFilters.length > 0
+    ? whereFilters.map(filter => {
+        const p = database?.properties[filter.propertyId];
+        const name = p?.name ?? filter.propertyId;
+        if (filter.operator === 'is_checked') return `${name} is checked`;
+        if (filter.operator === 'is_not_checked') return `${name} is not checked`;
+        return `${name} ${filter.operator} ${String(filter.value ?? '')}`.trim();
+      }).join(' and ')
+    : undefined;
+  const provenance = kpiProvenance({ fn: stat.fn, matched: basePages.length, total, propertyName: property?.name, whereLabel });
   const look = STAT_LOOK[STAT_FN_KIND[stat.fn]];
   const shown = formatKpi(value);
   // A bold digit is ~0.6em wide: cap the size so every character fits the
