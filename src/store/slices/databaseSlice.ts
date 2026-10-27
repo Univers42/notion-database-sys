@@ -10,8 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { DatabaseSchema, SchemaProperty, PropertyType, SelectOption, ViewConfig } from '../../types/database';
+import type { AutomationRuleV2, DatabaseSchema, SchemaProperty, PropertyType, SelectOption, ViewConfig } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
+import { withoutAutomations } from '../../lib/automations/migrateAutomations';
 import { defaultStatusSchema, needsStatusDefaults } from './statusDefaults';
 
 /** A fresh ID property backfills every existing record in creation order and
@@ -70,6 +71,7 @@ export interface DatabaseSliceActions {
   updateProperty: (databaseId: string, propertyId: string, updates: Partial<SchemaProperty>) => void;
   deleteProperty: (databaseId: string, propertyId: string) => void;
   addSelectOption: (databaseId: string, propertyId: string, option: SelectOption) => void;
+  saveDatabaseAutomations: (databaseId: string, rules: AutomationRuleV2[]) => void;
 }
 
 export type DatabaseSlice = DatabaseSliceState & DatabaseSliceActions;
@@ -260,6 +262,26 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
       return {
         databases: { ...state.databases, [databaseId]: { ...db, properties: remainingProps } },
         views: removePropertyFromViews(state.views, databaseId, propertyId),
+      };
+    }),
+
+    saveDatabaseAutomations: (databaseId, rules) => set((state: DatabaseState) => {
+      const db = state.databases[databaseId];
+      if (!db) return state;
+      const clonedRules = rules.map((rule) => ({ ...rule, conditions: rule.conditions.map((c) => ({ ...c })), program: { ...rule.program, steps: rule.program.steps.map((s) => ({ ...s })) } }));
+      const updatedViews = { ...state.views };
+      for (const viewId of Object.keys(updatedViews)) {
+        const view = updatedViews[viewId];
+        if (view.databaseId === databaseId && view.settings?.automations) {
+          updatedViews[viewId] = withoutAutomations(view);
+        }
+      }
+      return {
+        databases: {
+          ...state.databases,
+          [databaseId]: { ...db, automations: clonedRules },
+        },
+        views: updatedViews,
       };
     }),
 

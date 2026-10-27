@@ -77,7 +77,7 @@ function ruleV2(rule: AutomationRule): AutomationRuleV2 {
   };
 }
 
-function withoutAutomations(view: ViewConfig): ViewConfig {
+export function withoutAutomations(view: ViewConfig): ViewConfig {
   const settings = { ...view.settings };
   delete settings.automations;
   return { ...view, settings };

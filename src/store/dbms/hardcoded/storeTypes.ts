@@ -15,6 +15,7 @@
 import type {
   DatabaseSchema, Page, ViewConfig, PropertyType, ViewSettings,
   SelectOption, Filter, Sort, Grouping, Block, SchemaProperty, PropertyValue,
+  AutomationRuleV2,
 } from '../../../types/database';
 
 /** Zustand `set` helper — used in every store slice. */
@@ -95,6 +96,7 @@ export interface DatabaseState {
   hideAllProperties: (viewId: string) => void;
   reorderProperties: (viewId: string, propertyIds: string[]) => void;
   addSelectOption: (databaseId: string, propertyId: string, option: SelectOption) => void;
+  saveDatabaseAutomations: (databaseId: string, rules: AutomationRuleV2[]) => void;
 
   // UI State
   openPage: (pageId: string | null) => void;

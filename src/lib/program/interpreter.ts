@@ -180,6 +180,9 @@ class Run {
 	}
 
 	private evaluate(value: ProgramValue): { value: unknown } | { sentinel: string } {
+		// A Date is a constant value, not a formula wrapper, even though it is
+		// an object: letting it fall through made `{ formula }` resolution eat it.
+		if (value instanceof Date) return { value };
 		if (typeof value !== "object" || value === null) return { value };
 		let result: unknown;
 		try {

@@ -29,7 +29,7 @@ import {
   type AutomationRun,
 } from '../../lib/automations/runAutomations';
 import { dispatchAutomationWebhook } from '../../lib/automations/webhookTransport';
-import { evalFormula } from '../../lib/engine/bridge';
+import { evalFormula, initFormulaEngine } from '../../lib/engine/bridge';
 import type { ResolvedAction } from '../../lib/program/interpreter';
 import { parseLiveDatabaseId } from '../live/liveTypes';
 import { validatePropertyValue } from '../validation';
@@ -61,7 +61,14 @@ function writeProperty(set: StoreSet, get: StoreGet, run: AutomationActionRun, k
   if (!before || run.event.type === 'row_deleted') return { status: 'skipped', detail: 'the row is gone' };
   const property = propertyOf(state, before, key);
   if (!property) return { status: 'failed', detail: `no property "${key}"` };
-  const valid = validatePropertyValue(value, property, state.pages);
+  // A Date (or the value a formula engine hands back as one) lands on a
+  // date property as its ISO string, so `{ formula: "now()" }` stores a
+  // readable date instead of failing validation.
+  let toValidate = value;
+  if ((property.type === 'date' || property.type === 'due_date') && value instanceof Date) {
+    toValidate = value.toISOString();
+  }
+  const valid = validatePropertyValue(toValidate, property, state.pages);
   if (!valid.ok) return { status: 'failed', detail: valid.reason };
   const after: Page = {
     ...before,
@@ -113,11 +120,31 @@ function storeHost(set: StoreSet, get: StoreGet): AutomationHost {
   };
 }
 
-export function runStoreAutomations(set: StoreSet, get: StoreGet, event: AutomationEventV2): Promise<AutomationRun[]> {
-  if (parseLiveDatabaseId(event.page.databaseId)) return Promise.resolve([]);
-  if (databaseRules(get(), event.page.databaseId).length === 0) return Promise.resolve([]);
-  return runAutomations(event, storeHost(set, get)).catch((error: unknown) => {
+function containsFormula(value: unknown): boolean {
+  if (value === null || value === undefined) return false;
+  if (typeof value !== 'object') return false;
+  if (Array.isArray(value)) return value.some(containsFormula);
+  if (typeof (value as { formula?: unknown }).formula === 'string') return true;
+  return Object.values(value as Record<string, unknown>).some(containsFormula);
+}
+
+function programHasFormula(rule: AutomationRuleV2): boolean {
+  return containsFormula(rule.program);
+}
+
+export async function runStoreAutomations(set: StoreSet, get: StoreGet, event: AutomationEventV2): Promise<AutomationRun[]> {
+  if (parseLiveDatabaseId(event.page.databaseId)) return [];
+  const rules = databaseRules(get(), event.page.databaseId);
+  if (rules.length === 0) return [];
+  // A rule whose program holds a formula needs the formula engine ready, so
+  // `{ formula: "now()" }` works on the very first run instead of returning
+  // the unavailable sentinel. When the engine cannot load, the step fails
+  // with a logged reason and writes nothing.
+  if (rules.some(programHasFormula)) await initFormulaEngine();
+  try {
+    return await runAutomations(event, storeHost(set, get));
+  } catch (error: unknown) {
     console.warn('[automations] run failed:', error);
     return [];
-  });
+  }
 }
