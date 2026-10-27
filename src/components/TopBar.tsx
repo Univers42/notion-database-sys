@@ -26,6 +26,7 @@ import { AnchoredPopover } from './topBar/AnchoredPopover';
 import { SortPanel } from './sort/SortPanel';
 import { PANEL_WIDTH } from '../utils/geometry';
 import { orderedDatabaseViews } from '../lib/viewOrder';
+import { rowCountOf } from '../store/rowCounts';
 import { cn } from '../utils/cn';
 
 /** Props for {@link TopBar}. */
@@ -82,8 +83,7 @@ export function TopBar({
   const sortBtnRef = useRef<HTMLButtonElement>(null);
 
   const dbViews = database ? orderedDatabaseViews(views, database.id, database.viewOrder) : [];
-  const rowCount = useDatabaseStore(s =>
-    database ? Object.values(s.pages).reduce((n, p) => n + (p.databaseId === database.id ? 1 : 0), 0) : 0);
+  const rowCount = useDatabaseStore(s => (database ? rowCountOf(s.pages, database.id) : 0));
 
   useEffect(() => { if (isEditingTitle && titleRef.current) { titleRef.current.focus(); titleRef.current.select(); } }, [isEditingTitle]);
 
