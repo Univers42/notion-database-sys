@@ -73,8 +73,7 @@ export function AddWidgetPicker({
   const groupsFiltered = otherGroups
     .map(group => ({ ...group, views: group.views.filter(v => matches(v.name) || matches(group.databaseName)) }))
     .filter(group => group.views.length > 0);
-  const statEntries = sharedStatEntries({ numberProps, checkboxProps, selectProps })
-    .map(entry => ({ label: entry.label, stat: entry.stat }))
+  const statEntries = sharedStatEntries([...numberProps, ...checkboxProps, ...selectProps])
     .filter(entry => matches(entry.label));
 
   const chartEntries: { label: string; chart: DashboardChartConfig }[] = [...selectProps, ...dateProps].map((prop) => ({
