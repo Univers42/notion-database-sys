@@ -31,10 +31,10 @@ import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import { VIEW_META } from '../../../viewSettings/constants';
 import type { ViewConfig, DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
-import { numberProperties } from './model/dashboardViewOps';
 import { isHostBacked } from './model/isHostBacked';
 import { statEntries as sharedStatEntries } from './model/statEntries';
 import { insightEntries as sharedInsightEntries } from './model/insightEntries';
+import { chartEntries as sharedChartEntries, recordEntries as sharedRecordEntries } from './model/widgetEntries';
 import { StatKpi, STAT_FN_LABEL } from './StatKpi';
 import { ChartView } from '../../chart/ChartView';
 import { FormulaInsights } from '../FormulaInsights';
@@ -89,10 +89,9 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
   useOutsideClick(menuRef, menuOpen, () => setMenuOpen(false));
   useOutsideClick(configRef, configOpen, () => setConfigOpen(false));
   const databases = useDatabaseStore(s => s.databases);
-  const widgetNumberProps = view ? numberProperties(databases[view.databaseId]?.properties ?? {}) : [];
-  const widgetChartProps = view ? Object.values(databases[view.databaseId]?.properties ?? {}).filter(p => p.type === 'select' || p.type === 'status' || p.type === 'date') : [];
+  const widgetProperties = view ? (databases[view.databaseId]?.properties ?? {}) : {};
   const hostBacked = hostViewId != null && isHostBacked(widget, hostViewId);
-  const insightOptions = sharedInsightEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {});
+  const insightOptions = sharedInsightEntries(widgetProperties);
 
   if (!view) {
     return (
@@ -175,7 +174,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
                     {/* Clearing any one presentation clears them all (DashboardNotionView's widgetActions). */}
                     {(widget.stat || widget.chart || widget.records || widget.insight) && !hostBacked &&
                       menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => actions.onSetStat?.(null))}
-                    {sharedStatEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).map(entry => (
+                    {sharedStatEntries(widgetProperties).map(entry => (
                       menuItem(<Hash className={cn("w-3.5 h-3.5")} />, `Number · ${entry.label}`,
                         () => actions.onSetStat?.(entry.stat))
                     ))}
@@ -183,9 +182,8 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
                       <>
                         <div className={cn("my-1 border-t border-line")} />
                         <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Chart</div>
-                        {widgetChartProps.slice(0, 5).map(prop => (
-                          menuItem(<BarChart3 className={cn("w-3.5 h-3.5")} />, `Chart · ${prop.name}`,
-                            () => actions.onSetChart?.({ chartType: 'vertical_bar', xAxisProperty: prop.id, yAxisAggregation: 'count' }))
+                        {sharedChartEntries(widgetProperties).map(entry => (
+                          menuItem(<BarChart3 className={cn("w-3.5 h-3.5")} />, entry.label, () => actions.onSetChart?.(entry.chart))
                         ))}
                       </>
                     )}
@@ -193,10 +191,8 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
                       <>
                         <div className={cn("my-1 border-t border-line")} />
                         <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Records</div>
-                        {menuItem(<List className={cn("w-3.5 h-3.5")} />, 'Recently edited', () => actions.onSetRecords?.({ direction: 'desc', limit: 10 }))}
-                        {widgetNumberProps.slice(0, 3).map(prop => menuItem(
-                          <List className={cn("w-3.5 h-3.5")} />, `Top by ${prop.name}`,
-                          () => actions.onSetRecords?.({ sortPropertyId: prop.id, direction: 'desc', limit: 10, showPropertyId: prop.id })
+                        {sharedRecordEntries(widgetProperties).map(entry => (
+                          menuItem(<List className={cn("w-3.5 h-3.5")} />, entry.label, () => actions.onSetRecords?.(entry.records))
                         ))}
                       </>
                     )}

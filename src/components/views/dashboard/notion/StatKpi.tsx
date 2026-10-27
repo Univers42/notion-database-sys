@@ -67,8 +67,8 @@ export function StatKpi({ viewId, stat, label, icon }: Readonly<{
       <div className={cn("shrink-0 [@container(max-width:150px)]:hidden [@container(max-height:56px)]:hidden")}>
         <StatIconBadge color={look.color}>{icon ? <Icon name={icon} className={cn("w-5 h-5")} /> : look.icon}</StatIconBadge>
       </div>
-      <div className={cn("min-w-0 flex-1 [@container(max-width:150px)]:text-center")} title={provenance}>
-        <div style={widthCap} className={cn("text-[min(1.875rem,40cqh,var(--kpi-w))] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,var(--kpi-w))] font-bold tabular-nums text-ink leading-none truncate")}>
+      <div data-dash-kpi className={cn("min-w-0 flex-1 [@container(max-width:150px)]:text-center")} title={provenance}>
+        <div data-dash-kpi-value style={widthCap} className={cn("text-[min(1.875rem,40cqh,var(--kpi-w))] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,var(--kpi-w))] font-bold tabular-nums text-ink leading-none truncate")}>
           {shown}
         </div>
         {label && <div className={cn("mt-1 text-xs text-ink-secondary truncate [@container(max-height:40px)]:hidden")}>{label}</div>}

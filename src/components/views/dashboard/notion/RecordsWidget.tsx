@@ -18,6 +18,7 @@ import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import type { ViewConfig, DashboardViewWidget } from '../../../../types/database';
 import { formatCellValue } from '../constants';
+import { sortRecords } from './model/widgetEntries';
 import { cn } from '../../../../utils/cn';
 
 /** Compact record list for a records-presentation widget. */
@@ -29,25 +30,7 @@ export function RecordsWidget({ widget, view }: Readonly<{ widget: DashboardView
   const databases = useDatabaseStore(s => s.databases);
   const database = view ? databases[view.databaseId] : undefined;
   const records = widget.records!;
-  const sorted = React.useMemo(() => {
-    const list = [...pages];
-    list.sort((a, b) => {
-      if (records.sortPropertyId) {
-        const va = getCellValue(a, records.sortPropertyId);
-        const vb = getCellValue(b, records.sortPropertyId);
-        if (typeof va === 'number' && typeof vb === 'number') {
-          return records.direction === 'asc' ? va - vb : vb - va;
-        }
-        const sa = String(va ?? '');
-        const sb = String(vb ?? '');
-        return records.direction === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa);
-      }
-      return records.direction === 'asc'
-        ? a.updatedAt.localeCompare(b.updatedAt)
-        : b.updatedAt.localeCompare(a.updatedAt);
-    });
-    return list.slice(0, records.limit);
-  }, [pages, records, getCellValue]);
+  const sorted = React.useMemo(() => sortRecords(pages, records, getCellValue), [pages, records, getCellValue]);
 
   const showProp = records.showPropertyId && database ? database.properties[records.showPropertyId] : null;
 

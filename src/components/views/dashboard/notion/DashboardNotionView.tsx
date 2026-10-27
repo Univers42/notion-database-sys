@@ -93,9 +93,6 @@ export default function DashboardNotionView() {
     .map(group => ({ ...group, views: group.views.filter(v => !usedWidgetIds.has(v.id)) }))
     .filter(group => group.views.length > 0);
   const hostNumberProps = numberProperties(database.properties);
-  const hostCheckboxProps = Object.values(database.properties).filter(p => p.type === 'checkbox');
-  const hostSelectProps = Object.values(database.properties).filter(p => p.type === 'select' || p.type === 'status');
-  const hostDateProps = Object.values(database.properties).filter(p => p.type === 'date' || p.type === 'created_time' || p.type === 'last_edited_time');
   // Cards with their own height (detached from their row's group bar).
   const cellHeights = Object.fromEntries(
     layout.widgets.flatMap(w => (w.height != null ? [[w.id, w.height] as const] : [])),
@@ -205,10 +202,6 @@ export default function DashboardNotionView() {
     <AddWidgetPicker
       hostViews={hostViews}
       otherGroups={otherGroups}
-      numberProps={hostNumberProps}
-      checkboxProps={hostCheckboxProps}
-      selectProps={hostSelectProps}
-      dateProps={hostDateProps}
       onPickExisting={handlePickExisting}
       onPickStat={handlePickStat}
       onPickChart={handlePickChart}
