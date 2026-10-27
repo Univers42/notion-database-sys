@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { AutomationRuleV2, DatabaseSchema, ProgramStep, SchemaProperty } from '../../types/database';
+import type { AutomationRuleV2, SchemaProperty } from '../../types/database';
 import { isWritableType } from '../../store/validation';
 import { isIncompleteFilter } from '../../lib/filter/filterHelpers';
 
@@ -20,7 +20,7 @@ export interface RuleDraftContext {
   now: string;
 }
 
-export function blankRule(ctx: { newId: () => string; ownerId: string | null; now: string }): AutomationRuleV2 {
+export function blankRule(ctx: RuleDraftContext): AutomationRuleV2 {
   return {
     version: 2,
     id: ctx.newId(),

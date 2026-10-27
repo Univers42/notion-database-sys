@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 import type { AutomationRuleV2, SchemaProperty, SelectOption } from '../../types/database';
-import { isIncompleteFilter } from '../../lib/filter/filterHelpers';
 
 const OPERATOR_PHRASE: Record<string, string> = {
   equals: 'is',
@@ -63,9 +62,6 @@ function conditionPhrase(condition: { propertyId: string; operator: string; valu
   const property = properties[condition.propertyId];
   const name = property ? property.name : 'a deleted property';
   const op = OPERATOR_PHRASE[condition.operator] ?? condition.operator;
-  if (isIncompleteFilter({ operator: condition.operator as never, value: condition.value })) {
-    // Still read it out; the draft lists it as unfinished separately.
-  }
   const valueless = new Set(['is_empty', 'is_not_empty', 'is_checked', 'is_not_checked', 'is_relative_to_today']);
   if (valueless.has(condition.operator)) return `${name} ${op}`;
   return `${name} ${op} ${optionLabel(property, condition.value)}`.trim();
