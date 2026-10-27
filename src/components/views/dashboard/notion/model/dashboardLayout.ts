@@ -101,6 +101,8 @@ export interface AddWidgetOptions {
   chart?: DashboardChartConfig;
   /** Render as a compact record list over the backing view. */
   records?: DashboardRecordsConfig;
+  /** Render as formula health or relation & rollup analytics over the backing view. */
+  insight?: 'formulas' | 'relations';
 }
 
 /**
@@ -120,6 +122,7 @@ export function addWidget(
     ...(options.stat ? { stat: options.stat } : {}),
     ...(options.chart ? { chart: options.chart } : {}),
     ...(options.records ? { records: options.records } : {}),
+    ...(options.insight ? { insight: options.insight } : {}),
   };
   const rows = [...layout.rows];
   const freshRow = (height = DEFAULT_ROW_HEIGHT): DashboardRow => normalizeRow({
@@ -204,6 +207,8 @@ export function layoutFromSettings(
     dashboardRows?: DashboardRow[];
     dashboardWidgets?: DashboardViewWidget[];
     widgets?: import('../../../../../types/database').DashboardWidget[];
+    formulaAnalytics?: boolean;
+    relationAnalytics?: boolean;
   },
   hostViewId?: string,
   properties?: Record<string, SchemaProperty>,
@@ -213,6 +218,20 @@ export function layoutFromSettings(
       rows: settings.dashboardRows,
       widgets: settings.dashboardWidgets ?? [],
     };
+  }
+  // Formula / relation analytics become a single full-width insight widget at
+  // read time; the first edit persists the converted form like any dashboard.
+  if (hostViewId && (settings.formulaAnalytics || settings.relationAnalytics)) {
+    const insight = settings.formulaAnalytics ? 'formulas' : 'relations';
+    const widgetId = 'w-insight';
+    const row: DashboardRow = {
+      id: 'r-insight',
+      widgetIds: [widgetId],
+      widths: [1],
+      height: 1440,
+    };
+    const widget: DashboardViewWidget = { id: widgetId, viewId: hostViewId, insight };
+    return { rows: [row], widgets: [widget] };
   }
   const props = properties ?? {};
   if (hostViewId) {

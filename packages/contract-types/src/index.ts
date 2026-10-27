@@ -423,6 +423,8 @@ export interface DashboardViewWidget {
   chart?: DashboardChartConfig;
   /** Present → render as a compact record list instead of the embedded view. */
   records?: DashboardRecordsConfig;
+  /** Present → render as formula health or relation & rollup analytics. */
+  insight?: 'formulas' | 'relations';
   /** Icon registry name for a Number tile's chip; absent → by aggregate. */
   icon?: string;
   /** Own height in px. Absent → aligned to the row height (group-resizable). */
