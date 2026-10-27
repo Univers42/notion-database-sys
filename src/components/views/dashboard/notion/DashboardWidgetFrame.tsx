@@ -35,12 +35,12 @@ import { numberProperties } from './model/dashboardViewOps';
 import { isHostBacked } from './model/isHostBacked';
 import { statEntries as sharedStatEntries } from './model/statEntries';
 import { insightEntries as sharedInsightEntries } from './model/insightEntries';
-import { formatCellValue } from '../constants';
 import { StatKpi, STAT_FN_LABEL } from './StatKpi';
 import { ChartView } from '../../chart/ChartView';
 import { FormulaInsights } from '../FormulaInsights';
 import { RelationInsights } from '../RelationInsights';
 import { AskAiWidgetButton } from './AskAiWidgetButton';
+import { RecordsWidget } from './RecordsWidget';
 import { cn } from '../../../../utils/cn';
 
 export interface WidgetActions {
@@ -92,6 +92,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
   const widgetNumberProps = view ? numberProperties(databases[view.databaseId]?.properties ?? {}) : [];
   const widgetChartProps = view ? Object.values(databases[view.databaseId]?.properties ?? {}).filter(p => p.type === 'select' || p.type === 'status' || p.type === 'date') : [];
   const hostBacked = hostViewId != null && isHostBacked(widget, hostViewId);
+  const insightOptions = sharedInsightEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {});
 
   if (!view) {
     return (
@@ -171,12 +172,9 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
                   <>
                     <div className={cn("my-1 border-t border-line")} />
                     <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Show as</div>
-                    {(widget.stat || widget.chart || widget.records || widget.insight) && !hostBacked && menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => {
-                      actions.onSetStat?.(null);
-                      actions.onSetChart?.(null);
-                      actions.onSetRecords?.(null);
-                      actions.onSetInsight?.(null);
-                    })}
+                    {/* Clearing any one presentation clears them all (DashboardNotionView's widgetActions). */}
+                    {(widget.stat || widget.chart || widget.records || widget.insight) && !hostBacked &&
+                      menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => actions.onSetStat?.(null))}
                     {sharedStatEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).map(entry => (
                       menuItem(<Hash className={cn("w-3.5 h-3.5")} />, `Number · ${entry.label}`,
                         () => actions.onSetStat?.(entry.stat))
@@ -202,11 +200,11 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
                         ))}
                       </>
                     )}
-                    {actions.onSetInsight && sharedInsightEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).length > 0 && (
+                    {actions.onSetInsight && insightOptions.length > 0 && (
                       <>
                         <div className={cn("my-1 border-t border-line")} />
                         <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Insights</div>
-                        {sharedInsightEntries(view ? (databases[view.databaseId]?.properties ?? {}) : {}).map(entry =>
+                        {insightOptions.map(entry =>
                           menuItem(<BarChart3 className={cn("w-3.5 h-3.5")} />, entry.label,
                             () => actions.onSetInsight?.(entry.insight))
                         )}
@@ -251,58 +249,6 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
             </DatabaseScopeProvider>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-
-/** Compact record list for a records-presentation widget. */
-function RecordsWidget({ widget, view }: Readonly<{ widget: DashboardViewWidget; view: ViewConfig | null }>) {
-  const pages = useViewPages(widget.viewId);
-  const getCellValue = useDatabaseStore(s => s.getCellValue);
-  const getPageTitle = useDatabaseStore(s => s.getPageTitle);
-  const openPage = useDatabaseStore(s => s.openPage);
-  const databases = useDatabaseStore(s => s.databases);
-  const database = view ? databases[view.databaseId] : undefined;
-  const records = widget.records!;
-  const sorted = React.useMemo(() => {
-    const list = [...pages];
-    list.sort((a, b) => {
-      if (records.sortPropertyId) {
-        const va = getCellValue(a, records.sortPropertyId);
-        const vb = getCellValue(b, records.sortPropertyId);
-        if (typeof va === 'number' && typeof vb === 'number') {
-          return records.direction === 'asc' ? va - vb : vb - va;
-        }
-        const sa = String(va ?? '');
-        const sb = String(vb ?? '');
-        return records.direction === 'asc' ? sa.localeCompare(sb) : sb.localeCompare(sa);
-      }
-      return records.direction === 'asc'
-        ? a.updatedAt.localeCompare(b.updatedAt)
-        : b.updatedAt.localeCompare(a.updatedAt);
-    });
-    return list.slice(0, records.limit);
-  }, [pages, records, getCellValue]);
-
-  const showProp = records.showPropertyId && database ? database.properties[records.showPropertyId] : null;
-
-  return (
-    <div className={cn("flex-1 min-h-0 overflow-auto p-3")}>
-      <div className={cn("flex flex-col gap-1")}>
-        {sorted.map(page => (
-          <button type="button" key={page.id} onClick={() => openPage(page.id)}
-            className={cn("flex items-center justify-between py-1.5 px-2 hover:bg-hover-surface rounded-lg cursor-pointer text-left w-full")}>
-            <span className={cn("text-sm text-ink truncate")}>{getPageTitle(page) || 'Untitled'}</span>
-            {showProp && (
-              <span className={cn("text-xs text-ink-muted tabular-nums shrink-0 ml-2")}>
-                {formatCellValue(getCellValue(page, showProp.id), showProp)}
-              </span>
-            )}
-          </button>
-        ))}
-        {sorted.length === 0 && <p className={cn("text-sm text-ink-muted py-4 text-center")}>No records</p>}
       </div>
     </div>
   );

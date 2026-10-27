@@ -29,11 +29,3 @@ export function numericFormulaColumns(
     .slice(0, 6);
 }
 
-// Aliases for callers that name the helper differently.
-export const numberFormulaColumns = numericFormulaColumns;
-export const numericFormulas = numericFormulaColumns;
-export const numberValuedFormulas = numericFormulaColumns;
-export const numericFormulaProps = numericFormulaColumns;
-export const numberFormulaProps = numericFormulaColumns;
-export const numericFormulaIds = numericFormulaColumns;
-export const numberFormulaIds = numericFormulaColumns;
