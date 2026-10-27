@@ -185,7 +185,7 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane, flow = false }:
       setSt(s => (s.incoming === null || s.run ? s : { ...s, run: true }));
     });
     return () => cancelAnimationFrame(raf);
-  }, [st.incoming, st.run]);
+  }, [st.incoming, st.run, flow]);
 
   // A flow stage grows/shrinks to the incoming pane once it holds real content.
   useEffect(() => {
