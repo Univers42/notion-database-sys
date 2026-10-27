@@ -295,6 +295,9 @@ export interface DatabaseSchema {
    *  object's key order is not preserved through JSONB/JSON round-trips. Views
    *  absent from it fall to the end in creation order. */
   viewOrder?: string[];
+  /** The database's automations (v2). Rules belong to the database, not to
+   *  a view; v1 rules kept in `view.settings.automations` migrate here. */
+  automations?: AutomationRuleV2[];
 }
 
 /** Rich content block embedded inside a page. */
@@ -462,6 +465,52 @@ export interface AutomationAction {
   targetDatabaseId?: string;
   /** add_page: property values seeded onto the created page. */
   properties?: Record<string, unknown>;
+}
+
+/** A value in a program: a constant, or a formula the engine evaluates. */
+export type ProgramValue = string | number | boolean | null | { formula: string };
+
+export type ProgramAction =
+  | { type: 'notify'; message: ProgramValue }
+  | { type: 'set_property'; property: string; value: ProgramValue }
+  | { type: 'page_action'; name: string }
+  | { type: 'app_action'; name: string; args: Record<string, ProgramValue> }
+  | { type: 'webhook'; url: string };
+
+export type ProgramStep =
+  | { op: 'set'; name: string; value: ProgramValue }
+  | { op: 'if'; condition: ProgramValue; steps: ProgramStep[]; else?: ProgramStep[] }
+  | { op: 'repeat'; count: ProgramValue; steps: ProgramStep[] }
+  | { op: 'forEach'; items: ProgramValue; as: string; steps: ProgramStep[] }
+  | { op: 'action'; action: ProgramAction };
+
+/** The steps a button runs, and an automation runs when its trigger fires. */
+export interface ButtonProgram {
+  version: 1;
+  steps: ProgramStep[];
+}
+
+/** What starts an automation. `propertyId` absent = any property; `from` /
+ *  `to` absent = any value (select and status hold option ids). */
+export type AutomationTrigger =
+  | { type: 'row_added' }
+  | { type: 'property_changed'; propertyId?: string; from?: unknown; to?: unknown }
+  | { type: 'row_deleted' };
+
+/** An automation: when the trigger fires and the conditions hold, the
+ *  program runs on the row. Stored on the database. */
+export interface AutomationRuleV2 {
+  version: 2;
+  id: string;
+  name: string;
+  enabled: boolean;
+  /** Who saved it; server runs act as this user. Null for migrated v1 rules. */
+  ownerId: string | null;
+  trigger: AutomationTrigger;
+  conditions: Filter[];
+  conjunction: 'and' | 'or';
+  program: ButtonProgram;
+  updatedAt: string;
 }
 
 /** A database automation: trigger → optional condition → actions. Live

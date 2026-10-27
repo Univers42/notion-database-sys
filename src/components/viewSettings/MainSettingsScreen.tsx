@@ -29,6 +29,7 @@ import {
 import { ViewIdentityRow } from './SubComponents';
 import { copyViewLink } from '../../lib/viewLink';
 import { updateDatabaseMeta } from '../../store/sources/dbMetaPersistence';
+import { parseLiveDatabaseId } from '../../store/live/liveTypes';
 import type { PanelScreen } from './constants';
 import { cn } from '../../utils/cn';
 
@@ -43,12 +44,14 @@ export interface MainSettingsScreenProps {
   databaseName: string;
   setScreen: (screen: PanelScreen) => void;
   onClose: () => void;
+  onOpenAutomationsSheet?: () => void;
 }
 
 /** Main (non-chart) settings menu of the view settings panel. */
 export function MainSettingsScreen({
   identityProps, layoutLabel, layoutIcon, viewId, databaseId,
   visibleCount, sortCount, databaseName, setScreen, onClose,
+  onOpenAutomationsSheet,
 }: Readonly<MainSettingsScreenProps>) {
   const { databases, views } = useDatabaseStore();
   const storeApi = useStoreApi();
@@ -94,7 +97,10 @@ export function MainSettingsScreen({
           <div className={cn('flex flex-col gap-px px-2 pb-1')}>
             <SettingsRow icon={<SourceIcon />} label="Source" value={databaseName} onClick={() => setScreen('source')} />
             <SettingsRow icon={<ListIcon className={cn('w-5 h-5')} />} label="Edit properties" onClick={() => setScreen('editProperties')} />
-            <SettingsRow icon={<LightningIcon />} label="Automations" onClick={() => setScreen('automations')} />
+            <SettingsRow icon={<LightningIcon />} label="Automations" onClick={() => {
+              if (parseLiveDatabaseId(databaseId)) setScreen('automations');
+              else { onClose(); onOpenAutomationsSheet?.(); }
+            }} />
           </div>
           <MenuDivider />
           <div className={cn('flex flex-col gap-px px-2 py-1')}>
