@@ -381,9 +381,30 @@ export interface DashboardWidget {
  *  (Notion "Number" widget — count/sum/avg over the backing view's records,
  *  so view filters AND dashboard global filters both apply). */
 export interface DashboardStatConfig {
-  fn: 'count' | 'sum' | 'avg' | 'min' | 'max';
+  fn: 'count' | 'sum' | 'avg' | 'min' | 'max' | 'distinct';
   /** Number property the fn aggregates (count needs none). */
   propertyId?: string;
+  /** The KPI covers only records matching every filter. */
+  where?: Filter[];
+}
+
+/** Chart presentation for a dashboard widget (overrides the backing view's chart settings). */
+export interface DashboardChartConfig {
+  chartType: string;
+  xAxisProperty: string;
+  yAxisProperty?: string;
+  yAxisAggregation?: ViewSettings['yAxisAggregation'];
+  yAxisGroupBy?: string;
+  xAxisDateBucket?: ViewSettings['xAxisDateBucket'];
+  showDataLabels?: boolean;
+}
+
+/** Records presentation for a dashboard widget (compact list). */
+export interface DashboardRecordsConfig {
+  sortPropertyId?: string;
+  direction: 'asc' | 'desc';
+  limit: number;
+  showPropertyId?: string;
 }
 
 /** Dashboard widget referencing an existing database view (Notion model). */
@@ -395,6 +416,10 @@ export interface DashboardViewWidget {
   hideTitle?: boolean;
   /** Present → render as a Number/KPI tile instead of the embedded view. */
   stat?: DashboardStatConfig;
+  /** Present → render as a chart instead of the embedded view. */
+  chart?: DashboardChartConfig;
+  /** Present → render as a compact record list instead of the embedded view. */
+  records?: DashboardRecordsConfig;
   /** Icon registry name for a Number tile's chip; absent → by aggregate. */
   icon?: string;
   /** Own height in px. Absent → aligned to the row height (group-resizable). */

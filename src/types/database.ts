@@ -20,6 +20,8 @@ export type {
   CustomFieldConfig,
   DashboardWidget,
   DashboardStatConfig,
+  DashboardChartConfig,
+  DashboardRecordsConfig,
   DashboardViewWidget,
   DashboardRow,
   DashboardStack,
