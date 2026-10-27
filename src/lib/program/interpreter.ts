@@ -51,7 +51,8 @@ export type ResolvedAction =
 	| { type: "notify"; message: unknown }
 	| { type: "set_property"; property: string; value: unknown }
 	| { type: "page_action"; name: string }
-	| { type: "app_action"; name: string; args: Record<string, unknown> };
+	| { type: "app_action"; name: string; args: Record<string, unknown> }
+	| { type: "webhook"; url: string };
 
 /**
  * Wrap an action runner so a destructive page action asks `confirm` first;
@@ -298,7 +299,7 @@ class Run {
 	}
 
 	private resolveAction(action: Extract<ProgramStep, { op: "action" }>["action"]): { action: ResolvedAction } | { sentinel: string } {
-		if (action.type === "page_action") return { action };
+		if (action.type === "page_action" || action.type === "webhook") return { action };
 		if (action.type === "app_action") {
 			const resolvedArgs: Record<string, unknown> = {};
 			for (const key of Object.keys(action.args)) {
@@ -323,6 +324,7 @@ function labelOf(action: Extract<ProgramStep, { op: "action" }>["action"]): stri
 	if (action.type === "set_property") return `Set property \`${action.property}\``;
 	if (action.type === "page_action") return `Page action \`${action.name}\``;
 	if (action.type === "app_action") return `App action \`${action.name}\``;
+	if (action.type === "webhook") return "Webhook";
 	return "Notify";
 }
 

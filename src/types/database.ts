@@ -13,6 +13,10 @@
 import type { Block } from '@notion-db/contract-types';
 export type {
   AutofillConfig,
+  AutomationAction,
+  AutomationRule,
+  AutomationRuleV2,
+  AutomationTrigger,
   Block,
   BlockType,
   ButtonConfig,
@@ -32,6 +36,8 @@ export type {
   Grouping,
   Page,
   PlaceValue,
+  ProgramStep,
+  ProgramValue,
   PropertyType,
   PropertyValue,
   RelationConfig,

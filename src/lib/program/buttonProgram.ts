@@ -12,19 +12,16 @@
 
 /**
  * The program a button block carries: a JSON AST and the strict parser that
- * is its only gate. Imports nothing, so a plain-node test can load it.
+ * is its only gate. Imports types only, so a plain-node test can load it.
  *
  * Caveat: the limits below bound size and nesting, not meaning: a parsed
  * program can still loop or write, which the interpreter's budgets bound.
  */
 
-export type ProgramValue = string | number | boolean | null | { formula: string };
+import type { ButtonProgram, ProgramAction, ProgramStep, ProgramValue } from "@notion-db/contract-types";
 
-export type ProgramAction =
-	| { type: "notify"; message: ProgramValue }
-	| { type: "set_property"; property: string; value: ProgramValue }
-	| { type: "page_action"; name: string }
-	| { type: "app_action"; name: string; args: Record<string, ProgramValue> };
+// The types are the stored contract (a database keeps its automations' programs).
+export type { ButtonProgram, ProgramAction, ProgramStep, ProgramValue };
 
 /**
  * Whether a page action changes the page's state and so must be confirmed
@@ -53,18 +50,6 @@ export const DESTRUCTIVE_PAGE_ACTIONS: Readonly<Record<string, boolean>> = {
 	remove_header: false,
 	turn_into_dashboard: false,
 };
-
-export type ProgramStep =
-	| { op: "set"; name: string; value: ProgramValue }
-	| { op: "if"; condition: ProgramValue; steps: ProgramStep[]; else?: ProgramStep[] }
-	| { op: "repeat"; count: ProgramValue; steps: ProgramStep[] }
-	| { op: "forEach"; items: ProgramValue; as: string; steps: ProgramStep[] }
-	| { op: "action"; action: ProgramAction };
-
-export interface ButtonProgram {
-	version: 1;
-	steps: ProgramStep[];
-}
 
 export type ParseResult =
 	| { ok: true; program: ButtonProgram }
@@ -161,6 +146,12 @@ function parseAction(input: unknown, path: string): ProgramAction {
 			args[key] = parseValue(argsRecord[key], join(join(path, "args"), key));
 		}
 		return { type: "app_action", name, args };
+	}
+	if (record.type === "webhook") {
+		checkKeys(record, path, ["type", "url"]);
+		const url = parseText(record.url, join(path, "url"));
+		if (!url) fail(join(path, "url"), "a webhook needs a URL");
+		return { type: "webhook", url };
 	}
 	return fail(join(path, "type"), "unknown action type");
 }
