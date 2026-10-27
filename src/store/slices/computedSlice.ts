@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 import type { Page, ViewConfig } from '../../types/database';
-import { matchesFilterValue } from '../../lib/filter/evaluateFilter';
+import { matchesPropertyFilter } from '../../lib/filter/evaluateFilter';
 import { isIncompleteFilter } from '../../lib/filter/filterHelpers';
 import { compareValues } from '../../lib/filter/compareValues';
 import { compareWithManualOrder, manualOrderRank } from '../../lib/manualRowOrder';
@@ -99,7 +99,7 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       if (filters.length > 0) {
         result = result.filter(page => {
           const results = filters.map(f =>
-            matchesFilterValue(cellValue(state, page, db.properties[f.propertyId]), f),
+            matchesPropertyFilter(cellValue(state, page, db.properties[f.propertyId]), f, db.properties[f.propertyId]),
           );
           return view.filterConjunction === 'or'
             ? results.some(Boolean)

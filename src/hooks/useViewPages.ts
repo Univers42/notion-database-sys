@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useDashboardFilters } from './useDashboardFilters';
 import { useGroupSliceStore, sidebarGroupingActive } from './useViewGrouping';
-import { matchesFilterValue } from '../lib/filter/evaluateFilter';
+import { matchesPropertyFilter } from '../lib/filter/evaluateFilter';
 import { isIncompleteFilter } from '../lib/filter/filterHelpers';
 import type { DashboardGlobalFilter, Page, SchemaProperty } from '../types/database';
 
@@ -39,13 +39,10 @@ export function applyGlobalFilters(
   const bound = filters
     .map(f => ({ f, prop: props.find(p => p.name === f.propertyName && p.type === f.propertyType) }))
     .filter((x): x is { f: DashboardGlobalFilter; prop: SchemaProperty } => !!x.prop)
-    .map(({ f, prop }) => {
-      const opt = prop.options?.find(o => o.value === f.value || o.id === f.value);
-      return { id: f.id, propertyId: prop.id, operator: f.operator, value: opt ? opt.id : f.value };
-    })
-    .filter(filter => !isIncompleteFilter(filter));
+    .map(({ f, prop }) => ({ prop, filter: { id: f.id, propertyId: prop.id, operator: f.operator, value: f.value } }))
+    .filter(({ filter }) => !isIncompleteFilter(filter));
   if (bound.length === 0) return [...pages];
-  return pages.filter(page => bound.every(filter => matchesFilterValue(readValue(page, filter.propertyId), filter)));
+  return pages.filter(page => bound.every(({ prop, filter }) => matchesPropertyFilter(readValue(page, prop.id), filter, prop)));
 }
 
 /** Pages for a view with the surrounding dashboard's global filters applied,
