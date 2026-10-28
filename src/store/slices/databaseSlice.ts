@@ -14,6 +14,7 @@ import type { AutomationRuleV2, DatabaseSchema, SchemaProperty, PropertyType, Se
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 import { withoutAutomations } from '../../lib/automations/migrateAutomations';
 import { defaultStatusSchema, needsStatusDefaults } from './statusDefaults';
+import { showNewProperty } from './propertyVisibility';
 
 /** A fresh ID property backfills every existing record in creation order and
  *  primes `autoIncrement` so new records continue the sequence (Notion parity —
@@ -115,16 +116,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
           ...(type === 'status' ? defaultStatusSchema(newPropId) : {}),
         };
 
-        const updatedViews = { ...state.views };
-        if (state.activeViewId) {
-          const activeView = updatedViews[state.activeViewId];
-          if (activeView?.databaseId === databaseId) {
-            updatedViews[state.activeViewId] = {
-              ...activeView,
-              visibleProperties: [...activeView.visibleProperties, newPropId],
-            };
-          }
-        }
+        const updatedViews = showNewProperty(state.views, databaseId, newPropId);
 
         let pages = state.pages;
         if (type === 'id') {
@@ -154,18 +146,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
         ...(type === 'status' ? defaultStatusSchema(newPropId) : {}),
       };
 
-      const updatedViews = { ...state.views };
-      const view = updatedViews[viewId];
-      if (view) {
-        const visProps = [...view.visibleProperties];
-        if (afterPropId === null) {
-          visProps.unshift(newPropId);
-        } else {
-          const idx = visProps.indexOf(afterPropId);
-          visProps.splice(idx + 1, 0, newPropId);
-        }
-        updatedViews[viewId] = { ...view, visibleProperties: visProps };
-      }
+      const updatedViews = showNewProperty(state.views, databaseId, newPropId, { viewId, after: afterPropId });
 
       let pages = state.pages;
       if (type === 'id') {
@@ -196,14 +177,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
         options: source.options?.map((option) => ({ ...option })),
       };
 
-      const updatedViews = { ...state.views };
-      const view = updatedViews[viewId];
-      if (view) {
-        const visProps = [...view.visibleProperties];
-        const idx = visProps.indexOf(propertyId);
-        visProps.splice(idx === -1 ? visProps.length : idx + 1, 0, newPropId);
-        updatedViews[viewId] = { ...view, visibleProperties: visProps };
-      }
+      const updatedViews = showNewProperty(state.views, databaseId, newPropId, { viewId, after: propertyId });
 
       const updatedPages = Object.fromEntries(
         Object.entries(state.pages).map(([pageId, page]) => [
