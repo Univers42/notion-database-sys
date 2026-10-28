@@ -198,7 +198,7 @@ export function TableView() {
           </tbody>
           <TableCalculationRow viewId={view.id} pages={pages} visibleProps={visibleProps}
             calculations={view.settings?.columnCalculations} getColWidth={getColWidth}
-            showVerticalLines={showVerticalLines} showRowNumbers={showRowNumbers} />
+            showRowNumbers={showRowNumbers} />
         </table>
       </div>
 
