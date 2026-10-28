@@ -84,19 +84,19 @@ export function ViewPaginationBar({ pager }: Readonly<{ pager: ViewPager<unknown
   if (!pager.enabled) return null;
   return (
     <nav aria-label="Record pages"
-      className={cn('flex items-center justify-between gap-2 px-3 py-1.5 border-b border-line bg-surface-primary shrink-0')}>
-      <span className={cn('text-xs text-ink-muted tabular-nums select-none')}>
+      className={cn('odb-pager flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 border-b border-line bg-surface-primary shrink-0')}>
+      <span className={cn('text-xs text-ink-muted tabular-nums whitespace-nowrap select-none')}>
         {pager.start + 1}&ndash;{pager.end} <span className={cn('text-ink-disabled')}>of</span> {pager.total}
       </span>
-      <div className={cn('flex items-center gap-0.5')}>
+      <div className={cn('flex flex-wrap items-center gap-0.5')}>
         {pager.hasNext && (
           <>
-            <button type="button" onClick={pager.loadMore} className={cn(`${navBtn} px-2 text-xs`)}>Load more</button>
-            <button type="button" onClick={pager.showAll} className={cn(`${navBtn} px-2 text-xs`)}>Show all</button>
+            <button type="button" onClick={pager.loadMore} className={cn(`${navBtn} px-2 text-xs whitespace-nowrap`)}>Load more</button>
+            <button type="button" onClick={pager.showAll} className={cn(`${navBtn} px-2 text-xs whitespace-nowrap`)}>Show all</button>
           </>
         )}
         {pager.span > 1 && (
-          <button type="button" onClick={pager.showLess} className={cn(`${navBtn} px-2 text-xs`)}>Show less</button>
+          <button type="button" onClick={pager.showLess} className={cn(`${navBtn} px-2 text-xs whitespace-nowrap`)}>Show less</button>
         )}
         <button type="button" onClick={pager.goPrev} disabled={!pager.hasPrev}
           aria-label="Previous page" className={cn(navBtn)}>

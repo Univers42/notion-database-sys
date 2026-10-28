@@ -91,7 +91,7 @@ export function ListView() {
   // Grouped rendering
   if (hasGrouping && groups) {
     return (
-      <div className={cn("flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
+      <div className={cn("odb-view-body flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
         <div className={cn("flex flex-col gap-4")}>
           {groups.map(group => (
             <div key={group.groupId} data-testid="list-group-section">
@@ -124,7 +124,7 @@ export function ListView() {
   return (
     <div className={cn("flex-1 flex flex-col min-h-0")}>
       <ViewPaginationBar pager={pager} />
-      <div className={cn("flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
+      <div className={cn("odb-view-body flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
         <div className={cn("flex flex-col")}>
           {pager.items.map(renderPageRow)}
           {pager.items.length === 0 && (

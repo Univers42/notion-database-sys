@@ -177,7 +177,7 @@ export function CalendarView() {
   return (
     <div ref={rootRef} data-cal-root data-cal-mode={mode} tabIndex={-1}
       onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}
-      className={cn("flex-1 overflow-auto p-4 bg-surface-primary flex flex-col h-full outline-none")}>
+      className={cn("odb-view-body flex-1 overflow-auto p-4 bg-surface-primary flex flex-col h-full outline-none")}>
       <CalendarHeader mode={mode} anchor={anchor} weekStartsOn={weekStartsOn}
         onNavigate={navigate}
         onToday={() => setAnchor(new Date())}

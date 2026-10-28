@@ -67,12 +67,15 @@ export function GalleryView() {
   const visibleProps = view.visibleProperties.map(id => database.properties[id]).filter(Boolean);
   const nonTitleProps = visibleProps.filter(p => p.id !== database.titlePropertyId);
 
+  // Columns follow the gallery's own width, not the viewport: in a 160 px page
+  // column the viewport breakpoints still gave 4 tracks of 14 px (measured
+  // 2026-10-28). A card keeps its size's minimum width and never overflows.
   const gridColsMap: Record<string, string> = {
-    small: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5',
-    large: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    xl: 'grid-cols-1 sm:grid-cols-2',
+    small: 'grid-cols-[repeat(auto-fill,minmax(min(100%,10rem),1fr))]',
+    large: 'grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))]',
+    xl: 'grid-cols-[repeat(auto-fill,minmax(min(100%,24rem),1fr))]',
   };
-  const gridCols = gridColsMap[cardSize] || 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4';
+  const gridCols = gridColsMap[cardSize] || 'grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))]';
 
   const coverHeightMap: Record<string, string> = {
     small: 'h-24',
@@ -173,7 +176,7 @@ export function GalleryView() {
   // Notion-mode grouping: one collapsible section per group value.
   if (groups) {
     return (
-      <div className={cn("flex-1 p-6 bg-surface-primary overflow-auto flex flex-col gap-5")}>
+      <div className={cn("odb-view-body flex-1 p-6 bg-surface-primary overflow-auto flex flex-col gap-5")}>
         {groups.map(g => (
           <section key={g.groupId} data-testid="gallery-group-section">
             <GroupSectionHeader label={g.groupLabel} color={g.groupColor} count={g.pages.length}
@@ -192,7 +195,7 @@ export function GalleryView() {
   return (
     <div className={cn("flex-1 flex flex-col min-h-0")}>
       <ViewPaginationBar pager={pager} />
-      <div className={cn("flex-1 p-6 bg-surface-primary", isCarousel ? "overflow-x-auto overflow-y-hidden" : "overflow-auto")}>
+      <div className={cn("odb-view-body flex-1 p-6 bg-surface-primary", isCarousel ? "overflow-x-auto overflow-y-hidden" : "overflow-auto")}>
         {renderGrid(pager.items)}
         {pager.items.length === 0 && (
           <div className={cn("text-center py-20 text-ink-muted")}>
