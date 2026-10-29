@@ -73,3 +73,23 @@ export function buildManualRowOrderAt(
   order.splice(idx + (after ? 1 : 0), 0, draggedId);
   return order;
 }
+
+/**
+ * Where a row drop lands. `slot` is the table's legacy take-the-slot reorder,
+ * kept whole-row when the row cannot take sub-items. With nesting on, the
+ * outer quarters are edges (before/after) and the middle nests; edges exist
+ * only when the drop can reorder or unnest.
+ */
+export type RowDropZone = 'slot' | 'before' | 'after' | 'nest';
+
+export function rowDropZone(
+  offsetY: number,
+  height: number,
+  allowed: { edges: boolean; nest: boolean },
+): RowDropZone | null {
+  if (!allowed.nest) return allowed.edges ? 'slot' : null;
+  const edge = height / 4;
+  if (allowed.edges && offsetY < edge) return 'before';
+  if (allowed.edges && offsetY > height - edge) return 'after';
+  return 'nest';
+}
