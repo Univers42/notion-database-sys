@@ -456,3 +456,27 @@
     transition: none;
   }
 }
+
+/* Minimal table style (view setting `tableStyle: 'minimal'`): the Library
+   look. 36 px rows split by a soft line, a quiet header on the page
+   background (opaque, because it is sticky over the rows), no grid. The
+   vertical lines are already off in JS (useTableViewState). */
+.odb-table[data-table-style='minimal'] > thead > tr,
+.odb-table[data-table-style='minimal'] > thead > tr > th {
+  background-color: var(--color-surface-primary);
+}
+.odb-table[data-table-style='minimal'] > thead > tr > th {
+  height: 36px;
+  padding-block: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 400;
+  color: var(--color-ink-muted);
+}
+.odb-table[data-table-style='minimal'] > thead > tr > th,
+.odb-table[data-table-style='minimal'] > tbody > tr > td {
+  border-color: var(--color-line-light);
+}
+.odb-table[data-table-style='minimal'] > tbody > tr > td {
+  height: 36px;
+  padding-block: 0;
+}

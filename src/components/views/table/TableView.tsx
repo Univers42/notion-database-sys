@@ -52,7 +52,7 @@ export function TableView() {
     handleUpdateProperty, handleStopEditing, handleOpenPage, handleFormulaEdit, handleRowMenu, handlePropertyConfig,
     handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
     addPage, openPage, deletePage, duplicatePage,
-    showVerticalLines, wrapContent, showRowNumbers,
+    tableStyle, showVerticalLines, wrapContent, showRowNumbers,
     colCount, isGrouped, groupLayout, showMoreInGroup, canCreate,
     virtual,
   } = useTableViewState();
@@ -153,7 +153,7 @@ export function TableView() {
             so each row the virtualizer swaps in repainted every visible row
             (12.9k → 3.2k paint ops over 25 scroll frames, measured). Row-level
             borders do not render in this model — they live on the cells. */}
-        <table className={cn("min-w-full text-left border-separate border-spacing-0")}>
+        <table data-table-style={tableStyle} className={cn("odb-table min-w-full text-left border-separate border-spacing-0")}>
           <TableHeader
             visibleProps={visibleProps} showRowNumbers={showRowNumbers}
             showVerticalLines={showVerticalLines} getColWidth={getColWidth}

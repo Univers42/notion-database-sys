@@ -559,6 +559,7 @@ export interface ViewSettings {
   wrapContent?: boolean;
   loadLimit?: number;
   openPagesIn?: 'side_peek' | 'center_peek' | 'full_page';
+  tableStyle?: 'default' | 'minimal';
   showVerticalLines?: boolean;
   showRowNumbers?: boolean;
   /** Manual row order (page ids) — applied when the view has no user sorts;

@@ -48,7 +48,10 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
     case 'table':
       return (
         <>
-          <ToggleSettingRow label="Show vertical lines" checked={!!settings.showVerticalLines} onChange={v => updateSetting('showVerticalLines', v)} />
+          <NavSettingRow label="Style" value={settings.tableStyle === 'minimal' ? 'Minimal' : 'Default'} onClick={() => setScreen('tableStyle')} />
+          {settings.tableStyle !== 'minimal' && (
+            <ToggleSettingRow label="Show vertical lines" checked={settings.showVerticalLines !== false} onChange={v => updateSetting('showVerticalLines', v)} />
+          )}
           <ToggleSettingRow label="Show page icon" checked={settings.showPageIcon !== false} onChange={v => updateSetting('showPageIcon', v)} />
           <ToggleSettingRow label="Wrap all content" checked={!!settings.wrapContent} onChange={v => updateSetting('wrapContent', v)} />
           <NavSettingRow label="Group by" value={groupName} onClick={() => setScreen('groupBy')} />

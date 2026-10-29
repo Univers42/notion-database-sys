@@ -97,7 +97,9 @@ export function useTableViewState() {
 
 
   const settings = view?.settings || {};
-  const showVerticalLines = settings.showVerticalLines !== false;
+  const tableStyle = settings.tableStyle === 'minimal' ? 'minimal' : 'default';
+  // Minimal draws no grid: its rows are separated by a soft line only.
+  const showVerticalLines = tableStyle === 'default' && settings.showVerticalLines !== false;
   const wrapContent = settings.wrapContent === true;
   const showRowNumbers = settings.showRowNumbers === true;
   // The leading gutter column exists only to hold row numbers; +2 trailing
@@ -295,7 +297,7 @@ export function useTableViewState() {
     handleOpenPage, handleFormulaEdit, handleRowMenu, handlePropertyConfig,
     handleHeaderClick, toggleGroup, handleKeyDown, handleGridFocus, handleGridMouseDown,
     addPage, openPage, deletePage, duplicatePage,
-    showVerticalLines, wrapContent, showRowNumbers,
+    tableStyle, showVerticalLines, wrapContent, showRowNumbers,
     colCount, isGrouped, groupLayout, showMoreInGroup, canCreate,
     virtual,
   };

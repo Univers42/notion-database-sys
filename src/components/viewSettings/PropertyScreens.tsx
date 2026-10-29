@@ -55,6 +55,11 @@ const OPTION_SCREENS: Record<string, (_s: Record<string, PropertyValue>) => Opti
     ],
     activeKey: 'cardSize', defaultVal: 'medium',
   }),
+  tableStyle: (_s) => ({
+    title: 'Style', back: 'layout',
+    options: [{ id: 'default', label: 'Default' }, { id: 'minimal', label: 'Minimal' }],
+    activeKey: 'tableStyle', defaultVal: 'default',
+  }),
   groupLayout: (_s) => ({
     title: 'Group layout', back: 'groupBy',
     options: [
