@@ -135,7 +135,7 @@ export function TableView() {
           cells (z-10) are layered against each other only. Without it they
           outranked page menus and the outline rail laid over the table. The
           box already clips its content, so nothing inside can lose by it. */}
-      <div className={cn("isolate flex-1 overflow-auto bg-surface-primary outline-none [overflow-anchor:none]")}
+      <div className={cn("odb-table-scroll isolate flex-1 overflow-auto bg-surface-primary outline-none [overflow-anchor:none]")}
         tabIndex={0} onKeyDown={handleKeyDown} onFocus={handleGridFocus} onMouseDown={handleGridMouseDown}
         onKeyDownCapture={clipboard.onKeyDownCapture}
         onCopy={clipboard.onCopy} onCut={clipboard.onCut} onPaste={clipboard.onPaste}

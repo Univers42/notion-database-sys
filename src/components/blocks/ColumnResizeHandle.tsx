@@ -33,19 +33,36 @@ export function ColumnResizeHandle({ pageId, blockId, colIdx, ratios, columns: _
     setDragging(true);
     startXRef.current = e.clientX;
     startRatiosRef.current = [...ratios];
+    // The two flanking columns are restyled directly, once per frame; the block is written
+    // once, on mouseup. A store write per mousemove re-rendered the page for every event.
+    const handle = e.currentTarget as HTMLElement;
+    const leftEl = handle.previousElementSibling as HTMLElement | null;
+    const rightEl = handle.nextElementSibling as HTMLElement | null;
+    let latestRatios = startRatiosRef.current;
+    let frame = 0;
+
+    const paint = () => {
+      frame = 0;
+      if (leftEl) leftEl.style.flex = String(latestRatios[colIdx - 1]);
+      if (rightEl) rightEl.style.flex = String(latestRatios[colIdx]);
+    };
 
     const handleMouseMove = (e: MouseEvent) => {
       const delta = (e.clientX - startXRef.current) / 200;
       const newRatios = [...startRatiosRef.current];
       newRatios[colIdx - 1] = Math.max(0.2, newRatios[colIdx - 1] + delta);
       newRatios[colIdx] = Math.max(0.2, newRatios[colIdx] - delta);
-      updateBlock(pageId, blockId, { columnRatios: newRatios });
+      latestRatios = newRatios;
+      if (!frame) frame = requestAnimationFrame(paint);
     };
 
     const handleMouseUp = () => {
+      if (frame) cancelAnimationFrame(frame);
+      paint();
       setDragging(false);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      if (latestRatios !== startRatiosRef.current) updateBlock(pageId, blockId, { columnRatios: latestRatios });
     };
 
     document.addEventListener('mousemove', handleMouseMove);
