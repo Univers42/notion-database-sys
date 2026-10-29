@@ -222,8 +222,7 @@ export function encodeLiveValue(
           return value; // not valid JSON — pass the string through
         }
       }
-      const text = toDisplayString(value);
-      return column?.normalized_type === 'bigint' ? bigintWireValue(text) : text;
+      return toDisplayString(value);
     }
   }
 }
