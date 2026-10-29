@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:33 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 20:16:45 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ import { ButtonEditorPanel } from './ButtonEditorPanel';
 import { RelationEditorPanel } from './RelationEditorPanel';
 import { RollupEditorPanel } from './RollupEditorPanel';
 import { AutofillConfigPanel } from './AutofillConfigPanel';
+import { isDatabaseLocked, isViewLocked } from '../lib/lockGuards';
 import { ActionButton, PropertyIconButton, IdFormatConfig, TYPE_OPTIONS, getPropIcon } from './propertyConfig/index';
 import {
   ArrowUp, ArrowDown, Filter, Group, EyeOff, PanelLeftClose,
@@ -50,6 +51,10 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
   // live property so a type change (or any schema edit) reflects immediately.
   const property = useDatabaseStore(s => s.databases[databaseId]?.properties[propertySnapshot.id]) ?? propertySnapshot;
   const viewSettings = useDatabaseStore(s => s.views[viewId]?.settings) ?? {};
+  // A locked view keeps its sort, filter and columns; a locked database also its
+  // schema. The store refuses those writes; here they read as locked, not broken.
+  const viewLocked = useDatabaseStore(s => isViewLocked(s.views[viewId], s.databases[databaseId]));
+  const schemaLocked = useDatabaseStore(s => isDatabaseLocked(s.databases[databaseId]));
 
   const [propName, setPropName] = useState(property.name);
   const [showTypeList, setShowTypeList] = useState(false);
@@ -108,7 +113,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
   // Notion parity: every property is renamable (including the mandatory title);
   // type is changeable everywhere except the title and id columns.
   const isTitle = property.type === 'title';
-  const canChangeType = !isTitle && property.type !== 'id';
+  const canChangeType = !isTitle && property.type !== 'id' && !schemaLocked;
   const filteredTypes = TYPE_OPTIONS.filter(t => t.label.toLowerCase().includes(typeSearch.toLowerCase()));
 
   // Anchor stays glued below the header — never pulled up over it. If the
@@ -131,8 +136,8 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       {/* ─── Property name + clickable icon ─── */}
       <div className={cn("px-3 pt-3 pb-2")}>
         <div className={cn("flex items-center gap-2")}>
-          <PropertyIconButton property={property} databaseId={databaseId} />
-          <input ref={nameRef} value={propName}
+          <PropertyIconButton property={property} databaseId={databaseId} disabled={schemaLocked} />
+          <input ref={nameRef} value={propName} readOnly={schemaLocked}
             onChange={e => setPropName(e.target.value)} onBlur={commitName}
             // preventDefault: focus is back on the header by keypress time, and
             // Enter's keypress would click it and reopen this panel.
@@ -141,6 +146,11 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
             className={cn("flex-1 text-sm font-medium text-ink outline-none bg-transparent border-b border-transparent focus:border-focus-border-strong px-1 py-0.5 transition-colors")}
             placeholder="Property name" />
         </div>
+        {viewLocked && (
+          <p className={cn("px-1 pt-1.5 text-xs text-ink-muted")}>
+            {schemaLocked ? 'This database is locked' : 'This view is locked'}
+          </p>
+        )}
       </div>
 
       {/* ─── Show page icon (title column only, Notion parity) ─── */}
@@ -151,8 +161,9 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
             role="switch"
             aria-checked={viewSettings.showPageIcon !== false}
             aria-label="Show page icon"
+            disabled={viewLocked}
             onClick={() => updateViewSettings(viewId, { showPageIcon: viewSettings.showPageIcon === false })}
-            className={cn("w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-hover-surface text-sm text-ink-body transition-colors")}
+            className={cn("w-full flex items-center justify-between px-2 py-1.5 rounded-md enabled:hover:bg-hover-surface text-sm text-ink-body transition-colors disabled:opacity-50 disabled:cursor-not-allowed")}
           >
             <span>Show page icon</span>
             <span className={cn(`relative inline-flex h-4 w-7 shrink-0 rounded-full p-0.5 transition-colors ${viewSettings.showPageIcon !== false ? 'bg-accent' : 'bg-surface-muted'}`)}>
@@ -198,7 +209,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       <div className={cn("h-px bg-surface-tertiary")} />
 
       {/* ─── AI-filled select (shown only when the host can fill it) ─── */}
-      {property.type === 'select' && (
+      {property.type === 'select' && !schemaLocked && (
         <>
           <AutofillConfigPanel databaseId={databaseId} property={property} />
           <div className={cn("h-px bg-surface-tertiary")} />
@@ -206,35 +217,35 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       )}
 
       {/* ─── Formula / Relation / Rollup / ID specific ─── */}
-      {property.type === 'formula' && (
+      {property.type === 'formula' && !schemaLocked && (
         <><div className={cn("py-1 px-1")}><ActionButton icon={<Sigma className={cn("w-3.5 h-3.5")} />} label="Edit formula" onClick={() => setShowFormulaEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
       )}
-      {property.type === 'button' && (
+      {property.type === 'button' && !schemaLocked && (
         <><div className={cn("py-1 px-1")}><ActionButton icon={<MousePointerClick className={cn("w-3.5 h-3.5")} />} label="Edit button" onClick={() => setShowButtonEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
       )}
-      {property.type === 'relation' && (
+      {property.type === 'relation' && !schemaLocked && (
         <><div className={cn("py-1 px-1")}><ActionButton icon={<ExternalLink className={cn("w-3.5 h-3.5")} />} label="Edit relation" onClick={() => setShowRelationEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
       )}
-      {property.type === 'rollup' && (
+      {property.type === 'rollup' && !schemaLocked && (
         <><div className={cn("py-1 px-1")}><ActionButton icon={<GitBranch className={cn("w-3.5 h-3.5")} />} label="Edit rollup" onClick={() => setShowRollupEditor(true)} /></div><div className={cn("h-px bg-surface-tertiary")} /></>
       )}
-      {property.type === 'id' && <IdFormatConfig property={property} databaseId={databaseId} onClose={onClose} />}
+      {property.type === 'id' && !schemaLocked && <IdFormatConfig property={property} databaseId={databaseId} onClose={onClose} />}
 
       {/* ─── Quick actions ─── */}
       <div className={cn("py-1 px-1")}>
         <ActionButton icon={<Filter className={cn("w-3.5 h-3.5")} />} label="Filter by this property"
-          onClick={() => { addFilter(viewId, { propertyId: property.id, operator: 'is_not_empty', value: '' }); onClose(); }} />
+          onClick={() => { addFilter(viewId, { propertyId: property.id, operator: 'is_not_empty', value: '' }); onClose(); }} disabled={viewLocked} />
         <ActionButton icon={<ArrowUp className={cn("w-3.5 h-3.5")} />} label="Sort ascending"
-          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'asc' }); onClose(); }} />
+          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'asc' }); onClose(); }} disabled={viewLocked} />
         <ActionButton icon={<ArrowDown className={cn("w-3.5 h-3.5")} />} label="Sort descending"
-          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'desc' }); onClose(); }} />
+          onClick={() => { addSort(viewId, { propertyId: property.id, direction: 'desc' }); onClose(); }} disabled={viewLocked} />
         <ActionButton icon={<Group className={cn("w-3.5 h-3.5")} />} label="Group by this property"
-          onClick={() => { setGrouping(viewId, { propertyId: property.id }); onClose(); }} />
+          onClick={() => { setGrouping(viewId, { propertyId: property.id }); onClose(); }} disabled={viewLocked} />
         <ActionButton icon={<EyeOff className={cn("w-3.5 h-3.5")} />} label="Hide in view"
-          onClick={() => { togglePropertyVisibility(viewId, property.id); onClose(); }} disabled={isTitle} />
+          onClick={() => { togglePropertyVisibility(viewId, property.id); onClose(); }} disabled={isTitle || viewLocked} />
         <ActionButton icon={<WrapText className={cn("w-3.5 h-3.5")} />}
           label={viewSettings.wrapContent ? 'Unwrap content' : 'Wrap content'}
-          onClick={() => { updateViewSettings(viewId, { wrapContent: !viewSettings.wrapContent }); onClose(); }} />
+          onClick={() => { updateViewSettings(viewId, { wrapContent: !viewSettings.wrapContent }); onClose(); }} disabled={viewLocked} />
       </div>
 
       <div className={cn("h-px bg-surface-tertiary")} />
@@ -248,13 +259,13 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
             const prevPropId = idx > 0 ? view.visibleProperties[idx - 1] : null;
             insertPropertyAt(databaseId, 'New column', 'text', viewId, prevPropId);
             onClose();
-          }} />
+          }} disabled={schemaLocked} />
         <ActionButton icon={<PanelRightClose className={cn("w-3.5 h-3.5")} />} label="Insert right"
-          onClick={() => { insertPropertyAt(databaseId, 'New column', 'text', viewId, property.id); onClose(); }} />
+          onClick={() => { insertPropertyAt(databaseId, 'New column', 'text', viewId, property.id); onClose(); }} disabled={schemaLocked} />
         <ActionButton icon={<Copy className={cn("w-3.5 h-3.5")} />} label="Duplicate property"
-          onClick={() => { duplicateProperty(databaseId, property.id, viewId); onClose(); }} disabled={isTitle} />
+          onClick={() => { duplicateProperty(databaseId, property.id, viewId); onClose(); }} disabled={isTitle || schemaLocked} />
         <ActionButton icon={<Trash2 className={cn("w-3.5 h-3.5")} />} label="Delete property"
-          onClick={() => { deleteProperty(databaseId, property.id); onClose(); }} danger disabled={isTitle} />
+          onClick={() => { deleteProperty(databaseId, property.id); onClose(); }} danger disabled={isTitle || schemaLocked} />
       </div>
 
       {/* ─── Editor Portals ─── */}

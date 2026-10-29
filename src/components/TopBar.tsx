@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/26 14:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ import { AnchoredPopover } from './topBar/AnchoredPopover';
 import { SortPanel } from './sort/SortPanel';
 import { PANEL_WIDTH } from '../utils/geometry';
 import { orderedDatabaseViews } from '../lib/viewOrder';
+import { areLocksManagedByHost, isViewLocked } from '../lib/lockGuards';
 import { rowCountOf } from '../store/rowCounts';
 import { cn } from '../utils/cn';
 
@@ -61,6 +62,7 @@ export function TopBar({
 
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+  const viewLocked = isViewLocked(view, database);
 
   const [showSearch, setShowSearch] = useState(false);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
@@ -222,6 +224,7 @@ export function TopBar({
             showExtraActions={showExtraActions} setShowExtraActions={setShowExtraActions}
             showTemplates={showTemplates} setShowTemplates={setShowTemplates} databaseName={database.name}
             onNewPage={() => { const id = addPage(database.id); store.openPage(id); }}
+            locked={viewLocked} settingsLocked={viewLocked && areLocksManagedByHost(database)}
           />
           {onToggleCollapsed && (
             <button

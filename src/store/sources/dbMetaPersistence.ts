@@ -20,6 +20,7 @@
 
 import type { DatabaseSchema, NotionState } from '../../component/types';
 import type { DataSourceRef } from '@notion-db/contract-types';
+import { areLocksManagedByHost, isDatabaseLocked } from '../../lib/lockGuards';
 
 const STORAGE_PREFIX = 'nds:dbmeta:';
 
@@ -50,6 +51,15 @@ export function saveDbMeta(databaseId: string, meta: DbMeta): void {
   }
 }
 
+/** The meta a viewer may set: not the lock of a database whose host manages it,
+ *  and not the sources of a locked database (that is a schema edit). */
+function viewerMeta(database: DatabaseSchema, meta: DbMeta): DbMeta {
+  const allowed = { ...meta };
+  if (areLocksManagedByHost(database)) delete allowed.locked;
+  if (isDatabaseLocked(database)) delete allowed.dataSources;
+  return allowed;
+}
+
 /** Stored meta merged over freshly loaded databases (same ref when no-op). */
 export function applyStoredDbMeta(state: NotionState): NotionState {
   let databases: Record<string, DatabaseSchema> | null = null;
@@ -57,7 +67,7 @@ export function applyStoredDbMeta(state: NotionState): NotionState {
     const meta = loadDbMeta(databaseId);
     if (!meta) continue;
     databases = databases ?? { ...state.databases };
-    databases[databaseId] = { ...database, ...meta };
+    databases[databaseId] = { ...database, ...viewerMeta(database, meta) };
   }
   return databases ? { ...state, databases } : state;
 }
@@ -73,7 +83,7 @@ export function updateDatabaseMeta(store: DbMetaStore, databaseId: string, meta:
   const { databases } = store.getState();
   const database = databases[databaseId];
   if (!database) return;
-  const next = { ...database, ...meta };
+  const next = { ...database, ...viewerMeta(database, meta) };
   store.setState({ databases: { ...databases, [databaseId]: next } });
   saveDbMeta(databaseId, { dataSources: next.dataSources, locked: next.locked });
 }

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 00:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/10 00:36:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import { createDatabaseSlice } from './slices/databaseSlice';
 import { createPageSlice } from './slices/pageSlice';
 import { runStoreAutomations } from './slices/pageAutomations';
 import type { SchemaProperty } from '../types/database';
+import type { StoreSet } from './dbms/hardcoded/storeTypes';
 import { validatePropertyValue } from './validation';
 import {
   flushState, dispatchOps, switchSource,
@@ -28,8 +29,10 @@ type SetState = (
 ) => void;
 type GetState = () => ExtendedDatabaseState;
 
-/** Creates all DBMS-related actions for the Zustand store. */
-export function createDbmsActions(set: SetState, get: GetState) {
+/** Creates all DBMS-related actions for the Zustand store. The schema actions
+ *  write through `schemaSet`, the store's lock guard, as the slice they wrap
+ *  does; a write the guard refused is not sent to the DBMS either. */
+export function createDbmsActions(set: SetState, get: GetState, schemaSet: StoreSet = set) {
   return {
     loadFromSource: async (source?: string, opts?: { silent?: boolean }) => {
       const silent = opts?.silent ?? false;
@@ -150,8 +153,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
     },
 
     addProperty: (databaseId: string, name: string, type: string) => {
-      const sliceActions = createDatabaseSlice(set, get);
-      const propertyId = sliceActions.addProperty(databaseId, name, type as never);
+      const propertyId = createDatabaseSlice(schemaSet, get).addProperty(databaseId, name, type as never);
+      if (!get().databases[databaseId]?.properties[propertyId]) return propertyId;
       if (get().activeDbmsSource !== 'adapter') {
         flushState(get);
         dispatchOps('addColumn', { databaseId, columnName: name, propType: type }, get().activeDbmsSource);
@@ -162,8 +165,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
     deleteProperty: (databaseId: string, propertyId: string) => {
       const db = get().databases[databaseId];
       const propName = db?.properties[propertyId]?.name;
-      const sliceActions = createDatabaseSlice(set, get);
-      sliceActions.deleteProperty(databaseId, propertyId);
+      createDatabaseSlice(schemaSet, get).deleteProperty(databaseId, propertyId);
+      if (get().databases[databaseId]?.properties[propertyId]) return;
       if (get().activeDbmsSource !== 'adapter') flushState(get);
       if (propName && get().activeDbmsSource !== 'adapter') {
         dispatchOps('dropColumn', { databaseId, columnName: propName }, get().activeDbmsSource);
@@ -172,8 +175,8 @@ export function createDbmsActions(set: SetState, get: GetState) {
 
     updateProperty: (databaseId: string, propertyId: string, updates: Partial<SchemaProperty>) => {
       const oldProp = get().databases[databaseId]?.properties[propertyId];
-      const sliceActions = createDatabaseSlice(set, get);
-      sliceActions.updateProperty(databaseId, propertyId, updates as never);
+      createDatabaseSlice(schemaSet, get).updateProperty(databaseId, propertyId, updates as never);
+      if (get().databases[databaseId]?.properties[propertyId] === oldProp) return;
       if (get().activeDbmsSource !== 'adapter') flushState(get);
       if (updates.type && oldProp && oldProp.type !== updates.type && get().activeDbmsSource !== 'adapter') {
         const fieldName = oldProp.name.toLowerCase().replaceAll(/\s+/g, '_');

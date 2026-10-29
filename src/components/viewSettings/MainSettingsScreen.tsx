@@ -29,6 +29,7 @@ import {
 import { ViewIdentityRow } from './SubComponents';
 import { copyViewLink } from '../../lib/viewLink';
 import { updateDatabaseMeta } from '../../store/sources/dbMetaPersistence';
+import { areLocksManagedByHost } from '../../lib/lockGuards';
 import { parseLiveDatabaseId } from '../../store/live/liveTypes';
 import type { PanelScreen } from './constants';
 import { cn } from '../../utils/cn';
@@ -105,7 +106,9 @@ export function MainSettingsScreen({
           <MenuDivider />
           <div className={cn('flex flex-col gap-px px-2 py-1')}>
             <SettingsRow icon={<CollectionIcon />} label="Manage data sources" onClick={() => setScreen('manageSources')} />
-            <SettingsRow icon={<LockIcon />} label="Lock database" value={locked ? 'On' : undefined} showChevron={false} onClick={toggleLock} />
+            {!areLocksManagedByHost(databases[databaseId]) && (
+              <SettingsRow icon={<LockIcon />} label="Lock database" value={locked ? 'On' : undefined} showChevron={false} onClick={toggleLock} />
+            )}
           </div>
         </div>
       </div>

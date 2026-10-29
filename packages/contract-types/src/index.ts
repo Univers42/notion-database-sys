@@ -288,6 +288,9 @@ export interface DatabaseSchema {
   dataSources?: DataSourceRef[];
   /** Database lock: schema and view edits are disabled while set. */
   locked?: boolean;
+  /** The host owns `locked` and every view's `settings.locked` (e.g. by workspace
+   *  role): the viewer can neither toggle nor clear them. */
+  locksManagedByHost?: boolean;
   /** Template page the "New" button seeds from by default. */
   defaultTemplateId?: string;
   /** User's header tab order (view ids). Persisted with the database so the

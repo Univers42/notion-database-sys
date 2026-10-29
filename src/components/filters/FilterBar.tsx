@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 22:31:03 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,11 @@ export type FilterBarSlots = {
  * The row of filter chips under the toolbar. Each chip reads as its rule
  * ("Name contains al") and opens that rule's editor. The editor that is open
  * is the caller's state: picking a property from the toolbar opens the new
- * rule's editor here.
+ * rule's editor here. On a locked view the chips still say what is applied,
+ * but open nothing and there is no "+ Filter".
  */
 export function FilterBar({ filters, properties, conjunction: _conjunction, viewId, onOpenAdvanced,
-  activeFilterId, onActiveFilterChange, slots }: Readonly<{
+  activeFilterId, onActiveFilterChange, locked = false, slots }: Readonly<{
   filters: { id: string; propertyId: string; operator: FilterOperator; value: PropertyValue }[];
   properties: Record<string, SchemaProperty>;
   conjunction: 'and' | 'or';
@@ -49,6 +50,7 @@ export function FilterBar({ filters, properties, conjunction: _conjunction, view
   onOpenAdvanced: () => void;
   activeFilterId: string | null;
   onActiveFilterChange: (filterId: string | null) => void;
+  locked?: boolean;
   slots?: Partial<FilterBarSlots>;
 }>) {
   const [showAddPicker, setShowAddPicker] = useState(false);
@@ -57,7 +59,7 @@ export function FilterBar({ filters, properties, conjunction: _conjunction, view
   const activePillRef = useRef<HTMLButtonElement | null>(null);
   const addBtnRef = useRef<HTMLButtonElement>(null);
   const storeApi = useStoreApi();
-  const activeFilter = filters.find(f => f.id === activeFilterId);
+  const activeFilter = locked ? undefined : filters.find(f => f.id === activeFilterId);
   const activeProperty = activeFilter && properties[activeFilter.propertyId];
   const close = () => onActiveFilterChange(null);
 
@@ -67,7 +69,7 @@ export function FilterBar({ filters, properties, conjunction: _conjunction, view
         <div className={cn("flex items-center gap-1.5 overflow-x-auto px-2 py-2", slots?.scrollArea)}>
           {/* One rule needs no group; several get the pill that opens them all. */}
           {filters.length > 1 && (
-            <button type="button" onClick={onOpenAdvanced}
+            <button type="button" onClick={onOpenAdvanced} disabled={locked}
               className={cn("inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full bg-accent-soft text-accent-text-light whitespace-nowrap shrink-0", slots?.rulesPill)}>
               <Filter className={cn("w-3 h-3")} />
               <span>{filters.length} rules</span>
@@ -80,7 +82,8 @@ export function FilterBar({ filters, properties, conjunction: _conjunction, view
             const summary = filterSummary(prop, filter.operator, filter.value);
             const isActive = filter.id === activeFilterId;
             return (
-              <button type="button" key={filter.id} title={summary} aria-expanded={isActive}
+              <button type="button" key={filter.id} title={locked ? `${summary} — this view is locked` : summary}
+                aria-expanded={isActive && !locked} disabled={locked}
                 ref={el => { if (isActive) activePillRef.current = el; }}
                 onClick={() => onActiveFilterChange(isActive ? null : filter.id)}
                 className={cn(`inline-flex items-center gap-1.5 h-6 px-2 text-sm rounded-full whitespace-nowrap shrink-0 transition-colors ${
@@ -92,10 +95,12 @@ export function FilterBar({ filters, properties, conjunction: _conjunction, view
               </button>
             );
           })}
-          <button type="button" ref={addBtnRef} onClick={() => setShowAddPicker(true)}
-            className={cn("inline-flex items-center gap-1 h-6 px-2 text-sm rounded-xl text-ink-muted hover:bg-hover-surface2 whitespace-nowrap shrink-0 transition-colors", slots?.addButton)}>
-            <Plus className={cn("w-3 h-3")} /> Filter
-          </button>
+          {!locked && (
+            <button type="button" ref={addBtnRef} onClick={() => setShowAddPicker(true)}
+              className={cn("inline-flex items-center gap-1 h-6 px-2 text-sm rounded-xl text-ink-muted hover:bg-hover-surface2 whitespace-nowrap shrink-0 transition-colors", slots?.addButton)}>
+              <Plus className={cn("w-3 h-3")} /> Filter
+            </button>
+          )}
         </div>
       </div>
 

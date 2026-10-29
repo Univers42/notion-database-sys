@@ -6,11 +6,12 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 14:39:19 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 01:31:17 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { ViewConfig, Filter, Sort } from '../../types/database';
+import type { DatabaseSchema, ViewConfig, Filter, Sort } from '../../types/database';
+import { areLocksManagedByHost } from '../../lib/lockGuards';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
 import { createFilterActions } from './viewFilterActions';
 import { createSortActions } from './viewSortActions';
@@ -18,6 +19,14 @@ import { createPropertyActions } from './viewPropertyActions';
 
 export type { ViewSliceState, ViewSliceActions, ViewSlice } from './viewSliceTypes';
 import type { ViewSliceActions } from './viewSliceTypes';
+
+/** A view added to a database whose host manages locks starts unlocked: the
+ *  viewer can neither set that lock nor, once copied, ever lift it. */
+function withoutHostLock(view: ViewConfig, database: DatabaseSchema | undefined): ViewConfig {
+  if (!areLocksManagedByHost(database) || !view.settings?.locked) return view;
+  const { locked: _hostOwned, ...settings } = view.settings;
+  return { ...view, settings };
+}
 
 /**
  * Creates the view CRUD slice for the Zustand store.
@@ -30,7 +39,7 @@ export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions 
     addView: (view) => {
       const id = `v-${crypto.randomUUID().slice(0, 8)}`;
       set((state: DatabaseState) => ({
-        views: { ...state.views, [id]: { ...view, id } as ViewConfig },
+        views: { ...state.views, [id]: withoutHostLock({ ...view, id } as ViewConfig, state.databases[view.databaseId]) },
         activeViewId: id,
       }));
       return id;
@@ -71,7 +80,7 @@ export function createViewSlice(set: StoreSet, get: StoreGet): ViewSliceActions 
         sorts: view.sorts.map((s: Sort) => ({ ...s, id: crypto.randomUUID() })),
         settings: { ...view.settings },
       };
-      set({ views: { ...state.views, [id]: newView }, activeViewId: id });
+      set({ views: { ...state.views, [id]: withoutHostLock(newView, state.databases[view.databaseId]) }, activeViewId: id });
     },
 
     setActiveView: (viewId) => set({ activeViewId: viewId }),
