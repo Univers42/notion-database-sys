@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 import React, {
-  createContext,
   forwardRef,
   useRef,
   Suspense,
@@ -47,6 +46,7 @@ import { TemplatesContext } from './components/topBar/templatesContext';
 import { HostAdaptersProvider } from './hooks/useHostAdapters';
 import { SubItemsProvider } from './components/views/table/subItemsContext';
 import { HttpAdapter } from './component/adapters/HttpAdapter';
+import { AdapterContext, AdapterProvider } from './component/adapterContext';
 import type {
   ChangeEvent,
   NotionState,
@@ -75,8 +75,7 @@ const LazyPageModal = React.lazy(() => import('./components/PageModal').then(mod
   default: module.PageModal,
 })));
 
-export const AdapterContext = createContext<ObjectDatabaseAdapter | null>(null);
-export const AdapterProvider = AdapterContext.Provider;
+export { AdapterContext, AdapterProvider };
 
 type ObjectDatabaseWithStoreProps = ObjectDatabaseProps & {
   forwardedRef: React.ForwardedRef<ObjectDatabaseInstance>;
