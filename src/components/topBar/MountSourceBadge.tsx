@@ -6,15 +6,16 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/29 21:45:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/29 21:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/30 01:40:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Database, Lock, LockOpen, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { AdapterContext } from '../../component/adapterContext';
 import { DbSourceDropdown } from '../DbSourceDropdown';
 import { AnchoredPopover } from './AnchoredPopover';
+import { useMountDescriptor, type DescriptorState } from '../../hooks/useMountDescriptor';
 import {
   formatMountLocation, type MountDescriptor, type TlsTone,
 } from '../../store/live/liveMountDescriptor';
@@ -36,23 +37,8 @@ export function DataSourceIndicator() {
   return describe ? <MountSourceBadge describe={describe} /> : <DbSourceDropdown />;
 }
 
-type DescriptorState = { status: 'loading' } | { status: 'ready'; descriptor: MountDescriptor | null } | { status: 'failed' };
-
-function useDescriptor(describe: () => Promise<MountDescriptor | null>): DescriptorState {
-  const [state, setState] = useState<DescriptorState>({ status: 'loading' });
-  useEffect(() => {
-    let live = true;
-    describe().then(
-      (descriptor) => { if (live) setState({ status: 'ready', descriptor }); },
-      () => { if (live) setState({ status: 'failed' }); },
-    );
-    return () => { live = false; };
-  }, [describe]);
-  return state;
-}
-
 function MountSourceBadge({ describe }: Readonly<{ describe: () => Promise<MountDescriptor | null> }>) {
-  const state = useDescriptor(describe);
+  const state = useMountDescriptor(describe);
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const descriptor = state.status === 'ready' ? state.descriptor : null;
