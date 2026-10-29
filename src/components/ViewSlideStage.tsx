@@ -223,12 +223,16 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane, flow = false }:
       );
     }
     const live = slot === st.active || slot === st.incoming;
+    // The leaving view is still in the DOM for the slide; it must not take
+    // focus or be read alongside the view the user asked for.
+    const leaving = slot !== st.incoming;
     const inFlow = flow && slot === st.incoming;
     let place = 'absolute inset-0 min-h-0';
     if (inFlow) place = 'relative flex-none';
     else if (flow) place = 'absolute inset-x-0 top-0';
     return (
       <div key={st.keys[slot]} ref={inFlow ? incomingRef : undefined}
+        inert={leaving} aria-hidden={leaving || undefined}
         className={cn('flex flex-col', place)}
         style={{
           transform: `translate3d(${slideOffset(slot, st)}%, 0, 0)`,
@@ -248,7 +252,7 @@ export function ViewSlideStage({ viewId, orderIndex, renderPane, flow = false }:
   };
 
   return (
-    <div ref={stageRef}
+    <div ref={stageRef} data-view-sliding={transitioning || undefined}
       className={cn('relative flex-1 flex flex-col min-h-0', transitioning && 'overflow-hidden')}
       style={stageStyle(st, flow, toH)}>
       {renderSlot(0)}

@@ -13,23 +13,35 @@
 // ─── DashboardWidgetFrame — one widget card: chrome + embedded view ─────────
 // The body is literally <DatabaseView viewId={...} compact /> — the widget IS
 // a database view (Notion model), scoped via DatabaseScopeProvider.
+// Reading mode drops the toolbar strip: a view gets a plain heading, a number
+// tile none (its label sits under the number); edit mode brings the strip back.
 
 import React, { useRef, useState } from 'react';
 import {
   MoreHorizontal, Settings2, Copy, Trash2, ArrowLeft, ArrowRight,
-  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2,
+  CornerDownRight, GripVertical, Pencil, EyeOff, Eye, Hash, Table2, Smile, BarChart3, List,
 } from 'lucide-react';
 import { DatabaseView } from '../../../DatabaseView';
 import { ViewSettingsPanel } from '../../../ViewSettingsPanel';
 import { DatabaseScopeProvider } from '../../../../hooks/useDatabaseScope';
 import { ErrorBoundary } from '../../../ErrorBoundary';
+import { IconPickerPopover } from '../../../ui/IconPickerPopover';
 import { useOutsideClick } from '../../../../hooks/useOutsideClick';
 import { useViewPages } from '../../../../hooks/useViewPages';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
 import { VIEW_META } from '../../../viewSettings/constants';
-import type { ViewConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
-import { numberProperties } from './model/dashboardViewOps';
-import { StatKpi, STAT_FN_LABEL } from './StatKpi';
+import type { ViewConfig, DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, DashboardViewWidget } from '../../../../types/database';
+import type { ChartResult } from '../../../../lib/chart/chartTypes';
+import { isHostBacked } from './model/isHostBacked';
+import { statEntries as sharedStatEntries } from './model/statEntries';
+import { insightEntries as sharedInsightEntries } from './model/insightEntries';
+import { chartEntries as sharedChartEntries, recordEntries as sharedRecordEntries } from './model/widgetEntries';
+import { StatKpi } from './StatKpi';
+import { ChartView } from '../../chart/ChartView';
+import { FormulaInsights } from '../FormulaInsights';
+import { RelationInsights } from '../RelationInsights';
+import { AskAiWidgetButton } from './AskAiWidgetButton';
+import { RecordsWidget } from './RecordsWidget';
 import { cn } from '../../../../utils/cn';
 
 export interface WidgetActions {
@@ -41,6 +53,11 @@ export interface WidgetActions {
   onToggleHideTitle?: () => void;
   /** Swap between the embedded view and a Number/KPI tile (null → view). */
   onSetStat?: (stat: DashboardStatConfig | null) => void;
+  onSetChart?: (chart: DashboardChartConfig | null) => void;
+  onSetRecords?: (records: DashboardRecordsConfig | null) => void;
+  onSetInsight?: (insight: 'formulas' | 'relations' | null) => void;
+  /** A Number tile's chip icon (null → the aggregate's default). */
+  onSetIcon?: (icon: string | null) => void;
   /** Pointer drag start from the grip handle (edit mode). */
   onDragStart?: (event: React.PointerEvent) => void;
 }
@@ -49,28 +66,34 @@ export interface WidgetActions {
 function WidgetCountBadge({ viewId }: Readonly<{ viewId: string }>) {
   const pages = useViewPages(viewId);
   return (
-    <span className={cn("text-[10px] text-ink-muted tabular-nums shrink-0")}>
+    <span className={cn("text-xs text-ink-muted tabular-nums shrink-0 opacity-0 transition-opacity group-hover/widget:opacity-100")}>
       {pages.length}
     </span>
   );
 }
 
 /** Card chrome around an embedded view; edit mode reveals the action menu. */
-export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readonly<{
+export function DashboardWidgetFrame({ widget, view, editMode, actions, hostViewId }: Readonly<{
   widget: DashboardViewWidget;
   view: ViewConfig | null;
   editMode: boolean;
   actions: WidgetActions;
+  hostViewId?: string;
 }>) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const [renaming, setRenaming] = useState<string | null>(null);
+  const [pickingIcon, setPickingIcon] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const configRef = useRef<HTMLDivElement>(null);
+  const chartResultRef = useRef<ChartResult | null>(null);
   useOutsideClick(menuRef, menuOpen, () => setMenuOpen(false));
   useOutsideClick(configRef, configOpen, () => setConfigOpen(false));
   const databases = useDatabaseStore(s => s.databases);
-  const widgetNumberProps = view ? numberProperties(databases[view.databaseId]?.properties ?? {}) : [];
+  const widgetProperties = view ? (databases[view.databaseId]?.properties ?? {}) : {};
+  const hostBacked = hostViewId != null && isHostBacked(widget, hostViewId);
+  const insightOptions = sharedInsightEntries(widgetProperties);
 
   if (!view) {
     return (
@@ -91,24 +114,29 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
     </button>
   );
 
-  const showHeader = editMode || !widget.hideTitle;
+  const title = widget.title ?? view.name;
+  // Insights and the host-backed placeholder draw no records: nothing to quote.
+  const quotable = Boolean(widget.chart || widget.records) || !(widget.insight || hostBacked);
+  const showHeader = editMode || (!widget.hideTitle && !widget.stat);
   return (
-    <div className={cn("odb-rise-in h-full min-w-0 flex flex-col rounded-xl border border-line bg-surface-primary overflow-hidden")}>
+    <div className={cn("group/widget odb-rise-in h-full min-w-0 flex flex-col rounded-xl border border-line bg-surface-primary overflow-hidden")}>
       {showHeader && (
-      <div className={cn("flex items-center gap-1.5 px-3 py-1.5 border-b border-line shrink-0")}>
+      <div className={cn(`flex items-center gap-1.5 shrink-0 ${editMode ? 'px-3 py-1.5 border-b border-line' : 'px-4 pt-3 pb-1'}`)}>
         {editMode && actions.onDragStart && (
           <button onPointerDown={actions.onDragStart} aria-label="Drag widget"
             className={cn("shrink-0 -ml-1 p-0.5 rounded text-ink-muted hover:bg-hover-surface cursor-grab touch-none")}>
             <GripVertical className={cn("w-3.5 h-3.5")} />
           </button>
         )}
-        <span className={cn("w-4 h-4 flex items-center justify-center text-ink-muted shrink-0")}>
-          {widget.stat ? <Hash className={cn("w-3.5 h-3.5")} /> : meta?.svgIcon}
-        </span>
+        {editMode && (
+          <span className={cn("w-4 h-4 flex items-center justify-center text-ink-muted shrink-0")}>
+            {widget.stat ? <Hash className={cn("w-3.5 h-3.5")} /> : meta?.svgIcon}
+          </span>
+        )}
         {renaming === null ? (
-          <span title={widget.title ?? view.name}
-            className={cn(`text-xs font-medium truncate ${widget.hideTitle ? 'text-ink-muted italic' : 'text-ink'}`)}>
-            {widget.title ?? view.name}
+          <span title={title} data-dash-title
+            className={cn(`truncate ${editMode ? 'text-xs font-medium' : 'text-sm font-semibold'} ${widget.hideTitle ? 'text-ink-muted italic' : 'text-ink'}`)}>
+            {title}
           </span>
         ) : (
           <input autoFocus value={renaming} onChange={e => setRenaming(e.target.value)}
@@ -117,36 +145,71 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
             onKeyDown={e => { if (e.key === 'Enter') { actions.onRename?.(renaming.trim()); setRenaming(null); } }}
             className={cn("flex-1 min-w-0 rounded border border-line bg-transparent px-1 text-xs outline-none")} />
         )}
-        {!editMode && !widget.stat && <span className={cn("ml-auto")}><WidgetCountBadge viewId={widget.viewId} /></span>}
+        {!editMode && !widget.stat && (
+          <span className={cn("ml-auto flex items-center gap-1")}>
+            {quotable && <AskAiWidgetButton widget={widget} title={title} chartResult={chartResultRef} />}
+            <WidgetCountBadge viewId={widget.viewId} />
+          </span>
+        )}
         {editMode && (
           <div ref={menuRef} className={cn("relative ml-auto shrink-0")}>
-            <button onClick={() => setMenuOpen(o => !o)} aria-label="Widget actions"
+            <button ref={menuButtonRef} onClick={() => setMenuOpen(o => !o)} aria-label="Widget actions"
               className={cn("p-1 rounded-md hover:bg-hover-surface text-ink-muted")}>
               <MoreHorizontal className={cn("w-3.5 h-3.5")} />
             </button>
+            {pickingIcon && (
+              <IconPickerPopover anchorRef={menuButtonRef} align="right" value={widget.icon ?? null}
+                onSelect={name => { actions.onSetIcon?.(name); setPickingIcon(false); }}
+                onRemove={() => { actions.onSetIcon?.(null); setPickingIcon(false); }}
+                onClose={() => setPickingIcon(false)} />
+            )}
             {menuOpen && (
               <div className={cn("odb-pop-in absolute right-0 top-full mt-1 z-30 w-48 py-1 rounded-lg border border-line bg-surface-primary shadow-lg max-h-72 overflow-y-auto")}>
-                {menuItem(<Settings2 className={cn("w-3.5 h-3.5")} />, 'Configure view', () => setConfigOpen(true))}
-                {actions.onRename && menuItem(<Pencil className={cn("w-3.5 h-3.5")} />, 'Rename widget', () => setRenaming(widget.title ?? view.name))}
+                {!hostBacked && menuItem(<Settings2 className={cn("w-3.5 h-3.5")} />, 'Configure view', () => setConfigOpen(true))}
+                {actions.onRename && menuItem(<Pencil className={cn("w-3.5 h-3.5")} />, 'Rename widget', () => setRenaming(title))}
                 {actions.onToggleHideTitle && menuItem(
                   widget.hideTitle ? <Eye className={cn("w-3.5 h-3.5")} /> : <EyeOff className={cn("w-3.5 h-3.5")} />,
                   widget.hideTitle ? 'Show title' : 'Hide title', actions.onToggleHideTitle)}
+                {widget.stat && actions.onSetIcon && menuItem(<Smile className={cn("w-3.5 h-3.5")} />, 'Change icon', () => setPickingIcon(true))}
                 {actions.onSetStat && (
                   <>
                     <div className={cn("my-1 border-t border-line")} />
                     <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Show as</div>
-                    {widget.stat && menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => actions.onSetStat?.(null))}
-                    {(!widget.stat || widget.stat.fn !== 'count') &&
-                      menuItem(<Hash className={cn("w-3.5 h-3.5")} />, 'Number · Count', () => actions.onSetStat?.({ fn: 'count' }))}
-                    {widgetNumberProps.slice(0, 3).flatMap(prop => (
-                      (['sum', 'avg'] as const)
-                        .filter(fn => !(widget.stat?.fn === fn && widget.stat?.propertyId === prop.id))
-                        .map(fn => menuItem(
-                          <Hash className={cn("w-3.5 h-3.5")} />,
-                          `Number · ${STAT_FN_LABEL[fn]} of ${prop.name}`,
-                          () => actions.onSetStat?.({ fn, propertyId: prop.id }),
-                        ))
+                    {/* Clearing any one presentation clears them all (DashboardNotionView's widgetActions). */}
+                    {(widget.stat || widget.chart || widget.records || widget.insight) && !hostBacked &&
+                      menuItem(<Table2 className={cn("w-3.5 h-3.5")} />, 'Embedded view', () => actions.onSetStat?.(null))}
+                    {sharedStatEntries(widgetProperties).map(entry => (
+                      menuItem(<Hash className={cn("w-3.5 h-3.5")} />, `Number · ${entry.label}`,
+                        () => actions.onSetStat?.(entry.stat))
                     ))}
+                    {actions.onSetChart && (
+                      <>
+                        <div className={cn("my-1 border-t border-line")} />
+                        <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Chart</div>
+                        {sharedChartEntries(widgetProperties).map(entry => (
+                          menuItem(<BarChart3 className={cn("w-3.5 h-3.5")} />, entry.label, () => actions.onSetChart?.(entry.chart))
+                        ))}
+                      </>
+                    )}
+                    {actions.onSetRecords && (
+                      <>
+                        <div className={cn("my-1 border-t border-line")} />
+                        <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Records</div>
+                        {sharedRecordEntries(widgetProperties).map(entry => (
+                          menuItem(<List className={cn("w-3.5 h-3.5")} />, entry.label, () => actions.onSetRecords?.(entry.records))
+                        ))}
+                      </>
+                    )}
+                    {actions.onSetInsight && insightOptions.length > 0 && (
+                      <>
+                        <div className={cn("my-1 border-t border-line")} />
+                        <div className={cn("px-3 pt-1 pb-0.5 text-[10px] font-medium text-ink-muted uppercase tracking-wide select-none")}>Insights</div>
+                        {insightOptions.map(entry =>
+                          menuItem(<BarChart3 className={cn("w-3.5 h-3.5")} />, entry.label,
+                            () => actions.onSetInsight?.(entry.insight))
+                        )}
+                      </>
+                    )}
                   </>
                 )}
                 <div className={cn("my-1 border-t border-line")} />
@@ -164,10 +227,22 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions }: Readon
       <div className={cn("relative flex-1 min-h-0 flex flex-col overflow-auto")}>
         <ErrorBoundary>
           {widget.stat
-            ? <StatKpi viewId={widget.viewId} stat={widget.stat} />
-            : <DatabaseView viewId={widget.viewId} compact />}
+            ? <StatKpi viewId={widget.viewId} stat={widget.stat} label={widget.hideTitle ? undefined : title} icon={widget.icon} />
+            : widget.chart
+              ? <DatabaseScopeProvider value={widget.viewId}><ChartView settingsOverride={widget.chart} onResult={result => { chartResultRef.current = result; }} /></DatabaseScopeProvider>
+              : widget.records
+                ? <RecordsWidget widget={widget} view={view} />
+                : widget.insight === 'formulas'
+                  ? <DatabaseScopeProvider value={widget.viewId}><FormulaInsights /></DatabaseScopeProvider>
+                  : widget.insight === 'relations'
+                    ? <DatabaseScopeProvider value={widget.viewId}><RelationInsights /></DatabaseScopeProvider>
+                    : hostBacked
+                  ? <div className={cn("h-full flex items-center justify-center px-4 text-center text-xs text-ink-muted")}>
+                      This widget shows the dashboard's own records; pick Number, Chart or Records
+                    </div>
+                  : <DatabaseView viewId={widget.viewId} compact />}
         </ErrorBoundary>
-        {configOpen && (
+        {!hostBacked && configOpen && (
           <div ref={configRef} className={cn("absolute top-1 right-1 z-30 max-h-[95%] overflow-auto rounded-xl border border-line bg-surface-primary shadow-xl")}>
             <DatabaseScopeProvider value={widget.viewId}>
               <ViewSettingsPanel onClose={() => setConfigOpen(false)} />

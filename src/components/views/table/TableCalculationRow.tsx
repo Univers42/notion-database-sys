@@ -21,15 +21,15 @@ interface TableCalculationRowProps {
   visibleProps: readonly SchemaProperty[];
   calculations: Readonly<Record<string, string>> | undefined;
   getColWidth: (propId: string) => number;
-  showVerticalLines: boolean;
   showRowNumbers: boolean;
 }
 
 const ITEM = 'flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer w-full text-left outline-none data-[highlighted]:bg-hover-surface';
 
-/** Footer row: one Calculate menu per visible column. */
+/** Footer row: one Calculate menu per visible column. It draws no column lines:
+ *  its labels show on hover only, so a line was all a reader saw under New. */
 export function TableCalculationRow({
-  viewId, pages, visibleProps, calculations, getColWidth, showVerticalLines, showRowNumbers,
+  viewId, pages, visibleProps, calculations, getColWidth, showRowNumbers,
 }: Readonly<TableCalculationRowProps>) {
   const storeApi = useStoreApi();
 
@@ -59,7 +59,7 @@ export function TableCalculationRow({
           const fn = activeCalculation(prop, calculations?.[prop.id]);
           return (
             <td key={prop.id} data-col={prop.id} style={{ width, minWidth: width, maxWidth: width }}
-              className={cn(`p-0 group/calc ${showVerticalLines ? 'border-r' : ''} border-line`)}>
+              className={cn('p-0 group/calc')}>
               <CalculationMenu prop={prop} active={fn} result={results.get(prop.id)} onChoose={next => choose(prop.id, next)} />
             </td>
           );

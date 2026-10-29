@@ -6,14 +6,15 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/07/08 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // ─── ViewTabMenu — the Notion per-view panel behind a view tab ──────────────
 // One panel, three triggers (ViewTabsRow): click the ACTIVE tab, second click
 // after selecting, or RIGHT-click any tab directly. Every action binds to the
-// clicked view — not the active one.
+// clicked view — not the active one. On a locked view the entries that edit
+// it stay listed but disabled, so the lock reads as a lock, not a missing menu.
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -30,13 +31,28 @@ const DISPLAY_OPTIONS: readonly { id: TabDisplayMode; label: string }[] = [
   { id: 'icon', label: 'Icon only' },
 ];
 
-const ROW = 'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-ink-body hover:bg-hover-surface transition-colors';
+const ROW_BASE = 'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors';
+const ROW = `${ROW_BASE} text-ink-body hover:bg-hover-surface`;
+
+/** What is locked: `view` the view's own config, `settings` the view settings
+ *  panel (a lock the host owns), `database` its schema, name and new views. */
+export interface ViewTabLocks { view: boolean; settings: boolean; database: boolean }
+
+export const LOCKED_VIEW_NOTE = 'This view is locked';
+const OPEN: ViewTabLocks = { view: false, settings: false, database: false };
+
+const rowProps = (locked: boolean) => locked
+  ? { disabled: true, title: LOCKED_VIEW_NOTE, className: cn(`${ROW_BASE} text-ink-disabled cursor-not-allowed`) }
+  : { className: cn(ROW) };
 const MENU_WIDTH = 230;
+
+type ViewTabMenuItemsProps = Omit<ViewTabMenuProps, 'position'>;
 
 interface ViewTabMenuProps {
   view: ViewConfig;
   position: { top: number; left: number };
   canDelete: boolean;
+  locks?: ViewTabLocks;
   /** Data source line on the Source row (database icon + name). */
   sourceName: string;
   sourceIcon?: string;
@@ -53,13 +69,8 @@ interface ViewTabMenuProps {
 /** Notion view-tab panel: Rename · Display as ▸ · Edit view · Source |
  *  Copy link · Open source database · Hide data source titles |
  *  Duplicate · Delete. */
-export function ViewTabMenu({
-  view, position, canDelete, sourceName, sourceIcon,
-  onClose, onRename, onEditView, onDuplicate, onDelete,
-  onViewSource, onToggleSourceTitle, onDisplayAs,
-}: Readonly<ViewTabMenuProps>) {
-  const [showDisplayAs, setShowDisplayAs] = useState(false);
-  const current: TabDisplayMode = view.settings?.tabDisplay ?? 'text_icon';
+export function ViewTabMenu({ position, ...items }: Readonly<ViewTabMenuProps>) {
+  const { view, onClose } = items;
   const left = Math.min(Math.max(8, position.left), window.innerWidth - MENU_WIDTH - 12);
 
   // Document-level Escape: focus usually still sits on the tab button that
@@ -86,64 +97,82 @@ export function ViewTabMenu({
         onMouseDown={e => e.stopPropagation()}
         onContextMenu={e => { e.preventDefault(); e.stopPropagation(); }}
         onKeyDown={e => { if (e.key === 'Escape') onClose(); }}>
-        <div className={cn('p-1 flex flex-col gap-px')}>
-          <button onClick={onRename} className={cn(ROW)}>
-            <PencilIcon className={cn('w-4 h-4')} /> Rename
-          </button>
-          <button onClick={() => setShowDisplayAs(s => !s)} aria-expanded={showDisplayAs} className={cn(ROW)}>
-            <Paintbrush className={cn('w-4 h-4')} />
-            <span className={cn('flex-1 text-left')}>Display as</span>
-            <ChevronRight className={cn(`w-3.5 h-3.5 text-ink-muted transition-transform ${showDisplayAs ? 'rotate-90' : ''}`)} />
-          </button>
-          {showDisplayAs && (
-            <div className={cn('ml-4 pl-1.5 border-l border-line-light flex flex-col gap-px py-0.5')}>
-              {DISPLAY_OPTIONS.map(opt => (
-                <button key={opt.id} onClick={() => onDisplayAs(opt.id)} className={cn(ROW)}>
-                  <span className={cn('flex-1 text-left')}>{opt.label}</span>
-                  {current === opt.id && <Check className={cn('w-3.5 h-3.5 text-accent-text-soft')} />}
-                </button>
-              ))}
-              <div className={cn('px-2.5 py-1 text-xs text-ink-muted select-none')}>Only applies to you</div>
-            </div>
-          )}
-          <button onClick={onEditView} className={cn(ROW)}>
-            <LayoutIcon className={cn('w-4 h-4')} /> Edit view
-          </button>
-          <button onClick={() => { onViewSource?.(); onClose(); }} className={cn(ROW)}>
-            <ExternalLinkIcon className={cn('w-4 h-4')} />
-            <span className={cn('flex-1 text-left')}>Source</span>
-            <span className={cn('text-xs text-ink-muted truncate max-w-[86px]')}>{sourceIcon ? `${sourceIcon} ` : ''}{sourceName}</span>
-            <ChevronRight className={cn('w-3 h-3 text-ink-muted shrink-0')} />
-          </button>
-        </div>
-        <div className={cn('mx-3 h-px bg-surface-tertiary')} />
-        <div className={cn('p-1 flex flex-col gap-px')}>
-          <button onClick={() => { navigator.clipboard?.writeText(`${globalThis.location.href}?view=${view.id}`); onClose(); }} className={cn(ROW)}>
-            <CopyLinkIcon className={cn('w-4 h-4')} /> Copy link to view
-          </button>
-          <button onClick={() => { onViewSource?.(); onClose(); }} className={cn(ROW)}>
-            <ExternalLinkIcon className={cn('w-4 h-4')} /> Open source database
-          </button>
-          <button onClick={() => { onToggleSourceTitle(); onClose(); }} className={cn(ROW)}>
-            <EyeSlashIcon className={cn('w-4 h-4')} />
-            <span className={cn('flex-1 text-left')}>
-              {view.settings?.showTitle === false ? 'Show data source titles' : 'Hide data source titles'}
-            </span>
-          </button>
-        </div>
-        <div className={cn('mx-3 h-px bg-surface-tertiary')} />
-        <div className={cn('p-1 flex flex-col gap-px')}>
-          <button onClick={onDuplicate} className={cn(ROW)}>
-            <DuplicateIcon className={cn('w-4 h-4')} /> Duplicate view
-          </button>
-          {canDelete && (
-            <button onClick={onDelete} className={cn('w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-danger-text hover:bg-hover-danger transition-colors')}>
-              <Trash2 className={cn('w-4 h-4')} /> Delete view
-            </button>
-          )}
-        </div>
+        <ViewTabMenuItems {...items} />
       </div>
     </>,
     document.body,
+  );
+}
+
+/** The panel's rows, without the portal and backdrop around them. */
+export function ViewTabMenuItems({
+  view, canDelete, locks = OPEN, sourceName, sourceIcon,
+  onClose, onRename, onEditView, onDuplicate, onDelete,
+  onViewSource, onToggleSourceTitle, onDisplayAs,
+}: Readonly<ViewTabMenuItemsProps>) {
+  const [showDisplayAs, setShowDisplayAs] = useState(false);
+  const current: TabDisplayMode = view.settings?.tabDisplay ?? 'text_icon';
+  return (
+    <>
+      <div className={cn('p-1 flex flex-col gap-px')}>
+        {locks.view && (
+          <div className={cn('px-2.5 py-1.5 text-xs text-ink-muted select-none')}>{LOCKED_VIEW_NOTE}</div>
+        )}
+        <button onClick={onRename} {...rowProps(locks.view)}>
+          <PencilIcon className={cn('w-4 h-4')} /> Rename
+        </button>
+        <button onClick={() => setShowDisplayAs(s => !s)} aria-expanded={showDisplayAs} {...rowProps(locks.view)}>
+          <Paintbrush className={cn('w-4 h-4')} />
+          <span className={cn('flex-1 text-left')}>Display as</span>
+          <ChevronRight className={cn(`w-3.5 h-3.5 text-ink-muted transition-transform ${showDisplayAs ? 'rotate-90' : ''}`)} />
+        </button>
+        {showDisplayAs && !locks.view && (
+          <div className={cn('ml-4 pl-1.5 border-l border-line-light flex flex-col gap-px py-0.5')}>
+            {DISPLAY_OPTIONS.map(opt => (
+              <button key={opt.id} onClick={() => onDisplayAs(opt.id)} className={cn(ROW)}>
+                <span className={cn('flex-1 text-left')}>{opt.label}</span>
+                {current === opt.id && <Check className={cn('w-3.5 h-3.5 text-accent-text-soft')} />}
+              </button>
+            ))}
+            <div className={cn('px-2.5 py-1 text-xs text-ink-muted select-none')}>Only applies to you</div>
+          </div>
+        )}
+        <button onClick={onEditView} {...rowProps(locks.settings)}>
+          <LayoutIcon className={cn('w-4 h-4')} /> Edit view
+        </button>
+        <button onClick={() => { onViewSource?.(); onClose(); }} className={cn(ROW)}>
+          <ExternalLinkIcon className={cn('w-4 h-4')} />
+          <span className={cn('flex-1 text-left')}>Source</span>
+          <span className={cn('text-xs text-ink-muted truncate max-w-[86px]')}>{sourceIcon ? `${sourceIcon} ` : ''}{sourceName}</span>
+          <ChevronRight className={cn('w-3 h-3 text-ink-muted shrink-0')} />
+        </button>
+      </div>
+      <div className={cn('mx-3 h-px bg-surface-tertiary')} />
+      <div className={cn('p-1 flex flex-col gap-px')}>
+        <button onClick={() => { navigator.clipboard?.writeText(`${globalThis.location.href}?view=${view.id}`); onClose(); }} className={cn(ROW)}>
+          <CopyLinkIcon className={cn('w-4 h-4')} /> Copy link to view
+        </button>
+        <button onClick={() => { onViewSource?.(); onClose(); }} className={cn(ROW)}>
+          <ExternalLinkIcon className={cn('w-4 h-4')} /> Open source database
+        </button>
+        <button onClick={() => { onToggleSourceTitle(); onClose(); }} {...rowProps(locks.view)}>
+          <EyeSlashIcon className={cn('w-4 h-4')} />
+          <span className={cn('flex-1 text-left')}>
+            {view.settings?.showTitle === false ? 'Show data source titles' : 'Hide data source titles'}
+          </span>
+        </button>
+      </div>
+      <div className={cn('mx-3 h-px bg-surface-tertiary')} />
+      <div className={cn('p-1 flex flex-col gap-px')}>
+        <button onClick={onDuplicate} {...rowProps(locks.database)}>
+          <DuplicateIcon className={cn('w-4 h-4')} /> Duplicate view
+        </button>
+        {canDelete && !locks.view && (
+          <button onClick={onDelete} className={cn('w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-danger-text hover:bg-hover-danger transition-colors')}>
+            <Trash2 className={cn('w-4 h-4')} /> Delete view
+          </button>
+        )}
+      </div>
+    </>
   );
 }

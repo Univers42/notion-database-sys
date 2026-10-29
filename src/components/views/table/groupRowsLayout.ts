@@ -32,6 +32,7 @@ export function layoutGroupRows(
   groups: readonly GroupData[],
   collapsed: ReadonlySet<string>,
   shownFor: (groupId: string) => number,
+  withNewRows = true,
 ): GroupRowsLayout {
   const items: GroupRowItem[] = [];
   const rowPages: Page[] = [];
@@ -48,7 +49,7 @@ export function layoutGroupRows(
     }
     if (shown < group.pages.length) items.push({ kind: 'more', group, shown });
     if (group.pages.length === 0) items.push({ kind: 'empty', group });
-    items.push({ kind: 'new', group });
+    if (withNewRows) items.push({ kind: 'new', group });
   }
   return { items, rowPages, itemIndexOfRow };
 }

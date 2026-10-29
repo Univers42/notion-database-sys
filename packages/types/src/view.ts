@@ -103,6 +103,8 @@ export interface DomainViewSettings {
   openPagesIn?: 'side_peek' | 'center_peek' | 'full_page';
 
   // Table
+  /** 'minimal': no grid lines, quiet header, 36 px rows (the Library look). */
+  tableStyle?: 'default' | 'minimal';
   showVerticalLines?: boolean;
   showRowNumbers?: boolean;
   columnWidths?: Record<string, number>;

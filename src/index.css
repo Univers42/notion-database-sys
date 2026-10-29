@@ -408,9 +408,11 @@
 }
 
 /* A database with more views than fit hid the rest behind a scrollbar-less
-   strip (live i4h dashboard: 612px shown of 2159px). Edge fades driven by the
-   strip's own scroll position show which side still has tabs; a strip that
-   fits has an inactive timeline, so no fade.
+   strip (live i4h dashboard: 612px shown of 2159px), and a table wider than
+   the text column hid its last columns: the horizontal scrollbar sits under
+   the last row, out of sight (Grade Calculator: 708px shown of 900px). Edge
+   fades driven by the box's own scroll position show which side has more; a
+   box that fits has an inactive timeline, so no fade.
    Caveat: needs scroll-driven animations (Chromium 115+, Safari 26); other
    browsers keep a scrollable strip with no cue. */
 @property --odb-fade-start {
@@ -433,7 +435,8 @@
 }
 
 @supports (animation-timeline: scroll()) {
-  .odb-view-tabs {
+  .odb-view-tabs,
+  .odb-table-scroll {
     mask-image: linear-gradient(to right, transparent, #000 var(--odb-fade-start),
       #000 calc(100% - var(--odb-fade-end)), transparent);
     animation: odb-edge-fade linear both;
@@ -452,4 +455,28 @@
   .odb-row-grid [data-dash-widget] {
     transition: none;
   }
+}
+
+/* Minimal table style (view setting `tableStyle: 'minimal'`): the Library
+   look. 36 px rows split by a soft line, a quiet header on the page
+   background (opaque, because it is sticky over the rows), no grid. The
+   vertical lines are already off in JS (useTableViewState). */
+.odb-table[data-table-style='minimal'] > thead > tr,
+.odb-table[data-table-style='minimal'] > thead > tr > th {
+  background-color: var(--color-surface-primary);
+}
+.odb-table[data-table-style='minimal'] > thead > tr > th {
+  height: 36px;
+  padding-block: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 400;
+  color: var(--color-ink-muted);
+}
+.odb-table[data-table-style='minimal'] > thead > tr > th,
+.odb-table[data-table-style='minimal'] > tbody > tr > td {
+  border-color: var(--color-line-light);
+}
+.odb-table[data-table-style='minimal'] > tbody > tr > td {
+  height: 36px;
+  padding-block: 0;
 }

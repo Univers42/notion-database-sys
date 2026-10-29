@@ -13,6 +13,7 @@
 import React from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { FileText, Plus } from 'lucide-react';
 import type { Page } from '../../../types/database';
@@ -44,6 +45,7 @@ export function ListView() {
   // Notion-mode grouping only — sidebar mode renders flat + sliced instead.
   const { groups, collapsed, toggleCollapse } = useStackedGroups(view?.id);
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
+  const canCreate = useCanCreateRecords();
 
   if (!view || !database) return null;
 
@@ -89,7 +91,7 @@ export function ListView() {
   // Grouped rendering
   if (hasGrouping && groups) {
     return (
-      <div className={cn("flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
+      <div className={cn("odb-view-body flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
         <div className={cn("flex flex-col gap-4")}>
           {groups.map(group => (
             <div key={group.groupId} data-testid="list-group-section">
@@ -101,7 +103,7 @@ export function ListView() {
                 {group.pages.slice(0, pageSize).map(renderPageRow)}
               </div>
               )}
-              <button onClick={() => {
+              {canCreate && <button onClick={() => {
                 if (!view.grouping) return;
                 const groupPropId = view.grouping.propertyId;
                 const val = group.groupId === '__unassigned__' ? null : group.groupId;
@@ -109,7 +111,7 @@ export function ListView() {
               }}
                 className={cn("flex items-center gap-2 h-[34px] px-2 w-full text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded transition-colors")}>
                 <Plus className={cn("w-3.5 h-3.5")} /> New in {group.groupLabel}
-              </button>
+              </button>}
             </div>
           ))}
         </div>
@@ -122,7 +124,7 @@ export function ListView() {
   return (
     <div className={cn("flex-1 flex flex-col min-h-0")}>
       <ViewPaginationBar pager={pager} />
-      <div className={cn("flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
+      <div className={cn("odb-view-body flex-1 overflow-auto px-4 py-2 bg-surface-primary")}>
         <div className={cn("flex flex-col")}>
           {pager.items.map(renderPageRow)}
           {pager.items.length === 0 && (
@@ -131,10 +133,10 @@ export function ListView() {
               No pages found
             </div>
           )}
-          <button onClick={createRecord}
+          {canCreate && <button onClick={createRecord}
             className={cn("flex items-center gap-2 h-[34px] px-2 w-full text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface rounded transition-colors")}>
             <Plus className={cn("w-4 h-4")} /> New page
-          </button>
+          </button>}
         </div>
       </div>
     </div>

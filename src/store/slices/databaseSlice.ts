@@ -10,9 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { DatabaseSchema, SchemaProperty, PropertyType, SelectOption, ViewConfig } from '../../types/database';
+import type { AutomationRuleV2, DatabaseSchema, SchemaProperty, PropertyType, SelectOption, ViewConfig } from '../../types/database';
 import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
+import { withoutAutomations } from '../../lib/automations/migrateAutomations';
 import { defaultStatusSchema, needsStatusDefaults } from './statusDefaults';
+import { showNewProperty } from './propertyVisibility';
 
 /** A fresh ID property backfills every existing record in creation order and
  *  primes `autoIncrement` so new records continue the sequence (Notion parity —
@@ -70,6 +72,7 @@ export interface DatabaseSliceActions {
   updateProperty: (databaseId: string, propertyId: string, updates: Partial<SchemaProperty>) => void;
   deleteProperty: (databaseId: string, propertyId: string) => void;
   addSelectOption: (databaseId: string, propertyId: string, option: SelectOption) => void;
+  saveDatabaseAutomations: (databaseId: string, rules: AutomationRuleV2[]) => void;
 }
 
 export type DatabaseSlice = DatabaseSliceState & DatabaseSliceActions;
@@ -113,16 +116,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
           ...(type === 'status' ? defaultStatusSchema(newPropId) : {}),
         };
 
-        const updatedViews = { ...state.views };
-        if (state.activeViewId) {
-          const activeView = updatedViews[state.activeViewId];
-          if (activeView?.databaseId === databaseId) {
-            updatedViews[state.activeViewId] = {
-              ...activeView,
-              visibleProperties: [...activeView.visibleProperties, newPropId],
-            };
-          }
-        }
+        const updatedViews = showNewProperty(state.views, databaseId, newPropId);
 
         let pages = state.pages;
         if (type === 'id') {
@@ -152,18 +146,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
         ...(type === 'status' ? defaultStatusSchema(newPropId) : {}),
       };
 
-      const updatedViews = { ...state.views };
-      const view = updatedViews[viewId];
-      if (view) {
-        const visProps = [...view.visibleProperties];
-        if (afterPropId === null) {
-          visProps.unshift(newPropId);
-        } else {
-          const idx = visProps.indexOf(afterPropId);
-          visProps.splice(idx + 1, 0, newPropId);
-        }
-        updatedViews[viewId] = { ...view, visibleProperties: visProps };
-      }
+      const updatedViews = showNewProperty(state.views, databaseId, newPropId, { viewId, after: afterPropId });
 
       let pages = state.pages;
       if (type === 'id') {
@@ -194,14 +177,7 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
         options: source.options?.map((option) => ({ ...option })),
       };
 
-      const updatedViews = { ...state.views };
-      const view = updatedViews[viewId];
-      if (view) {
-        const visProps = [...view.visibleProperties];
-        const idx = visProps.indexOf(propertyId);
-        visProps.splice(idx === -1 ? visProps.length : idx + 1, 0, newPropId);
-        updatedViews[viewId] = { ...view, visibleProperties: visProps };
-      }
+      const updatedViews = showNewProperty(state.views, databaseId, newPropId, { viewId, after: propertyId });
 
       const updatedPages = Object.fromEntries(
         Object.entries(state.pages).map(([pageId, page]) => [
@@ -260,6 +236,26 @@ export function createDatabaseSlice(set: StoreSet, _get: StoreGet): DatabaseSlic
       return {
         databases: { ...state.databases, [databaseId]: { ...db, properties: remainingProps } },
         views: removePropertyFromViews(state.views, databaseId, propertyId),
+      };
+    }),
+
+    saveDatabaseAutomations: (databaseId, rules) => set((state: DatabaseState) => {
+      const db = state.databases[databaseId];
+      if (!db) return state;
+      const clonedRules = rules.map((rule) => ({ ...rule, conditions: rule.conditions.map((c) => ({ ...c })), program: { ...rule.program, steps: rule.program.steps.map((s) => ({ ...s })) } }));
+      const updatedViews = { ...state.views };
+      for (const viewId of Object.keys(updatedViews)) {
+        const view = updatedViews[viewId];
+        if (view.databaseId === databaseId && view.settings?.automations) {
+          updatedViews[viewId] = withoutAutomations(view);
+        }
+      }
+      return {
+        databases: {
+          ...state.databases,
+          [databaseId]: { ...db, automations: clonedRules },
+        },
+        views: updatedViews,
       };
     }),
 

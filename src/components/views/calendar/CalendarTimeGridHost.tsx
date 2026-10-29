@@ -21,6 +21,7 @@ import { useCalendarTimeDrag } from './useCalendarTimeDrag';
 import { segmentIntoWeeks, packWeekLanes, overflowByDay } from './model/calendarLanes';
 import type { CalendarGrid, CalEvent, DayInfo } from './model/calendarTypes';
 import { HOUR_HEIGHT } from './calendarConfig';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 
 export function CalendarTimeGridHost({
   grid, events, chipData, includeTime, startPropId, databaseId,
@@ -47,6 +48,7 @@ export function CalendarTimeGridHost({
   onBandHandlePointerDown?: (e: React.PointerEvent, pageId: string, side: 'left' | 'right') => void;
   bandSuppressClickRef?: React.RefObject<boolean>;
 }>) {
+  const canCreate = useCanCreateRecords();
   // Band = multi-day spans always, plus everything when times are off.
   const bandEvents = useMemo(
     () => (includeTime ? events.filter(ev => ev.startKey !== ev.endKey) : events),
@@ -83,7 +85,7 @@ export function CalendarTimeGridHost({
         pageId: chip.ev.pageId, startIso: chip.ev.startIso, endIso: chip.ev.endIso,
         startMin: chip.startMin, endMin: chip.endMin,
       })}
-      onColumnPointerDown={includeTime
+      onColumnPointerDown={includeTime && canCreate
         ? (e, day) => timeDrag.begin(e, 'create', day.key, null)
         : undefined}
       onTimePointerMove={timeDrag.drag ? timeDrag.handlePointerMove : undefined}

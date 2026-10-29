@@ -54,7 +54,7 @@ const CHART_SCREEN_MAP: Record<string, React.ComponentType<ChartScreensProps>> =
 };
 
 /** Multi-screen settings panel for configuring view layout, filters, sorts, properties, and charts. */
-export function ViewSettingsPanel({ onClose, initialScreen }: Readonly<{ onClose: () => void; initialScreen?: PanelScreen }>) {
+export function ViewSettingsPanel({ onClose, initialScreen, onOpenAutomationsSheet }: Readonly<{ onClose: () => void; initialScreen?: PanelScreen; onOpenAutomationsSheet?: () => void }>) {
   const activeViewId = useActiveViewId();
   const {
     views, databases, updateViewSettings, updateView,
@@ -207,6 +207,7 @@ export function ViewSettingsPanel({ onClose, initialScreen }: Readonly<{ onClose
       databaseName={database.name}
       setScreen={navigate}
       onClose={onClose}
+      onOpenAutomationsSheet={onOpenAutomationsSheet}
     />
   );
 }

@@ -29,6 +29,11 @@ const COMPUTED_TYPES = new Set(['formula', 'rollup']);
 /** Read-only properties — auto-generated. */
 const READONLY_TYPES = new Set(['id']);
 
+/** Whether a write to this property type can ever be accepted. */
+export function isWritableType(type: string): boolean {
+  return !SYSTEM_TYPES.has(type) && !COMPUTED_TYPES.has(type) && !READONLY_TYPES.has(type);
+}
+
 /**
  * Validate and coerce a property value to match its schema type.
  *

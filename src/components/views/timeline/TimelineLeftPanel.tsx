@@ -25,7 +25,8 @@ interface TimelineLeftPanelProps {
   readonly getPageTitle: (page: Page) => string;
   readonly openPage: (pageId: string) => void;
   readonly setHoverRow: (id: string | null) => void;
-  readonly onAddPage: () => void;
+  /** Absent → the records are read-only: no New row. */
+  readonly onAddPage?: () => void;
   /** The title property's name — the panel's column header. */
   readonly titleLabel: string;
 }
@@ -73,13 +74,13 @@ export function TimelineLeftPanel({
           );
         })}
 
-        <button
+        {onAddPage && <button
           onClick={onAddPage}
           className={cn(`flex items-center gap-2 w-full px-3 py-2 text-sm text-ink-muted
                      hover:text-hover-text hover:bg-hover-surface2 transition-colors`)}
         >
           <Plus className={cn("w-4 h-4")} /> New
-        </button>
+        </button>}
       </div>
     </div>
   );

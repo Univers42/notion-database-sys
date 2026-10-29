@@ -32,6 +32,16 @@ export interface HostAdapters {
    * only, it never renders Mermaid itself.
    */
   MermaidDiagram?: ComponentType<{ chart: string; codeTheme?: 'dark' | 'light' }>;
+  /**
+   * Hands what a dashboard widget shows (its title, its records as text) to
+   * the host's assistant. Absent → no "Ask AI" button.
+   */
+  onAskAI?: (request: { title: string; text: string }) => void;
+  /**
+   * The host refuses new records here (your own tasks or people, read from
+   * the account): every "New" control is hidden. Absent → records can be added.
+   */
+  readOnlyRecords?: boolean;
 }
 
 const HostAdaptersContext = createContext<HostAdapters>({});
@@ -40,4 +50,8 @@ export const HostAdaptersProvider = HostAdaptersContext.Provider;
 
 export function useHostAdapters(): HostAdapters {
   return useContext(HostAdaptersContext);
+}
+
+export function useCanCreateRecords(): boolean {
+  return !useContext(HostAdaptersContext).readOnlyRecords;
 }

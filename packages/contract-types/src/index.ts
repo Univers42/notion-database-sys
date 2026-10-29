@@ -288,6 +288,9 @@ export interface DatabaseSchema {
   dataSources?: DataSourceRef[];
   /** Database lock: schema and view edits are disabled while set. */
   locked?: boolean;
+  /** The host owns `locked` and every view's `settings.locked` (e.g. by workspace
+   *  role): the viewer can neither toggle nor clear them. */
+  locksManagedByHost?: boolean;
   /** Template page the "New" button seeds from by default. */
   defaultTemplateId?: string;
   /** User's header tab order (view ids). Persisted with the database so the
@@ -295,6 +298,9 @@ export interface DatabaseSchema {
    *  object's key order is not preserved through JSONB/JSON round-trips. Views
    *  absent from it fall to the end in creation order. */
   viewOrder?: string[];
+  /** The database's automations (v2). Rules belong to the database, not to
+   *  a view; v1 rules kept in `view.settings.automations` migrate here. */
+  automations?: AutomationRuleV2[];
 }
 
 /** Rich content block embedded inside a page. */
@@ -381,9 +387,30 @@ export interface DashboardWidget {
  *  (Notion "Number" widget — count/sum/avg over the backing view's records,
  *  so view filters AND dashboard global filters both apply). */
 export interface DashboardStatConfig {
-  fn: 'count' | 'sum' | 'avg' | 'min' | 'max';
+  fn: 'count' | 'sum' | 'avg' | 'min' | 'max' | 'distinct';
   /** Number property the fn aggregates (count needs none). */
   propertyId?: string;
+  /** The KPI covers only records matching every filter. */
+  where?: Filter[];
+}
+
+/** Chart presentation for a dashboard widget (overrides the backing view's chart settings). */
+export interface DashboardChartConfig {
+  chartType: string;
+  xAxisProperty: string;
+  yAxisProperty?: string;
+  yAxisAggregation?: ViewSettings['yAxisAggregation'];
+  yAxisGroupBy?: string;
+  xAxisDateBucket?: ViewSettings['xAxisDateBucket'];
+  showDataLabels?: boolean;
+}
+
+/** Records presentation for a dashboard widget (compact list). */
+export interface DashboardRecordsConfig {
+  sortPropertyId?: string;
+  direction: 'asc' | 'desc';
+  limit: number;
+  showPropertyId?: string;
 }
 
 /** Dashboard widget referencing an existing database view (Notion model). */
@@ -395,6 +422,14 @@ export interface DashboardViewWidget {
   hideTitle?: boolean;
   /** Present → render as a Number/KPI tile instead of the embedded view. */
   stat?: DashboardStatConfig;
+  /** Present → render as a chart instead of the embedded view. */
+  chart?: DashboardChartConfig;
+  /** Present → render as a compact record list instead of the embedded view. */
+  records?: DashboardRecordsConfig;
+  /** Present → render as formula health or relation & rollup analytics. */
+  insight?: 'formulas' | 'relations';
+  /** Icon registry name for a Number tile's chip; absent → by aggregate. */
+  icon?: string;
   /** Own height in px. Absent → aligned to the row height (group-resizable). */
   height?: number;
 }
@@ -435,6 +470,52 @@ export interface AutomationAction {
   targetDatabaseId?: string;
   /** add_page: property values seeded onto the created page. */
   properties?: Record<string, unknown>;
+}
+
+/** A value in a program: a constant, or a formula the engine evaluates. */
+export type ProgramValue = string | number | boolean | null | { formula: string };
+
+export type ProgramAction =
+  | { type: 'notify'; message: ProgramValue }
+  | { type: 'set_property'; property: string; value: ProgramValue }
+  | { type: 'page_action'; name: string }
+  | { type: 'app_action'; name: string; args: Record<string, ProgramValue> }
+  | { type: 'webhook'; url: string };
+
+export type ProgramStep =
+  | { op: 'set'; name: string; value: ProgramValue }
+  | { op: 'if'; condition: ProgramValue; steps: ProgramStep[]; else?: ProgramStep[] }
+  | { op: 'repeat'; count: ProgramValue; steps: ProgramStep[] }
+  | { op: 'forEach'; items: ProgramValue; as: string; steps: ProgramStep[] }
+  | { op: 'action'; action: ProgramAction };
+
+/** The steps a button runs, and an automation runs when its trigger fires. */
+export interface ButtonProgram {
+  version: 1;
+  steps: ProgramStep[];
+}
+
+/** What starts an automation. `propertyId` absent = any property; `from` /
+ *  `to` absent = any value (select and status hold option ids). */
+export type AutomationTrigger =
+  | { type: 'row_added' }
+  | { type: 'property_changed'; propertyId?: string; from?: unknown; to?: unknown }
+  | { type: 'row_deleted' };
+
+/** An automation: when the trigger fires and the conditions hold, the
+ *  program runs on the row. Stored on the database. */
+export interface AutomationRuleV2 {
+  version: 2;
+  id: string;
+  name: string;
+  enabled: boolean;
+  /** Who saved it; server runs act as this user. Null for migrated v1 rules. */
+  ownerId: string | null;
+  trigger: AutomationTrigger;
+  conditions: Filter[];
+  conjunction: 'and' | 'or';
+  program: ButtonProgram;
+  updatedAt: string;
 }
 
 /** A database automation: trigger → optional condition → actions. Live
@@ -481,6 +562,7 @@ export interface ViewSettings {
   wrapContent?: boolean;
   loadLimit?: number;
   openPagesIn?: 'side_peek' | 'center_peek' | 'full_page';
+  tableStyle?: 'default' | 'minimal';
   showVerticalLines?: boolean;
   showRowNumbers?: boolean;
   /** Manual row order (page ids) — applied when the view has no user sorts;

@@ -1,66 +1,79 @@
 // ─── StatKpi — the Number widget body (Notion 2026 dashboards) ───────────────
-// A big glanceable metric over the widget's backing view: count of records or
+// A glanceable metric over the widget's backing view: count of records or
 // sum/avg/min/max of a number-valued property (number, formula, rollup). Built on useViewPages, so the view's
 // own filters AND the dashboard's global filters shape the number live.
+// Laid out as a KPI tile — icon chip, number, label, provenance — so the
+// number says what it counts and out of what.
 
 import React from 'react';
 import type { DashboardStatConfig } from '../../../../types/database';
 import { useDatabaseStore } from '../../../../store/dbms/hardcoded/useDatabaseStore';
+import { evaluateFilter } from '../../../../lib/filter/evaluateFilter';
 import { useViewPages } from '../../../../hooks/useViewPages';
+import { StatIconBadge, STAT_LOOK } from '../StatComponents';
+import { Icon } from '../../../ui/Icon';
+import { aggregate, distinctCount, formatKpi, kpiProvenance, numericValues, STAT_FN_KIND, whereFilterLabel } from './model/kpiModel';
 import { cn } from '../../../../utils/cn';
 
-export const STAT_FN_LABEL: Record<DashboardStatConfig['fn'], string> = {
-  count: 'Count',
-  sum: 'Sum',
-  avg: 'Average',
-  min: 'Min',
-  max: 'Max',
-};
+export { STAT_FN_LABEL } from './model/kpiModel';
 
-function formatStat(value: number, fn: DashboardStatConfig['fn']): string {
-  if (fn === 'count') return value.toLocaleString();
-  const rounded = Number.isInteger(value) ? value : Math.round(value * 100) / 100;
-  return rounded.toLocaleString();
+/** Live records of a database (archived and template pages excluded). */
+function useDatabaseRecordCount(databaseId: string | undefined): number {
+  return useDatabaseStore(s => {
+    if (!databaseId) return 0;
+    let n = 0;
+    for (const page of Object.values(s.pages)) {
+      if (page.databaseId === databaseId && !page.archived && !page.isTemplate) n++;
+    }
+    return n;
+  });
 }
 
 /** Computes the metric over the view's (globally filtered) pages. */
-export function StatKpi({ viewId, stat }: Readonly<{ viewId: string; stat: DashboardStatConfig }>) {
+export function StatKpi({ viewId, stat, label, icon }: Readonly<{
+  viewId: string; stat: DashboardStatConfig; label?: string; icon?: string;
+}>) {
   const pages = useViewPages(viewId);
-  const views = useDatabaseStore(s => s.views);
-  const databases = useDatabaseStore(s => s.databases);
+  const view = useDatabaseStore(s => s.views[viewId]);
+  const database = useDatabaseStore(s => (view ? s.databases[view.databaseId] : undefined));
   const getCellValue = useDatabaseStore(s => s.getCellValue);
-  const view = views[viewId];
-  const database = view ? databases[view.databaseId] : null;
+  const total = useDatabaseRecordCount(view?.databaseId);
   const property = stat.propertyId && database ? database.properties[stat.propertyId] : null;
 
-  let value = pages.length;
-  if (stat.fn !== 'count' && stat.propertyId) {
-    const numbers = pages
-      .map(page => getCellValue(page, stat.propertyId as string))
-      // Number('') and Number(null) are 0 — an empty cell must not count as one.
-      .filter(v => v !== null && v !== undefined && v !== '' && typeof v !== 'boolean')
-      .map(Number)
-      .filter(n => Number.isFinite(n));
-    if (numbers.length === 0) value = 0;
-    else if (stat.fn === 'sum') value = numbers.reduce((a, b) => a + b, 0);
-    else if (stat.fn === 'avg') value = numbers.reduce((a, b) => a + b, 0) / numbers.length;
-    else if (stat.fn === 'min') value = Math.min(...numbers);
-    else value = Math.max(...numbers);
-  }
-
-  const subline = stat.fn === 'count'
-    ? `${pages.length === 1 ? 'record' : 'records'}`
-    : `${STAT_FN_LABEL[stat.fn]} · ${property?.name ?? '—'}`;
+  const whereFilters = stat.where ?? [];
+  const basePages = whereFilters.length > 0
+    ? pages.filter(page => whereFilters.every(filter => evaluateFilter(page, filter, database?.properties[filter.propertyId])))
+    : pages;
+  const value = stat.fn === 'distinct'
+    ? distinctCount(basePages.map(page => getCellValue(page, stat.propertyId as string)))
+    : stat.fn === 'count' || !stat.propertyId
+      ? basePages.length
+      : aggregate(stat.fn as Exclude<typeof stat.fn, 'count' | 'distinct'>, numericValues(basePages.map(page => getCellValue(page, stat.propertyId as string))));
+  const whereLabel = whereFilterLabel(whereFilters, database?.properties ?? {});
+  const provenance = kpiProvenance({ fn: stat.fn, matched: basePages.length, total, propertyName: property?.name, whereLabel });
+  const look = STAT_LOOK[STAT_FN_KIND[stat.fn]];
+  const shown = formatKpi(value);
+  // A bold digit is ~0.6em wide: cap the size so every character fits the
+  // tile's width instead of truncating the figure.
+  const widthCap = { '--kpi-w': `${Math.round(160 / Math.max(shown.length, 1))}cqw` } as React.CSSProperties;
 
   // The card is a size container: a stacked half-height card (~46px body) or
-  // a narrow column (~80px) clipped a fixed text-4xl. The number scales to
-  // its own box and the subline gives way first when the box is short.
+  // a narrow column (~80px) clipped fixed text. The number scales to its own
+  // box; the chip leaves narrow tiles and the provenance leaves short ones.
+  // Caveat: the 0.6em digit width is an estimate — a figure of wide glyphs
+  // ("88.8M") can still lose a pixel or two to the truncate.
   return (
-    <div className={cn("flex-1 min-h-0 flex flex-col items-center justify-center gap-1 px-3 py-2 [container-type:size]")}>
-      <div className={cn("text-[min(2.25rem,55cqh,40cqw)] [@container(max-height:64px)]:text-[min(2.25rem,80cqh,40cqw)] font-semibold tabular-nums text-ink leading-none truncate max-w-full")}>
-        {formatStat(value, stat.fn)}
+    <div className={cn("flex-1 min-h-0 flex items-center gap-3 px-4 py-2 [container-type:size]")}>
+      <div className={cn("shrink-0 [@container(max-width:150px)]:hidden [@container(max-height:56px)]:hidden")}>
+        <StatIconBadge color={look.color}>{icon ? <Icon name={icon} className={cn("w-5 h-5")} /> : look.icon}</StatIconBadge>
       </div>
-      <div className={cn("text-xs text-ink-muted truncate max-w-full [@container(max-height:64px)]:hidden")}>{subline}</div>
+      <div data-dash-kpi className={cn("min-w-0 flex-1 [@container(max-width:150px)]:text-center")} title={provenance}>
+        <div data-dash-kpi-value style={widthCap} className={cn("text-[min(1.875rem,40cqh,var(--kpi-w))] [@container(max-height:64px)]:text-[min(1.5rem,60cqh,var(--kpi-w))] font-bold tabular-nums text-ink leading-none truncate")}>
+          {shown}
+        </div>
+        {label && <div className={cn("mt-1 text-xs text-ink-secondary truncate [@container(max-height:40px)]:hidden")}>{label}</div>}
+        <div className={cn("mt-0.5 text-[11px] text-ink-muted truncate [@container(max-height:80px)]:hidden")}>{provenance}</div>
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:46 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/26 14:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDatabaseStore, useStoreApi } from '../store/dbms/hardcoded/useDatabaseStore';
 import { useActiveViewId } from '../hooks/useDatabaseScope';
 import { ViewSettingsPanel } from './ViewSettingsPanel';
+import { AutomationsSheet } from './automations/AutomationsSheet';
+import { databaseRules } from '../store/slices/pageAutomations';
+import { parseLiveDatabaseId } from '../store/live/liveTypes';
 import { CURSORS } from './ui/cursors';
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
 import { Dropdown } from './topBar/index';
 import { ViewTabsRow } from './topBar/ViewTabsRow';
 import { FilterSortPanels } from './topBar/FilterSortPanels';
 import { TopBarActions } from './topBar/TopBarActions';
+import { SearchBar } from './topBar/SearchBar';
 import { InlineTitle } from './topBar/InlineTitle';
 import { AnchoredPopover } from './topBar/AnchoredPopover';
 import { SortPanel } from './sort/SortPanel';
 import { PANEL_WIDTH } from '../utils/geometry';
 import { orderedDatabaseViews } from '../lib/viewOrder';
+import { areLocksManagedByHost, isViewLocked } from '../lib/lockGuards';
+import { rowCountOf } from '../store/rowCounts';
 import { cn } from '../utils/cn';
 
 /** Props for {@link TopBar}. */
@@ -48,7 +54,6 @@ export function TopBar({
   const activeViewId = useActiveViewId();
   const views = useDatabaseStore(s => s.views);
   const databases = useDatabaseStore(s => s.databases);
-  const searchQuery = useDatabaseStore(s => s.searchQuery);
   const storeApi = useStoreApi();
   const { addView, setActiveView: _setActiveView, deleteView, duplicateView,
     addPage, renameDatabase, updateDatabaseIcon, updateView, reorderViews } = storeApi.getState();
@@ -57,15 +62,15 @@ export function TopBar({
 
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
+  const viewLocked = isViewLocked(view, database);
 
   const [showSearch, setShowSearch] = useState(false);
-  const [localSearchValue, setLocalSearchValue] = useState(searchQuery);
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [showFilterPropertyPicker, setShowFilterPropertyPicker] = useState(false);
   const [showSortPanel, setShowSortPanel] = useState(false);
   const [showViewSettings, setShowViewSettings] = useState(false);
+  const [showAutomationsSheet, setShowAutomationsSheet] = useState(false);
   // ⚡ opens the same panel pre-navigated to Automations; keyed remount below
   // resets the panel's internal screen state between the two entry points.
   const [settingsScreen, setSettingsScreen] = useState<'automations' | undefined>(undefined);
@@ -76,18 +81,17 @@ export function TopBar({
   const [showExtraActions, setShowExtraActions] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
 
-  const searchRef = useRef<HTMLInputElement>(null);
+  const searchBtnRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const topBarRef = useRef<HTMLDivElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
   const settingsBtnRef = useRef<HTMLButtonElement>(null);
   const sortBtnRef = useRef<HTMLButtonElement>(null);
+  const automationsBtnRef = useRef<HTMLButtonElement>(null);
 
   const dbViews = database ? orderedDatabaseViews(views, database.id, database.viewOrder) : [];
-  const rowCount = useDatabaseStore(s =>
-    database ? Object.values(s.pages).reduce((n, p) => n + (p.databaseId === database.id ? 1 : 0), 0) : 0);
+  const rowCount = useDatabaseStore(s => (database ? rowCountOf(s.pages, database.id) : 0));
 
-  useEffect(() => { if (showSearch && searchRef.current) searchRef.current.focus(); }, [showSearch]);
   useEffect(() => { if (isEditingTitle && titleRef.current) { titleRef.current.focus(); titleRef.current.select(); } }, [isEditingTitle]);
 
   if (!view || !database) return null;
@@ -205,17 +209,22 @@ export function TopBar({
             showFilterPanel={showFilterPanel} setShowFilterPanel={setShowFilterPanel}
             setShowAdvancedFilter={setShowAdvancedFilter}
             showSortPanel={showSortPanel} setShowSortPanel={setShowSortPanel}
-            showSearch={showSearch} setShowSearch={setShowSearch}
-            localSearchValue={localSearchValue} setLocalSearchValue={setLocalSearchValue}
-            searchRef={searchRef} searchDebounceRef={searchDebounceRef}
-            onSearchQueryChange={store.setSearchQuery}
+            searchBtnRef={searchBtnRef} showSearch={showSearch} setShowSearch={setShowSearch}
             isFullSize={isFullSize} setIsFullSize={setIsFullSize}
             showViewSettings={showViewSettings} setShowViewSettings={(v) => { setSettingsScreen(undefined); setShowViewSettings(v); }}
-            onOpenAutomations={() => { setSettingsScreen('automations'); setShowViewSettings(true); }}
-            automationsCount={view.settings?.automations?.length ?? 0}
+            onOpenAutomations={() => {
+              if (parseLiveDatabaseId(database.id)) { setSettingsScreen('automations'); setShowViewSettings(true); }
+              else setShowAutomationsSheet(true);
+            }}
+            automationsBtnRef={automationsBtnRef}
+            automationsCount={(() => {
+              if (parseLiveDatabaseId(database.id)) return 0;
+              return databaseRules(storeApi.getState(), database.id).length;
+            })()}
             showExtraActions={showExtraActions} setShowExtraActions={setShowExtraActions}
             showTemplates={showTemplates} setShowTemplates={setShowTemplates} databaseName={database.name}
             onNewPage={() => { const id = addPage(database.id); store.openPage(id); }}
+            locked={viewLocked} settingsLocked={viewLocked && areLocksManagedByHost(database)}
           />
           {onToggleCollapsed && (
             <button
@@ -240,6 +249,10 @@ export function TopBar({
             onSetIcon={(icon) => updateDatabaseIcon(database.id, icon)} />
         )}
 
+        {showSearch && !collapsed && (
+          <SearchBar viewId={view.id} onClose={() => { setShowSearch(false); searchBtnRef.current?.focus(); }} />
+        )}
+
         <FilterSortPanels showFilterPanel={showFilterPanel} showFilterPropertyPicker={showFilterPropertyPicker}
           setShowFilterPropertyPicker={setShowFilterPropertyPicker}
           showAdvancedFilter={showAdvancedFilter} setShowAdvancedFilter={setShowAdvancedFilter}
@@ -249,14 +262,18 @@ export function TopBar({
 
       {showSortPanel && (
         <AnchoredPopover anchorRef={sortBtnRef} label="Sort" width={PANEL_WIDTH.SORT} onClose={() => setShowSortPanel(false)}>
-          <SortPanel database={database} view={view} />
+          <SortPanel database={database} view={view} onClose={() => setShowSortPanel(false)} />
         </AnchoredPopover>
       )}
 
       {showViewSettings && (
         <AnchoredPopover anchorRef={settingsBtnRef} label="View settings" width={PANEL_WIDTH.SETTINGS + 2} onClose={() => setShowViewSettings(false)}>
-          <ViewSettingsPanel key={settingsScreen ?? 'main'} initialScreen={settingsScreen} onClose={() => setShowViewSettings(false)} />
+          <ViewSettingsPanel key={settingsScreen ?? 'main'} initialScreen={settingsScreen} onClose={() => setShowViewSettings(false)} onOpenAutomationsSheet={() => { setShowViewSettings(false); setShowAutomationsSheet(true); }} />
         </AnchoredPopover>
+      )}
+
+      {showAutomationsSheet && database && (
+        <AutomationsSheet databaseId={database.id} anchorRef={automationsBtnRef} onClose={() => setShowAutomationsSheet(false)} />
       )}
 
     </>

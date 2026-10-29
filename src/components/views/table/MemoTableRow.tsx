@@ -11,10 +11,10 @@
 /* ************************************************************************** */
 
 import React from 'react';
-import { SchemaProperty, Page, PropertyValue } from '../../../types/database';
+import type { SchemaProperty, Page, PropertyValue } from '../../../types/database';
 import { CURSORS } from '../../ui/cursors';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
-import { renderCellContent, CellRendererProps } from './CellRenderer';
+import { renderCellContent, type CellRendererProps } from './CellRenderer';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useSubItems } from './subItemsContext';
 import { GripHandleIcon } from '../../ui/Icons';
@@ -99,7 +99,7 @@ interface RowControlsProps {
 function RowControls({ pageId, canReorder, subItems, expanded, floating, onRowDragStart, onRowDragEnd }: Readonly<RowControlsProps>) {
   if (!canReorder && !subItems) return null;
   const place = floating
-    ? 'absolute left-0.5 top-1/2 -translate-y-1/2 z-10 rounded bg-surface-primary shadow-sm'
+    ? 'absolute left-1 top-1/2 -translate-y-1/2 z-10'
     : 'absolute inset-0 justify-center';
   return (
     // Its own mousedown must not start a cell selection under it.
@@ -125,6 +125,13 @@ function RowControls({ pageId, canReorder, subItems, expanded, floating, onRowDr
   );
 }
 
+/** The first cell's left padding when the row controls float in it: a lane of their
+ *  own (grip 14px, chevron 16px, from 4px in), so they never cover its text. */
+function floatingLanePadding(canReorder: boolean | undefined, hasSubItems: boolean): string {
+  if (canReorder && hasSubItems) return 'pl-10';
+  return canReorder || hasSubItems ? 'pl-6' : 'pl-3';
+}
+
 /** Memoized table row that only re-renders when its own data changes. */
 export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRowProps) {
   const {
@@ -138,6 +145,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const subItems = useSubItems();
   const expanded = subItems?.isExpanded(page.id) ?? false;
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
+  const firstCellPadding = showRowNumbers ? 'pl-3' : floatingLanePadding(props.canReorder, Boolean(subItems));
   const controls = (
     <RowControls pageId={page.id} canReorder={props.canReorder} subItems={subItems} expanded={expanded}
       floating={!showRowNumbers} onRowDragStart={props.onRowDragStart} onRowDragEnd={props.onRowDragEnd} />
@@ -185,7 +193,7 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
             id={cellDomId(databaseId, page.id, prop.id)}
             role="gridcell"
             aria-selected={isFocused || inSelection}
-            className={cn(`px-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`)}
+            className={cn(`${colIdx === 0 ? firstCellPadding : 'pl-3'} pr-3 py-1.5 ${cellBorder} border-b border-line ${isFocused ? 'overflow-visible' : 'overflow-hidden'} ${wrapContent ? 'align-top' : 'align-middle'} relative ${ring}`)}
             style={{
               width, minWidth: width, maxWidth: width,
               cursor: cellCursor,

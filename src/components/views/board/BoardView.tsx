@@ -19,6 +19,7 @@ import { VirtualCardList } from './VirtualCardList';
 import { cn } from '../../../utils/cn';
 import { getDotColor } from '../../../utils/color';
 import { useDashboardFilters } from '../../../hooks/useDashboardFilters';
+import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
 import { applyGlobalFilters } from '../../../hooks/useViewPages';
 import { resolvePageSize } from '../../../hooks/useViewPager';
 import { colorForPage } from '../../../lib/conditionalColor';
@@ -46,6 +47,7 @@ export function BoardView() {
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   const globalFilters = useDashboardFilters();
+  const canCreate = useCanCreateRecords();
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [_dragPageId, setDragPageId] = useState<string | null>(null); // NOSONAR
   // Card-level insertion point: which card the pointer is over, top or bottom half.
@@ -189,12 +191,12 @@ export function BoardView() {
                   <span className={cn("text-[13px] font-semibold text-ink truncate")}>{group.groupLabel}</span>
                   <span className={cn("text-xs text-ink-muted tabular-nums")}>{group.pages.length}</span>
                 </div>
-                <button
+                {canCreate && <button
                   onClick={() => addToGroup(group.groupId)}
                   aria-label={`Add card to ${group.groupLabel}`}
                   className={cn("p-1 hover:bg-hover-surface-white-soft rounded text-ink-muted hover:text-hover-text transition-colors")}>
                   <Plus className={cn("w-4 h-4")} />
-                </button>
+                </button>}
               </div>
               <div className={cn(`h-0.5 rounded-full opacity-70 ${getDotColor(group.groupColor)}`)} aria-hidden="true" />
             </div>
@@ -239,12 +241,11 @@ export function BoardView() {
                 </div>
               )}
 
-              {/* Add card button */}
-              <button
+              {canCreate && <button
                 onClick={() => addToGroup(group.groupId)}
                 className={cn("flex items-center gap-2 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-white-soft2 p-2 rounded-lg transition-colors w-full")}>
                 <Plus className={cn("w-4 h-4")} /> New
-              </button>
+              </button>}
             </div>
           </div>
         );

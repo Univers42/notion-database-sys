@@ -10,15 +10,43 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import type { Page } from '../../types/database';
-import { matchesFilterValue } from '../../lib/filter/evaluateFilter';
+import type { Page, ViewConfig } from '../../types/database';
+import { matchesPropertyFilter } from '../../lib/filter/evaluateFilter';
 import { isIncompleteFilter } from '../../lib/filter/filterHelpers';
 import { compareValues } from '../../lib/filter/compareValues';
 import { compareWithManualOrder, manualOrderRank } from '../../lib/manualRowOrder';
 import { searchPage, buildGroups, formatFormulaResult } from './storeHelpers';
 import { cellValue, formulaValue, rollupValue, sortKey } from './cellValues';
 
-import type { StoreSet, StoreGet } from '../dbms/hardcoded/storeTypes';
+import type { StoreSet, StoreGet, DatabaseState } from '../dbms/hardcoded/storeTypes';
+
+/** Everything a view's rows are made from; the rows are reused while each
+ *  input keeps its identity. Column widths, hidden columns, grouping and the
+ *  other views are not inputs, so changing them refilters nothing. */
+interface ViewRows {
+  pages: DatabaseState['pages'];
+  databases: DatabaseState['databases'];
+  searchQuery: string;
+  databaseId: string;
+  filters: ViewConfig['filters'];
+  filterConjunction: ViewConfig['filterConjunction'];
+  sorts: ViewConfig['sorts'];
+  manualRowOrder: unknown;
+  rows: Page[];
+  groups?: { grouping: ViewConfig['grouping']; value: ReturnType<typeof buildGroups> };
+}
+
+function rowsInputs(state: DatabaseState, view: ViewConfig): Omit<ViewRows, 'rows' | 'groups'> {
+  return {
+    pages: state.pages, databases: state.databases, searchQuery: state.searchQuery,
+    databaseId: view.databaseId, filters: view.filters, filterConjunction: view.filterConjunction,
+    sorts: view.sorts, manualRowOrder: view.settings?.manualRowOrder,
+  };
+}
+
+function sameInputs(entry: ViewRows, inputs: Omit<ViewRows, 'rows' | 'groups'>): boolean {
+  return (Object.keys(inputs) as (keyof typeof inputs)[]).every(key => entry[key] === inputs[key]);
+}
 
 /**
  * Creates the computed/read-only helpers slice for the Zustand store.
@@ -30,18 +58,12 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
   // Per-INSTANCE cache: createDatabaseStore() makes one store per mounted
   // ObjectDatabase, so a module-level cache would be shared across instances —
   // with two database surfaces mounted, each would evict the other's entries
-  // on every render (full refilter+resort each time). One generation covers
-  // both derived shapes; `results`/`groups` are keyed by viewId within it.
-  // `databasesRef` is part of the generation because both filters and group
-  // columns read db.properties (a new select option must surface a new group).
-  let pagesForViewCache: {
-    pagesRef: Record<string, unknown> | null;
-    viewsRef: Record<string, unknown> | null;
-    databasesRef: Record<string, unknown> | null;
-    searchQuery: string;
-    results: Map<string, Page[]>;
-    groups: Map<string, ReturnType<typeof buildGroups>>;
-  } = { pagesRef: null, viewsRef: null, databasesRef: null, searchQuery: '', results: new Map(), groups: new Map() };
+  // on every render (full refilter+resort each time). Keyed per view: a whole-
+  // `views` generation used to refilter and resort every view of the account
+  // on a column resize (1.4 ms on 8,646 rows, tests/bench/database-view).
+  // `databases` is an input because filters and group columns read
+  // db.properties (a new select option must surface a new group).
+  const viewRows = new Map<string, ViewRows>();
 
   return {
     getPageTitle: (page: Page) => {
@@ -58,19 +80,9 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       const db = state.databases[view.databaseId];
       if (!db) return [];
 
-      if (
-        pagesForViewCache.pagesRef !== state.pages ||
-        pagesForViewCache.viewsRef !== state.views ||
-        pagesForViewCache.databasesRef !== state.databases ||
-        pagesForViewCache.searchQuery !== state.searchQuery
-      ) {
-        pagesForViewCache = {
-          pagesRef: state.pages, viewsRef: state.views, databasesRef: state.databases,
-          searchQuery: state.searchQuery, results: new Map(), groups: new Map(),
-        };
-      }
-      const cached = pagesForViewCache.results.get(viewId);
-      if (cached) return cached;
+      const inputs = rowsInputs(state, view);
+      const cached = viewRows.get(viewId);
+      if (cached && sameInputs(cached, inputs)) return cached.rows;
 
       let result = Object.values(state.pages).filter(
         p => p.databaseId === view.databaseId && !p.archived && !p.isTemplate,
@@ -87,7 +99,7 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       if (filters.length > 0) {
         result = result.filter(page => {
           const results = filters.map(f =>
-            matchesFilterValue(cellValue(state, page, db.properties[f.propertyId]), f),
+            matchesPropertyFilter(cellValue(state, page, db.properties[f.propertyId]), f, db.properties[f.propertyId]),
           );
           return view.filterConjunction === 'or'
             ? results.some(Boolean)
@@ -120,7 +132,7 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
         result.sort((a, b) => compareWithManualOrder(a, b, rank));
       }
 
-      pagesForViewCache.results.set(viewId, result);
+      viewRows.set(viewId, { ...inputs, rows: result });
       return result;
     },
 
@@ -130,15 +142,15 @@ export function createComputedSlice(_set: StoreSet, get: StoreGet) {
       if (!view?.grouping) return [];
       const db = state.databases[view.databaseId];
       if (!db) return [];
-      // getPagesForView refreshes the cache generation first (pages/views/
-      // search identity), so a group hit below is always same-generation.
+      // getPagesForView replaces the view's entry when any row input changed,
+      // so groups kept on the entry are always built from its current rows.
       const pages = state.getPagesForView(viewId);
-      const cached = pagesForViewCache.groups.get(viewId);
-      if (cached) return cached;
+      const entry = viewRows.get(viewId);
+      if (entry?.groups?.grouping === view.grouping) return entry.groups.value;
       const groupProp = db.properties[view.grouping.propertyId];
       if (!groupProp) return [];
       const groups = buildGroups(pages, groupProp, view.grouping, page => cellValue(state, page, groupProp));
-      pagesForViewCache.groups.set(viewId, groups);
+      if (entry) entry.groups = { grouping: view.grouping, value: groups };
       return groups;
     },
 

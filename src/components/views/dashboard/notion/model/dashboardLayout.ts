@@ -16,7 +16,10 @@
 // vertically (DashboardStack) — a stacked column always fills the row height,
 // members split it by `shares` fractions. Pure functions → unit-tested.
 
-import type { DashboardRow, DashboardStack, DashboardStatConfig, DashboardViewWidget } from '../../../../../types/database';
+import type { DashboardChartConfig, DashboardRecordsConfig, DashboardRow, DashboardStack, DashboardStatConfig, DashboardViewWidget } from '../../../../../types/database';
+import type { SchemaProperty } from '../../../../../types/database';
+import { legacyWidgetsToRows } from './legacyWidgets';
+import { autoDetectedWidgets } from './autoDetectedWidgets';
 
 export interface DashboardLayout {
   rows: DashboardRow[];
@@ -94,6 +97,12 @@ export interface AddWidgetOptions {
   forceNewRow?: boolean;
   /** Render as a Number/KPI tile over the backing view. */
   stat?: DashboardStatConfig;
+  /** Render as a chart over the backing view. */
+  chart?: DashboardChartConfig;
+  /** Render as a compact record list over the backing view. */
+  records?: DashboardRecordsConfig;
+  /** Render as formula health or relation & rollup analytics over the backing view. */
+  insight?: 'formulas' | 'relations';
 }
 
 /**
@@ -108,7 +117,13 @@ export function addWidget(
   options: AddWidgetOptions = {},
 ): DashboardLayout | null {
   if (layout.widgets.length >= MAX_WIDGETS) return null;
-  const widget: DashboardViewWidget = { id, viewId, ...(options.stat ? { stat: options.stat } : {}) };
+  const widget: DashboardViewWidget = {
+    id, viewId,
+    ...(options.stat ? { stat: options.stat } : {}),
+    ...(options.chart ? { chart: options.chart } : {}),
+    ...(options.records ? { records: options.records } : {}),
+    ...(options.insight ? { insight: options.insight } : {}),
+  };
   const rows = [...layout.rows];
   const freshRow = (height = DEFAULT_ROW_HEIGHT): DashboardRow => normalizeRow({
     id: `r-${crypto.randomUUID().slice(0, 8)}`,
@@ -184,13 +199,52 @@ export function duplicateWidget(
   return { rows, widgets: [...layout.widgets, widget] };
 }
 
-/** Reads the persisted layout out of view settings (legacy-safe defaults). */
-export function layoutFromSettings(settings: {
-  dashboardRows?: DashboardRow[];
-  dashboardWidgets?: DashboardViewWidget[];
-}): DashboardLayout {
+/** Reads the persisted layout out of view settings (legacy-safe defaults). When
+ *  `dashboardRows` is absent, converts `settings.widgets` (or, when there are
+ *  no widgets either, the auto-detected set) into the editable form. */
+export function layoutFromSettings(
+  settings: {
+    dashboardRows?: DashboardRow[];
+    dashboardWidgets?: DashboardViewWidget[];
+    widgets?: import('../../../../../types/database').DashboardWidget[];
+    formulaAnalytics?: boolean;
+    relationAnalytics?: boolean;
+  },
+  hostViewId?: string,
+  properties?: Record<string, SchemaProperty>,
+): DashboardLayout {
+  if (settings.dashboardRows) {
+    return {
+      rows: settings.dashboardRows,
+      widgets: settings.dashboardWidgets ?? [],
+    };
+  }
+  // Formula / relation analytics become a single full-width insight widget at
+  // read time; the first edit persists the converted form like any dashboard.
+  if (hostViewId && (settings.formulaAnalytics || settings.relationAnalytics)) {
+    const insight = settings.formulaAnalytics ? 'formulas' : 'relations';
+    const widgetId = 'w-insight';
+    const row: DashboardRow = {
+      id: 'r-insight',
+      widgetIds: [widgetId],
+      widths: [1],
+      height: 1440,
+    };
+    const widget: DashboardViewWidget = { id: widgetId, viewId: hostViewId, insight };
+    return { rows: [row], widgets: [widget] };
+  }
+  const props = properties ?? {};
+  if (hostViewId) {
+    const legacyWidgets = (settings.widgets && settings.widgets.length > 0)
+      ? settings.widgets
+      : autoDetectedWidgets(props);
+    if (legacyWidgets.length > 0) {
+      const converted = legacyWidgetsToRows(legacyWidgets, hostViewId, props);
+      return { rows: converted.dashboardRows, widgets: converted.dashboardWidgets };
+    }
+  }
   return {
-    rows: settings.dashboardRows ?? [],
+    rows: [],
     widgets: settings.dashboardWidgets ?? [],
   };
 }

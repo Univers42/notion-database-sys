@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/05 02:43:02 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ import { Icon } from '../ui/Icon';
 import { ViewDotsMenu } from './MenuComponents';
 import { ViewTabMenu } from './ViewTabMenu';
 import { useViewTabReorder } from './useViewTabReorder';
+import { areLocksManagedByHost, isDatabaseLocked, isViewLocked } from '../../lib/lockGuards';
 import type { DatabaseSchema } from '../../types/database';
 import type { ViewConfig } from '../../types/views';
 import { cn } from '../../utils/cn';
@@ -103,6 +104,9 @@ export function ViewTabsRow({
 
   const { dragViewId, dropTargetId, registerTab, tabDragProps } = useViewTabReorder(dbViews, database.id, reorderViews);
 
+  // A host-owned lock also closes the view settings panel, where a plain lock
+  // keeps it open so the viewer can reach the Lock toggle.
+  const isHostLocked = (v: ViewConfig) => areLocksManagedByHost(database) && isViewLocked(v, database);
   const openTabMenu = (viewId: string, el: HTMLElement, toggle: boolean) => {
     if (toggle && tabMenu?.viewId === viewId) { setTabMenu(null); return; }
     const rect = el.getBoundingClientRect();
@@ -170,8 +174,8 @@ export function ViewTabsRow({
                     e.preventDefault(); e.stopPropagation();
                     openTabMenu(v.id, e.currentTarget, false);
                   }}
-                  onKeyDown={e => { if (e.key === 'F2') { e.preventDefault(); setViewRenameValue(v.name); setRenamingViewId(v.id); } }}
-                  data-view-tab={v.id} aria-label={v.name} title={`${v.name} — F2 to rename`}
+                  onKeyDown={e => { if (e.key === 'F2' && !isViewLocked(v, database)) { e.preventDefault(); setViewRenameValue(v.name); setRenamingViewId(v.id); } }}
+                  data-view-tab={v.id} aria-label={v.name} title={isViewLocked(v, database) ? `${v.name} — locked` : `${v.name} — F2 to rename`}
                   className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg whitespace-nowrap transition-colors ${v.id === activeViewId
                     ? 'bg-surface-tertiary text-ink font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`, slots?.tabButton)}>
                   {(v.settings?.tabDisplay ?? 'text_icon') !== 'text' &&
@@ -247,6 +251,7 @@ export function ViewTabsRow({
             onEditTitle={() => { onEditTitle(); setShowViewDots(false); }}
             onEditLayout={() => { onEditLayout(); setShowViewDots(false); }}
             viewId={view.id}
+            locks={{ view: isViewLocked(view, database), settings: isHostLocked(view), database: isDatabaseLocked(database) }}
             onViewSource={onViewSource}
             onSetIcon={onSetIcon}
             titleHidden={view.settings?.showTitle === false}
@@ -257,6 +262,7 @@ export function ViewTabsRow({
 
       {tabMenu && menuView && (
         <ViewTabMenu view={menuView} position={tabMenu} canDelete={dbViews.length > 1}
+          locks={{ view: isViewLocked(menuView, database), settings: isHostLocked(menuView), database: isDatabaseLocked(database) }}
           sourceName={database.name} sourceIcon={database.icon}
           onClose={() => setTabMenu(null)}
           onRename={() => { setViewRenameValue(menuView.name); setRenamingViewId(menuView.id); setTabMenu(null); }}

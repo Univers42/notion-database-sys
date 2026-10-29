@@ -23,21 +23,23 @@ import { toRechartsRows } from '../../../lib/chart/chartEngine';
 import { colorAt, valueShade } from './chartPalette';
 import { ChartTooltipContent } from './ChartTooltipContent';
 import { yAxisDomain } from './ChartCanvasHelpers';
+import { categoryAxisWidth, prefersHorizontalBars } from './chartLayout';
 
 export interface BarsClick { categoryIndex: number; seriesKey: string }
 
 const AXIS_TICK = { fontSize: 11, fill: 'var(--color-chart-label)' };
 
-/** Every category keeps its label, cut to its band with an ellipsis (Text
+/** Every category keeps its label, wrapped to two lines inside its band (Text
  *  measures it); recharts' default dropped every other label once they
- *  collided. A horizontal chart's labels share the axis width instead. */
+ *  collided. prefersHorizontalBars switches orientation before a label gets
+ *  cut, so the ellipsis is only a last resort. */
 function fittedCategoryTick(horizontal: boolean) {
   return function CategoryTick(p: Omit<XAxisTickContentProps, 'orientation' | 'padding'>) {
     const axis = Number(p.width) || 0;
     const band = horizontal ? axis - 8 : axis / Math.max(1, p.visibleTicksCount) - 6;
     return (
       <Text x={p.x} y={p.y} textAnchor={p.textAnchor} verticalAnchor={p.verticalAnchor}
-        width={Math.max(band, 12)} maxLines={1} {...AXIS_TICK}>
+        width={Math.max(band, 12)} maxLines={2} lineHeight={12} {...AXIS_TICK}>
         {String(p.payload.value ?? '')}
       </Text>
     );
@@ -55,16 +57,23 @@ function categoryFill(
     const max = Math.max(...result.categories.map(c => c.total), 1);
     return valueShade(settings.colorPalette, cat.total / max);
   }
-  return colorAt(settings.colorPalette, index);
+  return cat.color || colorAt(settings.colorPalette, index);
 }
 
 /** Vertical/horizontal (stacked) bar chart with drilldown clicks. */
-export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: Readonly<{
+export function ChartBarsChart({ result, settings, horizontal: requestedHorizontal, width = 0, compact = false, onSliceClick }: Readonly<{
   result: ChartResult;
   settings: ViewSettings;
   horizontal: boolean;
+  /** Plot width in px; drives the label-fit orientation switch. */
+  width?: number;
+  /** Inside a dashboard widget: the card title replaces axis titles. */
+  compact?: boolean;
   onSliceClick: (click: BarsClick) => void;
 }>) {
+  const labels = result.categories.map(c => c.label);
+  const horizontal = prefersHorizontalBars(labels, width, requestedHorizontal);
+  const axisWidth = categoryAxisWidth(labels, width);
   const rows = toRechartsRows(result);
   const single = result.series.length === 1 && result.series[0].key === VALUE_SERIES_KEY;
   const radius = settings.roundedBars !== false ? 6 : 0;
@@ -86,12 +95,12 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
   const categoryAxis = (
     <XAxis dataKey="label" type="category" tick={fittedCategoryTick(false)} interval={0}
       tickLine={false} axisLine={{ stroke: 'var(--color-chart-grid)' }}
-      label={settings.xAxisTitle ? { value: settings.xAxisTitle, position: 'insideBottom', offset: -4, fontSize: 11 } : undefined} />
+      label={settings.xAxisTitle && !compact ? { value: settings.xAxisTitle, position: 'insideBottom', offset: -4, fontSize: 11 } : undefined} />
   );
   const valueAxis = (
     <YAxis type="number" tick={AXIS_TICK} domain={domain} allowDataOverflow={!!domain}
       tickLine={false} axisLine={false}
-      label={settings.yAxisTitle ? { value: settings.yAxisTitle, angle: -90, position: 'insideLeft', fontSize: 11 } : undefined} />
+      label={settings.yAxisTitle && !compact ? { value: settings.yAxisTitle, angle: -90, position: 'insideLeft', fontSize: 11 } : undefined} />
   );
 
   return (
@@ -106,7 +115,7 @@ export function ChartBarsChart({ result, settings, horizontal, onSliceClick }: R
               tickLine={false} axisLine={false} />
           : categoryAxis}
         {horizontal
-          ? <YAxis dataKey="label" type="category" tick={fittedCategoryTick(true)} width={110}
+          ? <YAxis dataKey="label" type="category" tick={fittedCategoryTick(true)} width={axisWidth}
               interval={0} tickLine={false} axisLine={{ stroke: 'var(--color-chart-grid)' }} />
           : valueAxis}
         <Tooltip content={<ChartTooltipContent />} cursor={{ fill: 'var(--color-chart-cursor, rgba(0,0,0,0.04))' }} />

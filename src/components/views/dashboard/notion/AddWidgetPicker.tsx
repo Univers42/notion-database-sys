@@ -16,11 +16,14 @@
 // layout shortcuts. A search box cuts across all of it.
 
 import React, { useRef, useState } from 'react';
-import { Hash, Plus } from 'lucide-react';
+import { Hash, Plus, BarChart3, List } from 'lucide-react';
 import { useOutsideClick } from '../../../../hooks/useOutsideClick';
 import { VIEW_META, LAYOUT_ORDER } from '../../../viewSettings/constants';
-import type { DashboardStatConfig, SchemaProperty, ViewConfig, ViewType } from '../../../../types/database';
+import type { DashboardChartConfig, DashboardRecordsConfig, DashboardStatConfig, SchemaProperty, ViewConfig, ViewType } from '../../../../types/database';
 import type { WidgetViewGroup } from './model/dashboardViewOps';
+import { statEntries as sharedStatEntries } from './model/statEntries';
+import { insightEntries as sharedInsightEntries } from './model/insightEntries';
+import { chartEntries as sharedChartEntries, recordEntries as sharedRecordEntries } from './model/widgetEntries';
 import { cn } from '../../../../utils/cn';
 
 /** New-view layouts offered in the picker (dashboard-in-dashboard excluded). */
@@ -29,10 +32,13 @@ const NEW_VIEW_TYPES: ViewType[] = LAYOUT_ORDER.filter(t => t !== 'dashboard');
 interface AddWidgetPickerProps {
   hostViews: ViewConfig[];
   otherGroups: WidgetViewGroup[];
-  /** Number properties of the host database (Number widget shortcuts). */
-  numberProps: SchemaProperty[];
+  /** The host database's columns: every Number, Chart, Records and Insight entry comes from them. */
+  properties: Record<string, SchemaProperty> | SchemaProperty[];
   onPickExisting: (viewId: string) => void;
   onPickStat: (stat: DashboardStatConfig) => void;
+  onPickChart: (chart: DashboardChartConfig) => void;
+  onPickRecords: (records: DashboardRecordsConfig) => void;
+  onPickInsight?: (insight: 'formulas' | 'relations') => void;
   onCreateNew: (type: ViewType) => void;
   onClose: () => void;
 }
@@ -54,8 +60,8 @@ function ViewRow({ view, onPick }: Readonly<{ view: ViewConfig; onPick: () => vo
 
 /** Popover: numbers + existing views (all databases) + "new view" shortcuts. */
 export function AddWidgetPicker({
-  hostViews, otherGroups, numberProps,
-  onPickExisting, onPickStat, onCreateNew, onClose,
+  hostViews, otherGroups, properties,
+  onPickExisting, onPickStat, onPickChart, onPickRecords, onPickInsight, onCreateNew, onClose,
 }: Readonly<AddWidgetPickerProps>) {
   const ref = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
@@ -67,13 +73,12 @@ export function AddWidgetPicker({
   const groupsFiltered = otherGroups
     .map(group => ({ ...group, views: group.views.filter(v => matches(v.name) || matches(group.databaseName)) }))
     .filter(group => group.views.length > 0);
-  const statEntries: { label: string; stat: DashboardStatConfig }[] = [
-    { label: 'Count of records', stat: { fn: 'count' } satisfies DashboardStatConfig },
-    ...numberProps.slice(0, 2).flatMap((prop): { label: string; stat: DashboardStatConfig }[] => [
-      { label: `Sum of ${prop.name}`, stat: { fn: 'sum', propertyId: prop.id } },
-      { label: `Average ${prop.name}`, stat: { fn: 'avg', propertyId: prop.id } },
-    ]),
-  ].filter(entry => matches(entry.label));
+  const statEntries = sharedStatEntries(properties).filter(entry => matches(entry.label));
+  const insightList = sharedInsightEntries(properties)
+    .filter(entry => matches(entry.label));
+
+  const chartEntries = sharedChartEntries(properties).filter(entry => matches(entry.label));
+  const recordEntries = sharedRecordEntries(properties).filter(entry => matches(entry.label));
   const newTypes = NEW_VIEW_TYPES.filter(type => matches(VIEW_META[type]?.label ?? type));
 
   return (
@@ -96,6 +101,45 @@ export function AddWidgetPicker({
             <button key={entry.label} type="button" onClick={() => { onPickStat(entry.stat); onClose(); }}
               className={cn("w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left text-ink-body hover:bg-hover-surface-soft2 transition-colors")}>
               <Hash className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
+              <span className={cn("truncate flex-1")}>{entry.label}</span>
+            </button>
+          ))}
+        </>
+      )}
+
+      {chartEntries.length > 0 && (
+        <>
+          <SectionLabel>Chart</SectionLabel>
+          {chartEntries.map(entry => (
+            <button key={entry.label} type="button" onClick={() => { onPickChart(entry.chart); onClose(); }}
+              className={cn("w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left text-ink-body hover:bg-hover-surface-soft2 transition-colors")}>
+              <BarChart3 className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
+              <span className={cn("truncate flex-1")}>{entry.label}</span>
+            </button>
+          ))}
+        </>
+      )}
+
+      {recordEntries.length > 0 && (
+        <>
+          <SectionLabel>Records</SectionLabel>
+          {recordEntries.map(entry => (
+            <button key={entry.label} type="button" onClick={() => { onPickRecords(entry.records); onClose(); }}
+              className={cn("w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left text-ink-body hover:bg-hover-surface-soft2 transition-colors")}>
+              <List className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
+              <span className={cn("truncate flex-1")}>{entry.label}</span>
+            </button>
+          ))}
+        </>
+      )}
+
+      {insightList.length > 0 && onPickInsight && (
+        <>
+          <SectionLabel>Insights</SectionLabel>
+          {insightList.map(entry => (
+            <button key={entry.label} type="button" onClick={() => { onPickInsight(entry.insight); onClose(); }}
+              className={cn("w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left text-ink-body hover:bg-hover-surface-soft2 transition-colors")}>
+              <BarChart3 className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
               <span className={cn("truncate flex-1")}>{entry.label}</span>
             </button>
           ))}

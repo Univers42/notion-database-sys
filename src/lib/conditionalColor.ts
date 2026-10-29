@@ -21,7 +21,7 @@ import type { ConditionalColorRule } from '@notion-db/contract-types';
 import type { ChartResult } from './chart/chartTypes';
 import type { Page, SchemaProperty } from '../component/types';
 import type { ViewSettings } from '../types/database';
-import { matchesFilterValue } from './filter/evaluateFilter';
+import { matchesPropertyFilter } from './filter/evaluateFilter';
 import { isIncompleteFilter } from './filter/filterHelpers';
 
 /** Reads the value a rule compares against; the store's getCellValue also
@@ -71,12 +71,7 @@ export function colorForPage(
     // A rule still being typed (no value yet) colors nothing rather than all.
     if (isIncompleteFilter(filter)) continue;
     const value = readValue(page, rule.propertyId);
-    if (matchesFilterValue(value, filter)) return conditionalColorToken(rule.color);
-    const option = property.options?.find((candidate) => candidate.id === rule.value);
-    if (option && option.value !== rule.value
-      && matchesFilterValue(value, { ...filter, value: option.value })) {
-      return conditionalColorToken(rule.color);
-    }
+    if (matchesPropertyFilter(value, filter, property)) return conditionalColorToken(rule.color);
   }
   return null;
 }
