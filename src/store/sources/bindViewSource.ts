@@ -18,9 +18,12 @@
  * the merged snapshot, which makes the rebind survive reloads). Never touches
  * activeViewId (house rule: only setActiveView may). Loaded views are NOT
  * merged — the foreign source's own view tabs stay out of this database.
+ * A locked view keeps its source: rebinding is a view edit, refused before the
+ * load and again after it, since the lock may land while the load is in flight.
  */
 
 import type { DatabaseSchema, NotionState, Page, ViewConfig } from '../../component/types';
+import { isViewLocked } from '../../lib/lockGuards';
 import { remapViewToSource } from '../../lib/sourceRemap';
 import { loadRegisteredDataSource } from './dataSourceRegistry';
 import { normalizeDatabases } from './normalizeDatabases';
@@ -43,7 +46,7 @@ export async function bindViewSource(
 ): Promise<boolean> {
   const state = store.getState();
   const view = state.views[viewId];
-  if (!view || view.databaseId === sourceId) return false;
+  if (!view || view.databaseId === sourceId || isViewLocked(view, state.databases[view.databaseId])) return false;
 
   // Always ask the provider (live sources refresh on every bind); fall back
   // to a database already present in the store (e.g. another view loaded it).
@@ -55,7 +58,7 @@ export async function bindViewSource(
 
   const fresh = store.getState(); // re-read: the load above is async
   const currentView = fresh.views[viewId];
-  if (!currentView) return false;
+  if (!currentView || isViewLocked(currentView, fresh.databases[currentView.databaseId])) return false;
   const remapped = remapViewToSource(
     currentView,
     fresh.databases[currentView.databaseId] ?? null,

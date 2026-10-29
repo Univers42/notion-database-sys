@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:39:20 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 16:30:10 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ import type { SchemaProperty, Filter, DatabaseSchema, ViewConfig } from '../../t
 import { FilterPropertyPicker, FilterBar, AdvancedFilterGrid } from '../FilterComponents';
 import { addFilterRule } from '../filters/addFilterRule';
 import { AnchoredPopover } from './AnchoredPopover';
+import { isViewLocked } from '../../lib/lockGuards';
 
 /** Props for {@link FilterSortPanels}. */
 export interface FilterSortPanelsProps {
@@ -58,6 +59,7 @@ export function FilterSortPanels({
           <FilterBar filters={filters} properties={database.properties}
             conjunction={view.filterConjunction || 'and'} viewId={view.id}
             activeFilterId={editingFilterId} onActiveFilterChange={setEditingFilterId}
+            locked={isViewLocked(view, database)}
             onOpenAdvanced={() => setShowAdvancedFilter(true)} />
         </div>
       )}

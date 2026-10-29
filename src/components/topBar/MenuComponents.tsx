@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:36:53 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/04/04 11:45:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ import {
   CopyLinkIcon, DuplicateIcon, ExternalLinkIcon, PencilIcon,
   EmojiFaceIcon, LayoutIcon, EyeSlashIcon,
 } from '../ui/Icons';
-import { ActionPanel, type PanelSection } from '../ui/ActionPanel';
+import { ActionPanel, type PanelItem, type PanelSection } from '../ui/ActionPanel';
+import { LOCKED_VIEW_NOTE, type ViewTabLocks } from './ViewTabMenu';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { cn } from '../../utils/cn';
 
@@ -81,11 +82,15 @@ function IconGrid({ onPick }: Readonly<{ onPick: (icon: string) => void }>) {
   );
 }
 
-/** Renders the per-view context menu in the view tabs row (rename, duplicate, delete). */
+const UNLOCKED: ViewTabLocks = { view: false, settings: false, database: false };
+const unless = (locked: boolean, ...items: PanelItem[]): PanelItem[] => locked ? [] : items;
+
+/** Renders the per-view context menu in the view tabs row (rename, duplicate, delete).
+ *  A lock drops the entries it refuses and says so. */
 export function ViewDotsMenu({
   show, onToggle, onClose, containerRef,
   onDuplicate, onEditTitle, onEditLayout, isHoverVisible: _isHoverVisible,
-  viewId, onViewSource, onSetIcon, onToggleTitle, titleHidden,
+  viewId, onViewSource, onSetIcon, onToggleTitle, titleHidden, locks = UNLOCKED,
 }: Readonly<{
   show: boolean; onToggle: () => void; onClose: () => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -100,6 +105,7 @@ export function ViewDotsMenu({
   /** Toggle the inline title visibility ("Hide title"/"Show title"). */
   onToggleTitle?: () => void;
   titleHidden?: boolean;
+  locks?: ViewTabLocks;
 }>) {
   const [showIconGrid, setShowIconGrid] = useState(false);
 
@@ -113,7 +119,7 @@ export function ViewDotsMenu({
             onClose();
           },
         },
-        { icon: <DuplicateIcon />, label: 'Duplicate view', onClick: onDuplicate },
+        ...unless(locks.database, { icon: <DuplicateIcon />, label: 'Duplicate view', onClick: onDuplicate }),
       ],
     },
     {
@@ -122,23 +128,21 @@ export function ViewDotsMenu({
           icon: <ExternalLinkIcon />, label: 'View data source',
           onClick: () => { onViewSource?.(); onClose(); },
         },
-        { icon: <PencilIcon />, label: 'Edit title', onClick: onEditTitle },
-        {
-          icon: <EmojiFaceIcon />, label: 'Edit icon',
-          onClick: onSetIcon ? () => setShowIconGrid(true) : onClose,
-        },
-        { icon: <LayoutIcon />, label: 'Edit layout', onClick: onEditLayout },
+        ...unless(locks.database,
+          { icon: <PencilIcon />, label: 'Edit title', onClick: onEditTitle },
+          { icon: <EmojiFaceIcon />, label: 'Edit icon', onClick: onSetIcon ? () => setShowIconGrid(true) : onClose },
+        ),
+        ...unless(locks.settings, { icon: <LayoutIcon />, label: 'Edit layout', onClick: onEditLayout }),
       ],
     },
     {
-      items: [
-        {
-          icon: <EyeSlashIcon />, label: titleHidden ? 'Show title' : 'Hide title',
-          onClick: () => { onToggleTitle?.(); onClose(); },
-        },
-      ],
+      items: locks.view ? [{ type: 'info', lines: [LOCKED_VIEW_NOTE] }] : [{
+        icon: <EyeSlashIcon />, label: titleHidden ? 'Show title' : 'Hide title',
+        onClick: () => { onToggleTitle?.(); onClose(); },
+      }],
     },
-  ], [onClose, onDuplicate, onEditTitle, onEditLayout, viewId, onViewSource, onSetIcon, onToggleTitle, titleHidden]);
+  ], [onClose, onDuplicate, onEditTitle, onEditLayout, viewId, onViewSource, onSetIcon, onToggleTitle, titleHidden,
+    locks.view, locks.settings, locks.database]);
 
   return (
     <div className={cn("relative")} ref={containerRef}>

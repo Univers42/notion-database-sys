@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/01 16:43:40 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/05/06 23:31:25 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,27 @@ import { writeHash } from '../hooks/useDbSource';
 import { getInitialSource } from './dbmsStoreTypes';
 import type { ExtendedDatabaseState } from './dbmsStoreTypes';
 import { createDbmsActions } from './dbmsStoreActions';
+import { changeRespectsLocks } from '../lib/lockGuards';
+import type { StoreGet, StoreSet } from './dbms/hardcoded/storeTypes';
 
 export type DatabaseStoreApi = StoreApi<ExtendedDatabaseState>;
 
+/** The schema and view slices, and the DBMS actions that wrap them, write through
+ *  this: a change that breaks a lock is dropped whole. Host loads go through
+ *  setState and the DBMS loaders, so a host can still load or replace a locked view. */
+function lockGuarded(set: StoreSet, get: StoreGet): StoreSet {
+  return (partial) => {
+    const state = get();
+    const patch = typeof partial === 'function' ? partial(state) : partial;
+    if (patch === state || changeRespectsLocks(state, patch)) set(patch);
+  };
+}
+
 /** Creates a fresh database store instance with all domain and DBMS slices. */
 export function createDatabaseStore(): DatabaseStoreApi {
-  const store = createStore<ExtendedDatabaseState>()((set, get) => ({
+  const store = createStore<ExtendedDatabaseState>()((set, get) => {
+    const guarded = lockGuarded(set, get);
+    return {
     databases: {},
     pages: {},
     views: {},
@@ -39,14 +54,15 @@ export function createDatabaseStore(): DatabaseStoreApi {
     dbmsError: null,
     activeDbmsSource: getInitialSource(),
 
-    ...createDatabaseSlice(set, get),
+    ...createDatabaseSlice(guarded, get),
     ...createPageSlice(set, get),
-    ...createViewSlice(set, get),
+    ...createViewSlice(guarded, get),
     ...createSelectionSlice(set),
     ...createComputedSlice(set, get),
 
-    ...createDbmsActions(set, get),
-  }));
+    ...createDbmsActions(set, get, guarded),
+    };
+  });
 
   store.subscribe((state, prev) => {
     if (state.activeViewId !== prev.activeViewId || state.activeDbmsSource !== prev.activeDbmsSource) {

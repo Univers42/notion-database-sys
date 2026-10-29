@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/26 14:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,14 @@ export interface TopBarActionsProps {
   setShowTemplates: (v: boolean) => void;
   databaseName: string;
   onNewPage: () => void;
+  /** The active view is locked: filters, sorts and automations are read-only. */
+  locked?: boolean;
+  /** The host owns the lock too, so View settings (where a lock is lifted) is closed as well. */
+  settingsLocked?: boolean;
 }
+
+const LOCKED_HINT = 'This view is locked';
+const LOCKABLE = 'disabled:opacity-40 disabled:cursor-not-allowed';
 
 /** Right-side action buttons: filter, sort, search, settings, new page. */
 export function TopBarActions({
@@ -80,7 +87,7 @@ export function TopBarActions({
   onOpenAutomations, automationsBtnRef, automationsCount,
   showExtraActions, setShowExtraActions,
   showTemplates, setShowTemplates, databaseName,
-  onNewPage,
+  onNewPage, locked = false, settingsLocked = false,
 }: Readonly<TopBarActionsProps>) {
   const templates = useTemplatesController();
   const canCreate = useCanCreateRecords();
@@ -91,26 +98,26 @@ export function TopBarActions({
   };
   return (
     <div className={cn("odb-topbar-actions flex items-center gap-0.5 shrink-0")}>
-      <button ref={filterBtnRef} aria-label="Filter" title="Filter"
+      <button ref={filterBtnRef} aria-label="Filter" title={locked ? LOCKED_HINT : 'Filter'} disabled={locked}
         onClick={() => {
           if (filters.length === 0) { setShowFilterPropertyPicker(!showFilterPropertyPicker); setShowFilterPanel(false); setShowAdvancedFilter(false); }
           else { setShowFilterPanel(!showFilterPanel); setShowFilterPropertyPicker(false); }
           setShowSortPanel(false);
         }}
         className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${filters.length > 0
-          ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
+          ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`, LOCKABLE)}>
         <Filter className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Filter</span>
         {filters.length > 0 && <span className={cn("text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums")}>{filters.length}</span>}
       </button>
-      <button ref={sortBtnRef} aria-label="Sort" title="Sort" onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
+      <button ref={sortBtnRef} aria-label="Sort" title={locked ? LOCKED_HINT : 'Sort'} disabled={locked} onClick={() => { setShowSortPanel(!showSortPanel); setShowFilterPanel(false); }}
         className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${sorts.length > 0
-          ? 'bg-purple-surface text-purple-text font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
+          ? 'bg-purple-surface text-purple-text font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`, LOCKABLE)}>
         <ArrowUpDown className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Sort</span>
         {sorts.length > 0 && <span className={cn("text-xs bg-purple-surface-muted text-purple-text-bold px-1.5 rounded-full tabular-nums")}>{sorts.length}</span>}
       </button>
-      <button ref={automationsBtnRef} aria-label="Automations" title="Automations" onClick={onOpenAutomations}
+      <button ref={automationsBtnRef} aria-label="Automations" title={locked ? LOCKED_HINT : 'Automations'} disabled={locked} onClick={onOpenAutomations}
         className={cn(`flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg transition-colors ${automationsCount > 0
-          ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`)}>
+          ? 'bg-accent-soft text-accent-text-light font-medium' : 'text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface'}`, LOCKABLE)}>
         <Zap className={cn("w-3.5 h-3.5")} /><span className={cn("odb-action-label hidden sm:inline")}>Automations</span>
         {automationsCount > 0 && <span className={cn("text-xs bg-accent-muted text-accent-text px-1.5 rounded-full tabular-nums")}>{automationsCount}</span>}
       </button>
@@ -129,8 +136,8 @@ export function TopBarActions({
         <Maximize2 className={cn("w-4 h-4")} />
       </button>
       <button ref={settingsBtnRef} onClick={() => setShowViewSettings(!showViewSettings)} aria-label="View settings"
-        aria-haspopup="dialog" aria-expanded={showViewSettings}
-        className={cn(`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${showViewSettings ? 'bg-surface-tertiary' : ''}`)}>
+        aria-haspopup="dialog" aria-expanded={showViewSettings} disabled={settingsLocked} title={settingsLocked ? LOCKED_HINT : undefined}
+        className={cn(`p-2 text-ink-secondary hover:text-hover-text-strong hover:bg-hover-surface rounded-lg transition-colors ${showViewSettings ? 'bg-surface-tertiary' : ''}`, LOCKABLE)}>
         <Settings2 className={cn("w-4 h-4")} />
       </button>
       <ExtraActionsMenu show={showExtraActions} onToggle={() => setShowExtraActions(!showExtraActions)} onClose={() => setShowExtraActions(false)} />
