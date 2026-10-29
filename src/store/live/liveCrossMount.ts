@@ -25,6 +25,9 @@
 export interface LiveMountTableSet {
   dbId: string;
   tables: string[];
+  /** Display name and engine id, when the host catalog has them. */
+  name?: string;
+  engine?: string;
 }
 
 type CrossMountCatalogProvider = () => Promise<LiveMountTableSet[]>;
@@ -64,4 +67,11 @@ export async function getCrossMountCatalog(): Promise<LiveMountTableSet[]> {
     }
   })();
   return inflight;
+}
+
+/** "postgresql · commerce" for a mount the catalog lists, else null — the
+ *  loading/error panes then say "database" rather than guess a source. */
+export async function describeLiveMount(dbId: string): Promise<string | null> {
+  const entry = (await getCrossMountCatalog()).find((set) => set.dbId === dbId);
+  return [entry?.engine, entry?.name].filter(Boolean).join(' · ') || null;
 }
