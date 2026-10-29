@@ -20,6 +20,7 @@ import { useSubItems } from './subItemsContext';
 import { GripHandleIcon } from '../../ui/Icons';
 import { cn } from '../../../utils/cn';
 import { cellDomId } from './gridKeyboard';
+import { rowDropZone, type RowDropZone } from '../../../lib/manualRowOrder';
 
 /** Props for the memoized table row component. */
 export interface MemoTableRowProps {
@@ -69,11 +70,22 @@ export interface MemoTableRowProps {
   canReorder?: boolean;
   onRowDragStart?: (pageId: string) => void;
   onRowDragEnd?: () => void;
-  onRowDragOver?: (pageId: string) => void;
-  onRowDrop?: (pageId: string) => void;
-  /** This row is the current drop target — paints the insertion edge. */
-  isDropTarget?: boolean;
+  onRowDragOver?: (pageId: string, zone: RowDropZone) => void;
+  onRowDrop?: (pageId: string, zone: RowDropZone) => void;
+  /** Where the drag would land on THIS row, else null — paints the edge or outline. */
+  dropZone?: RowDropZone | null;
+  /** The current drag can land on a row's top/bottom edge (reorder or unnest). */
+  dropEdges?: boolean;
+  /** The current drag can nest under a row that takes sub-items. */
+  dropNest?: boolean;
 }
+
+const DROP_ZONE_CLASS: Record<RowDropZone, string> = {
+  slot: 'shadow-[inset_0_2px_0_0_var(--color-accent)]',
+  before: 'shadow-[inset_0_2px_0_0_var(--color-accent)]',
+  after: 'shadow-[inset_0_-2px_0_0_var(--color-accent)]',
+  nest: 'shadow-[inset_0_0_0_2px_var(--color-accent)]',
+};
 
 /** Cell frame classes. Editing keeps the frame but drops the selection tint,
  *  so a cell being typed into no longer looks the same as a selected one. */
@@ -87,6 +99,8 @@ function focusRingClass(isFocused: boolean, inFillRange: boolean, isEditing: boo
 interface RowControlsProps {
   pageId: string;
   canReorder?: boolean;
+  /** The row can be dragged under another row (host sub-items `moveRow`). */
+  canMove: boolean;
   subItems: ReturnType<typeof useSubItems>;
   expanded: boolean;
   /** Overlay the first cell (no gutter column) instead of filling the gutter. */
@@ -96,8 +110,9 @@ interface RowControlsProps {
 }
 
 /** Drag grip + sub-item expand, revealed on row hover. */
-function RowControls({ pageId, canReorder, subItems, expanded, floating, onRowDragStart, onRowDragEnd }: Readonly<RowControlsProps>) {
-  if (!canReorder && !subItems) return null;
+function RowControls({ pageId, canReorder, canMove, subItems, expanded, floating, onRowDragStart, onRowDragEnd }: Readonly<RowControlsProps>) {
+  const showGrip = canReorder || canMove;
+  if (!showGrip && !subItems) return null;
   const place = floating
     ? 'absolute left-1 top-1/2 -translate-y-1/2 z-10'
     : 'absolute inset-0 justify-center';
@@ -105,8 +120,9 @@ function RowControls({ pageId, canReorder, subItems, expanded, floating, onRowDr
     // Its own mousedown must not start a cell selection under it.
     <div className={cn(`${place} flex items-center gap-0.5 opacity-0 group-hover:opacity-100`)}
       onMouseDown={e => e.stopPropagation()}>
-      {canReorder && (
-        <button type="button" aria-label="Drag to reorder record" title="Drag to reorder"
+      {showGrip && (
+        <button type="button" aria-label={canMove ? "Drag to move record" : "Drag to reorder record"}
+          title={canMove ? "Drag to move, or onto a row to nest it" : "Drag to reorder"}
           draggable tabIndex={-1}
           className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
           onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; onRowDragStart?.(pageId); }}
@@ -127,9 +143,9 @@ function RowControls({ pageId, canReorder, subItems, expanded, floating, onRowDr
 
 /** The first cell's left padding when the row controls float in it: a lane of their
  *  own (grip 14px, chevron 16px, from 4px in), so they never cover its text. */
-function floatingLanePadding(canReorder: boolean | undefined, hasSubItems: boolean): string {
-  if (canReorder && hasSubItems) return 'pl-10';
-  return canReorder || hasSubItems ? 'pl-6' : 'pl-3';
+function floatingLanePadding(showGrip: boolean, hasSubItems: boolean): string {
+  if (showGrip && hasSubItems) return 'pl-10';
+  return showGrip || hasSubItems ? 'pl-6' : 'pl-3';
 }
 
 /** Memoized table row that only re-renders when its own data changes. */
@@ -145,19 +161,26 @@ export const MemoTableRow = React.memo(function MemoTableRow(props: MemoTableRow
   const subItems = useSubItems();
   const expanded = subItems?.isExpanded(page.id) ?? false;
   const cellBorder = showVerticalLines ? 'border-r border-line' : '';
-  const firstCellPadding = showRowNumbers ? 'pl-3' : floatingLanePadding(props.canReorder, Boolean(subItems));
+  const canMove = subItems?.canMove(page.id) ?? false;
+  const firstCellPadding = showRowNumbers ? 'pl-3' : floatingLanePadding(Boolean(props.canReorder) || canMove, Boolean(subItems));
+  const allowed = { edges: Boolean(props.dropEdges), nest: Boolean(props.dropNest) && canMove };
+  const acceptsDrop = allowed.edges || allowed.nest;
+  const zoneAt = (e: React.DragEvent<HTMLTableRowElement>): RowDropZone | null => {
+    const box = e.currentTarget.getBoundingClientRect();
+    return rowDropZone(e.clientY - box.top, box.height, allowed);
+  };
   const controls = (
-    <RowControls pageId={page.id} canReorder={props.canReorder} subItems={subItems} expanded={expanded}
+    <RowControls pageId={page.id} canReorder={props.canReorder} canMove={canMove} subItems={subItems} expanded={expanded}
       floating={!showRowNumbers} onRowDragStart={props.onRowDragStart} onRowDragEnd={props.onRowDragEnd} />
   );
 
   return (
     <tr ref={props.measureRef} data-row-idx={rowIdx} data-index={props.virtualIndex ?? rowIdx} data-page-id={page.id}
       role="row"
-      className={cn(`group transition-colors duration-100 hover:bg-hover-surface-soft ${props.isDropTarget ? 'shadow-[inset_0_2px_0_0_var(--color-accent)]' : ''}`)}
+      className={cn(`group transition-colors duration-100 hover:bg-hover-surface-soft ${props.dropZone ? DROP_ZONE_CLASS[props.dropZone] : ''}`)}
       style={props.tint ? { backgroundColor: props.tint } : undefined}
-      onDragOver={props.canReorder ? e => { e.preventDefault(); props.onRowDragOver?.(page.id); } : undefined}
-      onDrop={props.canReorder ? e => { e.preventDefault(); props.onRowDrop?.(page.id); } : undefined}>
+      onDragOver={acceptsDrop ? e => { const zone = zoneAt(e); if (zone) { e.preventDefault(); props.onRowDragOver?.(page.id, zone); } } : undefined}
+      onDrop={acceptsDrop ? e => { const zone = zoneAt(e); if (zone) { e.preventDefault(); props.onRowDrop?.(page.id, zone); } } : undefined}>
       {/* The leading gutter is a real column only with row numbers; otherwise
           the row controls float over the first cell's left edge on hover, so an
           empty column never draws a border that group rows interrupt. */}

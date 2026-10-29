@@ -19,6 +19,7 @@ import { MemoTableRow } from './MemoTableRow';
 import type { GroupRowItem } from './groupRowsLayout';
 import type { EditingCell } from './gridKeyboard';
 import { cn } from '../../../utils/cn';
+import type { RowDropZone } from '../../../lib/manualRowOrder';
 import { getDotColor } from '../../../utils/color';
 
 interface RenderPageRowsProps {
@@ -51,9 +52,11 @@ interface RenderPageRowsProps {
   canReorder?: boolean;
   onRowDragStart?: (pageId: string) => void;
   onRowDragEnd?: () => void;
-  onRowDragOver?: (pageId: string) => void;
-  onRowDrop?: (pageId: string) => void;
-  dropTargetId?: string | null;
+  onRowDragOver?: (pageId: string, zone: RowDropZone) => void;
+  onRowDrop?: (pageId: string, zone: RowDropZone) => void;
+  dropTarget?: { id: string; zone: RowDropZone } | null;
+  dropEdges?: boolean;
+  dropNest?: boolean;
 }
 
 function fillRange(fillDrag: FillDragState | null): [number, number] {
@@ -111,7 +114,9 @@ function renderPageRow(
       onRowDragEnd={props.onRowDragEnd}
       onRowDragOver={props.onRowDragOver}
       onRowDrop={props.onRowDrop}
-      isDropTarget={props.dropTargetId === page.id}
+      dropZone={props.dropTarget?.id === page.id ? props.dropTarget.zone : null}
+      dropEdges={props.dropEdges}
+      dropNest={props.dropNest}
     />
   );
 }
