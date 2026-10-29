@@ -42,6 +42,7 @@ import { LiveRealtime } from './liveRealtime';
 import { isPermanentDenial } from './livePoll';
 import { LIVE_MAX_LIMIT, translateLivePageQuery } from './liveQueryTranslator';
 import { describeLiveMount, getCrossMountCatalog } from './liveCrossMount';
+import { fetchMountDescriptor, type MountDescriptor } from './liveMountDescriptor';
 import { inferLiveReferences } from './liveReferenceInfer';
 import { loadLiveViews, saveLiveViews } from './liveViewStore';
 import { buildLiveDatabase, buildLivePage, buildLiveState } from './liveStateBuilder';
@@ -293,6 +294,9 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
 
   /** Engine and mount name for the loading/error panes (duck-typed, like persistState). */
   describeSource = (): Promise<string | null> => describeLiveMount(this.ref.dbId);
+
+  /** Where the mount's data lives, for the toolbar's source pill (duck-typed). */
+  describeLocation = (): Promise<MountDescriptor | null> => fetchMountDescriptor(this.ref.dbId);
 
   /** Save THIS database's views (added/edited/deleted) to localStorage when
    *  they changed — skipping the reload echo (same object ref the load set).
