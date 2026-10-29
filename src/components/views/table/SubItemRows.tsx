@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/26 08:15:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/26 15:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 15:00:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 
 import React from 'react';
 import { CornerDownRight, Plus } from 'lucide-react';
-import type { SchemaProperty } from '../../../types/database';
+import type { PropertyValue, SchemaProperty } from '../../../types/database';
+import { formatCellValue } from '../../../utils/format';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useSubItems } from './subItemsContext';
 import { cn } from '../../../utils/cn';
@@ -35,11 +36,14 @@ interface SubItemRowsProps {
   hasGutter: boolean;
 }
 
-function formatValue(value: unknown): string {
-  if (value == null) return '';
-  if (Array.isArray(value)) return value.map((v) => (v == null ? '' : String(v))).filter(Boolean).join(', ');
+/** A child record's cell as its column shows it (option label, formatted date), blank when empty. */
+export function subItemCellText(value: PropertyValue | undefined, prop: SchemaProperty): string {
+  if (value == null || value === '') return '';
+  if (Array.isArray(value)) {
+    return value.map((v) => prop.options?.find((o) => o.id === v)?.value ?? (v == null ? '' : String(v))).filter(Boolean).join(', ');
+  }
   if (typeof value === 'object') return '';
-  return String(value);
+  return formatCellValue(value, prop);
 }
 
 export function SubItemRows(props: Readonly<SubItemRowsProps>) {
@@ -73,7 +77,7 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
               const w = getColWidth(prop.id);
               const style = { width: w, minWidth: w, maxWidth: w };
               const isAnchor = prop.id === anchorId;
-              const pageVal = page ? formatValue(page.properties[prop.id]) : '';
+              const pageVal = page ? subItemCellText(page.properties[prop.id], prop) : '';
               const text = isAnchor ? (pageVal || row.title || 'Untitled') : pageVal;
               return (
                 <td key={prop.id} data-col={prop.id} style={style} className={cn("overflow-hidden border-r border-b border-line px-3 py-1.5 align-middle")}>
