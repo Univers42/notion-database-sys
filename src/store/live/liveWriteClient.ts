@@ -26,7 +26,7 @@
  * data echo + last_insert_id, Mongo doc echo + _id).
  */
 
-import type { LiveTableSchema } from './liveTypes';
+import { bigintWireValue, type LiveTableSchema } from './liveTypes';
 
 // `?? {}` keeps the module import-safe outside Vite (e.g. node:test).
 const env = (import.meta.env ?? {}) as Record<string, string | undefined>;
@@ -96,6 +96,10 @@ export function livePkFilter(table: LiveTableSchema, pk: string): Record<string,
   columns.forEach((name, index) => {
     const part = index === columns.length - 1 ? parts.slice(index).join(':') : parts[index] ?? '';
     const column = table.columns.find((candidate) => candidate.name === name);
+    if (column?.normalized_type === 'bigint') {
+      filter[name] = bigintWireValue(part);
+      return;
+    }
     const numeric = column && PK_NUMERIC_TYPES.has(column.normalized_type) && part.trim() !== '';
     filter[name] = numeric && Number.isFinite(Number(part)) ? Number(part) : part;
   });
