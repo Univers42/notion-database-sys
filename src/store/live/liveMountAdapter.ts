@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/06/10 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/30 05:40:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ import { LiveRealtime } from './liveRealtime';
 import { isPermanentDenial } from './livePoll';
 import { LIVE_MAX_LIMIT, translateLivePageQuery } from './liveQueryTranslator';
 import { describeLiveMount, getCrossMountCatalog } from './liveCrossMount';
-import { fetchMountDescriptor, type MountDescriptor } from './liveMountDescriptor';
+import { fetchMountDescriptor, fetchMountProbe, type MountDescriptor, type MountProbe } from './liveMountDescriptor';
 import { inferLiveReferences } from './liveReferenceInfer';
 import { loadLiveViews, saveLiveViews } from './liveViewStore';
 import { buildLiveDatabase, buildLivePage, buildLiveState } from './liveStateBuilder';
@@ -297,6 +297,9 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
 
   /** Where the mount's data lives, for the toolbar's source pill (duck-typed). */
   describeLocation = (): Promise<MountDescriptor | null> => fetchMountDescriptor(this.ref.dbId);
+
+  /** Server version and the TLS the pool connected with, when the platform enables the probe. */
+  probeConnection = (): Promise<MountProbe | null> => fetchMountProbe(this.ref.dbId);
 
   /** Save THIS database's views (added/edited/deleted) to localStorage when
    *  they changed — skipping the reload echo (same object ref the load set).

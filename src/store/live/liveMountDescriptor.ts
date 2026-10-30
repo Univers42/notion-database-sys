@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/29 21:30:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/29 21:30:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/30 05:40:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,4 +101,52 @@ export function fetchMountDescriptor(dbId: string): Promise<MountDescriptor | nu
   );
   cache.set(dbId, pending);
   return pending;
+}
+
+/** The query-router's live probe, as the bridge allowlists it (grobase ADR 0013). */
+export interface MountProbe {
+  available: boolean;
+  server_version?: string;
+  tls?: string;
+  tls_version?: string;
+}
+
+export interface MountProbeView {
+  server: string | null;
+  connection: { label: string; tone: TlsTone } | null;
+}
+
+/** What the pool's own connection says: the server version and the TLS it opened with.
+ *  A probe the platform disables (the default) or cannot read stays silent (all null). */
+export function formatMountProbe(p: MountProbe | null): MountProbeView {
+  if (!p?.available) return { server: null, connection: null };
+  const v = p.server_version ?? '';
+  const server = v === 'platform' ? 'Managed (version hidden)' : /^\d+(\.\d+){0,3}$/.test(v) ? v : null;
+  const proto = /^TLSv1\.[23]$/.test(p.tls_version ?? '') ? ` ${p.tls_version!.slice(4)}` : '';
+  const connection: Record<string, { label: string; tone: TlsTone }> = {
+    verified: { label: `TLS${proto}, certificate verified`, tone: 'secure' },
+    encrypted: { label: `TLS${proto}, certificate not verified`, tone: 'warning' },
+    plaintext: { label: 'No TLS', tone: 'plain' },
+    not_applicable: { label: 'Not applicable (local file)', tone: 'neutral' },
+  };
+  return { server, connection: connection[p.tls ?? ''] ?? null };
+}
+
+// Caveat: 60 s per mount — a pool re-opened with other TLS settings shows its old posture
+// for up to a minute (the router caches 30 s on top). Failures are not cached.
+const PROBE_TTL_MS = 60_000;
+const probeCache = new Map<string, { value: Promise<MountProbe | null>; expiresAt: number }>();
+
+export function fetchMountProbe(dbId: string): Promise<MountProbe | null> {
+  const hit = probeCache.get(dbId);
+  if (hit && hit.expiresAt > Date.now()) return hit.value;
+  const value = requestLive<MountProbe>(`/api/databases/${encodeURIComponent(dbId)}/probe`, { method: 'GET' }).then(
+    (body) => body ?? null,
+    (error: unknown) => {
+      probeCache.delete(dbId);
+      throw error;
+    },
+  );
+  probeCache.set(dbId, { value, expiresAt: Date.now() + PROBE_TTL_MS });
+  return value;
 }
