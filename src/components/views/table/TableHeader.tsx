@@ -99,16 +99,16 @@ export function TableHeader({
   };
 
   return (
-    <thead className={cn("sticky top-0 z-30")}>
-      <tr className={cn("bg-surface-secondary [&>th]:border-b [&>th]:border-line")}>
+    <thead role="rowgroup" className={cn("sticky top-0 z-30")}>
+      <tr role="row" className={cn("bg-surface-secondary [&>th]:border-b [&>th]:border-line")}>
         {showRowNumbers && (
-          <th className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>#</th>
+          <th role="columnheader" className={cn("w-10 px-2 py-2 text-xs font-medium text-ink-muted border-r border-line bg-surface-secondary text-center")}>#</th>
         )}
         {visibleProps.map(prop => {
           // A resize drag rewrites this width in place through data-col (useColumnResize).
           const width = `${getColWidth(prop.id)}px`;
           return (
-          <th key={prop.id} data-col={prop.id}
+          <th key={prop.id} data-col={prop.id} role="columnheader"
             className={cn(`px-3 py-2 text-xs font-medium text-ink-secondary ${showVerticalLines ? 'border-r' : ''} border-line bg-surface-secondary group relative select-none transition-opacity ${dragColId === prop.id ? 'opacity-40' : ''}`)}
             style={{ width, minWidth: width, maxWidth: width, cursor: CURSORS.grab }}
             draggable
@@ -161,7 +161,7 @@ export function TableHeader({
           </th>
           );
         })}
-        <th className={cn("w-10 px-2 py-2 border-line text-center bg-surface-secondary")}>
+        <th role="columnheader" className={cn("w-10 px-2 py-2 border-line text-center bg-surface-secondary")}>
           <button ref={addBtnRef} onClick={openAddPanel} aria-label="Add property" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><Plus className={cn("w-4 h-4")} /></button>
           {addPanel && createPortal(
             <>
@@ -179,7 +179,7 @@ export function TableHeader({
         {/* w-full: this last column takes the table's slack. Without it the
             min-w-full table stretched the property columns past their set
             widths, so a resize edge lagged the pointer (+24 px for +80 px). */}
-        <th className={cn("w-full px-2 py-2 text-left bg-surface-secondary")}>
+        <th role="columnheader" className={cn("w-full px-2 py-2 text-left bg-surface-secondary")}>
           <Popover.Root>
             <Popover.Trigger asChild>
               <button aria-label="Column options" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><MoreHorizontal className={cn("w-4 h-4")} /></button>

@@ -175,8 +175,11 @@ export function TableView() {
         {/* Separate borders: collapsed ones are painted by the table as a whole,
             so each row the virtualizer swaps in repainted every visible row
             (12.9k → 3.2k paint ops over 25 scroll frames, measured). Row-level
-            borders do not render in this model — they live on the cells. */}
-        <table data-table-style={tableStyle} className={cn("odb-table min-w-full text-left border-separate border-spacing-0")}>
+            borders do not render in this model — they live on the cells.
+            role="presentation": the scroll box above is the grid, so the table only
+            lays out and each row and cell states its own role. A native table under
+            a grid is an invalid child to assistive tech (axe aria-required-children). */}
+        <table role="presentation" data-table-style={tableStyle} className={cn("odb-table min-w-full text-left border-separate border-spacing-0")}>
           <TableHeader
             visibleProps={visibleProps} showRowNumbers={showRowNumbers}
             showVerticalLines={showVerticalLines} getColWidth={getColWidth}
@@ -188,7 +191,7 @@ export function TableView() {
             onHeaderClick={handleHeaderClick}
             onPropertyCreated={handlePropertyConfig}
           />
-          <tbody>
+          <tbody role="rowgroup">
             {virtual.paddingTop > 0 && (
               <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingTop }} className={cn("p-0 border-0")} /></tr>
             )}
@@ -210,8 +213,8 @@ export function TableView() {
               <TableLoadMoreRow colCount={colCount} shown={pager.end} total={pager.total}
                 onLoadMore={pager.loadMore} onShowAll={pager.showAll} />
             )}
-            {canCreate && <tr>
-              <td colSpan={colCount} className={cn("p-0")}>
+            {canCreate && <tr role="row">
+              <td role="gridcell" colSpan={colCount} className={cn("p-0")}>
                 <button onClick={createRecord}
                   className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
                   <Plus className={cn("w-4 h-4")} /> New

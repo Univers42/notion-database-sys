@@ -32,8 +32,8 @@ interface TableLoadMoreRowProps {
 export function TableLoadMoreRow({ colCount, shown, total, onLoadMore, onShowAll, indented, index, measureRow }: Readonly<TableLoadMoreRowProps>) {
   const action = 'text-sm text-accent-text-soft hover:text-hover-accent-text-bold hover:bg-hover-surface-accent2 transition-colors';
   return (
-    <tr ref={measureRow} data-index={index}>
-      <td colSpan={colCount} className={cn('p-0 border-b border-line')}>
+    <tr ref={measureRow} data-index={index} role="row">
+      <td role="gridcell" colSpan={colCount} className={cn('p-0 border-b border-line')}>
         <div className={cn(`flex items-stretch ${indented ? 'pl-4' : ''}`)}>
           <button type="button" onClick={onLoadMore}
             className={cn(`flex-1 text-left px-4 py-2 flex items-center gap-2 ${action}`)}>
