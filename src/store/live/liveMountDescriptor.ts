@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/29 21:30:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/30 05:40:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/30 06:30:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ export interface MountDescriptor {
   tls: 'verify' | 'on' | 'insecure' | 'off' | 'default' | 'n/a' | 'unknown' | string;
   created_at?: string;
   last_healthy_at?: string | null;
+  /** The data plane's flags for this engine, joined in by the bridge (absent when unknown). */
+  capabilities?: Record<string, boolean>;
 }
 
 export type TlsTone = 'secure' | 'plain' | 'warning' | 'neutral';
@@ -101,6 +103,20 @@ export function fetchMountDescriptor(dbId: string): Promise<MountDescriptor | nu
   );
   cache.set(dbId, pending);
   return pending;
+}
+
+const CAPABILITY_LABELS: Array<[string, string]> = [
+  ['read', 'read'], ['write', 'write'], ['upsert', 'upsert'], ['batch', 'batch writes'],
+  ['aggregate', 'aggregates'], ['introspect', 'schema read'], ['schema_ddl', 'schema changes'],
+  ['transactions', 'transactions'],
+];
+
+/** What the engine supports, in words; null when the data plane named nothing. */
+export function formatCapabilities(caps: Record<string, boolean> | undefined): string | null {
+  const supported = CAPABILITY_LABELS.filter(([flag]) => caps?.[flag] === true).map(([, label]) => label);
+  if (supported.length === 0) return null;
+  const text = supported.join(', ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /** The query-router's live probe, as the bridge allowlists it (grobase ADR 0013). */

@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/29 21:45:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/30 05:40:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/30 06:30:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ import { DbSourceDropdown } from '../DbSourceDropdown';
 import { AnchoredPopover } from './AnchoredPopover';
 import { useMountDescriptor, type DescriptorState } from '../../hooks/useMountDescriptor';
 import {
-  formatMountLocation, formatMountProbe, type MountDescriptor, type MountProbe, type MountProbeView, type TlsTone,
+  formatCapabilities, formatMountLocation, formatMountProbe, type MountDescriptor, type MountProbe, type MountProbeView, type TlsTone,
 } from '../../store/live/liveMountDescriptor';
 import { cn } from '../../utils/cn';
 
@@ -109,6 +109,7 @@ function DescriptorDetails({ descriptor, engine, where, tls, live }: Readonly<{
     [live?.connection ? 'TLS requested' : 'TLS', tls ?? (descriptor.tls === 'n/a' ? 'Not applicable (local file)' : 'Unknown')],
     ['Credentials', descriptor.credential_mode],
     ['Isolation', descriptor.isolation],
+    ['Supports', formatCapabilities(descriptor.capabilities) ?? undefined],
     ['Last healthy', descriptor.last_healthy_at ? new Date(descriptor.last_healthy_at).toLocaleString() : 'Not yet checked'],
   ];
   return (
@@ -118,7 +119,7 @@ function DescriptorDetails({ descriptor, engine, where, tls, live }: Readonly<{
         {rows.filter(([, value]) => value).map(([term, value]) => (
           <React.Fragment key={term}>
             <dt className={cn('text-ink-muted')}>{term}</dt>
-            <dd className={cn('m-0 text-ink-body break-all')}>{value}</dd>
+            <dd className={cn('m-0 text-ink-body wrap-anywhere')}>{value}</dd>
           </React.Fragment>
         ))}
       </dl>
