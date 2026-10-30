@@ -17,8 +17,11 @@
  * - enum → select (stable option ids = the raw values, matching the views'
  *   `option.id === value` resolution); FK → relation (one_way) targeting
  *   `baas:<dbId>:<refTable>`; boolean → checkbox; numerics → number;
- *   date/datetime → date; array → multi_select; uuid → text.
- * - json/objectid/unknown and `inferred: true` columns map to the `id`
+ *   date/datetime → date; array → multi_select; uuid/time → text. bigint is
+ *   a number too (PG creates every UI number column as bigint); keys beyond
+ *   2^53 keep their digits on the pk filter and FK writes, not here.
+ * - json/objectid/binary/interval/geometry/vector/unknown and `inferred: true`
+ *   columns map to the `id`
  *   property type: it is in the views' READ_ONLY_TYPES set and renders the
  *   value verbatim (read-only presentation for shapes we can't edit honestly).
  * - `owner_id` / `tenant_id` are platform plumbing → excluded entirely.
@@ -34,8 +37,10 @@ import { formatLiveDatabaseId, type LiveColumnSchema, type LiveTableSchema } fro
 export const HIDDEN_LIVE_COLUMNS = new Set(['owner_id', 'tenant_id']);
 
 const TITLE_COLUMN_NAMES = new Set(['title', 'name', 'label', 'subject']);
-const NUMERIC_TYPES = new Set(['integer', 'float', 'decimal']);
-const READ_ONLY_RENDERED_TYPES = new Set(['json', 'objectid', 'unknown']);
+const NUMERIC_TYPES = new Set(['integer', 'bigint', 'float', 'decimal']);
+const READ_ONLY_RENDERED_TYPES = new Set([
+  'json', 'objectid', 'binary', 'interval', 'geometry', 'vector', 'unknown',
+]);
 
 /** Same tag palette the workspace databases synthesize options with. */
 const OPTION_COLORS = [
@@ -114,7 +119,7 @@ export function mapLiveColumn(column: LiveColumnSchema, dbId: string): SchemaPro
     return { ...base, type: 'select', options: enumOptions(column.enum_values ?? []) };
   }
   if (column.normalized_type === 'array') return { ...base, type: 'multi_select', options: [] };
-  return base; // text | uuid → text
+  return base; // text | uuid | time → text
 }
 
 /** Whole table → property map + title pick (`owner_id`/`tenant_id` excluded). */

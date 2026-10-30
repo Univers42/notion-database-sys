@@ -11,7 +11,8 @@
 
 /**
  * Client for the server-backed automation rules of a live mount
- * (`GET|PUT /query/v1/:dbId/automations` — query-router, AuthGuard).
+ * (`GET|PUT /api/databases/:dbId/automations` on the bridge, which gates it on the
+ * caller's mount ACL and relays it to the query-router's `/:dbId/automations`).
  * Server-side rules fire for EVERY client writing to the mount, not only
  * this session — that asymmetry vs local-database automations is the whole
  * point of the endpoint.
@@ -24,7 +25,7 @@ import { requestLive } from './liveMountClient';
  *  reads on open and writes on save). */
 export async function getLiveAutomations(dbId: string): Promise<AutomationRule[]> {
   const response = await requestLive<{ rules: AutomationRule[] }>(
-    `/query/v1/${encodeURIComponent(dbId)}/automations`,
+    `/api/databases/${encodeURIComponent(dbId)}/automations`,
     { method: 'GET' },
   );
   return response.rules ?? [];
@@ -33,7 +34,7 @@ export async function getLiveAutomations(dbId: string): Promise<AutomationRule[]
 /** Replace-all save (PUT semantics — the body is the full rule set). */
 export async function putLiveAutomations(dbId: string, rules: AutomationRule[]): Promise<AutomationRule[]> {
   const response = await requestLive<{ rules: AutomationRule[] }>(
-    `/query/v1/${encodeURIComponent(dbId)}/automations`,
+    `/api/databases/${encodeURIComponent(dbId)}/automations`,
     { method: 'PUT', body: JSON.stringify({ rules }) },
   );
   return response.rules ?? rules;

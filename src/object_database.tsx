@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 import React, {
-  createContext,
   forwardRef,
   useRef,
   Suspense,
@@ -22,6 +21,7 @@ import React, {
   useState,
 } from 'react';
 import { format } from 'date-fns';
+import { TriangleAlert } from 'lucide-react';
 import {
   DatabaseStoreProvider,
   createDatabaseStore,
@@ -46,6 +46,7 @@ import { TemplatesContext } from './components/topBar/templatesContext';
 import { HostAdaptersProvider } from './hooks/useHostAdapters';
 import { SubItemsProvider } from './components/views/table/subItemsContext';
 import { HttpAdapter } from './component/adapters/HttpAdapter';
+import { AdapterContext, AdapterProvider } from './component/adapterContext';
 import type {
   ChangeEvent,
   NotionState,
@@ -74,8 +75,7 @@ const LazyPageModal = React.lazy(() => import('./components/PageModal').then(mod
   default: module.PageModal,
 })));
 
-export const AdapterContext = createContext<ObjectDatabaseAdapter | null>(null);
-export const AdapterProvider = AdapterContext.Provider;
+export { AdapterContext, AdapterProvider };
 
 type ObjectDatabaseWithStoreProps = ObjectDatabaseProps & {
   forwardedRef: React.ForwardedRef<ObjectDatabaseInstance>;
@@ -95,6 +95,10 @@ type ObjectDatabaseInnerProps = Required<Pick<ObjectDatabaseProps, 'mode'>> & {
 
 type PersistableAdapter = ObjectDatabaseAdapter & {
   persistState?: (state: NotionState, previousState?: NotionState) => void;
+};
+
+type SourceDescribingAdapter = ObjectDatabaseAdapter & {
+  describeSource?: () => Promise<string | null>;
 };
 
 /** Embeddable root component for the full Notion database experience. */
@@ -196,6 +200,7 @@ function ObjectDatabaseInner({
   const storeApi = useStoreApi();
   const activeSource = useDbSource(s => s.activeSource);
   const setActiveSource = useDbSource(s => s.setActiveSource);
+  const sourceLabel = useSourceLabel(adapter);
   const view = activeViewId ? views[activeViewId] : null;
   const database = view ? databases[view.databaseId] : null;
   // Only instantiate the ~434KB WASM formula engine when a formula property
@@ -330,13 +335,13 @@ function ObjectDatabaseInner({
   // the engine is ready, so no cell evaluates against a not-ready engine (which
   // would cache the #ENGINE_UNAVAILABLE sentinel keyed by expression+updatedAt).
   if (dbmsLoading || (hasFormulaProperty && !formulaReady)) {
-    return <ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={hasFormulaProperty && !formulaReady} />;
+    return <ObjectDatabaseLoading source={activeSource || 'adapter'} label={sourceLabel} formulaPending={hasFormulaProperty && !formulaReady} />;
   }
 
   if (dbmsError) {
     return (
       <ObjectDatabaseError
-        source={activeSource || 'adapter'}
+        label={sourceLabel}
         message={dbmsError}
         onRetry={async () => {
           await loadAdapterState(storeApi, adapter);
@@ -369,7 +374,7 @@ function ObjectDatabaseInner({
     return (
       <>
         <ErrorBoundary>
-          <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={false} />}>
+          <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} label={sourceLabel} formulaPending={false} />}>
             <LazyDatabaseBlock
               mode="inline"
               databaseId={databaseId}
@@ -390,7 +395,7 @@ function ObjectDatabaseInner({
     <div className="flex h-full w-full min-w-0 bg-surface-primary overflow-hidden">
       <div className="flex-1 flex flex-col min-w-0">
         <ErrorBoundary>
-          <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} formulaPending={false} />}>
+          <Suspense fallback={<ObjectDatabaseLoading source={activeSource || 'adapter'} label={sourceLabel} formulaPending={false} />}>
             <LazyBlockHandle
               className="flex-1 min-h-0"
               panelProps={{
@@ -419,24 +424,45 @@ function ObjectDatabaseInner({
   );
 }
 
+/** The adapter's own "engine · mount" label, or null. The store's source id
+ *  is not used: loadAdapterState always sets it to the 'adapter' sentinel, so
+ *  printing it showed "ADAPTER" instead of where the data lives. */
+function useSourceLabel(adapter: ObjectDatabaseAdapter): string | null {
+  const [label, setLabel] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setLabel(null);
+    const describe = (adapter as SourceDescribingAdapter).describeSource;
+    // A failed lookup only costs the label; the panes fall back to "database".
+    describe?.().then(
+      (next) => { if (!cancelled) setLabel(next); },
+      () => { if (!cancelled) setLabel(null); },
+    );
+    return () => { cancelled = true; };
+  }, [adapter]);
+  return label;
+}
+
 function ObjectDatabaseLoading({
   source,
+  label,
   formulaPending,
-}: Readonly<{ source: string; formulaPending: boolean }>) {
+}: Readonly<{ source: string; label: string | null; formulaPending: boolean }>) {
   const accentColor = SOURCE_COLORS[source] ?? '#3b82f6';
   return (
     <div className="flex h-full w-full min-h-80 items-center justify-center bg-surface-primary">
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4" role="status">
         <div
-          className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent"
+          className="h-8 w-8 animate-spin motion-reduce:animate-none rounded-full border-4 border-current border-t-transparent"
           style={{ color: accentColor }}
+          aria-hidden="true"
         />
         <p className="text-sm text-ink-muted">
-          {formulaPending ? 'Initializing formula engine' : 'Loading from'}{' '}
-          <span className="font-semibold" style={{ color: accentColor }}>
-            {source.toUpperCase()}
-          </span>
-          {formulaPending ? '…' : ' source…'}
+          {formulaPending ? 'Initializing formula engine for' : 'Loading'}{' '}
+          {label
+            ? <span className="font-semibold text-ink-strong">{label}</span>
+            : 'database'}
+          …
         </p>
       </div>
     </div>
@@ -444,19 +470,20 @@ function ObjectDatabaseLoading({
 }
 
 function ObjectDatabaseError({
-  source,
+  label,
   message,
   onRetry,
-}: Readonly<{ source: string; message: string; onRetry: () => void | Promise<void> }>) {
+}: Readonly<{ label: string | null; message: string; onRetry: () => void | Promise<void> }>) {
   return (
     <div className="flex h-full w-full min-h-80 items-center justify-center bg-surface-primary">
-      <div className="flex flex-col items-center gap-3 max-w-md text-center">
-        <div className="text-4xl">⚠️</div>
+      <div className="flex flex-col items-center gap-3 max-w-md text-center" role="alert">
+        <TriangleAlert className="h-8 w-8 text-ink-muted" aria-hidden="true" />
         <p className="text-sm font-medium text-ink-strong">
-          Failed to load from {source.toUpperCase()} source
+          {label ? <>Failed to load from <span className="font-semibold">{label}</span></> : 'Failed to load this database'}
         </p>
         <p className="text-xs text-ink-muted">{message}</p>
         <button
+          type="button"
           onClick={() => void onRetry()}
           className="mt-2 px-4 py-1.5 text-xs font-medium rounded-md
                      bg-accent text-white hover:bg-accent-bold transition-colors"

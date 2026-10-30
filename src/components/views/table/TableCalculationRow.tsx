@@ -51,20 +51,20 @@ export function TableCalculationRow({
   };
 
   return (
-    <tfoot className={cn('sticky bottom-0 z-20')}>
-      <tr className={cn('bg-surface-primary [&>td]:border-t [&>td]:border-line')}>
-        {showRowNumbers && <td className={cn('w-10')} />}
+    <tfoot role="rowgroup" className={cn('sticky bottom-0 z-20')}>
+      <tr role="row" className={cn('bg-surface-primary [&>td]:border-t [&>td]:border-line')}>
+        {showRowNumbers && <td role="gridcell" className={cn('w-10')} />}
         {visibleProps.map(prop => {
           const width = `${getColWidth(prop.id)}px`;
           const fn = activeCalculation(prop, calculations?.[prop.id]);
           return (
-            <td key={prop.id} data-col={prop.id} style={{ width, minWidth: width, maxWidth: width }}
+            <td key={prop.id} data-col={prop.id} role="gridcell" style={{ width, minWidth: width, maxWidth: width }}
               className={cn('p-0 group/calc')}>
               <CalculationMenu prop={prop} active={fn} result={results.get(prop.id)} onChoose={next => choose(prop.id, next)} />
             </td>
           );
         })}
-        <td colSpan={2} />
+        <td role="gridcell" colSpan={2} />
       </tr>
     </tfoot>
   );
