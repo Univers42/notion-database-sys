@@ -4,7 +4,7 @@
 // endpoint. Every editor degrades gracefully when a seam is absent.
 
 import { createContext, useContext } from 'react';
-import { useDatabaseStore } from '../store/dbms/hardcoded/useDatabaseStore';
+import { useHasReadOnlySource } from '../store/useDatabaseStore';
 import type { ComponentType } from 'react';
 import type { FileAttachment } from '../types/database';
 
@@ -55,6 +55,6 @@ export function useHostAdapters(): HostAdapters {
 
 export function useCanCreateRecords(): boolean {
   const hostReadOnly = useContext(HostAdaptersContext).readOnlyRecords;
-  const sourceReadOnly = useDatabaseStore((state) => Object.values(state.databases).some((database) => database.readOnly));
+  const sourceReadOnly = useHasReadOnlySource();
   return !hostReadOnly && !sourceReadOnly;
 }
