@@ -114,10 +114,10 @@ export function GalleryView() {
 
     if (cardPreview === 'page_content') {
       // Show a preview of the page's block content
-      const textContent = page.content?.map((b: Block) => b.content).filter(Boolean).join(' ') || '';
+      const textContent = page.content?.map((b: Block) => b.content).filter(Boolean).join('\n') || '';
       return (
         <div className={cn(`${coverHeight} ${coverColor} relative p-3 overflow-hidden`)}>
-          <p className={cn("text-xs text-ink-secondary leading-relaxed line-clamp-5")}>{textContent || 'No content'}</p>
+          <p className={cn("text-xs text-ink-secondary leading-relaxed line-clamp-5 whitespace-pre-line")}>{textContent || 'No content'}</p>
           <div className={cn("absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gradient-fade-from to-transparent")} />
         </div>
       );
