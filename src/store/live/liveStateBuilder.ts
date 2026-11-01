@@ -25,6 +25,7 @@
 
 import type { DatabaseSchema, NotionState, Page, ViewConfig } from '../../component/types';
 import { humanizeName, mapLiveTable } from './liveSchemaMapper';
+import { promoteTagColumns } from './liveTagColumns';
 import { decodeLiveValue, toDisplayString } from './liveValueCodec';
 import {
   applyLivePresetProperties,
@@ -66,6 +67,7 @@ export function buildLiveDatabase(
 ): DatabaseSchema {
   const { properties, titlePropertyId } = mapLiveTable(table, ref.dbId);
   applyLivePresetProperties(properties, ref, rows);
+  promoteTagColumns(properties, rows);
   return {
     id: formatLiveDatabaseId(ref),
     name: humanizeName(table.name),

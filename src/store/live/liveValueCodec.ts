@@ -25,6 +25,7 @@
  * re-encodes column-aware (date vs datetime, numeric FKs) before sending.
  */
 
+import { tagsOfCell } from './liveTagColumns';
 import type { SchemaProperty } from '../../component/types';
 // Type-only (erased at runtime): node:test never needs to resolve the alias.
 import type { PropertyValue } from '@notion-db/contract-types';
@@ -126,7 +127,7 @@ export function decodeLiveValue(
     case 'select':
       return toDisplayString(raw); // option ids = raw values (liveSchemaMapper)
     case 'multi_select':
-      return Array.isArray(raw) ? raw.map(toDisplayString) : [toDisplayString(raw)];
+      return tagsOfCell(raw) ?? (Array.isArray(raw) ? raw.map(toDisplayString) : [toDisplayString(raw)]);
     case 'relation': {
       const ref = column?.references;
       if (!ref?.table) return [];
@@ -187,8 +188,11 @@ export function encodeLiveValue(
       const id = toDisplayString(value); // option id === raw value (liveSchemaMapper)
       return id === '' ? null : id;
     }
-    case 'multi_select':
-      return (Array.isArray(value) ? value : [value]).map(toDisplayString);
+    case 'multi_select': {
+      const tags = (Array.isArray(value) ? value : [value]).map(toDisplayString);
+      // Promoted from a list held in json or text: the cell keeps its JSON text (#272).
+      return column && column.normalized_type !== 'array' ? JSON.stringify(tags) : tags;
+    }
     case 'relation': {
       const first = Array.isArray(value) ? value[0] : value;
       if (first === null || first === undefined || first === '') return null; // empty → NULL FK
