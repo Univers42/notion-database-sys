@@ -34,8 +34,18 @@ export function readViewFromHash(): string | null {
   } catch { return null; }
 }
 
+let hashWritesEnabled = true;
+
+/** A host that owns its URL turns these writes off. Every embedded database has its own
+ *  store, so in a page of blocks the last one to mount named the URL, and the address
+ *  bar pointed at one table of the page instead of the page (#259). */
+export function setDbHashWrites(enabled: boolean): void {
+  hashWritesEnabled = enabled;
+}
+
 /** Write source + view to the URL hash (replaceState — no history entry). */
 export function writeHash(source: string, viewId?: string | null): void {
+  if (!hashWritesEnabled) return;
   const params = new URLSearchParams();
   params.set('source', source);
   if (viewId) params.set('view', viewId);
