@@ -17,6 +17,7 @@ import { runStoreAutomations } from './slices/pageAutomations';
 import type { SchemaProperty } from '../types/database';
 import type { StoreSet } from './dbms/hardcoded/storeTypes';
 import { validatePropertyValue } from './validation';
+import { isRecordReadOnly } from '../lib/lockGuards';
 import {
   flushState, dispatchOps, switchSource,
   loadInitialState, sendPersistRequest, persistTimers,
@@ -85,7 +86,7 @@ export function createDbmsActions(set: SetState, get: GetState, schemaSet: Store
     updatePageProperty: (pageId: string, propertyId: string, value: unknown) => {
       // 0) Validate & coerce against schema
       const page = get().pages[pageId];
-      if (!page) return;
+      if (!page || isRecordReadOnly(get(), page.databaseId)) return;
       const db = get().databases[page.databaseId];
       const prop = db?.properties[propertyId];
       let coerced = value;
@@ -124,6 +125,7 @@ export function createDbmsActions(set: SetState, get: GetState, schemaSet: Store
     },
 
     addPage: (databaseId: string, properties: Record<string, unknown> = {}) => {
+      if (isRecordReadOnly(get(), databaseId)) return '';
       const sliceActions = createPageSlice(set, get);
       const pageId = sliceActions.addPage(databaseId, properties);
       // Persist full state immediately (includes new page + autoIncrement)
@@ -138,6 +140,7 @@ export function createDbmsActions(set: SetState, get: GetState, schemaSet: Store
 
     deletePage: (pageId: string) => {
       const page = get().pages[pageId];
+      if (isRecordReadOnly(get(), page?.databaseId)) return;
       const sliceActions = createPageSlice(set, get);
       sliceActions.deletePage(pageId);
       // row_deleted automations see the row as it was; a write to it is skipped.

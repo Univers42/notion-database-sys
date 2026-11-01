@@ -73,6 +73,7 @@ export function buildLiveDatabase(
     description: `Live ${table.name} table (edits sync through the BaaS outbox).`,
     properties,
     titlePropertyId,
+    ...(table.read_only ? { readOnly: true, description: `Live ${table.name} view (read-only).` } : {}),
   };
 }
 

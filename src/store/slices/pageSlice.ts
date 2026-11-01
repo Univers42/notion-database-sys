@@ -116,7 +116,7 @@ export function createPageSlice(set: StoreSet, get: StoreGet): PageSliceActions 
     duplicatePage: (pageId) => {
       const state = get();
       const page = state.pages[pageId];
-      if (!page) return;
+      if (!page || state.databases[page.databaseId]?.readOnly) return;
       const id = crypto.randomUUID();
       const newPage: Page = {
         ...page,

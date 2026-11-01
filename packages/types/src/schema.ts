@@ -58,6 +58,8 @@ export interface DomainDatabaseSchema {
   dataSources?: DomainDataSourceRef[];
   /** Database lock: schema and view edits are disabled while set. */
   locked?: boolean;
+  /** A source that cannot take a write, a SQL view: its records are never edited here. */
+  readOnly?: boolean;
   /** The host owns `locked` and every view's `settings.locked`: the viewer cannot toggle them. */
   locksManagedByHost?: boolean;
 }
