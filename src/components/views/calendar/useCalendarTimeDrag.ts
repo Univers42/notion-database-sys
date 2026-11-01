@@ -23,6 +23,7 @@ import { fromDayKey } from './model/calendarGrid';
 import { shiftIsoPreservingTime } from './model/calendarDragMath';
 import { MINUTES_PER_DAY, SLOT_MINUTES } from './model/calendarTypes';
 import type { DayKey } from './model/calendarTypes';
+import { cssZoomOf } from '../../../lib/cssZoom';
 
 export interface TimeDragState {
   kind: 'move' | 'resize-end' | 'create';
@@ -51,7 +52,7 @@ interface Options {
   ensureEndProp: () => { id: string } | null;
 }
 
-interface ColRect { dayKey: DayKey; left: number; right: number; top: number }
+interface ColRect { dayKey: DayKey; left: number; right: number; top: number; zoom: number }
 
 export function useCalendarTimeDrag({
   hourHeight, startPropId, databaseId, updatePageProperty, addPage, ensureEndProp,
@@ -65,7 +66,7 @@ export function useCalendarTimeDrag({
   const snapshot = (root: HTMLElement): void => {
     colsRef.current = [...root.querySelectorAll<HTMLElement>('[data-cal-timecol]')].map(el => {
       const rect = el.getBoundingClientRect();
-      return { dayKey: el.dataset.calTimecol as DayKey, left: rect.left, right: rect.right, top: rect.top };
+      return { dayKey: el.dataset.calTimecol as DayKey, left: rect.left, right: rect.right, top: rect.top, zoom: cssZoomOf(el) };
     });
   };
 
@@ -75,7 +76,7 @@ export function useCalendarTimeDrag({
     let col = cols.find(c => clientX >= c.left && clientX <= c.right)
       ?? (clientX < cols[0].left ? cols[0] : cols[cols.length - 1]);
     const minutes = Math.max(0, Math.min(MINUTES_PER_DAY - SLOT_MINUTES,
-      offsetPxToMinutes(clientY - col.top, hourHeight)));
+      offsetPxToMinutes((clientY - col.top) / col.zoom, hourHeight)));
     return { dayKey: col.dayKey, minutes };
   };
 

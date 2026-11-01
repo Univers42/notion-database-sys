@@ -15,6 +15,7 @@
 // pointer-up. Never writes to the store itself.
 
 import type React from 'react';
+import { cssZoomOf } from '../../../../lib/cssZoom';
 
 export interface AxisDragOptions {
   axis: 'x' | 'y';
@@ -32,11 +33,12 @@ export function beginAxisDrag(
 ): void {
   event.preventDefault();
   const start = axis === 'x' ? event.clientX : event.clientY;
+  const zoom = cssZoomOf(handle);
   handle.setPointerCapture(event.pointerId);
 
   const move = (moveEvent: PointerEvent) => {
     const current = axis === 'x' ? moveEvent.clientX : moveEvent.clientY;
-    onMove(current - start);
+    onMove((current - start) / zoom);
   };
   const up = (upEvent: PointerEvent) => {
     handle.releasePointerCapture(upEvent.pointerId);

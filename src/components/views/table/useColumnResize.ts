@@ -13,6 +13,7 @@
 import React, { useState, useCallback } from 'react';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import type { DatabaseState } from '../../../store/dbms/hardcoded/storeTypes';
+import { cssZoomOf } from '../../../lib/cssZoom';
 
 /** Narrowest a column can be dragged or keyed to. */
 export const MIN_COL_WIDTH = 80;
@@ -41,6 +42,7 @@ export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDi
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
+    const zoom = cssZoomOf(tableRef.current);
     const startWidth = columnWidth(storeApi.getState(), viewId, propId);
 
     // The drag writes the width onto the column's own cells, found once. It
@@ -59,7 +61,7 @@ export function useColumnResize(viewId: string, tableRef: React.RefObject<HTMLDi
     let rafId = 0;
 
     const handleMove = (ev: MouseEvent) => {
-      latestWidth = Math.max(MIN_COL_WIDTH, startWidth + ev.clientX - startX);
+      latestWidth = Math.max(MIN_COL_WIDTH, startWidth + (ev.clientX - startX) / zoom);
       if (!rafId) {
         rafId = requestAnimationFrame(() => {
           rafId = 0;

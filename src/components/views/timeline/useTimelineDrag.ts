@@ -16,6 +16,7 @@ import { findDateProperties, type BarGeometry } from './TimelineViewHelpers';
 import type { SchemaProperty } from '../../../types/database';
 import type { DragKind, DragState } from './timelineTypes';
 import { handleAutoScroll, computeDragPosition, applyMoveDrag, applyResizeLeftDrag, applyResizeRightDrag, applyCreateDrag } from './timelineDragUtils';
+import { cssZoomOf } from '../../../lib/cssZoom';
 
 interface UseTimelineDragOptions {
   cellWidth: number;
@@ -38,7 +39,7 @@ export function useTimelineDrag({
   const getDayFromMouse = useCallback(
     (clientX: number): number => {
       if (!scrollRef.current) return 0;
-      return Math.floor((clientX - scrollRef.current.getBoundingClientRect().left + scrollRef.current.scrollLeft) / cellWidth);
+      return Math.floor(((clientX - scrollRef.current.getBoundingClientRect().left) / cssZoomOf(scrollRef.current) + scrollRef.current.scrollLeft) / cellWidth);
     },
     [cellWidth],
   );

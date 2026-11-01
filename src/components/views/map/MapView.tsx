@@ -238,7 +238,7 @@ export function MapView() {
     <div className={cn("flex-1 flex min-h-0 h-[560px] max-h-full overflow-hidden bg-surface-primary")}>
       {/* Map */}
       <div className={cn("flex-1 relative min-w-0")}>
-        <div ref={mapContainerRef} className={cn("absolute inset-0 z-0")} />
+        <div ref={mapContainerRef} data-osio-fixed-scale className={cn("absolute inset-0 z-0")} />
         {(noPlaceProp || mappablePages.length === 0) && (
           <MapEmptyOverlay noPlaceProp={noPlaceProp} pageCount={pages.length} />
         )}
