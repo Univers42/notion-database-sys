@@ -44,6 +44,7 @@ import { LIVE_MAX_LIMIT, translateLivePageQuery } from './liveQueryTranslator';
 import { describeLiveMount, getCrossMountCatalog } from './liveCrossMount';
 import { fetchMountDescriptor, fetchMountProbe, type MountDescriptor, type MountProbe } from './liveMountDescriptor';
 import { inferLiveReferences, needsCrossMountCatalog } from './liveReferenceInfer';
+import { pullLiveViews, pushLiveViews } from './liveViewSync';
 import { loadLiveViews, saveLiveViews } from './liveViewStore';
 import {
   missingReferenceKeys,
@@ -146,7 +147,9 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
     Object.assign(state.pages, crossMount.pages);
     // Restore the user's saved views over the rebuilt defaults (added/edited
     // views persist across a hard refresh; engine data is untouched).
-    state.views = { ...state.views, ...loadLiveViews(this.databaseId) };
+    const accountViews = await pullLiveViews(this.databaseId);
+    if (accountViews) saveLiveViews(this.databaseId, accountViews);
+    state.views = { ...state.views, ...(accountViews ?? loadLiveViews(this.databaseId)) };
     this.lastLoadedViews = state.views;
     // diffLiveState already scopes writes to this.databaseId, so referenced/
     // cross-mount pages are inert — pass the EXACT pages object so the reload-
@@ -363,6 +366,7 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
       Object.entries(next.views).filter(([, view]) => view.databaseId === this.databaseId),
     );
     saveLiveViews(this.databaseId, mine);
+    pushLiveViews(this.databaseId, mine);
   }
 
   /** Corrective events (write pipeline) + realtime deliveries. The realtime
