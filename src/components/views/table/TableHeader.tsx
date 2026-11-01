@@ -136,7 +136,7 @@ export function TableHeader({
             onDrop={e => { e.preventDefault(); setDragColId(null); }}>
             <button
               onClick={(e) => onHeaderClick(e, prop)}
-              className={cn("flex items-center justify-between w-full hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors outline-none")}>
+              className={cn("flex items-center justify-between w-full hover:bg-hover-surface2 px-1 py-0.5 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--osio-focus-ring-color)]")}>
               <div className={cn("flex items-center gap-1.5")}>
                 <PropIcon type={prop.type} className={cn("w-3.5 h-3.5 text-ink-muted")} />
                 <span className={cn("truncate")}>{prop.name}</span>
@@ -162,7 +162,7 @@ export function TableHeader({
           );
         })}
         <th role="columnheader" className={cn("w-10 px-2 py-2 border-line text-center bg-surface-secondary")}>
-          <button ref={addBtnRef} onClick={openAddPanel} aria-label="Add property" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><Plus className={cn("w-4 h-4")} /></button>
+          <button ref={addBtnRef} onClick={openAddPanel} aria-label="Add property" className={cn("mx-auto flex h-6 w-6 min-h-[24px] min-w-[24px] items-center justify-center rounded text-ink-muted hover:bg-hover-surface3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--osio-focus-ring-color)] transition-colors")}><Plus className={cn("w-4 h-4")} /></button>
           {addPanel && createPortal(
             <>
               <button type="button" className={cn("fixed inset-0 z-40 appearance-none border-0 bg-transparent p-0 cursor-default")} onPointerDown={() => setAddPanel(null)} tabIndex={-1} aria-label="Close" />
@@ -182,7 +182,7 @@ export function TableHeader({
         <th role="columnheader" className={cn("w-full px-2 py-2 text-left bg-surface-secondary")}>
           <Popover.Root>
             <Popover.Trigger asChild>
-              <button aria-label="Column options" className={cn("p-1 hover:bg-hover-surface3 rounded text-ink-muted transition-colors")}><MoreHorizontal className={cn("w-4 h-4")} /></button>
+              <button aria-label="Column options" className={cn("flex h-6 w-6 min-h-[24px] min-w-[24px] items-center justify-center rounded text-ink-muted hover:bg-hover-surface3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--osio-focus-ring-color)] transition-colors")}><MoreHorizontal className={cn("w-4 h-4")} /></button>
             </Popover.Trigger>
             <Popover.Portal>
               <Popover.Content align="end" className={cn("w-64 bg-surface-primary rounded-lg shadow-xl border border-line p-2 text-sm z-50")}>
