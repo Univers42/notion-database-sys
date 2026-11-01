@@ -42,6 +42,13 @@ let cached: { value: LiveMountTableSet[]; expiresAt: number } | null = null;
 let inflight: Promise<LiveMountTableSet[]> | null = null;
 
 /** App-side registration of the all-mounts table catalog (null clears it). */
+let mountDirectory: (() => Promise<LiveMountTableSet[]>) | null = null;
+
+/** Mount names and engines alone, for labels: no schema call per mount (#264). */
+export function registerMountDirectory(provider: (() => Promise<LiveMountTableSet[]>) | null): void {
+  mountDirectory = provider;
+}
+
 export function registerCrossMountCatalog(provider: CrossMountCatalogProvider | null): void {
   catalogProvider = provider;
   cached = null;
@@ -72,6 +79,8 @@ export async function getCrossMountCatalog(): Promise<LiveMountTableSet[]> {
 /** "postgresql · commerce" for a mount the catalog lists, else null — the
  *  loading/error panes then say "database" rather than guess a source. */
 export async function describeLiveMount(dbId: string): Promise<string | null> {
-  const entry = (await getCrossMountCatalog()).find((set) => set.dbId === dbId);
+  // The directory, when the host has one: a name must not fetch every mount's schema.
+  const sets = await (mountDirectory ? mountDirectory() : getCrossMountCatalog());
+  const entry = sets.find((set) => set.dbId === dbId);
   return [entry?.engine, entry?.name].filter(Boolean).join(' · ') || null;
 }

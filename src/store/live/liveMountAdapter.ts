@@ -43,8 +43,16 @@ import { isPermanentDenial } from './livePoll';
 import { LIVE_MAX_LIMIT, translateLivePageQuery } from './liveQueryTranslator';
 import { describeLiveMount, getCrossMountCatalog } from './liveCrossMount';
 import { fetchMountDescriptor, fetchMountProbe, type MountDescriptor, type MountProbe } from './liveMountDescriptor';
-import { inferLiveReferences } from './liveReferenceInfer';
+import { inferLiveReferences, needsCrossMountCatalog } from './liveReferenceInfer';
 import { loadLiveViews, saveLiveViews } from './liveViewStore';
+import {
+  missingReferenceKeys,
+  readRowsByKeys,
+  rememberRead,
+  scanRowsAfterFirstPage,
+  settledWithin,
+  type RememberedReads,
+} from './liveReadPlanning';
 import { buildLiveDatabase, buildLivePage, buildLiveState } from './liveStateBuilder';
 import { formatLivePageId, parseLiveDatabaseId, parseLivePageId } from './liveTypes';
 import type { LiveMountRef, LiveSchemaResponse, LiveTableSchema } from './liveTypes';
@@ -53,10 +61,14 @@ import type { LiveMountRef, LiveSchemaResponse, LiveTableSchema } from './liveTy
  *  unbounded scan. Each call is clamped to LIVE_MAX_LIMIT by the router, so we
  *  page up to this ceiling. Going past it is the incremental-fetch follow-up. */
 const MAX_PRELOAD_ROWS = 2000;
-/** Per referenced (dimension) table, one page is enough to resolve relation
- *  titles; rows past it just render the key. Bounded so a big lookup table
- *  can't blow up the open. */
+/** The first page of each referenced (dimension) table, then the keys it missed in
+ *  chunks of this size. Bounded by the rows on screen, so a big lookup table can't
+ *  blow up the open. */
 const RELATION_PRELOAD_ROWS = LIVE_MAX_LIMIT;
+/** Every widget on a table wants the same labels; 60 s old is fine for a label. */
+const TABLE_SCAN_TTL_MS = 60_000;
+const LABEL_SCAN_BUDGET_MS = 500;
+const tableScans: RememberedReads<Record<string, unknown>[]> = new Map();
 const NOT_ON_HOST_PATH =
   'Live databases persist through persistState (the host state diff) — direct CRUD calls are not wired.';
 
@@ -111,10 +123,9 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
   }
 
   private async loadStateInner(): Promise<NotionState> {
-    const [rawSchema, catalog] = await Promise.all([
-      getLiveSchema(this.ref.dbId),
-      getCrossMountCatalog(),
-    ]);
+    const rawSchema = await getLiveSchema(this.ref.dbId);
+    const rawTable = rawSchema.tables.find((candidate) => candidate.name === this.ref.table);
+    const catalog = rawTable && needsCrossMountCatalog(rawSchema, rawTable) ? await getCrossMountCatalog() : [];
     const schema = inferLiveReferences(rawSchema, this.ref.dbId, catalog);
     const table = schema.tables.find((candidate) => candidate.name === this.ref.table);
     if (!table) {
@@ -171,12 +182,54 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
     for (const name of targets) {
       try {
         const page = await listLiveRows(this.ref.dbId, name, { limit: RELATION_PRELOAD_ROWS });
-        out[name] = page.rows;
+        out[name] = [
+          ...page.rows,
+          ...await this.loadRowsMissingFromPage(schema, primary, name, page.rows, base[primary.name] ?? []),
+        ];
       } catch {
         /* ref table unreadable → its relations show the key, not fatal */
       }
     }
     return out;
+  }
+
+  /** The referenced rows past the preloaded page, fetched by the keys on screen. A
+   *  6,000-row `customers` table showed `1650` for most deals because only its first
+   *  500 rows were known (#260). */
+  private async loadRowsMissingFromPage(
+    schema: LiveSchemaResponse,
+    primary: LiveTableSchema,
+    tableName: string,
+    loaded: Record<string, unknown>[],
+    primaryRows: Record<string, unknown>[],
+  ): Promise<Record<string, unknown>[]> {
+    const key = schema.tables.find((table) => table.name === tableName)?.primary_key?.[0];
+    if (!key) return [];
+    const ids = missingReferenceKeys(primary, tableName, key, loaded, primaryRows);
+    const { dbId } = this.ref;
+    return readRowsByKeys(
+      ids,
+      key,
+      RELATION_PRELOAD_ROWS,
+      async (chunk) => (await listLiveRows(dbId, tableName, {
+        filter: { [key]: { $in: chunk } }, limit: RELATION_PRELOAD_ROWS,
+      })).rows,
+      () => this.scanForLabels(tableName),
+    );
+  }
+
+  /** The referenced table's rows, shared by every widget for TABLE_SCAN_TTL_MS. Labels
+   *  never hold a table back: a scan past the budget carries on, and one reload then
+   *  finds it held, so that reload makes no reads of its own. */
+  private async scanForLabels(tableName: string): Promise<Record<string, unknown>[]> {
+    const { dbId } = this.ref;
+    const scan = rememberRead(tableScans, `${dbId}:${tableName}`, TABLE_SCAN_TTL_MS, () =>
+      scanRowsAfterFirstPage(RELATION_PRELOAD_ROWS, async (offset) =>
+        (await listLiveRows(dbId, tableName, { limit: RELATION_PRELOAD_ROWS, offset })).rows));
+    const rows = await settledWithin(scan, LABEL_SCAN_BUDGET_MS);
+    if (rows) return rows;
+    void scan.then(() => this.emit({ type: 'state-replaced' }), () => undefined);
+    return [];
   }
 
   /** Load each CROSS-MOUNT relation target (a referenced table in another

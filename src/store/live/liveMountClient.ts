@@ -24,6 +24,7 @@
 
 import { AdapterError } from '../../component/types';
 import type { LiveListParams, LiveRowsResponse, LiveSchemaResponse } from './liveTypes';
+import { shareInFlight } from './liveReadPlanning';
 
 // `?? {}` keeps the module import-safe outside Vite (e.g. node:test).
 const env = (import.meta.env ?? {}) as Record<string, string | undefined>;
@@ -103,6 +104,8 @@ export function bustLiveSchemaCache(dbId: string): void {
   schemaCache.delete(dbId);
 }
 
+const rowReadsInFlight = new Map<string, Promise<LiveRowsResponse>>();
+
 /** `POST /api/databases/:dbId/tables/:table` with `op: 'list' | 'get'`. */
 export function listLiveRows(
   dbId: string,
@@ -111,8 +114,7 @@ export function listLiveRows(
   op: 'list' | 'get' = 'list',
 ): Promise<LiveRowsResponse> {
   const path = `/api/databases/${encodeURIComponent(dbId)}/tables/${encodeURIComponent(table)}`;
-  return requestLive<LiveRowsResponse>(path, {
-    method: 'POST',
-    body: JSON.stringify({ op, ...params }),
-  });
+  const body = JSON.stringify({ op, ...params });
+  return shareInFlight(rowReadsInFlight, `${path}\n${body}`, () =>
+    requestLive<LiveRowsResponse>(path, { method: 'POST', body }));
 }
