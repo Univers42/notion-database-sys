@@ -24,6 +24,8 @@ import {
 } from '../../store/sources/dataSourceRegistry';
 import { bindViewSource } from '../../store/sources/bindViewSource';
 import { SubPanelHeader } from './SubComponents';
+import { CurrentBinding } from './CurrentBinding';
+import { parseLiveDatabaseId } from '../../store/live/liveTypes';
 import { cn } from '../../utils/cn';
 
 interface SourcePickerScreenProps {
@@ -99,9 +101,11 @@ export function SourcePickerScreen({
   };
 
   const groups = groupCatalog(catalog ?? [], query.trim().toLowerCase());
+  const live = onPick ? null : parseLiveDatabaseId(currentDatabaseId);
   return (
     <div className={cn('flex flex-col h-full')} style={{ minWidth: 290, maxWidth: 290 }}>
       <SubPanelHeader title={title} onBack={onBack} onClose={onClose} />
+      {live && <CurrentBinding dbId={live.dbId} />}
       <div className={cn('px-3 pb-2')}>
         <input autoFocus value={query} onChange={(event) => setQuery(event.target.value)}
           placeholder="Search data sources…" aria-label="Search data sources"

@@ -26,6 +26,10 @@ interface SubItemsContextValue {
   rowsFor: (recordId: string) => { rows: ObjectDatabaseSubItemRow[]; loading: boolean };
   open: (subItemId: string) => void;
   create: (recordId: string) => void;
+  /** The row can be dragged under another row, or out to the top level. */
+  canMove: (rowId: string) => boolean;
+  /** Re-parent `rowId` under `toParentId` (null = top level). */
+  move: (rowId: string, toParentId: string | null) => void;
 }
 
 const SubItemsContext = React.createContext<SubItemsContextValue | null>(null);
@@ -41,6 +45,8 @@ export function SubItemsProvider({
   children,
 }: Readonly<{ controller?: ObjectDatabaseSubItemsController; children: React.ReactNode }>): React.ReactElement {
   const [expanded, setExpanded] = React.useState<ReadonlySet<string>>(() => new Set());
+  const expandedRef = React.useRef(expanded);
+  expandedRef.current = expanded;
   const rowsRef = React.useRef<Map<string, ObjectDatabaseSubItemRow[]>>(new Map());
   const loadingRef = React.useRef<Set<string>>(new Set());
   const [version, setVersion] = React.useState(0);
@@ -64,6 +70,21 @@ export function SubItemsProvider({
     bump();
   }, [controller, bump]);
 
+  // A row shown at the top level may be anyone's child, so after a move every
+  // cached list is dropped and the expanded ones refetch; the new parent opens
+  // so the row is seen where it landed. The host says why a move was refused.
+  const move = React.useCallback(async (rowId: string, toParentId: string | null) => {
+    if (!controller?.moveRow) return;
+    const moved = await controller.moveRow(rowId, toParentId).then(() => true, () => false);
+    if (!moved) return;
+    rowsRef.current.clear();
+    const open = new Set(expandedRef.current);
+    if (toParentId) open.add(toParentId);
+    open.delete(rowId);
+    setExpanded(open);
+    await Promise.all([...open].map(ensureLoaded));
+  }, [controller, ensureLoaded]);
+
   const value = React.useMemo<SubItemsContextValue | null>(() => {
     if (!controller) return null;
     // `version` is read so the memo (and thus context consumers) recompute when
@@ -80,8 +101,10 @@ export function SubItemsProvider({
       rowsFor: (id) => ({ rows: rowsRef.current.get(id) ?? [], loading: loadingRef.current.has(id) }),
       open: (subItemId) => controller.openRow(subItemId),
       create: (id) => { void create(id); },
+      canMove: (id) => Boolean(controller.moveRow) && (controller.canMoveRow?.(id) ?? true),
+      move: (id, to) => { void move(id, to); },
     };
-  }, [controller, expanded, version, ensureLoaded, create]);
+  }, [controller, expanded, version, ensureLoaded, create, move]);
 
   return <SubItemsContext.Provider value={value}>{children}</SubItemsContext.Provider>;
 }

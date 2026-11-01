@@ -6,7 +6,7 @@
 /*   By: dlesieur <dlesieur@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/05 12:00:00 by dlesieur          #+#    #+#             */
-/*   Updated: 2026/10/29 12:00:00 by dlesieur         ###   ########.fr       */
+/*   Updated: 2026/10/29 21:45:00 by dlesieur         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { ExtraActionsMenu } from './MenuComponents';
-import { DbSourceDropdown } from '../DbSourceDropdown';
+import { DataSourceIndicator } from './MountSourceBadge';
 import { TemplatesDropdown } from './TemplatesDropdown';
 import { useTemplatesController } from './templatesContext';
 import { useCanCreateRecords } from '../../hooks/useHostAdapters';
@@ -143,7 +143,7 @@ export function TopBarActions({
       <ExtraActionsMenu show={showExtraActions} onToggle={() => setShowExtraActions(!showExtraActions)} onClose={() => setShowExtraActions(false)} />
       {variant === 'full' && (
         <>
-          <DbSourceDropdown />
+          <DataSourceIndicator />
           <ThemeToggle />
         </>
       )}

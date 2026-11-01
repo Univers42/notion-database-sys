@@ -99,6 +99,12 @@ export interface ObjectDatabaseSubItemsController {
   openRow: (subItemId: string) => void;
   /** Create a new sub-item under the record row. */
   createRow: (recordId: string) => Promise<void>;
+  /** Re-parent a row: under `parentId`, or to the top level when null. Absent →
+   *  rows cannot be dragged into or out of one another. Rejects when refused. */
+  moveRow?: (rowId: string, parentId: string | null) => Promise<void>;
+  /** Whether this row may be moved, or take a moved row under it (default: every
+   *  row, when moveRow exists). */
+  canMoveRow?: (rowId: string) => boolean;
 }
 
 /** Props accepted by the embeddable ObjectDatabase root component. */

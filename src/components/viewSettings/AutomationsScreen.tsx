@@ -54,8 +54,12 @@ export function AutomationsScreen({ databaseId, viewId, onBack, onClose }: Reado
   const rules = live ? (serverRules ?? []) : localRules;
   const save = (next: AutomationRule[]) => {
     if (live) {
+      // A refused save (an editor may read rules, only an owner/admin replaces them)
+      // puts the stored rules back, so the list never shows a rule the server lacks.
+      const stored = serverRules;
       setServerRules(next);
-      putLiveAutomations(live.dbId, next).catch((err: Error) => setError(err.message));
+      setError(null);
+      putLiveAutomations(live.dbId, next).catch((err: Error) => { setServerRules(stored); setError(err.message); });
     } else {
       updateViewSettings(viewId, { automations: next });
     }

@@ -19,6 +19,7 @@ import { MemoTableRow } from './MemoTableRow';
 import type { GroupRowItem } from './groupRowsLayout';
 import type { EditingCell } from './gridKeyboard';
 import { cn } from '../../../utils/cn';
+import type { RowDropZone } from '../../../lib/manualRowOrder';
 import { getDotColor } from '../../../utils/color';
 
 interface RenderPageRowsProps {
@@ -51,9 +52,11 @@ interface RenderPageRowsProps {
   canReorder?: boolean;
   onRowDragStart?: (pageId: string) => void;
   onRowDragEnd?: () => void;
-  onRowDragOver?: (pageId: string) => void;
-  onRowDrop?: (pageId: string) => void;
-  dropTargetId?: string | null;
+  onRowDragOver?: (pageId: string, zone: RowDropZone) => void;
+  onRowDrop?: (pageId: string, zone: RowDropZone) => void;
+  dropTarget?: { id: string; zone: RowDropZone } | null;
+  dropEdges?: boolean;
+  dropNest?: boolean;
 }
 
 function fillRange(fillDrag: FillDragState | null): [number, number] {
@@ -111,7 +114,9 @@ function renderPageRow(
       onRowDragEnd={props.onRowDragEnd}
       onRowDragOver={props.onRowDragOver}
       onRowDrop={props.onRowDrop}
-      isDropTarget={props.dropTargetId === page.id}
+      dropZone={props.dropTarget?.id === page.id ? props.dropTarget.zone : null}
+      dropEdges={props.dropEdges}
+      dropNest={props.dropNest}
     />
   );
 }
@@ -177,16 +182,16 @@ export function TableGroupRows({
               onLoadMore={() => onShowMore(group.groupId, pageSize)} onShowAll={() => onShowMore(group.groupId, Infinity)} />;
           case 'empty':
             return (
-              <tr key={key} ref={measureRow} data-index={index}>
-                <td colSpan={colCount} className={cn("px-8 py-3 text-sm text-ink-muted border-b border-line bg-surface-secondary-soft5")}>
+              <tr key={key} ref={measureRow} data-index={index} role="row">
+                <td role="gridcell" colSpan={colCount} className={cn("px-8 py-3 text-sm text-ink-muted border-b border-line bg-surface-secondary-soft5")}>
                   No pages
                 </td>
               </tr>
             );
           case 'new':
             return onAddToGroup && (
-              <tr key={key} ref={measureRow} data-index={index}>
-                <td colSpan={colCount} className={cn("p-0 border-b border-line-light")}>
+              <tr key={key} ref={measureRow} data-index={index} role="row">
+                <td role="gridcell" colSpan={colCount} className={cn("p-0 border-b border-line-light")}>
                   <button type="button" onClick={() => onAddToGroup(group.groupId)}
                     aria-label={`New page in ${group.groupLabel}`}
                     className={cn("w-full text-left px-8 py-1.5 text-xs text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent3 transition-colors flex items-center gap-1.5")}>
@@ -215,8 +220,8 @@ interface GroupHeaderRowProps {
 
 function GroupHeaderRow({ index, measureRow, colCount, label, color, count, collapsed, onToggle, onAdd }: Readonly<GroupHeaderRowProps>) {
   return (
-    <tr ref={measureRow} data-index={index} className={cn("group/hdr")}>
-      <td colSpan={colCount} className={cn("p-0 border-b border-line bg-surface-secondary-soft2")}>
+    <tr ref={measureRow} data-index={index} role="row" className={cn("group/hdr")}>
+      <td role="gridcell" colSpan={colCount} className={cn("p-0 border-b border-line bg-surface-secondary-soft2")}>
         <div className={cn("flex items-center gap-2 px-3 py-2 select-none")}>
           <button type="button" onClick={onToggle}
             aria-label={`${collapsed ? 'Expand' : 'Collapse'} group ${label}`}

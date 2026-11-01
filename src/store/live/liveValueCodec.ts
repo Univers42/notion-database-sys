@@ -30,6 +30,7 @@ import type { SchemaProperty } from '../../component/types';
 import type { PropertyValue } from '@notion-db/contract-types';
 import { geocodePlaceColumn } from './placeColumns';
 import {
+  bigintWireValue,
   formatLivePageId,
   parseLivePageId,
   type LiveColumnSchema,
@@ -193,6 +194,7 @@ export function encodeLiveValue(
       if (first === null || first === undefined || first === '') return null; // empty → NULL FK
       const ref = typeof first === 'string' ? parseLivePageId(first) : null;
       const pk = ref ? ref.pk : toDisplayString(first); // non-live id = already a pk (idempotent)
+      if (column?.normalized_type === 'bigint') return bigintWireValue(pk);
       if (column && NUMERIC_COLUMN_TYPES.has(column.normalized_type)) {
         const numeric = toNumberValue(pk);
         if (numeric !== null) return numeric;

@@ -28,7 +28,7 @@ import { SubItemRows } from './SubItemRows';
 import { colorForPage } from '../../../lib/conditionalColor';
 import type { Page } from '../../../types/database';
 import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
-import { buildManualRowOrder } from '../../../lib/manualRowOrder';
+import { buildManualRowOrder, buildManualRowOrderAt, type RowDropZone } from '../../../lib/manualRowOrder';
 import { cellDomId, GRID_KEY_SHORTCUTS } from './gridKeyboard';
 import { groupPresetValue } from '../../../store/slices/storeHelpers';
 import { resolvePageSize } from '../../../hooks/useViewPager';
@@ -60,27 +60,45 @@ export function TableView() {
   const subItems = useSubItems();
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
 
-  // Row drag-reorder (grip on row hover, see MemoTableRow): drop writes manualRowOrder
-  // into view settings; getPagesForView applies it when no user sorts exist.
+  // Row drag (grip on row hover, see MemoTableRow). An edge drop reorders —
+  // manualRowOrder in view settings, applied when no user sorts exist — or, for
+  // a dragged sub-item, unnests it. A middle drop nests under that row when the
+  // host can move rows (sub-items `moveRow`); the host re-validates the move.
   const storeApi = useStoreApi();
-  const dragRowRef = React.useRef<string | null>(null);
-  const [dropTargetId, setDropTargetId] = React.useState<string | null>(null);
+  const [dragSource, setDragSource] = React.useState<{ id: string; parentId: string | null } | null>(null);
+  const dragSourceRef = React.useRef(dragSource);
+  dragSourceRef.current = dragSource;
+  const subItemsRef = React.useRef(subItems);
+  subItemsRef.current = subItems;
+  const [dropTarget, setDropTarget] = React.useState<{ id: string; zone: RowDropZone } | null>(null);
   const pageIdsRef = React.useRef<string[]>([]);
   pageIdsRef.current = pages.map((p: Page) => p.id);
   const viewIdRef = React.useRef<string | null>(null);
   viewIdRef.current = view?.id ?? null;
-  const handleRowDragStart = React.useCallback((pageId: string) => { dragRowRef.current = pageId; }, []);
-  const handleRowDragEnd = React.useCallback(() => { dragRowRef.current = null; setDropTargetId(null); }, []);
-  const handleRowDragOver = React.useCallback((pageId: string) => {
-    setDropTargetId((current) => (current === pageId ? current : pageId));
+  const handleRowDragStart = React.useCallback((pageId: string, parentId: string | null = null) => {
+    setDragSource({ id: pageId, parentId });
   }, []);
-  const handleRowDrop = React.useCallback((targetId: string) => {
-    const draggedId = dragRowRef.current;
+  const handleRowDragEnd = React.useCallback(() => { setDragSource(null); setDropTarget(null); }, []);
+  const handleRowDragOver = React.useCallback((pageId: string, zone: RowDropZone) => {
+    const next = dragSourceRef.current?.id === pageId ? null : { id: pageId, zone };
+    setDropTarget((current) => (current?.id === next?.id && current?.zone === next?.zone ? current : next));
+  }, []);
+  const handleRowDrop = React.useCallback((targetId: string, zone: RowDropZone) => {
+    const source = dragSourceRef.current;
     const viewId = viewIdRef.current;
-    dragRowRef.current = null;
-    setDropTargetId(null);
-    if (!draggedId || !viewId) return;
-    const order = buildManualRowOrder(pageIdsRef.current, draggedId, targetId);
+    setDragSource(null);
+    setDropTarget(null);
+    if (!source || source.id === targetId) return;
+    if (zone === 'nest') {
+      if (targetId !== source.parentId) subItemsRef.current?.move(source.id, targetId);
+      return;
+    }
+    if (source.parentId !== null) { subItemsRef.current?.move(source.id, null); return; }
+    if (!viewId) return;
+    const ids = pageIdsRef.current;
+    const order = zone === 'slot'
+      ? buildManualRowOrder(ids, source.id, targetId)
+      : buildManualRowOrderAt(ids, source.id, targetId, zone === 'after');
     if (order) storeApi.getState().updateViewSettings(viewId, { manualRowOrder: order });
   }, [storeApi]);
 
@@ -102,10 +120,14 @@ export function TableView() {
             titlePropId={database.titlePropertyId}
             colCount={colCount}
             hasGutter={showRowNumbers}
+            onRowDragStart={handleRowDragStart}
+            onRowDragEnd={handleRowDragEnd}
           />
         ) : null
     : undefined;
 
+  // Manual reorder only makes sense without user sorts or grouping.
+  const canReorder = view.sorts.length === 0 && !isGrouped;
   const colorRules = view.settings?.conditionalColors;
   const rowProps = {
     visibleProps, focusedCell, editingCell, fillDrag, selection,
@@ -119,13 +141,14 @@ export function TableView() {
     rowTint: colorRules?.length
       ? (page: Page) => colorForPage(page, colorRules, database.properties, storeApi.getState().getCellValue)?.tint ?? null
       : undefined,
-    // Manual reorder only makes sense without user sorts or grouping.
-    canReorder: view.sorts.length === 0 && !isGrouped,
+    canReorder,
     onRowDragStart: handleRowDragStart,
     onRowDragEnd: handleRowDragEnd,
     onRowDragOver: handleRowDragOver,
     onRowDrop: handleRowDrop,
-    dropTargetId,
+    dropTarget,
+    dropEdges: canReorder || dragSource?.parentId != null,
+    dropNest: dragSource != null && (subItems?.canMove(dragSource.id) ?? false),
   };
 
   return (
@@ -152,8 +175,11 @@ export function TableView() {
         {/* Separate borders: collapsed ones are painted by the table as a whole,
             so each row the virtualizer swaps in repainted every visible row
             (12.9k → 3.2k paint ops over 25 scroll frames, measured). Row-level
-            borders do not render in this model — they live on the cells. */}
-        <table data-table-style={tableStyle} className={cn("odb-table min-w-full text-left border-separate border-spacing-0")}>
+            borders do not render in this model — they live on the cells.
+            role="presentation": the scroll box above is the grid, so the table only
+            lays out and each row and cell states its own role. A native table under
+            a grid is an invalid child to assistive tech (axe aria-required-children). */}
+        <table role="presentation" data-table-style={tableStyle} className={cn("odb-table min-w-full text-left border-separate border-spacing-0")}>
           <TableHeader
             visibleProps={visibleProps} showRowNumbers={showRowNumbers}
             showVerticalLines={showVerticalLines} getColWidth={getColWidth}
@@ -165,7 +191,7 @@ export function TableView() {
             onHeaderClick={handleHeaderClick}
             onPropertyCreated={handlePropertyConfig}
           />
-          <tbody>
+          <tbody role="rowgroup">
             {virtual.paddingTop > 0 && (
               <tr aria-hidden="true"><td colSpan={colCount} style={{ height: virtual.paddingTop }} className={cn("p-0 border-0")} /></tr>
             )}
@@ -187,8 +213,8 @@ export function TableView() {
               <TableLoadMoreRow colCount={colCount} shown={pager.end} total={pager.total}
                 onLoadMore={pager.loadMore} onShowAll={pager.showAll} />
             )}
-            {canCreate && <tr>
-              <td colSpan={colCount} className={cn("p-0")}>
+            {canCreate && <tr role="row">
+              <td role="gridcell" colSpan={colCount} className={cn("p-0")}>
                 <button onClick={createRecord}
                   className={cn("w-full text-left px-4 py-2.5 text-sm text-ink-muted hover:text-hover-text hover:bg-hover-surface-accent transition-colors flex items-center gap-2 border-b border-transparent hover:border-hover-border-accent")}>
                   <Plus className={cn("w-4 h-4")} /> New

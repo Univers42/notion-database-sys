@@ -36,10 +36,19 @@ export interface LivePageRef extends LiveMountRef {
   pk: string;
 }
 
+/** A 64-bit integer value → the wire: a JS number while it is exact, the
+ *  decimal string beyond 2^53 so no digit is rounded away (the engine casts it
+ *  or refuses the write; it is never silently altered). */
+export function bigintWireValue(text: string): number | string {
+  const parsed = Number(text);
+  return /^-?\d+$/.test(text.trim()) && Number.isSafeInteger(parsed) ? parsed : text;
+}
+
 /** Engine-neutral column type (schema.rs `NormalizedType`, snake_case wire). */
 export type LiveNormalizedType =
   | 'text' | 'integer' | 'float' | 'decimal' | 'boolean' | 'date' | 'datetime'
-  | 'json' | 'uuid' | 'enum' | 'array' | 'objectid' | 'unknown';
+  | 'json' | 'uuid' | 'enum' | 'array' | 'objectid' | 'unknown'
+  | 'binary' | 'time' | 'interval' | 'bigint' | 'geometry' | 'vector';
 
 /** FK target of a column (schema.rs `ForeignKeyRef`). `dbId` is set only for a
  *  CROSS-MOUNT target (the referenced table lives in another mount); absent =

@@ -20,6 +20,7 @@
 
 import React from 'react';
 import { CornerDownRight, Plus } from 'lucide-react';
+import { GripHandleIcon } from '../../ui/Icons';
 import type { PropertyValue, SchemaProperty } from '../../../types/database';
 import { formatCellValue } from '../../../utils/format';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
@@ -34,6 +35,9 @@ interface SubItemRowsProps {
   colCount: number;
   /** The row-number gutter column is rendered. */
   hasGutter: boolean;
+  /** A sub-item's grip started a drag; the parent is `recordId`. */
+  onRowDragStart?: (rowId: string, parentId: string) => void;
+  onRowDragEnd?: () => void;
 }
 
 /** A child record's cell as its column shows it (option label, formatted date), blank when empty. */
@@ -47,7 +51,7 @@ export function subItemCellText(value: PropertyValue | undefined, prop: SchemaPr
 }
 
 export function SubItemRows(props: Readonly<SubItemRowsProps>) {
-  const { recordId, visibleProps, getColWidth, titlePropId, colCount, hasGutter } = props;
+  const { recordId, visibleProps, getColWidth, titlePropId, colCount, hasGutter, onRowDragStart, onRowDragEnd } = props;
   const sub = useSubItems();
   const pages = useDatabaseStore((s) => s.pages);
   if (!sub) return null;
@@ -63,16 +67,16 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
   return (
     <>
       {loading && rows.length === 0 && (
-        <tr>
-          {hasGutter && <td className={cn("w-10 border-r border-b border-line bg-surface-secondary-soft2")} />}
-          <td colSpan={spanRest} className={cn("border-b border-line bg-surface-secondary-soft2 py-1.5 pl-10 text-sm text-ink-muted")}>Loading sub-items…</td>
+        <tr role="row">
+          {hasGutter && <td role="gridcell" className={cn("w-10 border-r border-b border-line bg-surface-secondary-soft2")} />}
+          <td role="gridcell" colSpan={spanRest} className={cn("border-b border-line bg-surface-secondary-soft2 py-1.5 pl-10 text-sm text-ink-muted")}>Loading sub-items…</td>
         </tr>
       )}
       {rows.map((row) => {
         const page = row.pageId ? pages[row.pageId] : undefined;
         return (
-          <tr key={row.id} className={cn("group/sub cursor-pointer bg-surface-secondary-soft2 hover:bg-hover-surface-soft")} onClick={() => sub.open(row.id)}>
-            {hasGutter && <td className={cn("w-10 border-r border-b border-line")} />}
+          <tr key={row.id} role="row" className={cn("group/sub cursor-pointer bg-surface-secondary-soft2 hover:bg-hover-surface-soft")} onClick={() => sub.open(row.id)}>
+            {hasGutter && <td role="gridcell" className={cn("w-10 border-r border-b border-line")} />}
             {visibleProps.map((prop) => {
               const w = getColWidth(prop.id);
               const style = { width: w, minWidth: w, maxWidth: w };
@@ -80,22 +84,32 @@ export function SubItemRows(props: Readonly<SubItemRowsProps>) {
               const pageVal = page ? subItemCellText(page.properties[prop.id], prop) : '';
               const text = isAnchor ? (pageVal || row.title || 'Untitled') : pageVal;
               return (
-                <td key={prop.id} data-col={prop.id} style={style} className={cn("overflow-hidden border-r border-b border-line px-3 py-1.5 align-middle")}>
+                <td key={prop.id} data-col={prop.id} role="gridcell" style={style} className={cn("overflow-hidden border-r border-b border-line px-3 py-1.5 align-middle")}>
                   <div className={cn("flex items-center gap-1.5 text-sm", isAnchor ? "pl-6 text-ink" : "text-ink-muted")}>
+                    {isAnchor && sub.canMove(row.id) && (
+                      <button type="button" aria-label="Drag to move sub-item" title="Drag onto a row to move it, or to a row's edge to unnest it"
+                        draggable tabIndex={-1}
+                        className={cn("-ml-5 shrink-0 p-0.5 rounded text-ink-muted opacity-0 group-hover/sub:opacity-100 hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
+                        onClick={e => e.stopPropagation()}
+                        onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; onRowDragStart?.(row.id, recordId); }}
+                        onDragEnd={e => { e.stopPropagation(); onRowDragEnd?.(); }}>
+                        <GripHandleIcon className={cn("w-[10px] h-[14px]")} />
+                      </button>
+                    )}
                     {isAnchor && <CornerDownRight className={cn("h-3 w-3 shrink-0 text-ink-muted")} />}
                     <span className={cn("truncate", isAnchor && "font-medium")}>{text}</span>
                   </div>
                 </td>
               );
             })}
-            <td className={cn("border-b border-line")} />
-            <td className={cn("border-b border-line")} />
+            <td role="gridcell" className={cn("border-b border-line")} />
+            <td role="gridcell" className={cn("border-b border-line")} />
           </tr>
         );
       })}
-      <tr className={cn("cursor-pointer hover:bg-hover-surface-accent3")} onClick={() => sub.create(recordId)}>
-        {hasGutter && <td className={cn("w-10 border-r border-b border-line")} />}
-        <td colSpan={spanRest} className={cn("border-b border-line py-1.5")}>
+      <tr role="row" className={cn("cursor-pointer hover:bg-hover-surface-accent3")} onClick={() => sub.create(recordId)}>
+        {hasGutter && <td role="gridcell" className={cn("w-10 border-r border-b border-line")} />}
+        <td role="gridcell" colSpan={spanRest} className={cn("border-b border-line py-1.5")}>
           <div className={cn("flex items-center gap-1.5 pl-9 text-sm text-ink-muted hover:text-hover-text")}>
             <Plus className={cn("h-3.5 w-3.5")} /> New sub-item
           </div>
