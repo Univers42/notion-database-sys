@@ -2,16 +2,32 @@ import type { SchemaProperty } from '../../component/types';
 import { enumOptions } from './liveSchemaMapper';
 
 /**
- * A column holding a list reads as tags (#272): `["read","update"]` arrived as raw JSON
- * text, because a json or text column carries no element type. The rows say it instead.
+ * Which columns choose from a set of values (#272). The engine's schema decides first:
+ * an enum is a select and a MySQL SET a multi-select with their declared values. What the
+ * unified schema leaves untyped is read from the rows: a list held in json or text
+ * (`["read","update"]`), an array with no declared values, and text that keeps repeating
+ * a few short values with no enum behind it.
  *
- * Caveat: the decision rests on the sampled rows, so a list column whose first rows are
- * all empty stays text, and options are only the values seen, capped at MAX_OPTIONS. A
- * text column that merely looks like a list in every sampled row is shown as tags too.
+ * Caveat: the rows are a sample. A list column whose rows are all empty stays text, options
+ * are only the values seen, capped at MAX_OPTIONS, and a text column that merely looks like
+ * a list, or repeats a few values by chance, is offered as tags too. A select still accepts
+ * a new value, so a wrong guess costs a differently drawn cell, never a refused edit.
  */
 const SAMPLE_ROWS = 50;
 const MAX_TAG_LENGTH = 40;
 const MAX_OPTIONS = 30;
+const MIN_REPEATING_ROWS = 20;
+const MAX_REPEATING_VALUES = 12;
+const MIN_REPEATS_PER_VALUE = 3;
+const MAX_CHOICE_LENGTH = 30;
+const MYSQL_SET = /^set\((.*)\)$/i;
+
+/** The values a MySQL `SET('a','b')` declares; null for any other native type. */
+export function mysqlSetValues(nativeType: string | undefined): string[] | null {
+  const declared = MYSQL_SET.exec(nativeType ?? '')?.[1];
+  if (!declared) return null;
+  return [...declared.matchAll(/'((?:[^']|'')*)'/g)].map((match) => match[1].replaceAll("''", "'"));
+}
 
 /** The list a cell holds, as an array or as JSON text; null when it holds anything else. */
 export function tagsOfCell(raw: unknown): string[] | null {
@@ -45,14 +61,33 @@ function tagOptionsOf(name: string, rows: Record<string, unknown>[]): string[] |
   return seen.size > 0 && seen.size <= MAX_OPTIONS ? [...seen].sort((a, b) => a.localeCompare(b)) : null;
 }
 
-/** Turns every text-shaped column of list values into a multi-select, in place. */
+/** The few short values a text column keeps repeating; null when it reads as free text. */
+function repeatingValuesOf(name: string, rows: Record<string, unknown>[]): string[] | null {
+  const seen = new Set<string>();
+  const sample = rows.slice(0, SAMPLE_ROWS).map((row) => row[name]).filter((value) => value !== null && value !== undefined);
+  for (const value of sample) {
+    if (typeof value !== 'string' || value === '' || value.length > MAX_CHOICE_LENGTH || value.includes('\n')) return null;
+    seen.add(value);
+    if (seen.size > MAX_REPEATING_VALUES) return null;
+  }
+  const repeats = sample.length >= MIN_REPEATING_ROWS && sample.length >= seen.size * MIN_REPEATS_PER_VALUE;
+  return repeats ? [...seen].sort((a, b) => a.localeCompare(b)) : null;
+}
+
+/** Applies what the rows say to the properties the schema left open, in place. */
 export function promoteTagColumns(
   properties: Record<string, SchemaProperty>,
   rows: Record<string, unknown>[],
 ): void {
   for (const [name, property] of Object.entries(properties)) {
-    if (property.type !== 'text' && property.type !== 'id') continue;
-    const values = tagOptionsOf(name, rows);
-    if (values) properties[name] = { ...property, type: 'multi_select', options: enumOptions(values) };
+    const openMultiSelect = property.type === 'multi_select' && !property.options?.length;
+    if (property.type !== 'text' && property.type !== 'id' && !openMultiSelect) continue;
+    const tags = tagOptionsOf(name, rows);
+    if (tags) {
+      properties[name] = { ...property, type: 'multi_select', options: enumOptions(tags) };
+      continue;
+    }
+    const choices = property.type === 'text' ? repeatingValuesOf(name, rows) : null;
+    if (choices) properties[name] = { ...property, type: 'select', options: enumOptions(choices) };
   }
 }

@@ -25,7 +25,7 @@
  * re-encodes column-aware (date vs datetime, numeric FKs) before sending.
  */
 
-import { tagsOfCell } from './liveTagColumns';
+import { mysqlSetValues, tagsOfCell } from './liveTagColumns';
 import type { SchemaProperty } from '../../component/types';
 // Type-only (erased at runtime): node:test never needs to resolve the alias.
 import type { PropertyValue } from '@notion-db/contract-types';
@@ -127,6 +127,7 @@ export function decodeLiveValue(
     case 'select':
       return toDisplayString(raw); // option ids = raw values (liveSchemaMapper)
     case 'multi_select':
+      if (typeof raw === 'string' && mysqlSetValues(column?.native_type)) return raw === '' ? [] : raw.split(',');
       return tagsOfCell(raw) ?? (Array.isArray(raw) ? raw.map(toDisplayString) : [toDisplayString(raw)]);
     case 'relation': {
       const ref = column?.references;
@@ -190,6 +191,7 @@ export function encodeLiveValue(
     }
     case 'multi_select': {
       const tags = (Array.isArray(value) ? value : [value]).map(toDisplayString);
+      if (mysqlSetValues(column?.native_type)) return tags.join(',');
       // Promoted from a list held in json or text: the cell keeps its JSON text (#272).
       return column && column.normalized_type !== 'array' ? JSON.stringify(tags) : tags;
     }
