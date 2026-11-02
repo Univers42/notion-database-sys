@@ -14,9 +14,23 @@ import React, { useCallback, useMemo } from 'react';
 import type { SchemaProperty, SelectOption, PropertyValue } from '../../types/database';
 import { CheckCircle2, Settings } from 'lucide-react';
 import { CellPortal } from './CellPortal';
-import { getDotColor } from './constants';
+import { tagColorClass } from '../../constants/colors';
 import { useListHighlight } from '../../hooks/useListHighlight';
 import { cn } from '../../utils/cn';
+
+export function getDotColor(clsOrColor?: string | null): string {
+  if (!clsOrColor) return 'bg-line-strong';
+  const c = clsOrColor.toLowerCase();
+  if (c === 'red' || c.includes('danger')) return 'bg-danger';
+  if (c === 'blue' || c.includes('accent')) return 'bg-accent';
+  if (c === 'green' || c.includes('success')) return 'bg-success';
+  if (c === 'yellow' || c.includes('warning') || c.includes('amber')) return 'bg-warning';
+  if (c === 'purple' || c.includes('purple') || c.includes('violet')) return 'bg-purple';
+  if (c === 'pink' || c.includes('pink')) return 'bg-pink';
+  if (c === 'cyan' || c.includes('cyan')) return 'bg-cyan';
+  if (c === 'orange' || c.includes('orange')) return 'bg-orange';
+  return 'bg-line-strong';
+}
 
 interface StatusCellEditorProps {
   property: SchemaProperty;
@@ -79,9 +93,9 @@ export function StatusCellEditor({ property, value, databaseId: _databaseId, onU
 
 function buildDefaultGroups(options: SelectOption[]) {
   const groups: { label: string; color: string; options: SelectOption[] }[] = [
-    { label: 'To-do', color: 'bg-surface-muted', options: [] },
-    { label: 'In progress', color: 'bg-accent-subtle', options: [] },
-    { label: 'Complete', color: 'bg-success-surface-medium', options: [] },
+    { label: 'To-do', color: 'gray', options: [] },
+    { label: 'In progress', color: 'blue', options: [] },
+    { label: 'Complete', color: 'green', options: [] },
   ];
   options.forEach((opt, i) => {
     if (i === 0) groups[0].options.push(opt);
@@ -113,7 +127,7 @@ function StatusGroup({ group, value, activeId, activeRef, onHoverId, onSelect }:
             onMouseEnter={() => onHoverId(opt.id)}
             className={cn(`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors ${isHighlighted ? 'bg-hover-surface' : 'hover:bg-hover-surface'} ${isSelected ? 'bg-surface-secondary' : ''}`)}>
             <span className={cn(`w-2 h-2 rounded-full shrink-0 ${getDotColor(opt.color)}`)} />
-            <span className={cn(`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span>
+            <span className={cn(`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${tagColorClass(opt.color)}`)}>{opt.value}</span>
             {isSelected && <CheckCircle2 className={cn("w-3.5 h-3.5 text-accent-text-soft ml-auto shrink-0")} />}
           </button>
         );

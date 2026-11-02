@@ -19,6 +19,7 @@ import { FileText, Clock } from 'lucide-react';
 import { parseISO, formatDistanceToNow } from 'date-fns';
 import { cn } from '../../../utils/cn';
 import { cardCoverGradient } from '../../../utils/color';
+import { tagColorClass } from '../../../constants/colors';
 import { FeedActionBar } from './FeedActionBar';
 import { FeedCardDescription } from './FeedCardDescription';
 import { FeedReaderOverlay, type ReaderArticle } from './FeedReaderOverlay';
@@ -63,13 +64,13 @@ function renderFeedPropertyTags(
 
     if (prop.type === 'select') {
       const opt = prop.options?.find(o => o.id === val);
-      return opt ? <span key={prop.id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+      return opt ? <span key={prop.id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${tagColorClass(opt.color)}`)}>{opt.value}</span> : null;
     }
     if (prop.type === 'multi_select') {
       const ids: string[] = Array.isArray(val) ? val : [];
       return ids.map(id => {
         const opt = prop.options?.find(o => o.id === id);
-        return opt ? <span key={id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${opt.color}`)}>{opt.value}</span> : null;
+        return opt ? <span key={id} className={cn(`px-2 py-0.5 rounded-full text-xs font-medium ${tagColorClass(opt.color)}`)}>{opt.value}</span> : null;
       });
     }
     if (prop.type === 'checkbox') {

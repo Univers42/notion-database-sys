@@ -14,19 +14,47 @@
 // Random-color helpers shared by Select / MultiSelect editors
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/** Tag-color palette used when creating new select options. */
+/** Semantic color keys for newly generated select / multi-select options. */
 export const TAG_COLORS = [
-  'bg-danger-surface-muted text-danger-text-tag',
-  'bg-accent-muted text-accent-text-bold',
-  'bg-success-surface-muted text-success-text-tag',
-  'bg-warning-surface-muted text-warning-text-tag',
-  'bg-purple-surface-muted text-purple-text-tag',
-  'bg-pink-surface-muted text-pink-text-tag',
-  'bg-cyan-surface-muted text-cyan-text-tag',
-  'bg-orange-surface-muted text-orange-text-tag',
+  'red',
+  'blue',
+  'green',
+  'yellow',
+  'purple',
+  'pink',
+  'cyan',
+  'orange',
 ] as const;
 
-/** Pick a random color from the palette. */
-export function randomTagColor(): string {
+export type TagColor = (typeof TAG_COLORS)[number];
+
+/** Pick a random semantic color from the palette. */
+export function randomTagColor(): TagColor {
   return TAG_COLORS[Math.floor(Math.random() * TAG_COLORS.length)];
+}
+
+/** Lookup mapping semantic color keys to client Tailwind badge classes. */
+export const SEMANTIC_TAG_CLASSES: Readonly<Record<string, string>> = {
+  red: 'bg-danger-surface-muted text-danger-text-tag',
+  blue: 'bg-accent-muted text-accent-text-bold',
+  green: 'bg-success-surface-muted text-success-text-tag',
+  yellow: 'bg-warning-surface-muted text-warning-text-tag',
+  purple: 'bg-purple-surface-muted text-purple-text-tag',
+  pink: 'bg-pink-surface-muted text-pink-text-tag',
+  cyan: 'bg-cyan-surface-muted text-cyan-text-tag',
+  orange: 'bg-orange-surface-muted text-orange-text-tag',
+  gray: 'bg-surface-muted text-ink-secondary',
+  brown: 'bg-surface-muted text-ink-secondary',
+  default: 'bg-surface-muted text-ink-body',
+};
+
+/**
+ * Resolves an option's color (whether a semantic key like 'red', or a legacy Tailwind string)
+ * into a CSS class pair for badge rendering.
+ */
+export function tagColorClass(color?: string | null): string {
+  if (!color) return SEMANTIC_TAG_CLASSES.default;
+  const trimmed = color.trim();
+  if (!trimmed) return SEMANTIC_TAG_CLASSES.default;
+  return SEMANTIC_TAG_CLASSES[trimmed.toLowerCase()] ?? trimmed;
 }

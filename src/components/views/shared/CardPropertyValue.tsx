@@ -16,6 +16,7 @@ import { useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { safeDateFormat } from '../../../utils/format';
 import { safeString } from '../../../utils/safeString';
 import type { Page, SchemaProperty, PropertyValue } from '../../../types/database';
+import { tagColorClass } from '../../../constants/colors';
 import { cn } from '../../../utils/cn';
 
 /** True when the property has something worth rendering on a card.
@@ -30,7 +31,7 @@ function OptionChip({ prop, id }: Readonly<{ prop: SchemaProperty; id: PropertyV
   const opt = prop.options?.find(o => o.id === id);
   // Unknown option id (live-mounted data): still show it, neutral chip.
   const label = opt ? opt.value : safeString(id);
-  const color = opt?.color ?? 'bg-surface-tertiary text-ink-secondary';
+  const color = opt?.color ? tagColorClass(opt.color) : 'bg-surface-tertiary text-ink-secondary';
   return <span className={cn(`inline-block max-w-full truncate px-1.5 rounded-[3px] text-xs leading-[18px] ${color}`)}>{label}</span>;
 }
 

@@ -12,6 +12,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { SchemaProperty } from '../../../../types/database';
 import type { CellRendererProps } from '../CellRenderer';
 import { useHostAdapters, type AutofillAdapter } from '../../../../hooks/useHostAdapters';
+import { tagColorClass } from '../../../../constants/colors';
 import { cn } from '../../../../utils/cn';
 
 /** What a row with no score (or no adapter) shows. */
@@ -121,7 +122,7 @@ export function AutofillValue({ prop, recordId, databaseId }: Readonly<{
   if (!pill) return <span className={cn('text-ink-muted text-sm')}>{AUTOFILL_EMPTY}</span>;
   return (
     <div className={cn('flex items-center gap-1.5')}>
-      <span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${pill.color}`)}>{pill.text}</span>
+      <span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${tagColorClass(pill.color)}`)}>{pill.text}</span>
     </div>
   );
 }

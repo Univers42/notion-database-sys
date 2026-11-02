@@ -13,7 +13,7 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useDatabaseStore } from '../../../store/dbms/hardcoded/useDatabaseStore';
-import { randomTagColor } from '../../../constants/colors';
+import { randomTagColor, tagColorClass } from '../../../constants/colors';
 import type { SchemaProperty, PropertyValue } from '../../../types/database';
 import { CheckCircle2, Plus } from 'lucide-react';
 import { useCellAnchor } from '../../../hooks/useCellAnchor';
@@ -88,7 +88,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
                   aria-selected={i === hi}
                   onMouseEnter={() => setHi(i)}
                   className={cn(`w-full px-2 py-1.5 text-sm text-left rounded flex items-center gap-2 ${i === hi ? 'bg-hover-surface' : 'hover:bg-hover-surface'}`)}>
-                  <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
+                  <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${tagColorClass(opt.color)}`)}>{opt.value}</span>
                   {opt.id === value && <CheckCircle2 className={cn("w-3.5 h-3.5 text-accent-text-soft ml-auto")} />}
                 </button>
               ))}
@@ -163,7 +163,7 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
                   const opt = options.find(o => o.id === id);
                   if (!opt) return null;
                   return (
-                    <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${opt.color}`)}>
+                    <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${tagColorClass(opt.color)}`)}>
                       {opt.value}
                       <button onClick={() => toggle(id)} aria-label={`Remove ${opt.value}`} className={cn("hover:opacity-60")}>&times;</button>
                     </span>
@@ -181,7 +181,7 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
                   aria-selected={i === hi}
                   onMouseEnter={() => setHi(i)}
                   className={cn(`w-full px-2 py-1.5 text-sm text-left rounded flex items-center ${i === hi ? 'bg-hover-surface' : 'hover:bg-hover-surface'}`)}>
-                  <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${opt.color}`)}>{opt.value}</span>
+                  <span className={cn(`px-2 py-0.5 rounded text-xs font-medium ${tagColorClass(opt.color)}`)}>{opt.value}</span>
                 </button>
               ))}
               {input.trim() && !exact && (

@@ -11,4 +11,10 @@
 /* ************************************************************************** */
 
 export { PropIcon, READ_ONLY_TYPES, ADD_PROPERTY_TYPES } from './propertyIcons';
-export { TAG_COLORS, randomTagColor } from './colors';
+export {
+  TAG_COLORS,
+  type TagColor,
+  randomTagColor,
+  SEMANTIC_TAG_CLASSES,
+  tagColorClass,
+} from './colors';

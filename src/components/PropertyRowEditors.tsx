@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { format, parseISO } from 'date-fns';
+import { tagColorClass } from '../constants/colors';
 import { cn } from '../utils/cn';
 import { toDateInputValue } from '../utils/format';
 
@@ -97,7 +98,7 @@ export function MultiSelectEditor({ value, options, onChange }: Readonly<{
       {selected.map(id => {
         const opt = options.find(o => o.id === id);
         return opt ? (
-          <span key={id} className={cn(`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${opt.color}`)}>
+          <span key={id} className={cn(`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium ${tagColorClass(opt.color)}`)}>
             {opt.value}
             <button onClick={() => onChange(selected.filter(s => s !== id))} className={cn("hover:text-hover-danger-text-bold")}>×</button>
           </span>

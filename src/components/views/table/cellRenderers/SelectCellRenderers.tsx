@@ -25,7 +25,8 @@
 import React from 'react';
 import type { CellRendererProps } from '../CellRenderer';
 import { SelectEditor, MultiSelectEditor } from '../SelectEditors';
-import { StatusCellEditor } from '../../../cellEditors/index';
+import { StatusCellEditor, getDotColor } from '../../../cellEditors/StatusCellEditor';
+import { tagColorClass } from '../../../../constants/colors';
 import { cn } from '../../../../utils/cn';
 
 /** Renders a single-select cell with a portal-based dropdown editor. */
@@ -40,7 +41,7 @@ export function renderSelect(p: CellRendererProps): React.ReactNode {
     );
   }
   return selOpt
-    ? <div className={cn("flex items-center gap-1.5")}><span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${selOpt.color}`)}>{selOpt.value}</span></div>
+    ? <div className={cn("flex items-center gap-1.5")}><span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${tagColorClass(selOpt.color)}`)}>{selOpt.value}</span></div>
     : <span className={cn("text-ink-muted text-sm")}>Empty</span>;
 }
 
@@ -57,7 +58,7 @@ export function renderStatus(p: CellRendererProps): React.ReactNode {
     );
   }
   return statusOpt
-    ? <div className={cn("flex items-center gap-1.5")}><span className={cn(`w-2 h-2 rounded-full ${statusOpt.color.split(' ')[0]}`)} /><span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${statusOpt.color}`)}>{statusOpt.value}</span></div>
+    ? <div className={cn("flex items-center gap-1.5")}><span className={cn(`w-2 h-2 rounded-full ${getDotColor(statusOpt.color)}`)} /><span className={cn(`inline-block px-2 py-0.5 rounded text-xs font-medium ${tagColorClass(statusOpt.color)}`)}>{statusOpt.value}</span></div>
     : <span className={cn("text-ink-muted text-sm")}>Empty</span>;
 }
 
@@ -76,7 +77,7 @@ export function renderMultiSelect(p: CellRendererProps): React.ReactNode {
     <div className={cn(`flex gap-1 ${wrapContent ? 'flex-wrap' : 'flex-nowrap overflow-hidden'}`)}>
       {msIds.length > 0 ? msIds.map(id => {
         const opt = prop.options?.find(o => o.id === id);
-        return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium shrink-0 ${opt.color}`)}>{opt.value}</span> : null;
+        return opt ? <span key={id} className={cn(`px-1.5 py-0.5 rounded text-xs font-medium shrink-0 ${tagColorClass(opt.color)}`)}>{opt.value}</span> : null;
       }) : <span className={cn("text-ink-muted text-sm")}>Empty</span>}
     </div>
   );

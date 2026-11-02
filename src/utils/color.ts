@@ -96,6 +96,12 @@ const DOT_BY_FAMILY: Readonly<Record<string, string>> = {
 
 /** Paint colour per tag family, keyed by the `<family>` of `bg-<family>-…`. */
 const TAG_FAMILY_COLORS: Readonly<Record<string, string>> = {
+  red:     'var(--color-danger)',
+  blue:    'var(--color-accent)',
+  green:   'var(--color-success)',
+  yellow:  'var(--color-warning)',
+  gray:    'var(--color-chart-label)',
+  brown:   'var(--color-chart-label)',
   accent:  'var(--color-accent)',
   success: 'var(--color-success)',
   emerald: 'var(--color-emerald)',
@@ -143,6 +149,8 @@ const COLOR_FUNCTION = /^(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\([0-9a-z.
 export function optionColorToCss(optionColor: string | undefined): string {
   const value = optionColor?.trim() ?? '';
   if (!value) return '';
+  const lower = value.toLowerCase();
+  if (Object.hasOwn(TAG_FAMILY_COLORS, lower)) return TAG_FAMILY_COLORS[lower];
   if (HEX_COLOR.test(value) || CSS_VARIABLE.test(value) || COLOR_KEYWORD.test(value) || COLOR_FUNCTION.test(value))
     return value;
   const family = optionColorFamily(value);
