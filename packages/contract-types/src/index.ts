@@ -290,6 +290,8 @@ export interface DatabaseSchema {
   locked?: boolean;
   /** The host owns `locked` and every view's `settings.locked` (e.g. by workspace
    *  role): the viewer can neither toggle nor clear them. */
+  /** A source that cannot take a write, a SQL view: its records are never edited here. */
+  readOnly?: boolean;
   locksManagedByHost?: boolean;
   /** Template page the "New" button seeds from by default. */
   defaultTemplateId?: string;

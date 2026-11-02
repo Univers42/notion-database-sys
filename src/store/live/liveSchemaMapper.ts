@@ -28,6 +28,7 @@
  * Property ids = column names (deterministic across reloads).
  */
 
+import { mysqlSetValues } from './liveTagColumns';
 import type { SchemaProperty } from '../../component/types';
 // Type-only (erased at runtime): node:test never needs to resolve the alias.
 import type { SelectOption } from '@notion-db/contract-types';
@@ -107,6 +108,8 @@ export function mapLiveColumn(column: LiveColumnSchema, dbId: string): SchemaPro
       },
     };
   }
+  const setValues = mysqlSetValues(column.native_type);
+  if (setValues) return { ...base, type: 'multi_select', options: enumOptions(setValues) };
   if (column.inferred || READ_ONLY_RENDERED_TYPES.has(column.normalized_type)) {
     return { ...base, type: 'id' };
   }

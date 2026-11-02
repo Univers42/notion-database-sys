@@ -213,7 +213,11 @@ export class LiveRealtime {
   }
 
   private handleUp(): void {
-    this.poll.stop();
+    // The poll stays on with the socket up: the topic carries only writes made
+    // through the gateway, so a row changed directly in the engine reached no open
+    // view (0 requests in 100 s against a live MariaDB, #255).
+    // Caveat: such a write shows up to one poll interval late, and only inside the
+    // first page the poll compares.
     if (this.wasUp) this.scheduleRefresh(); // catch events missed while down
     this.wasUp = true;
   }

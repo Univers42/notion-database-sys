@@ -35,6 +35,11 @@ export function isViewLocked(
   return Boolean(view?.settings?.locked) || isDatabaseLocked(database);
 }
 
+/** A record of a source that takes no write: the page actions refuse it whole. */
+export function isRecordReadOnly(state: Pick<LockedState, 'databases'>, databaseId: string | undefined): boolean {
+  return Boolean(databaseId && state.databases[databaseId]?.readOnly);
+}
+
 export function areLocksManagedByHost(database: DatabaseSchema | null | undefined): boolean {
   return Boolean(database?.locksManagedByHost);
 }

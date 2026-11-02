@@ -92,7 +92,13 @@ export function buildGauge(ctx: BuilderCtx): EOption {
       axisTick: { show: speedo },
       splitLine: { show: speedo },
       axisLabel: { show: speedo },
-      detail: { valueAnimation: true, fontSize: 28, offsetCenter: [0, progress ? 0 : '30%'] },
+      detail: {
+        valueAnimation: true,
+        fontSize: 28,
+        offsetCenter: [0, progress ? 0 : '30%'],
+        // A raw 2955201.26 beside tiles that read 3.0M (#265).
+        formatter: (shown: number) => shown.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+      },
       data: [{ value, name: settings.yAxisTitle ?? '' }],
     }],
   };

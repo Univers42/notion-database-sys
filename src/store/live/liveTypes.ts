@@ -77,6 +77,8 @@ export interface LiveTableSchema {
   name: string;
   primary_key: string[];
   columns: LiveColumnSchema[];
+  /** A SQL view: absent on a gateway older than the field. */
+  read_only?: boolean;
 }
 
 /** `GET /query/v1/:dbId/schema` response (query-router `SchemaResponse`).

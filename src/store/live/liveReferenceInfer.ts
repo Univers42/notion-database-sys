@@ -119,3 +119,18 @@ function inferColumnReference(
   if (target === null || (target.dbId === undefined && target.table === ownTable)) return column;
   return { ...column, references: target };
 }
+
+/**
+ * Whether inferring `table`'s references needs other mounts' table lists. Fetching them
+ * costs one schema call per mount the user has (19 on one page load, a 503 from an
+ * unrelated engine among them), and a key the engine reports or a sibling table answers
+ * needs none of that (#264).
+ */
+export function needsCrossMountCatalog(schema: LiveSchemaResponse, table: LiveTableSchema): boolean {
+  const siblings = new Set(schema.tables.map((candidate) => candidate.name));
+  return table.columns.some((column) => {
+    if (column.references) return false;
+    const base = fkBase(column.name);
+    return base !== null && !pluralCandidates(base).some((name) => siblings.has(name));
+  });
+}

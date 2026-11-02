@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useSyncExternalStore } from 'react';
 import { useStore } from 'zustand';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { createDatabaseSlice } from './slices/databaseSlice';
@@ -87,6 +87,16 @@ export function useStoreApi(): DatabaseStoreApi {
     );
   }
   return store;
+}
+
+const NO_SUBSCRIPTION = () => () => undefined;
+
+/** Whether a loaded source takes no write. A boolean, so it re-renders only when that
+ *  flips, and false outside <ObjectDatabase>: a header also renders on its own. */
+export function useHasReadOnlySource(): boolean {
+  const store = useContext(StoreContext);
+  const read = () => Boolean(store && Object.values(store.getState().databases).some((database) => database.readOnly));
+  return useSyncExternalStore(store?.subscribe ?? NO_SUBSCRIPTION, read, read);
 }
 
 export function useDatabaseStore<T = ExtendedDatabaseState>(

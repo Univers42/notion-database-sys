@@ -27,5 +27,9 @@ export function safeString(val: unknown): string {
   if (val === null || val === undefined) return '';
   // An invalid Date (a cleared date cell, a bad import) throws on toISOString.
   if (val instanceof Date) return Number.isNaN(val.getTime()) ? '' : val.toISOString();
+  // A `place` value is an object; its text is the address. Without this, every
+  // board column and chart label fed by one read `{"address":"Oslo","lat":…}` (#254).
+  const address = (val as { address?: unknown }).address;
+  if (typeof address === 'string' && address) return address;
   return JSON.stringify(val);
 }
