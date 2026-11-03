@@ -23,7 +23,7 @@ import { toRechartsRows } from '../../../lib/chart/chartEngine';
 import { colorAt, valueShade } from './chartPalette';
 import { ChartTooltipContent } from './ChartTooltipContent';
 import { yAxisDomain } from './ChartCanvasHelpers';
-import { categoryAxisWidth, prefersHorizontalBars } from './chartLayout';
+import { categoryAxisWidth, prefersHorizontalBars, CHART_CONTAINER_PROPS } from './chartLayout';
 
 export interface BarsClick { categoryIndex: number; seriesKey: string }
 
@@ -104,7 +104,7 @@ export function ChartBarsChart({ result, settings, horizontal: requestedHorizont
   );
 
   return (
-    <ResponsiveContainer width="100%" height="100%" minHeight={120} debounce={50}>
+    <ResponsiveContainer {...CHART_CONTAINER_PROPS}>
       <BarChart data={rows} layout={horizontal ? 'vertical' : 'horizontal'}
         margin={{ top: 12, right: 16, bottom: 8, left: 8 }}
         onClick={chartClick} style={{ cursor: 'pointer' }}>
