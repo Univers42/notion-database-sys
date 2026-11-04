@@ -50,6 +50,17 @@ export function isPermanentDenial(error: unknown): boolean {
   return typeof e?.message === 'string' && /accessible workspace|forbidden|unauthor|HTTP 40[13]/i.test(e.message);
 }
 
+/** A 4xx other than 401/403 (handled as a denial above) and 408/429 (the server asks
+ *  for a retry) means the request itself does not fit: the table or column it names
+ *  is gone, or the body is invalid. Repeating it unchanged gets the same answer, and each
+ *  answer is a console error, so the poll stops; the next loadState starts it again. */
+export function isRequestRejected(error: unknown): boolean {
+  const e = error as { status?: number; statusCode?: number } | null;
+  const status = e?.status ?? e?.statusCode;
+  return typeof status === 'number' && status >= 400 && status < 500
+    && ![401, 403, 408, 429].includes(status);
+}
+
 /** Cheap order-insensitive fingerprint: rows sorted by their pk string, then
  *  djb2 folded row by row (each row's JSON, then a '\n' boundary so adjacent
  *  rows can't alias) — never one joined MB-scale string. Mongo wire alias:
@@ -125,6 +136,8 @@ export class LivePoll {
       if (isPermanentDenial(error)) {
         this.stop(); // no access — stop the 15s loop instead of hammering the bridge
         this.deps.onPermanentError?.(error);
+      } else if (isRequestRejected(error)) {
+        this.stop();
       } // else transient — next pass converges
     } finally {
       this.inFlight = false;
