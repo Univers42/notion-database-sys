@@ -39,3 +39,18 @@ export function sharePercent(value: number, total: number): string {
   const pct = (value / total) * 100;
   return pct < 1 ? '<1%' : `${Math.round(pct)}%`;
 }
+
+/**
+ * The ResponsiveContainer props every chart body shares. `initialDimension` starts it at 1×1
+ * instead of Recharts' -1×-1: before its first measure the container computed -1×-1 and logged
+ * "The width(-1) and height(-1) of chart should be greater than 0" on every page that holds a
+ * chart (osionos#288). The 1×1 frame is replaced at the first measure.
+ */
+export const CHART_CONTAINER_PROPS = {
+  width: '100%',
+  height: '100%',
+  minHeight: 120,
+  debounce: 50,
+  initialDimension: { width: 1, height: 1 },
+} as const;
+
