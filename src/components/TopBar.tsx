@@ -184,7 +184,7 @@ export function TopBar({
                 )}
               </div>
               {isEditingTitle ? (
-                <input ref={titleRef} value={titleValue} onChange={e => setTitleValue(e.target.value)}
+                <input name="database-name" ref={titleRef} value={titleValue} onChange={e => setTitleValue(e.target.value)}
                   aria-label="Database name" onBlur={() => commitTitle()}
                   onKeyDown={e => { if (e.key === 'Enter') commitTitle(true); if (e.key === 'Escape') cancelTitle(true); }}
                   className={cn("text-lg font-bold text-ink outline-none bg-transparent border-b-2 border-accent-border px-0.5 min-w-[120px]")} />

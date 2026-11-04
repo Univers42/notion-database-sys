@@ -214,7 +214,7 @@ export function CodeBlock({ block, pageId }: Readonly<BlockRendererProps>) {
           dangerouslySetInnerHTML={{ __html: highlightedHtml + "\n" }}
         />
         {/* Textarea layer (input, transparent text on top) */}
-        <textarea
+        <textarea name="code"
           ref={textareaRef}
           value={localContent}
           onChange={handleChange}

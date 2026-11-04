@@ -90,7 +90,7 @@ export function PlaceCellEditor({ value, onUpdate, onClose }: Readonly<PlaceCell
   return (
     <CellPortal onClose={onClose} minWidth={260}>
       <div className={cn("p-1.5 border-b border-line")}>
-        <input
+        <input name="search-locations"
           autoFocus
           aria-label="Search locations"
           value={query}

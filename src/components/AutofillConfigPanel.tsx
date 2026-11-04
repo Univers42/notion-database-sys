@@ -52,7 +52,7 @@ export function AutofillConfigPanel({ databaseId, property }: Readonly<{
   return (
     <div className={cn('px-3 py-2')} data-testid="autofill-config">
       <label className={cn('flex items-center gap-2 text-sm text-ink-body cursor-pointer')}>
-        <input
+        <input name="ai-filled-read-only"
           type="checkbox"
           checked={enabled}
           onChange={(event) => setEnabled(event.target.checked)}
@@ -75,7 +75,7 @@ export function AutofillConfigPanel({ databaseId, property }: Readonly<{
                     key={source.id}
                     className={cn(`flex items-center gap-2 text-xs ${full ? 'text-ink-disabled' : 'text-ink-body cursor-pointer'}`)}
                   >
-                    <input
+                    <input name="score"
                       type="checkbox"
                       checked={checked}
                       disabled={full}

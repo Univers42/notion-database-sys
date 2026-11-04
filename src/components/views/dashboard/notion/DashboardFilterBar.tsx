@@ -31,7 +31,7 @@ function FilterChip({ filter, onChange, onRemove }: Readonly<{
   return (
     <span className={cn("inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded-full border border-line bg-surface-secondary text-xs text-ink-body")}>
       <span className={cn("font-medium")}>{filter.propertyName}</span>
-      <select value={filter.operator}
+      <select name="dashboard-filter-select" value={filter.operator}
         onChange={e => onChange({ ...filter, operator: e.target.value as FilterOperator })}
         className={cn("bg-transparent text-xs text-ink-secondary focus:outline-none cursor-pointer")}>
         {operators.map((op: { value: string; label: string }) => (
@@ -39,7 +39,7 @@ function FilterChip({ filter, onChange, onRemove }: Readonly<{
         ))}
       </select>
       {needsValue(filter.operator) && (
-        <input value={String(filter.value ?? '')}
+        <input name="dashboard-filter-field" value={String(filter.value ?? '')}
           onChange={e => onChange({ ...filter, value: e.target.value })}
           placeholder="value"
           className={cn("w-20 bg-transparent text-xs focus:outline-none border-b border-transparent focus:border-line")} />

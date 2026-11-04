@@ -169,7 +169,7 @@ export function TableView() {
         aria-label={`${database.name || 'Database'} table — arrows or Tab to move, type or Enter to edit, Ctrl+Enter to open, Shift+F10 for row menu, Escape to exit`}
         aria-activedescendant={focusedCell ? cellDomId(database.id, focusedCell.pageId, focusedCell.propId) : undefined}>
         {/* Its copy/cut/paste events bubble to the grid's handlers above. */}
-        <textarea ref={clipboard.sinkRef} aria-hidden tabIndex={-1} value="" onChange={() => {}}
+        <textarea name="clipboard-sink" ref={clipboard.sinkRef} aria-hidden tabIndex={-1} value="" onChange={() => {}}
           className={cn("fixed top-0 left-0 w-px h-px opacity-0 pointer-events-none resize-none")} />
         <div className={cn("inline-block min-w-full")}>
         {/* Separate borders: collapsed ones are painted by the table as a whole,

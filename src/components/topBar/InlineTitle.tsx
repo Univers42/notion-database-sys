@@ -45,7 +45,7 @@ export function InlineTitle({
 
   if (isEditing) {
     return (
-      <input
+      <input name="database-title"
         ref={inputRef}
         value={titleValue}
         onChange={e => setTitleValue(e.target.value)}

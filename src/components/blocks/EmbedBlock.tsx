@@ -105,7 +105,7 @@ export function EmbedBlock({ block, pageId }: Readonly<BlockRendererProps>) {
       <p className={cn("text-sm text-ink-secondary")}>Embed a URL</p>
       <p className={cn("text-xs text-ink-muted")}>YouTube, Figma, Vimeo, CodePen, and more</p>
       <div className={cn("flex items-center gap-2 w-full max-w-sm")}>
-        <input
+        <input name="embed-url"
           type="text"
           value={urlInput}
           onChange={e => setUrlInput(e.target.value)}

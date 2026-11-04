@@ -87,7 +87,7 @@ export function AddPropertyPanel({ onPick, onPickSentiment }: Readonly<{
     <div className={cn('flex max-h-[min(70vh,520px)] min-h-0 w-full flex-col')}>
       <label className={cn('flex shrink-0 items-center gap-2 border-b border-line px-3 py-2')}>
         <Search className={cn('w-4 h-4 shrink-0 text-ink-muted')} aria-hidden="true" />
-        <input value={query} onChange={e => setQuery(e.target.value)} autoFocus
+        <input name="search-types" value={query} onChange={e => setQuery(e.target.value)} autoFocus
           placeholder="Search types…" aria-label="Search types" data-writing-surface
           className={cn('min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-placeholder')} />
       </label>

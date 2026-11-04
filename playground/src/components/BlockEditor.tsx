@@ -311,7 +311,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
             </div>
           </div>
           <div className="p-3 bg-[var(--color-surface-primary)]">
-            <textarea
+            <textarea name="code"
               value={block.content}
               onChange={(e) => onChange(e.target.value)}
               onKeyDown={handleCodeTextareaKeyDown}
@@ -559,7 +559,7 @@ const TableBlockEditor: React.FC<{ block: Block; pageId: string; onDeleteTable?:
                     className="border-b border-r border-[var(--color-line)] last:border-r-0 px-0 py-0 min-w-[120px] text-[var(--color-ink)]"
                     onContextMenu={(e) => openContextMenu(e, ri, ci)}
                   >
-                    <input
+                    <input name="cell"
                       type="text"
                       value={cell}
                       onChange={(e) => handleCellChange(ri, ci, e.target.value)}

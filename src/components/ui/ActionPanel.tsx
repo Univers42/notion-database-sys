@@ -120,7 +120,7 @@ export function ActionPanel({
         {searchable && (
           <div className={cn('shrink-0 px-2 pt-2 pb-1', slots.searchWrap)}>
             <div className={cn("flex items-center gap-1.5 rounded-md border border-line bg-surface-secondary-soft3 px-2 h-7")}>
-              <input
+              <input name="action-field"
                 ref={inputRef}
                 type="text"
                 value={query}
