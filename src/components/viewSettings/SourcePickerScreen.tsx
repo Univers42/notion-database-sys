@@ -107,7 +107,7 @@ export function SourcePickerScreen({
       <SubPanelHeader title={title} onBack={onBack} onClose={onClose} />
       {live && <CurrentBinding dbId={live.dbId} />}
       <div className={cn('px-3 pb-2')}>
-        <input autoFocus value={query} onChange={(event) => setQuery(event.target.value)}
+        <input name="search-data-sources" autoFocus value={query} onChange={(event) => setQuery(event.target.value)}
           placeholder="Search data sources…" aria-label="Search data sources"
           className={cn('w-full rounded-md border border-line bg-transparent px-2 py-1 text-sm outline-none focus:border-accent-border')} />
       </div>

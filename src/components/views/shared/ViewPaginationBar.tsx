@@ -55,7 +55,7 @@ function PageJumpField({ pager }: Readonly<{ pager: ViewPager<unknown> }>) {
   if (editing) {
     return (
       <span className={cn('px-1.5 text-xs text-ink-secondary tabular-nums')}>
-        <input type="text" inputMode="numeric" autoFocus aria-label="Go to page"
+        <input name="go-to-page" type="text" inputMode="numeric" autoFocus aria-label="Go to page"
           value={draft}
           onChange={(e) => setDraft(e.target.value.replace(/\D/g, ''))}
           onKeyDown={(e) => {

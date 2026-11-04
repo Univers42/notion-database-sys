@@ -150,7 +150,7 @@ export function FilesCellEditor({ value, onUpdate, onClose }: Readonly<FilesCell
 
         {tab === 'upload' ? (
           <div className={cn("p-3 flex flex-col items-center gap-2")}>
-            <input ref={inputRef} type="file" multiple hidden
+            <input name="files-cell-file" ref={inputRef} type="file" multiple hidden
               onChange={e => { if (e.target.files?.length) void ingestFiles([...e.target.files]); e.target.value = ''; }} />
             <button type="button" onClick={() => inputRef.current?.click()}
               className={cn("w-full max-w-[280px] px-3 py-1.5 text-sm font-medium rounded-md bg-accent text-ink-inverse hover:opacity-90 transition-opacity")}>
@@ -163,7 +163,7 @@ export function FilesCellEditor({ value, onUpdate, onClose }: Readonly<FilesCell
           </div>
         ) : (
           <div className={cn("p-3 flex items-center gap-2")}>
-            <input
+            <input name="link-url"
               autoFocus
               value={linkUrl}
               onChange={e => setLinkUrl(e.target.value)}

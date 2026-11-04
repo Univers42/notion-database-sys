@@ -80,7 +80,7 @@ export function ButtonEditorPanel({ databaseId, propertyId, onClose, position }:
         <MousePointerClick className={cn('w-4 h-4 text-ink-muted')} /> Edit button
       </div>
       <div className={cn('flex-1 overflow-y-auto px-3 pb-2 flex flex-col gap-2')}>
-        <input aria-label="Button label" placeholder="Button label" value={label} className={cn(automationInputCls)}
+        <input name="button-label" aria-label="Button label" placeholder="Button label" value={label} className={cn(automationInputCls)}
           onChange={e => setLabel(e.target.value)} />
         <div className={cn('text-xs font-medium text-ink-secondary select-none')}>On click</div>
         {actions.map((action, index) => (

@@ -45,7 +45,7 @@ function SelectFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
       {needsValue(operator) && (
         <div className={cn("px-2 pb-1")}>
           <div className={cn("flex items-center rounded-md border border-line bg-surface-secondary min-h-[28px] px-1.5")}>
-            <input type="text"
+            <input name="filter-value-field" type="text"
               placeholder={property.type === 'multi_select' ? 'Select one or more options…' : 'Search for an option...'}
               value={search} onChange={e => setSearch(e.target.value)}
               className={cn("flex-1 bg-transparent text-sm outline-none placeholder-placeholder py-1")} autoFocus />
@@ -129,11 +129,11 @@ function DateFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
             <span className={cn("truncate")}>{displayVal}</span>
             <ChevronDown className={cn("w-3.5 h-3.5 text-ink-muted shrink-0")} />
           </button>
-          <input type="date" aria-label={isBetween ? 'Start date' : 'Date'} value={singleDate}
+          <input name="single-date" type="date" aria-label={isBetween ? 'Start date' : 'Date'} value={singleDate}
             onChange={e => setSingle(e.target.value)}
             className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary")} />
           {isBetween && (
-            <input type="date" aria-label="End date"
+            <input name="end-date" type="date" aria-label="End date"
               value={toDateInputValue(range.end)}
               onChange={e => onValueChange({ start: singleDate, end: e.target.value })}
               className={cn("w-full h-8 px-2 border border-line rounded-lg text-sm bg-surface-primary")} />
@@ -164,7 +164,7 @@ function TextFilterValueEditor(props: Readonly<FilterValueEditorProps>) {
       {needsValue(operator) && (
         <div className={cn("p-2")}>
           {/* Its border shows focus; it opts out of the host's own focus frame. */}
-          <input type={property.type === 'number' ? 'number' : 'text'} placeholder="Value" aria-label="Filter value"
+          <input name="filter-value" type={property.type === 'number' ? 'number' : 'text'} placeholder="Value" aria-label="Filter value"
             data-writing-surface
             value={typeof value === 'string' || typeof value === 'number' ? value : ''}
             onChange={e => onValueChange(property.type === 'number' && e.target.value ? Number(e.target.value) : e.target.value)}

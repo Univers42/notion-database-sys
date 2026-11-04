@@ -110,7 +110,7 @@ function SearchBar({ search, setSearch, onKeyDown, targetDb, canOpen }: Readonly
   return (
     <div className={cn("flex items-center gap-2 px-3 py-2 border-b border-line-light bg-surface-secondary-soft")}>
       <Search className={cn("w-4 h-4 text-ink-muted shrink-0")} />
-      <input autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
+      <input name="relation-search" autoFocus type="text" value={search} onChange={e => setSearch(e.target.value)}
         aria-label={canOpen ? 'Search pages to link — Enter links or unlinks, Ctrl+Enter opens' : 'Search pages to link'} onKeyDown={onKeyDown}
         className={cn("flex-1 text-sm bg-transparent outline-none placeholder:text-placeholder")} placeholder="Link or create a page…" />
       <div className={cn("flex items-center gap-1 text-xs text-ink-muted shrink-0")}>

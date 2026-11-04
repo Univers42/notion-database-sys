@@ -172,7 +172,7 @@ const DATA_TYPE_INPUT_MAP: Record<string, string> = {
 export function renderCustomEditor(dt: string, value: PropertyValue, onChange: (v: PropertyValue) => void, onStop: () => void, tableRef: React.RefObject<HTMLDivElement | null>): React.ReactNode {
   const inputType = DATA_TYPE_INPUT_MAP[dt] || 'text';
   return (
-    <input autoFocus type={inputType} step={dt === 'float' ? '0.01' : undefined}
+    <input name="cell-value" autoFocus type={inputType} step={dt === 'float' ? '0.01' : undefined}
       value={dt === 'boolean' ? undefined : (value ?? '')}
       onChange={e => {
         let v: PropertyValue = e.target.value;

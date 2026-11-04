@@ -62,13 +62,13 @@ export function renderInlineFilterValue(
   }
   if (prop.type === 'date' || prop.type === 'due_date') {
     return (
-      <input type="date" value={toDateInputValue(filter.value)}
+      <input name="update-filter" type="date" value={toDateInputValue(filter.value)}
         onChange={e => onUpdateFilter(filter.id, { value: e.target.value })}
         className={cn("h-8 px-2 border border-line rounded-lg text-sm w-full bg-surface-primary")} />
     );
   }
   return (
-    <input type={prop.type === 'number' ? 'number' : 'text'} placeholder="Value"
+    <input name="update-filter" type={prop.type === 'number' ? 'number' : 'text'} placeholder="Value"
       value={filter.value || ''}
       onChange={e => onUpdateFilter(filter.id, { value: prop.type === 'number' && e.target.value ? Number(e.target.value) : e.target.value })}
       className={cn("h-8 px-2 border border-line rounded-lg text-sm w-full bg-surface-primary outline-none focus:border-focus-border-soft transition-colors")} />

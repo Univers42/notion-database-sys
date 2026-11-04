@@ -44,7 +44,7 @@ export function ChartTypeGalleryScreen(props: Readonly<ChartScreensProps>) {
     <div className={cn('flex flex-col h-full')} style={{ minWidth: 290, maxWidth: 290 }}>
       <SubPanelHeader title="All chart types" onBack={() => setScreen('editChart')} onClose={onClose} />
       <div className={cn('px-3 pb-2')}>
-        <input autoFocus value={query} onChange={(event) => setQuery(event.target.value)}
+        <input name="search-chart-types" autoFocus value={query} onChange={(event) => setQuery(event.target.value)}
           placeholder="Search chart types…" aria-label="Search chart types"
           className={cn('w-full rounded-md border border-line bg-transparent px-2 py-1 text-sm outline-none focus:border-accent-border')} />
       </div>

@@ -80,7 +80,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly
             <div className={cn("px-4 pt-3 pb-2")}>
               <div className={cn("flex items-center gap-2 px-3 py-2 bg-surface-secondary rounded-lg border border-line focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring transition-all")}>
                 <Sigma className={cn("w-4 h-4 text-ink-muted shrink-0")} />
-                <input value={aiPrompt} onChange={e => setAiPrompt(e.target.value)}
+                <input name="ai-prompt" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)}
                   className={cn("flex-1 text-sm bg-transparent outline-none placeholder:text-placeholder")}
                   placeholder="Write, fix, or explain a formula…"
                   onKeyDown={e => { if (e.key === 'Enter' && aiPrompt.trim()) { setExpression(aiPrompt.trim()); setAiPrompt(''); } }} />
@@ -95,7 +95,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly
             {/* Textarea */}
             <div className={cn("flex-1 px-4 pb-2 min-h-0 flex flex-col")}>
               <div className={cn("flex-1 relative rounded-lg border border-line bg-surface-primary overflow-hidden focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring transition-all")}>
-                <textarea ref={editorRef} value={expression} onChange={e => setExpression(e.target.value)}
+                <textarea name="expression" ref={editorRef} value={expression} onChange={e => setExpression(e.target.value)}
                   className={cn("w-full h-full resize-none p-3 text-sm font-mono text-ink leading-relaxed outline-none placeholder:text-placeholder")}
                   placeholder="Your formula" spellCheck={false}
                   onKeyDown={e => {
@@ -110,7 +110,7 @@ export function FormulaEditorPanel({ databaseId, propertyId, onClose }: Readonly
               <div className={cn("flex items-center justify-between")}>
                 <div className={cn("flex items-center gap-2")}>
                   <span className={cn("text-[11px] font-semibold text-ink-muted uppercase tracking-wider")}>Preview with</span>
-                  <select value={previewPageId || ''} onChange={e => setPreviewPageId(e.target.value)}
+                  <select name="preview-page-id" value={previewPageId || ''} onChange={e => setPreviewPageId(e.target.value)}
                     className={cn("text-xs px-2 py-1 bg-surface-secondary border border-line rounded-md outline-none focus:border-focus-border max-w-[200px] truncate text-ink-body")}>
                     {previewPages.map(page => <option key={page.id} value={page.id}>{getPageTitle(page)}</option>)}
                   </select>

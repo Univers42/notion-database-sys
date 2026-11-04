@@ -45,16 +45,16 @@ export function AutomationRuleEditor({ rule, properties, onChange, onBack, onClo
     <div className={cn('flex flex-col h-full')} style={{ minWidth: 290, maxWidth: 290 }}>
       <SubPanelHeader title="Edit automation" onBack={onBack} onClose={onClose} />
       <div className={cn('flex-1 overflow-auto px-3 pb-3 flex flex-col gap-2')} style={{ minHeight: 0 }}>
-        <input aria-label="Rule name" value={rule.name} className={cn(inputCls)}
+        <input name="rule-name" aria-label="Rule name" value={rule.name} className={cn(inputCls)}
           onChange={(event) => patch({ name: event.target.value })} />
         <ToggleSettingRow label="Enabled" checked={rule.enabled} onChange={(enabled) => patch({ enabled })} />
         <div className={cn('text-xs font-medium text-ink-secondary select-none')}>When</div>
-        <select aria-label="Trigger" value={rule.trigger} className={cn(selectCls)}
+        <select name="automation-rule-select" aria-label="Trigger" value={rule.trigger} className={cn(selectCls)}
           onChange={(event) => patch({ trigger: event.target.value as AutomationRule['trigger'] })}>
           {TRIGGERS.map((trigger) => <option key={trigger.id} value={trigger.id}>{trigger.label}</option>)}
         </select>
         {rule.trigger === 'row_updated' && (
-          <select aria-label="Watch property" value={rule.watchColumn ?? ''} className={cn(selectCls)}
+          <select name="watch-property" aria-label="Watch property" value={rule.watchColumn ?? ''} className={cn(selectCls)}
             onChange={(event) => patch({ watchColumn: event.target.value || undefined })}>
             <option value="">Any property</option>
             {columns.map((column) => <option key={column.id} value={column.id}>{column.name}</option>)}
@@ -62,7 +62,7 @@ export function AutomationRuleEditor({ rule, properties, onChange, onBack, onClo
         )}
         <div className={cn('text-xs font-medium text-ink-secondary select-none')}>Only if (optional)</div>
         <div className={cn('flex gap-1')}>
-          <select aria-label="Condition column" value={rule.condition?.column ?? ''} className={cn(selectCls)}
+          <select name="condition-column" aria-label="Condition column" value={rule.condition?.column ?? ''} className={cn(selectCls)}
             onChange={(event) => patch({
               condition: event.target.value
                 ? { column: event.target.value, operator: rule.condition?.operator ?? 'equals', value: rule.condition?.value }
@@ -72,7 +72,7 @@ export function AutomationRuleEditor({ rule, properties, onChange, onBack, onClo
             {columns.map((column) => <option key={column.id} value={column.id}>{column.name}</option>)}
           </select>
           {rule.condition && (
-            <select aria-label="Operator" value={rule.condition.operator} className={cn(selectCls)}
+            <select name="automation-rule-select" aria-label="Operator" value={rule.condition.operator} className={cn(selectCls)}
               onChange={(event) => patch({
                 condition: { ...rule.condition!, operator: event.target.value as NonNullable<AutomationRule['condition']>['operator'] },
               })}>
@@ -81,7 +81,7 @@ export function AutomationRuleEditor({ rule, properties, onChange, onBack, onClo
           )}
         </div>
         {rule.condition && !['is_empty', 'is_not_empty'].includes(rule.condition.operator) && (
-          <input aria-label="Condition value" placeholder="Value" className={cn(inputCls)}
+          <input name="condition-value" aria-label="Condition value" placeholder="Value" className={cn(inputCls)}
             value={String(rule.condition.value ?? '')}
             onChange={(event) => patch({ condition: { ...rule.condition!, value: event.target.value } })} />
         )}

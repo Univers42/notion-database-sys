@@ -50,7 +50,7 @@ function SourceEntryRow({ entry, onRename, onRemove }: Readonly<{
     <div className={cn('flex flex-col rounded-md px-2 py-[6px] hover:bg-hover-surface-soft3')}>
       <div className={cn('flex items-center gap-2')}>
         {editing ? (
-          <input autoFocus value={name} onChange={(event) => setName(event.target.value)}
+          <input name="source-name" autoFocus value={name} onChange={(event) => setName(event.target.value)}
             onBlur={commit} onKeyDown={(event) => { if (event.key === 'Enter') commit(); }}
             aria-label="Source name"
             className={cn('flex-1 rounded border border-line bg-transparent px-1 text-sm outline-none')} />
