@@ -84,7 +84,7 @@ export function RelationEditorPanel({ databaseId, propertyId, onClose, position 
       <div className={cn("flex-1 overflow-y-auto px-4 pb-2")}>
         {/* Property name */}
         <div className={cn("py-2")}>
-          <input value={name} onChange={e => setName(e.target.value)}
+          <input name="property-name" value={name} onChange={e => setName(e.target.value)}
             placeholder="Property name"
             className={cn("w-full text-sm px-2.5 py-1.5 rounded-md border border-line bg-surface-secondary-soft outline-none focus:border-focus-border focus:bg-surface-primary transition-colors")} />
         </div>

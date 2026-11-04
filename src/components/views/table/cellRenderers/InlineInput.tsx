@@ -64,7 +64,7 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
 
   if (multiline) {
     return (
-      <textarea
+      <textarea name="cell-value"
         ref={focusAtEnd} value={local} rows={Math.min(local.split('\n').length, 8)}
         onChange={e => { committed.current = false; setLocal(e.target.value); }}
         onBlur={commit}
@@ -82,7 +82,7 @@ export function InlineInput({ type = 'text', value, onChange, onStop, tableRef, 
   }
 
   return (
-    <input
+    <input name="cell-value"
       ref={focusAtEnd} type={type} value={local} step={step}
       onChange={e => { committed.current = false; setLocal(e.target.value); }}
       onBlur={commit}

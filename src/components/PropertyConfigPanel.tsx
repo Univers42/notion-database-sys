@@ -137,7 +137,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
       <div className={cn("px-3 pt-3 pb-2")}>
         <div className={cn("flex items-center gap-2")}>
           <PropertyIconButton property={property} databaseId={databaseId} disabled={schemaLocked} />
-          <input ref={nameRef} value={propName} readOnly={schemaLocked}
+          <input name="property-name" ref={nameRef} value={propName} readOnly={schemaLocked}
             onChange={e => setPropName(e.target.value)} onBlur={commitName}
             // preventDefault: focus is back on the header by keypress time, and
             // Enter's keypress would click it and reopen this panel.
@@ -187,7 +187,7 @@ export function PropertyConfigPanel({ property: propertySnapshot, databaseId, vi
           {showTypeList && (
             <div className={cn("mt-1 border border-line-light rounded-lg bg-surface-secondary overflow-hidden")}>
               <div className={cn("p-1.5")}>
-                <input value={typeSearch} onChange={e => setTypeSearch(e.target.value)}
+                <input name="type-search" value={typeSearch} onChange={e => setTypeSearch(e.target.value)}
                   className={cn("w-full text-xs px-2 py-1.5 rounded-md bg-surface-primary border border-line outline-none focus:border-focus-border placeholder:text-placeholder")}
                   placeholder="Search type..." autoFocus />
               </div>

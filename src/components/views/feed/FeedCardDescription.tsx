@@ -45,7 +45,7 @@ export function FeedCardDescription({ value, onCommit }: Readonly<{
   }, [value, onCommit]);
 
   return (
-    <textarea
+    <textarea name="post-description"
       ref={(el) => { ref.current = el; autosize(el); }}
       key={value}
       defaultValue={value}

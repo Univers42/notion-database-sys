@@ -70,7 +70,7 @@ export function SortPropertyPicker({ properties, onSelect, onClose, onBack, titl
       <div className={cn("px-2 pt-2 pb-1", slots?.searchWrap)}>
         {/* The box shows focus; the field opts out of the host's own focus frame. */}
         <div className={cn("flex items-center rounded-md border border-line bg-surface-secondary h-7 px-1.5 focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring", slots?.searchInner)}>
-          <input type="text" placeholder="Sort by…" value={search} aria-label="Sort by property"
+          <input name="sort-by-property" type="text" placeholder="Sort by…" value={search} aria-label="Sort by property"
             data-writing-surface onChange={e => setSearch(e.target.value)}
             className={cn("flex-1 bg-transparent text-sm outline-none placeholder-placeholder", slots?.searchInput)} autoFocus />
         </div>

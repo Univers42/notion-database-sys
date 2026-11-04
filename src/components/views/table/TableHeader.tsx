@@ -188,7 +188,7 @@ export function TableHeader({
               <Popover.Content align="end" className={cn("w-64 bg-surface-primary rounded-lg shadow-xl border border-line p-2 text-sm z-50")}>
                 <div className={cn("relative mb-2")}>
                   <Search className={cn("w-4 h-4 absolute left-2 top-2 text-ink-muted")} />
-                  <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Search properties"
+                  <input name="search-properties" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Search properties"
                     className={cn("w-full bg-surface-secondary rounded-md pl-8 pr-2 py-1.5 outline-none focus:ring-1 ring-ring-accent text-sm")} placeholder="Search properties..." />
                 </div>
                 <div className={cn("max-h-64 overflow-y-auto")}>

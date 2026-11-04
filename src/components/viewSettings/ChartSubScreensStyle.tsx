@@ -77,7 +77,7 @@ export function MoreStyleScreen({ setScreen, settings, updateSetting, onClose }:
             {([['xAxisTitle', 'X-axis title'], ['yAxisTitle', 'Y-axis title']] as const).map(([key, label]) => (
               <label key={key} className={cn("flex flex-col gap-1")}>
                 <span className={cn("text-xs text-ink-secondary")}>{label}</span>
-                <input type="text" value={settings[key] ?? ''}
+                <input name={`chart-${key}`} type="text" value={settings[key] ?? ''}
                   onChange={e => updateSetting(key, e.target.value || undefined)}
                   className={cn("px-3 py-2 border border-line rounded-lg text-sm bg-surface-primary focus:outline-none focus:ring-2 focus:ring-focus-ring-muted")}
                   placeholder="None" />

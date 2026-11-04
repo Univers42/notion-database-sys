@@ -98,7 +98,7 @@ export function ViewIdentityRow({ viewIcon, setViewIcon, viewName, onNameChange,
         )}
         <div className={cn("flex-1 min-w-0")}>
           <div className={cn("flex items-center h-7 rounded-md border border-line bg-surface-secondary-soft px-1.5")}>
-            <input placeholder="View name" type="text" value={viewName} onChange={e => onNameChange(e.target.value)}
+            <input name="view-name" placeholder="View name" type="text" value={viewName} onChange={e => onNameChange(e.target.value)}
               className={cn("flex-1 text-sm text-ink outline-none bg-transparent min-w-0")} />
             <div className={cn("relative group/info ml-1")}>
               <InfoCircleIcon className={cn("w-[14px] h-[14px] text-ink-muted cursor-help")} />

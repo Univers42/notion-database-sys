@@ -47,7 +47,7 @@ export function SearchBar({ viewId, onClose }: Readonly<{ viewId: string; onClos
       className={cn("odb-search-bar mx-4 my-1.5 flex items-center gap-2 rounded-lg border border-line bg-surface-secondary px-2.5 py-1 focus-within:border-focus-border focus-within:ring-1 focus-within:ring-focus-ring transition-colors")}>
       <Search aria-hidden className={cn("w-3.5 h-3.5 shrink-0 text-ink-muted")} />
       {/* The row shows focus; the field opts out of the host's own focus frame. */}
-      <input autoFocus type="search" value={value} placeholder="Search this database…" aria-label="Search database"
+      <input name="search-database" autoFocus type="search" value={value} placeholder="Search this database…" aria-label="Search database"
         data-writing-surface
         onChange={e => apply(e.target.value, SEARCH_DEBOUNCE_MS)}
         onKeyDown={e => {

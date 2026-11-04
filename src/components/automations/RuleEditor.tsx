@@ -48,7 +48,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
     <div className="flex flex-col gap-4">
       <label className="flex flex-col gap-1">
         <span className="text-xs text-ink-muted">Name</span>
-        <input
+        <input name="rule-name"
           aria-label="Rule name"
           value={rule.name}
           onChange={(e) => onChange({ ...rule, name: e.target.value })}
@@ -58,7 +58,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
       {/* When */}
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-medium text-ink">When</legend>
-        <select
+        <select name="trigger"
           aria-label="Trigger"
           value={rule.trigger.type}
           onChange={(e) => {
@@ -75,7 +75,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
         {rule.trigger.type === 'property_changed' && (
           <div className="flex flex-col gap-2 pl-2">
             <label className="text-xs text-ink-muted">Property</label>
-            <select
+            <select name="property"
               aria-label="Property"
               value={rule.trigger.propertyId ?? ''}
               onChange={(e) => setTrigger({ type: 'property_changed', propertyId: e.target.value || undefined, from: undefined, to: undefined })}
@@ -91,7 +91,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <label className="text-xs text-ink-muted">From</label>
-                    <select
+                    <select name="from-value"
                       aria-label="From"
                       value={rule.trigger.from === undefined ? '' : String(rule.trigger.from)}
                       onChange={(e) => setTrigger({ ...rule.trigger, type: 'property_changed', from: e.target.value === '' ? undefined : e.target.value })}
@@ -103,7 +103,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
                   </div>
                   <div className="flex-1">
                     <label className="text-xs text-ink-muted">To</label>
-                    <select
+                    <select name="to-value"
                       aria-label="To"
                       value={rule.trigger.to === undefined ? '' : String(rule.trigger.to)}
                       onChange={(e) => setTrigger({ ...rule.trigger, type: 'property_changed', to: e.target.value === '' ? undefined : e.target.value })}
@@ -124,7 +124,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-medium text-ink">Only if</legend>
         {rule.conditions.length >= 2 && (
-          <select
+          <select name="conjunction"
             aria-label="Conjunction"
             value={rule.conjunction}
             onChange={(e) => onChange({ ...rule, conjunction: e.target.value as 'and' | 'or' })}
@@ -141,7 +141,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
           const showValue = needsValue(op as never);
           return (
             <div key={condition.id} className="flex flex-col gap-1 rounded-md border border-line p-2">
-              <select
+              <select name="condition-property"
                 aria-label="Condition property"
                 value={condition.propertyId}
                 onChange={(e) => updateCondition(index, { propertyId: e.target.value })}
@@ -149,7 +149,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
               >
                 {props.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <select
+              <select name="condition-operator"
                 aria-label="Condition operator"
                 value={op}
                 onChange={(e) => updateCondition(index, { operator: e.target.value as never })}
@@ -159,7 +159,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
               </select>
               {showValue && (
                 cprop && (cprop.type === 'select' || cprop.type === 'status') ? (
-                  <select
+                  <select name="condition-value"
                     aria-label="Condition value"
                     value={String(condition.value ?? '')}
                     onChange={(e) => updateCondition(index, { value: e.target.value })}
@@ -168,7 +168,7 @@ export function RuleEditor({ rule, properties, onChange }: Readonly<Props>) {
                     {cprop.options?.map((o) => <option key={o.id} value={o.id}>{o.value}</option>)}
                   </select>
                 ) : (
-                  <input
+                  <input name="condition-value"
                     aria-label="Condition value"
                     value={typeof condition.value === 'string' || typeof condition.value === 'number' ? String(condition.value) : ''}
                     onChange={(e) => updateCondition(index, { value: e.target.value })}

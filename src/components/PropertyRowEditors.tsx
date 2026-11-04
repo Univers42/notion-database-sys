@@ -33,7 +33,7 @@ const inputTypeMap: Record<string, string> = { email: 'email', url: 'url' };
 export function TextEditor({ value, onChange, type }: Readonly<{ value: string; onChange: (v: string) => void; type?: string }>) {
   if (type === 'text') {
     return (
-      <textarea
+      <textarea name="property-textarea"
         value={value || ''}
         rows={Math.min((value || '').split('\n').length, 8)}
         onChange={e => onChange(e.target.value)}
@@ -44,7 +44,7 @@ export function TextEditor({ value, onChange, type }: Readonly<{ value: string; 
     );
   }
   return (
-    <input
+    <input name="property-field"
       type={inputTypeMap[type ?? ''] || 'text'}
       value={value || ''}
       onChange={e => onChange(e.target.value)}
@@ -57,7 +57,7 @@ export function TextEditor({ value, onChange, type }: Readonly<{ value: string; 
 /** Inline number input for editing numeric properties. */
 export function NumberEditor({ value, onChange }: Readonly<{ value: number | null; onChange: (v: number | null) => void }>) {
   return (
-    <input
+    <input name="property-number"
       type="number"
       value={value ?? ''}
       onChange={e => onChange(e.target.value ? Number(e.target.value) : null)}
@@ -74,7 +74,7 @@ export function SelectEditor({ value, options, onChange }: Readonly<{
   onChange: (v: string | null) => void;
 }>) {
   return (
-    <select
+    <select name="property-select"
       value={value || ''}
       onChange={e => onChange(e.target.value || null)}
       className={cn("flex-1 text-sm text-ink outline-none bg-transparent px-2 py-1 rounded hover:bg-hover-surface focus:bg-focus-surface")}
@@ -103,7 +103,7 @@ export function MultiSelectEditor({ value, options, onChange }: Readonly<{
           </span>
         ) : null;
       })}
-      <select
+      <select name="property-select"
         value=""
         onChange={e => { if (e.target.value && !selected.includes(e.target.value)) onChange([...selected, e.target.value]); }}
         className={cn("text-xs text-ink-muted bg-transparent outline-none")}
@@ -136,7 +136,7 @@ export function CheckboxEditor({ value, onChange }: Readonly<{ value: boolean; o
  *  narrowed to `yyyy-MM-dd` — the input rejects anything else outright. */
 export function DateEditor({ value, onChange }: Readonly<{ value: string; onChange: (v: string | null) => void }>) {
   return (
-    <input
+    <input name="property-date"
       type="date"
       value={toDateInputValue(value)}
       onChange={e => onChange(e.target.value || null)}
@@ -149,7 +149,7 @@ export function DateEditor({ value, onChange }: Readonly<{ value: string; onChan
 export function PlaceEditor({ value, onChange }: Readonly<{ value: unknown; onChange: (v: { address: string }) => void }>) {
   const placeVal = typeof value === 'object' && value ? (value as { address?: string }) : null;
   return (
-    <input
+    <input name="address"
       type="text"
       value={placeVal?.address || (typeof value === 'string' ? value : '')}
       onChange={e => onChange({ address: e.target.value })}

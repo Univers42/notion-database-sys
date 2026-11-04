@@ -72,7 +72,7 @@ export function SelectEditor({ property, value, onUpdate, onClose, databaseId }:
             onClick={e => e.stopPropagation()}
             onKeyDown={e => e.stopPropagation()}>
             <div className={cn("p-2 border-b border-line-light")}>
-              <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
+              <input name="option-search" autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
                 aria-label="Search or create an option"
                 className={cn("w-full text-sm px-2 py-1.5 bg-surface-secondary rounded outline-none focus:ring-1 ring-ring-accent")} placeholder="Search or create..." />
             </div>
@@ -170,7 +170,7 @@ export function MultiSelectEditor({ property, value, onUpdate, onClose, database
                   );
                 })}
               </div>
-              <input autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
+              <input name="option-search" autoFocus value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
                 aria-label="Search or create an option"
                 className={cn("w-full text-sm px-1 py-1 outline-none bg-transparent")} placeholder={selectedIds.length ? '' : 'Search or create...'} />
             </div>

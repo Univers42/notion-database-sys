@@ -74,7 +74,7 @@ export function FeedCommentComposer({ onSubmit, initial = '', placeholder = 'Wri
   };
   return (
     <form onSubmit={(event) => { event.preventDefault(); void submit(); }} className={cn('flex flex-col gap-1.5')}>
-      <textarea
+      <textarea name="comment"
         ref={areaRef}
         autoFocus={autoFocus}
         value={draft}

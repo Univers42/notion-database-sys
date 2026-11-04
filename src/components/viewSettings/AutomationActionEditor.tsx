@@ -50,7 +50,7 @@ export function ActionEditor({ action, columns, actionTypes = RULE_ACTION_TYPES,
   return (
     <div className={cn('flex flex-col gap-1 rounded-md border border-line p-2')}>
       <div className={cn('flex items-center gap-2')}>
-        <select aria-label="Action type" value={action.type} className={cn(automationSelectCls)}
+        <select name="action-type" aria-label="Action type" value={action.type} className={cn(automationSelectCls)}
           onChange={(event) => onChange({ type: event.target.value as AutomationAction['type'] })}>
           {actionTypes.map((type) => <option key={type.id} value={type.id}>{type.label}</option>)}
         </select>
@@ -58,29 +58,29 @@ export function ActionEditor({ action, columns, actionTypes = RULE_ACTION_TYPES,
       </div>
       {action.type === 'set_property' && (
         <div className={cn('flex gap-1')}>
-          <select aria-label="Column" value={action.column ?? ''} className={cn(automationSelectCls)}
+          <select name="automation-action-select" aria-label="Column" value={action.column ?? ''} className={cn(automationSelectCls)}
             onChange={(event) => onChange({ ...action, column: event.target.value })}>
             <option value="" disabled>Column…</option>
             {columns.map((column) => <option key={column.id} value={column.id}>{column.name}</option>)}
           </select>
-          <input aria-label="Value" placeholder="Value" value={String(action.value ?? '')} className={cn(automationInputCls)}
+          <input name="automation-action-field" aria-label="Value" placeholder="Value" value={String(action.value ?? '')} className={cn(automationInputCls)}
             onChange={(event) => onChange({ ...action, value: event.target.value })} />
         </div>
       )}
       {action.type === 'notify' && (
-        <input aria-label="Message" placeholder="Message" value={action.message ?? ''} className={cn(automationInputCls)}
+        <input name="automation-action-field" aria-label="Message" placeholder="Message" value={action.message ?? ''} className={cn(automationInputCls)}
           onChange={(event) => onChange({ ...action, message: event.target.value })} />
       )}
       {action.type === 'webhook' && (
-        <input aria-label="Webhook URL" placeholder="https://…" value={action.url ?? ''} className={cn(automationInputCls)}
+        <input name="webhook-url" aria-label="Webhook URL" placeholder="https://…" value={action.url ?? ''} className={cn(automationInputCls)}
           onChange={(event) => onChange({ ...action, url: event.target.value })} />
       )}
       {action.type === 'open_url' && (
-        <input aria-label="URL to open" placeholder="https://…" value={action.url ?? ''} className={cn(automationInputCls)}
+        <input name="url-to-open" aria-label="URL to open" placeholder="https://…" value={action.url ?? ''} className={cn(automationInputCls)}
           onChange={(event) => onChange({ ...action, url: event.target.value })} />
       )}
       {action.type === 'add_page' && (
-        <select aria-label="Target database" value={action.targetDatabaseId ?? ''} className={cn(automationSelectCls)}
+        <select name="target-database" aria-label="Target database" value={action.targetDatabaseId ?? ''} className={cn(automationSelectCls)}
           onChange={(event) => onChange({ ...action, targetDatabaseId: event.target.value || undefined })}>
           <option value="">This database</option>
           {(databases ?? []).map((db) => <option key={db.id} value={db.id}>{db.name}</option>)}

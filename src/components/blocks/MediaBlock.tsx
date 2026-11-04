@@ -121,7 +121,7 @@ export function MediaBlock({ block, pageId }: Readonly<BlockRendererProps>) {
         <p className={cn("text-xs text-ink-muted mt-0.5")}>Paste a URL or upload a file</p>
       </div>
       <div className={cn("flex items-center gap-2 w-full max-w-xs")}>
-        <input
+        <input name="media-url"
           type="text"
           placeholder={`Paste ${config.label} URL...`}
           className={cn("flex-1 text-xs px-3 py-1.5 border border-line rounded-md outline-none focus:ring-1 focus:ring-focus-ring-solid bg-surface-primary")}
@@ -130,7 +130,7 @@ export function MediaBlock({ block, pageId }: Readonly<BlockRendererProps>) {
         <label className={cn("flex items-center gap-1 text-xs text-ink-secondary hover:text-hover-text-strong px-2 py-1.5 rounded-md border border-line bg-surface-primary cursor-pointer hover:bg-hover-surface")}>
           <Upload className={cn("w-3 h-3")} />
           Upload
-          <input type="file" accept={config.accept} className={cn("hidden")} />
+          <input name="media-file" type="file" accept={config.accept} className={cn("hidden")} />
         </label>
       </div>
     </div>
