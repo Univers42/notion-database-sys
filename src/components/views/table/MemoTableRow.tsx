@@ -123,7 +123,7 @@ function RowControls({ pageId, canReorder, canMove, subItems, expanded, floating
       {showGrip && (
         <button type="button" aria-label={canMove ? "Drag to move record" : "Drag to reorder record"}
           title={canMove ? "Drag to move, or onto a row to nest it" : "Drag to reorder"}
-          draggable tabIndex={0}
+          draggable tabIndex={-1}
           className={cn("shrink-0 flex h-6 w-6 min-h-[24px] min-w-[24px] items-center justify-center rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--osio-focus-ring-color)] cursor-grab active:cursor-grabbing")}
           onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; onRowDragStart?.(pageId); }}
           onDragEnd={e => { e.stopPropagation(); onRowDragEnd?.(); }}>
