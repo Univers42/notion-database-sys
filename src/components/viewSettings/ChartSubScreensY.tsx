@@ -82,7 +82,7 @@ export function YAxisRangeScreen({ setScreen, settings, updateSetting, onClose }
           {(['yAxisRangeMin', 'yAxisRangeMax'] as const).map((key, i) => (
             <label key={key} className={cn("flex-1 flex flex-col gap-1")}>
               <span className={cn("text-xs text-ink-secondary")}>{i === 0 ? 'Min' : 'Max'}</span>
-              <input type="number" value={settings[key] ?? ''}
+              <input name="chart-sub-screens-y-number" type="number" value={settings[key] ?? ''}
                 onChange={e => updateSetting(key, e.target.value === '' ? undefined : Number(e.target.value))}
                 className={cn("px-3 py-2 border border-line rounded-lg text-sm bg-surface-primary focus:outline-none focus:ring-2 focus:ring-focus-ring-muted")}
                 placeholder={i === 0 ? '0' : 'auto'} />
@@ -104,7 +104,7 @@ export function YAxisReferenceLineScreen({ setScreen, settings, updateSetting, o
         {settings.showReferenceLine && (
           <label className={cn("flex flex-col gap-1")}>
             <span className={cn("text-xs text-ink-secondary")}>Value</span>
-            <input type="number" value={settings.referenceLineValue ?? ''}
+            <input name="reference-line-value" type="number" value={settings.referenceLineValue ?? ''}
               onChange={e => updateSetting('referenceLineValue', e.target.value ? Number(e.target.value) : null)}
               className={cn("px-3 py-2 border border-line rounded-lg text-sm bg-surface-primary focus:outline-none focus:ring-2 focus:ring-focus-ring-muted")} placeholder="e.g. 50" />
           </label>

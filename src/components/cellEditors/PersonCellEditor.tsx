@@ -53,7 +53,7 @@ export function PersonCellEditor({ value, databaseId, propertyId, onUpdate, onCl
   return (
     <CellPortal onClose={onClose} minWidth={240}>
       <div className={cn("p-1.5 border-b border-line")}>
-        <input
+        <input name="search-people"
           autoFocus
           aria-label="Search people"
           value={query}

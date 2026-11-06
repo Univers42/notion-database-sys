@@ -83,7 +83,7 @@ function IconPickerPanel({
               <svg viewBox="0 0 16 16" className={cn("w-4 h-4 shrink-0 fill-fill-secondary")} aria-hidden="true">
                 <path d="M7.1 1.975a5.125 5.125 0 1 0 3.155 9.164l3.107 3.107a.625.625 0 1 0 .884-.884l-3.107-3.107A5.125 5.125 0 0 0 7.1 1.975M3.225 7.1a3.875 3.875 0 1 1 7.75 0 3.875 3.875 0 0 1-7.75 0" />
               </svg>
-              <input
+              <input name="icon-field"
                 ref={inputRef}
                 type="text"
                 placeholder="Filter…"

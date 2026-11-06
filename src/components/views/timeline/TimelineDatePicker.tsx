@@ -77,7 +77,7 @@ export function TimelineDatePicker(props: Readonly<TimelineDatePickerProps>) {
                        shadow-[inset_0_0_0_1px_var(--line)] focus-within:shadow-[inset_0_0_0_1px_var(--accent)]
                        transition-shadow`)}
           >
-            <input
+            <input name="timeline-date"
               ref={inputRef}
               type="text"
               className={cn(`w-full bg-transparent border-0 outline-none text-sm text-ink
@@ -91,7 +91,7 @@ export function TimelineDatePicker(props: Readonly<TimelineDatePickerProps>) {
             />
           </div>
           {includeTime && (
-            <input
+            <input name="start-time"
               type="time"
               aria-label={selectingEnd ? 'End time' : 'Start time'}
               className={cn(`rounded-md h-7 px-2 text-sm bg-surface-secondary/60 text-ink

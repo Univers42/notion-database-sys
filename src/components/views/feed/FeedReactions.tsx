@@ -47,7 +47,7 @@ function FeedReactionPicker({ onPick, onClose }: Readonly<{ onPick: (emoji: stri
       onKeyDown={(event) => { if (event.key === 'Escape') { event.stopPropagation(); onClose(); } }}
       className={cn('absolute left-0 top-full z-20 mt-1 w-64 rounded-xl border border-line bg-surface-primary p-2 shadow-lg')}
     >
-      <input
+      <input name="search-emoji"
         autoFocus
         value={query}
         onChange={(event) => setQuery(event.target.value)}

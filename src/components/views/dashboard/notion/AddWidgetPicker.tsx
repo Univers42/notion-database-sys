@@ -84,7 +84,7 @@ export function AddWidgetPicker({
   return (
     <div ref={ref} className={cn("odb-pop-in absolute right-0 top-full mt-1 z-30 w-72 max-h-[440px] overflow-y-auto py-1 rounded-lg border border-line bg-surface-primary shadow-lg")}>
       <div className={cn("px-2 pt-1 pb-1.5 sticky top-0 bg-surface-primary")}>
-        <input
+        <input name="search-widgets"
           autoFocus
           value={query}
           onChange={e => setQuery(e.target.value)}

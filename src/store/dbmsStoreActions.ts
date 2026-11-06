@@ -46,8 +46,9 @@ export function createDbmsActions(set: SetState, get: GetState, schemaSet: Store
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('[dbms] Load error:', message);
-        if (!silent) set({ dbmsError: message, dbmsLoading: false });
+        // Shown in the block's failure pane; only a silent refresh, which has none, logs it.
+        if (silent) console.debug('[dbms] Background load failed:', message);
+        else set({ dbmsError: message, dbmsLoading: false });
       }
     },
 

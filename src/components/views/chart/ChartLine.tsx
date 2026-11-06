@@ -22,6 +22,7 @@ import { colorAt } from './chartPalette';
 import { ChartTooltipContent } from './ChartTooltipContent';
 import { yAxisDomain } from './ChartCanvasHelpers';
 import type { BarsClick } from './ChartBars';
+import { CHART_CONTAINER_PROPS } from './chartLayout';
 
 /** Line chart (multi-series for breakdowns, gradient area fill optional). */
 export function ChartLineChart({ result, settings, onSliceClick }: Readonly<{
@@ -45,7 +46,7 @@ export function ChartLineChart({ result, settings, onSliceClick }: Readonly<{
   };
 
   return (
-    <ResponsiveContainer width="100%" height="100%" minHeight={120} debounce={50}>
+    <ResponsiveContainer {...CHART_CONTAINER_PROPS}>
       <ComposedChart data={rows} margin={{ top: 12, right: 16, bottom: 8, left: 8 }}
         onClick={handleClick} style={{ cursor: 'pointer' }}>
         {gradient && (

@@ -69,7 +69,7 @@ export function RuleStepsFieldset({ rule, properties, onChange }: Readonly<Props
         const isLast = index === rule.program.steps.length - 1;
         return (
           <div key={index} className="flex flex-col gap-2 rounded-md border border-line p-2">
-            <select
+            <select name="action-type"
               aria-label="Action type"
               value={type}
               onChange={(e) => changeStepType(index, e.target.value)}
@@ -81,7 +81,7 @@ export function RuleStepsFieldset({ rule, properties, onChange }: Readonly<Props
             </select>
             {type === 'set_property' && (
               <>
-                <select
+                <select name="property"
                   aria-label="Column"
                   value={String(action.property ?? '')}
                   onChange={(e) => updateStep(index, { op: 'action', action: { type: 'set_property', property: e.target.value, value: action.value ?? '' } } as ProgramStep)}
@@ -104,7 +104,7 @@ export function RuleStepsFieldset({ rule, properties, onChange }: Readonly<Props
                     </span>
                   </div>
                 ) : null}
-                <input
+                <input name="rule-steps-fieldset-field"
                   aria-label="Value"
                   value={typeof action.value === 'string' || typeof action.value === 'number' ? String(action.value) : ''}
                   onChange={(e) => updateStep(index, { op: 'action', action: { type: 'set_property', property: action.property, value: e.target.value } } as ProgramStep)}
@@ -113,7 +113,7 @@ export function RuleStepsFieldset({ rule, properties, onChange }: Readonly<Props
               </>
             )}
             {type === 'notify' && (
-              <input
+              <input name="rule-steps-fieldset-field"
                 aria-label="Message"
                 value={String(action.message ?? '')}
                 onChange={(e) => updateStep(index, { op: 'action', action: { type: 'notify', message: e.target.value } } as ProgramStep)}
@@ -121,7 +121,7 @@ export function RuleStepsFieldset({ rule, properties, onChange }: Readonly<Props
               />
             )}
             {type === 'webhook' && (
-              <input
+              <input name="webhook-url"
                 aria-label="Webhook URL"
                 value={String(action.url ?? '')}
                 onChange={(e) => updateStep(index, { op: 'action', action: { type: 'webhook', url: e.target.value } } as ProgramStep)}

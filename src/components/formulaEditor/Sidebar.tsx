@@ -38,7 +38,7 @@ export function Sidebar({
   return (
     <div className={cn("w-[240px] shrink-0 border-r border-line-light flex flex-col bg-surface-secondary-soft5")}>
       <div className={cn("p-2 border-b border-line-light")}>
-        <input value={sidebarSearch} onChange={e => onSearchChange(e.target.value)}
+        <input name="formula-search" value={sidebarSearch} onChange={e => onSearchChange(e.target.value)}
           className={cn("w-full text-xs px-2.5 py-1.5 bg-surface-primary rounded-md border border-line outline-none focus:border-focus-border placeholder:text-placeholder transition-colors")}
           placeholder="Search properties & functions…" />
       </div>

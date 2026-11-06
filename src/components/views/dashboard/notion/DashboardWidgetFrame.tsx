@@ -139,7 +139,7 @@ export function DashboardWidgetFrame({ widget, view, editMode, actions, hostView
             {title}
           </span>
         ) : (
-          <input autoFocus value={renaming} onChange={e => setRenaming(e.target.value)}
+          <input name="widget-title" autoFocus value={renaming} onChange={e => setRenaming(e.target.value)}
             aria-label="Widget title"
             onBlur={() => { actions.onRename?.(renaming.trim()); setRenaming(null); }}
             onKeyDown={e => { if (e.key === 'Enter') { actions.onRename?.(renaming.trim()); setRenaming(null); } }}

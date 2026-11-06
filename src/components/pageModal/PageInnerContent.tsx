@@ -89,7 +89,7 @@ export function PageInnerContent({ page, database, pageId, hPad }: Readonly<{
         <div className={cn("flex items-center gap-3 mb-2")}>
           {page.icon && <span className={cn("text-4xl")}>{page.icon}</span>}
         </div>
-        <input
+        <input name="page-title"
           type="text"
           value={localTitle}
           onChange={e => setLocalTitle(e.target.value)}

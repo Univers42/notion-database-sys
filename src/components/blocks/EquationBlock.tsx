@@ -68,7 +68,7 @@ export function EquationBlock({ block, pageId }: Readonly<BlockRendererProps>) {
             </button>
           </div>
         </div>
-        <textarea
+        <textarea name="latex"
           autoFocus
           value={latex}
           onChange={e => setLatex(e.target.value)}

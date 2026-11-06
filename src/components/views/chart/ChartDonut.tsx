@@ -18,6 +18,7 @@ import type { ViewSettings } from '../../../types/database';
 import { colorAt, valueShade } from './chartPalette';
 import { ChartTooltipContent } from './ChartTooltipContent';
 import type { BarsClick } from './ChartBars';
+import { CHART_CONTAINER_PROPS } from './chartLayout';
 
 /** Slice fill: option color → palette → value shading when enabled. */
 function sliceFill(result: ChartResult, settings: ViewSettings, index: number): string {
@@ -60,7 +61,7 @@ export function ChartDonutChart({ result, settings, isDonut, onSliceClick }: Rea
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <ResponsiveContainer width="100%" height="100%" minHeight={120} debounce={50}>
+      <ResponsiveContainer {...CHART_CONTAINER_PROPS}>
         <PieChart margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
           <Tooltip content={<ChartTooltipContent total={result.total} />} />
           <Pie data={data} dataKey="value" nameKey="name"

@@ -151,7 +151,7 @@ export function ViewTabsRow({
               {renamingViewId === v.id ? (
                 <div className={cn("flex items-center gap-1.5 px-2.5 py-1.5", slots?.tabEditWrap)}>
                   {v.settings?.viewIcon ? <Icon name={v.settings.viewIcon} className={cn("w-4 h-4")} /> : VIEW_ICONS[v.type]}
-                  <input ref={viewRenameRef} value={viewRenameValue} onChange={e => setViewRenameValue(e.target.value)}
+                  <input name="rename-view" ref={viewRenameRef} value={viewRenameValue} onChange={e => setViewRenameValue(e.target.value)}
                     aria-label={`Rename view ${v.name}`}
                     onBlur={() => finishViewRename(v.id, true, false)}
                     onKeyDown={e => { if (e.key === 'Enter') finishViewRename(v.id, true, true); if (e.key === 'Escape') finishViewRename(v.id, false, true); }}
