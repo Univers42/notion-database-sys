@@ -88,7 +88,13 @@ export function getLiveSchema(dbId: string): Promise<LiveSchemaResponse> {
   const cached = schemaCache.get(dbId);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
   const path = `/api/databases/${encodeURIComponent(dbId)}/schema`;
-  const value = requestLive<LiveSchemaResponse>(path, { method: 'GET' });
+  // The bridge answers a source that did not respond with 200 `unavailable` rather than a
+  // 503, so the browser logs no console error; it is still a failure for every caller.
+  const value = requestLive<LiveSchemaResponse & { unavailable?: boolean; message?: string }>(path, { method: 'GET' })
+    .then((schema) => {
+      if (schema?.unavailable !== true) return schema;
+      throw new AdapterError(schema.message || 'The database did not answer.', 503, path, 'SOURCE_UNAVAILABLE');
+    });
   const entry = { value, expiresAt: Date.now() + SCHEMA_TTL_MS };
   schemaCache.set(dbId, entry);
   value.catch(() => {

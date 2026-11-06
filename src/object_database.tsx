@@ -599,14 +599,11 @@ async function loadAdapterState(
     return source;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    // A permanent access denial (403 no-workspace / 401) is expected and already
-    // shown in the failure pane — don't spam console.error (it fires per mount/retry).
-    const status = (err as { status?: number; statusCode?: number } | null)?.status
-      ?? (err as { statusCode?: number } | null)?.statusCode;
-    const denied = status === 403 || status === 401
-      || /accessible workspace|forbidden|unauthor|HTTP 40[13]/i.test(message);
-    if (!denied) console.error('[object-database] Load error:', message);
-    if (!opts.silent) storeApi.setState({ dbmsError: message, dbmsLoading: false });
+    // The failure pane is the report: a source that is down (a 502, a timeout, a denial) is
+    // a state of the block, not a defect of the app, and console.error fired per mount and
+    // per retry. A silent background refresh has no pane, so it leaves a debug line.
+    if (opts.silent) console.debug('[object-database] Background load failed:', message);
+    else storeApi.setState({ dbmsError: message, dbmsLoading: false });
     return null;
   }
 }
