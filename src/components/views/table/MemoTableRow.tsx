@@ -118,13 +118,13 @@ function RowControls({ pageId, canReorder, canMove, subItems, expanded, floating
     : 'absolute inset-0 justify-center';
   return (
     // Its own mousedown must not start a cell selection under it.
-    <div className={cn(`${place} flex items-center gap-0.5 opacity-0 group-hover:opacity-100`)}
+    <div className={cn(`${place} flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100`)}
       onMouseDown={e => e.stopPropagation()}>
       {showGrip && (
         <button type="button" aria-label={canMove ? "Drag to move record" : "Drag to reorder record"}
           title={canMove ? "Drag to move, or onto a row to nest it" : "Drag to reorder"}
           draggable tabIndex={-1}
-          className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 cursor-grab active:cursor-grabbing")}
+          className={cn("shrink-0 flex h-6 w-6 min-h-[24px] min-w-[24px] items-center justify-center rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--osio-focus-ring-color)] cursor-grab active:cursor-grabbing")}
           onDragStart={e => { e.stopPropagation(); e.dataTransfer.effectAllowed = 'move'; onRowDragStart?.(pageId); }}
           onDragEnd={e => { e.stopPropagation(); onRowDragEnd?.(); }}>
           <GripHandleIcon className={cn("w-[10px] h-[14px]")} />
@@ -132,7 +132,7 @@ function RowControls({ pageId, canReorder, canMove, subItems, expanded, floating
       )}
       {subItems && (
         <button type="button" aria-label={expanded ? "Collapse sub-items" : "Expand sub-items"}
-          className={cn("shrink-0 p-0.5 rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2")}
+          className={cn("shrink-0 flex h-6 w-6 min-h-[24px] min-w-[24px] items-center justify-center rounded text-ink-muted hover:text-hover-text hover:bg-hover-surface2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--osio-focus-ring-color)]")}
           onClick={e => { e.stopPropagation(); subItems.toggle(pageId); }}>
           <ChevronRight className={cn(`w-3 h-3 transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`)} />
         </button>
@@ -142,10 +142,10 @@ function RowControls({ pageId, canReorder, canMove, subItems, expanded, floating
 }
 
 /** The first cell's left padding when the row controls float in it: a lane of their
- *  own (grip 14px, chevron 16px, from 4px in), so they never cover its text. */
+ *  own (grip 24px, chevron 24px, from 4px in), so they never cover its text. */
 function floatingLanePadding(showGrip: boolean, hasSubItems: boolean): string {
-  if (showGrip && hasSubItems) return 'pl-10';
-  return showGrip || hasSubItems ? 'pl-6' : 'pl-3';
+  if (showGrip && hasSubItems) return 'pl-14';
+  return showGrip || hasSubItems ? 'pl-8' : 'pl-3';
 }
 
 /** Memoized table row that only re-renders when its own data changes. */
