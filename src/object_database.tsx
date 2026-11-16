@@ -46,6 +46,7 @@ import { TemplatesContext } from './components/topBar/templatesContext';
 import { HostAdaptersProvider } from './hooks/useHostAdapters';
 import { SubItemsProvider } from './components/views/table/subItemsContext';
 import { HttpAdapter } from './component/adapters/HttpAdapter';
+import { withRequestedDatabase } from './store/requestedDatabase';
 import { AdapterContext, AdapterProvider } from './component/adapterContext';
 import type {
   ChangeEvent,
@@ -647,75 +648,6 @@ function chooseActiveViewId(
   return currentViewId && state.views[currentViewId]
     ? currentViewId
     : Object.keys(state.views)[0] ?? null;
-}
-
-function withRequestedDatabase(
-  loaded: NotionState,
-  databaseId?: string,
-  initialView?: string | null,
-  databaseName?: string,
-): NotionState {
-  if (!databaseId || loaded.databases[databaseId]) return loaded;
-  const emptyState = createEmptyDatabaseState(databaseId, initialView, databaseName);
-  return {
-    databases: { ...loaded.databases, ...emptyState.databases },
-    // Include the starter row — dropping emptyState.pages ships a rowless table.
-    pages: { ...loaded.pages, ...emptyState.pages },
-    views: { ...loaded.views, ...emptyState.views },
-  };
-}
-
-/** Notion parity: a fresh database ships ONLY the mandatory title column, a
- *  single Table view, and one empty starter row ready to type into. */
-function createEmptyDatabaseState(databaseId: string, initialView?: string | null, databaseName?: string): NotionState {
-  const titlePropertyId = `${databaseId}-title`;
-  const tableViewId = initialView || `${databaseId}-table`;
-  const starterPageId = `${databaseId}-row-1`;
-  const now = new Date().toISOString();
-
-  return {
-    databases: {
-      [databaseId]: {
-        id: databaseId,
-        name: databaseName || 'Untitled database',
-        icon: '📋',
-        titlePropertyId,
-        properties: {
-          [titlePropertyId]: { id: titlePropertyId, name: 'Name', type: 'title' },
-        },
-      },
-    },
-    pages: {
-      [starterPageId]: {
-        id: starterPageId, databaseId,
-        properties: { [titlePropertyId]: '' }, content: [],
-        createdAt: now, updatedAt: now, createdBy: 'You', lastEditedBy: 'You',
-      },
-    },
-    views: {
-      [tableViewId]: createEmptyView(tableViewId, databaseId, 'Table', 'table', [titlePropertyId]),
-    },
-  };
-}
-
-function createEmptyView(
-  id: string,
-  databaseId: string,
-  name: string,
-  type: NotionState['views'][string]['type'],
-  visibleProperties: string[],
-): NotionState['views'][string] {
-  return {
-    id,
-    databaseId,
-    name,
-    type,
-    filters: [],
-    filterConjunction: 'and',
-    sorts: [],
-    visibleProperties,
-    settings: {},
-  };
 }
 
 export default ObjectDatabase;
