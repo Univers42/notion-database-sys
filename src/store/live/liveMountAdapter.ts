@@ -38,6 +38,7 @@ import type {
 import { bustLiveSchemaCache, getLiveSchema, listLiveRows } from './liveMountClient';
 import { livePkFilter } from './liveWriteClient';
 import { LiveAdapterWrites } from './liveAdapterWrites';
+import type { LiveQueueStorage } from './liveWriteQueue';
 import { LiveRealtime } from './liveRealtime';
 import { isPermanentDenial } from './livePoll';
 import { LIVE_MAX_LIMIT, translateLivePageQuery } from './liveQueryTranslator';
@@ -91,7 +92,8 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
    *  later load fails fast and realtime never starts (no retry storm). */
   private forbidden: AdapterError | null = null;
 
-  constructor(databaseId: string) {
+  /** `storage` is where the outbox lives; absent, the queue uses globalThis.localStorage. */
+  constructor(databaseId: string, storage?: LiveQueueStorage) {
     const ref = parseLiveDatabaseId(databaseId);
     if (!ref) {
       throw new AdapterError(`Not a live database id: ${databaseId}`, 400, databaseId, 'BAD_LIVE_ID');
@@ -102,6 +104,7 @@ export class LiveMountAdapter implements ObjectDatabaseAdapter {
       getSchema: () => getLiveSchema(ref.dbId),
       onSchemaChanged: () => bustLiveSchemaCache(ref.dbId),
       emit: (event) => this.emit(event),
+      storage,
     });
   }
 
