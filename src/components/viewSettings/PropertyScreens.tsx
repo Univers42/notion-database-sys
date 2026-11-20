@@ -89,6 +89,13 @@ const OPTION_SCREENS: Record<string, (_s: Record<string, PropertyValue>) => Opti
     ],
     activeKey: 'openPagesIn', defaultVal: 'side_peek',
   }),
+  cardClick: (_s) => ({
+    title: 'Card click', back: 'layout',
+    options: [
+      { id: 'open', label: 'Open page' }, { id: 'use_template', label: 'Use as template' },
+    ],
+    activeKey: 'cardClick', defaultVal: 'open',
+  }),
 };
 
 /** Context data passed to property sub-screen renderers. */

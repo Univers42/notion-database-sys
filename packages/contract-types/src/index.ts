@@ -581,6 +581,8 @@ export interface ViewSettings {
   /** Gallery card arrangement: a wrapping grid (default) or a single horizontally
    *  scrolling row ("carousel" — show one row, scroll sideways for more). */
   galleryLayout?: 'grid' | 'carousel';
+  /** What a gallery card click does; absent = open */
+  cardClick?: 'open' | 'use_template';
   wrapPageTitles?: boolean;
   showCalendarBy?: string;
   showCalendarAs?: 'month' | 'week';

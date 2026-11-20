@@ -134,6 +134,7 @@ function PerViewSettings({ viewType, settings, allProps, grouping, setScreen, up
               onClick={() => setScreen('groupLayout')} />
           )}
           <NavSettingRow label="Open pages in" value={settings.openPagesIn || 'Side peek'} onClick={() => setScreen('openPagesIn')} />
+          <NavSettingRow label="Card click" value={settings.cardClick === 'use_template' ? 'Use as template' : 'Open page'} onClick={() => setScreen('cardClick')} />
           <MenuDivider />
           <NavSettingRow label="Card preview" value={settings.cardPreview || 'None'} onClick={() => setScreen('cardPreview')} />
           <NavSettingRow label="Card size" value={settings.cardSize || 'Medium'} onClick={() => setScreen('cardSize')} />

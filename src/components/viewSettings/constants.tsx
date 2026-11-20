@@ -27,7 +27,7 @@ export type PanelScreen =
   | 'main' | 'layout' | 'propertyVisibility' | 'filter' | 'addFilter'
   | 'sort' | 'addSort'
   | 'loadLimit' | 'cardPreview' | 'cardSize' | 'tableStyle' | 'groupLayout' | 'showCalendarBy'
-  | 'showCalendarAs' | 'showTimelineBy' | 'openPagesIn' | 'groupBy'
+  | 'showCalendarAs' | 'showTimelineBy' | 'openPagesIn' | 'cardClick' | 'groupBy'
   | 'mapBy' | 'mapSizeBy' | 'weekStartsOn' | 'source' | 'manageSources' | 'editProperties' | 'conditionalColor'
   | 'automations'
   | 'editChart' | 'chartType' | 'chartTypeGallery' | 'saveChartAs'

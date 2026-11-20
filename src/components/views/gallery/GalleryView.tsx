@@ -13,7 +13,8 @@
 import React from 'react';
 import { useDatabaseStore, useStoreApi } from '../../../store/dbms/hardcoded/useDatabaseStore';
 import { useDefaultTemplateCreate } from '../useDefaultTemplateCreate';
-import { useCanCreateRecords } from '../../../hooks/useHostAdapters';
+import { useCanCreateRecords, useHostAdapters } from '../../../hooks/useHostAdapters';
+import { cardClickUsesTemplate } from './cardClick';
 import { useActiveViewId } from '../../../hooks/useDatabaseScope';
 import { Plus, Image } from 'lucide-react';
 import type { Page, Block } from '../../../types/database';
@@ -48,10 +49,15 @@ export function GalleryView() {
   const { groups, collapsed, toggleCollapse } = useStackedGroups(view?.id);
   const createRecord = useDefaultTemplateCreate(() => { if (database) addPage(database.id); });
   const canCreate = useCanCreateRecords();
+  const { onUseTemplate } = useHostAdapters();
 
   if (!view || !database) return null;
 
   const settings = view.settings || {};
+  const openCard = (pageId: string) => {
+    if (cardClickUsesTemplate(settings.cardClick, Boolean(onUseTemplate))) onUseTemplate?.(pageId);
+    else openPage(pageId);
+  };
   const cardSize = settings.cardSize || 'medium';
   const fitMedia = settings.fitMedia !== false;
   const showPageIcon = settings.showPageIcon !== false;
@@ -145,7 +151,7 @@ export function GalleryView() {
 
               <CardBody page={page} title={title} icon={showPageIcon ? page.icon : undefined} props={nonTitleProps}
                 databaseId={database.id} wrap={wrapContent} className="p-3" titleClass="text-sm"
-                onOpen={() => openPage(page.id)} />
+                onOpen={() => openCard(page.id)} />
             </div>
           );
   };
